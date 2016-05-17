@@ -1,27 +1,7 @@
-# kplyr
+package kplyr.examples
 
-[![Gitter](https://badges.gitter.im/holgerbrandl/kplyr.svg)](https://gitter.im/holgerbrandl/kplyr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-
-`kplyr` allows to manipulate and integrate tabular data.
-
-`kplyr` is a grammar of data manipulation and a blunt clone of the amazing [`dplyr`](https://github.com/hadley/dplyr) for [R](https://www.r-project.org/). `kplyr` is written in [Kotlin](https://kotlinlang.org/) but emphasizes on good java-interop. It mimicking the API of `dplyr` as much as possible, while carefully adding more typed constructs where possible.
-
-Installation
-------------
-
-To get started simply add it as a dependency via BinTray:
-```
-compile "de.mpicbg.scicomp:kplyr:0.1-SNAPSHOT"
-```
-
-
-
-
-Examples
---------
-
-```kotlin
 import kplyr.*
+
 
 fun main(args: Array<String>) {
 
@@ -112,22 +92,3 @@ fun main(args: Array<String>) {
     // Now we can use the kplyr result table in a strongly typed way
     sumDfEntries.first().first_name
 }
-
-
-```
-
-Support & Documentation
-----------------------
-
-`kplyr` is not yet mature, full of bugs and its API is in constant flux. Nevertheless, feel welcome to submit pull-requests or tickets, or simply get in touch via gitter (see button on top).
-
-* TBD `kplyr` Cheat Sheet
-
-
-References
-----------
-
-* [dplyr at CRAN](https://cran.r-project.org/web/packages/dplyr/index.html): Official dplyr website
-* [dplyr API docs](http://www.rdocumentation.org/packages/dplyr/functions/dplyr): Online dplyr API docs
-* https://github.com/mikera/vectorz: Fast and flexible numerical library for Java featuring N-dimensional arrays
-* [Pandas cheat sheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing)

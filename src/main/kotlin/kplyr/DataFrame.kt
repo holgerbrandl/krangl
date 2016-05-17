@@ -8,7 +8,7 @@ import kotlin.comparisons.then
 
 
 // as would also prevent us from overwriting to
-infix fun String.to(that: DataFrame.(DataFrame) -> Any) = Pair<String, DataFrame.(DataFrame) -> Any>(this, that)
+infix fun String.to(that: DataFrame.(DataFrame) -> Any?) = Pair<String, DataFrame.(DataFrame) -> Any?>(this, that)
 
 
 interface DataFrame {
@@ -20,14 +20,15 @@ interface DataFrame {
     // todo maybe as would be more readible: df.mutate({ mean(it["foo")} as "mean_foo")
     // todo Also support varargs similar to summarize: var newDf = df.mutate({"new_attr" to  ( it["test"] + it["test"] )})
 
-    fun arrange(vararg by: String): DataFrame
-    // todo also support mini-lang here with desc: df.arrange(desc("foo"))
 
+    // todo also support mini-lang in arrange(); eg: df.arrange(desc("foo"))
+    fun arrange(vararg by: String): DataFrame
 
 
     /** select() keeps only the variables you mention.*/
     fun select(which: List<Boolean>): DataFrame
 
+    // todo consider to use List<Boolean> in signature. We can not provide both because of type erasure
     fun filter(predicate: DataFrame.(DataFrame) -> BooleanArray): DataFrame
 
     fun groupBy(vararg by: String): DataFrame
@@ -47,10 +48,11 @@ interface DataFrame {
 
     operator fun get(name: String): DataCol
 
+
     // todo use invoke() style operator here (see https://kotlinlang.org/docs/reference/operator-overloading.html)
     fun row(rowIndex: Int): Map<String, Any?>
 
-    fun rows(): Iterable<Map<String, Any?>>
+    val rows: Iterable<Map<String, Any?>>
 
     fun ungroup(): DataFrame
 }
@@ -62,7 +64,7 @@ open class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
         throw UnsupportedOperationException()
     }
 
-    override fun rows() = object : Iterable<Map<String, Any?>> {
+    override val rows = object : Iterable<Map<String, Any?>> {
         override fun iterator() = object : Iterator<Map<String, Any?>> {
             var curRow = 0
 
@@ -113,14 +115,18 @@ open class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
     override val names: List<String> = cols.map { it.name }
 
 
-    override operator fun get(name: String): DataCol {
-        return cols.find({ it -> it.name == name })!!
+    override operator fun get(name: String): DataCol = try {
+        cols.first { it.name == name }
+    } catch(e: NoSuchElementException) {
+        throw NoSuchElementException("Could not find column '${name}' in dataframe")
     }
 
     // Core Verbs
 
     override fun filter(predicate: DataFrame.(DataFrame) -> BooleanArray): DataFrame {
         val indexFilter = predicate(this)
+
+        require(indexFilter.size == nrow) { "filter index has incompatible length" }
 
         return cols.map {
             // subset a colum by the predicate array
@@ -179,17 +185,32 @@ open class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 //        val mutUnwrapped = {}
 
         val newCol = when (arrifiedMutation) {
+            is DataCol -> when (arrifiedMutation) {
+                is DoubleCol -> DoubleCol(name, arrifiedMutation.values)
+                is IntCol -> IntCol(name, arrifiedMutation.values)
+                is StringCol -> StringCol(name, arrifiedMutation.values)
+                is BooleanCol -> BooleanCol(name, arrifiedMutation.values)
+                else -> throw UnsupportedOperationException()
+            }
+
+        // toodo still needed
             is DoubleArray -> DoubleCol(name, arrifiedMutation.toList())
             is IntArray -> IntCol(name, arrifiedMutation.toList())
             is BooleanArray -> BooleanCol(name, arrifiedMutation.toList())
+
         // also handle lists here
             is List<*> -> handleListErasure(name, arrifiedMutation)
 
             else -> throw UnsupportedOperationException()
         }
+
+        require(newCol.values().size == nrow) { "new column has inconsistent length" }
+        require(newCol.name != TMP_COLUMN) { "missing name in new columns" }
+
         return addColumn(newCol)
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun handleListErasure(name: String, mutation: List<*>): DataCol = when (mutation.first()) {
         is Double -> DoubleCol(name, mutation as List<Double>)
         is Int -> IntCol(name, mutation as List<Int>)
@@ -257,6 +278,7 @@ open class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
                 groupBy { it.first }.
                 map {
                     val groupRowIndices = it.value.map { it.second }.toIntArray()
+//                    @Suppress("UNCHECKED_CAST")
                     GroupIndex(GroupKey(it.key, this.row(groupRowIndices.first()) as Map<String, Any>), groupRowIndices)
                 }
 
@@ -297,9 +319,7 @@ internal class GroupedDataFrame(private val groups: Map<GroupIndex, DataFrame>) 
         throw UnsupportedOperationException()
     }
 
-    override fun rows(): Iterable<Map<String, Any>> {
-        throw UnsupportedOperationException()
-    }
+    override val rows: Iterable<Map<String, Any>> = throw UnsupportedOperationException()
 
     override fun summarize(vararg sumRules: Pair<String, DataFrame.(DataFrame) -> Any?>): DataFrame {
         throw UnsupportedOperationException()
@@ -377,8 +397,6 @@ fun ColNames.oneOf(someNames: List<String>) = Array(names.size, { someNames.cont
 
 // since this affects String namespace it might be not a good idea
 operator fun String.unaryMinus() = fun ColNames.(): List<Boolean> = names.map { it != this@unaryMinus }
-
-//val test = "dsf"
 //val another = -"dsf"
 
 /** Keeps only the variables you mention.*/
@@ -386,17 +404,22 @@ fun DataFrame.select(vararg columns: String): DataFrame = select(this.names.map 
 
 /** Keeps only the variables that match any of the given expressions. E.g. use `startsWith("foo")` to select for columns staring with 'foo'.*/
 fun DataFrame.select(vararg which: ColNames.() -> List<Boolean>): DataFrame {
-    return which.fold(Array(nrow, { true }).toList(), {
-        inital, next ->
-        inital OR next(ColNames(names))
-    }).let { this.select(it.toList()) }
+    return which.drop(1).fold(which.first()(ColNames(names)), {
+        initial, next ->
+        initial OR next(ColNames(names))
+    }).let { select(it.toList()) }
 }
 
 
-// mutate convencience
+// filter convenience
+// todo implement transmute() extension function
+//fun DataFrame.transmute(formula: DataFrame.(DataFrame) -> Any): DataFrame = throw UnsupportedOperationException()
 
-/** Mutate adds new variable and drops unused existing variables. */
-fun DataFrame.transmute(formula: DataFrame.(DataFrame) -> Any): DataFrame = throw UnsupportedOperationException()
+
+// mutate convenience
+fun DataFrame.filter(predicate: DataFrame.(DataFrame) -> List<Boolean>): DataFrame = filter({ predicate(this).toBooleanArray() })
+// // todo does not work why?
+// df.filter({ it["last_name"].asStrings().map { it!!.startsWith("Do") } })
 
 
 // summarize convenience
@@ -404,8 +427,6 @@ fun DataFrame.summarize(name: String, formula: DataFrame.(DataFrame) -> Any?): D
 
 
 // Select Utilities
-// todo make internal and just expose helper functions
-
 
 // todo implement rename() extension function
 
@@ -460,13 +481,17 @@ fun DataFrame.toKotlin(dfVarName: String, dataClassName: String = dfVarName.capi
 
 
     // create type
-    val dataSpec = cols.map { "${it.name}: ${getScalarColType(it) }" }.joinToString(", ")
-    println("""data class ${dataClassName}(${dataSpec})""")
+    val dataSpec = cols.map { "val ${it.name}: ${getScalarColType(it) }" }.joinToString(", ")
+    println("data class ${dataClassName}(${dataSpec})")
 
     // map dataframe to
-    println("""val ${dataClassName}List = rows().map { ${dataClassName}( it.values.joinToString(", ")) }.toList()""")
+    // example: val dfEntries = df.rows.map {row ->  Df(row.get("first_name") as String ) }
 
+    val attrMapping = cols.map { """ row["${it.name}"] as ${getScalarColType(it)}""" }.joinToString(", ")
+
+    println("val ${dfVarName}Entries = ${dfVarName}.rows.map { row -> ${dataClassName}(${attrMapping}) }")
 }
+
 
 internal fun getScalarColType(it: DataCol): String = when (it) {
     is DoubleCol -> "Double"
