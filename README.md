@@ -23,6 +23,7 @@ Examples
 ```kotlin
 import kplyr.*
 
+
 fun main(args: Array<String>) {
 
     // Create data-frame in memory
@@ -97,23 +98,19 @@ fun main(args: Array<String>) {
     val sumDF = groupedDf.summarize("mean_weight", { it["weight"].mean(remNA = true) })
 
     // Optionally ungroup the data
+//    println("summary is:\n ${sumDF}")
     sumDF.ungroup()
 
     // generate object bindings for kotlin.
     // Unfortunately the syntax is a bit odd since we can not access the variable name by reflection
     sumDF.toKotlin("sumDF")
     // This will auto-generate and print the following data to stdout:
-    data class SumDf(val first_name: String, val last_name: String, val age: Int, val weight: Int)
+    data class SumDF(val age: Int, val mean_weight: Double)
+    val sumDFEntries = sumDF.rows.map { row -> SumDF( row["age"] as Int,  row["mean_weight"] as Double) }
 
-    val sumDfEntries = df.rows.map {
-        row ->
-        SumDf(row["first_name"] as String, row["last_name"] as String, row["age"] as Int, row["weight"] as Int)
-    }
     // Now we can use the kplyr result table in a strongly typed way
-    sumDfEntries.first().first_name
+    sumDFEntries.first().mean_weight
 }
-
-
 ```
 
 Support & Documentation

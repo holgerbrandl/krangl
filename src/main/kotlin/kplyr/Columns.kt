@@ -183,5 +183,11 @@ fun DataCol.mean(remNA: Boolean = false): Double = when (this) {
     else -> throw UnsupportedOperationException()
 }
 
+fun DataCol.cumsum(remNA: Boolean = false): Double = when (this) {
+    is DoubleCol -> values.filterNotNull().mean()
+    is IntCol -> values.filterNotNull().mean()
+    else -> throw UnsupportedOperationException()
+}
+
 
 fun DataCol.median(remNA: Boolean = false): Double? = throw UnsupportedOperationException()

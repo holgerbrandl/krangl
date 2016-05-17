@@ -157,19 +157,20 @@ fun DataFrame.glimpse(sep: String = "\t") {
 /** Provides a code to convert  a dataframe to a strongly typed list of kotlin data-class instances.*/
 fun DataFrame.toKotlin(dfVarName: String, dataClassName: String = dfVarName.capitalize()) {
 
-    if (this !is SimpleDataFrame) {
-        return
-    }
+    var df = this.ungroup() as SimpleDataFrame
+//    if (this is GroupedDataFrame) {
+//        df = df.ungroup()
+//    }
 
 
     // create type
-    val dataSpec = cols.map { "val ${it.name}: ${getScalarColType(it) }" }.joinToString(", ")
+    val dataSpec = df.cols.map { "val ${it.name}: ${getScalarColType(it) }" }.joinToString(", ")
     println("data class ${dataClassName}(${dataSpec})")
 
     // map dataframe to
     // example: val dfEntries = df.rows.map {row ->  Df(row.get("first_name") as String ) }
 
-    val attrMapping = cols.map { """ row["${it.name}"] as ${getScalarColType(it)}""" }.joinToString(", ")
+    val attrMapping = df.cols.map { """ row["${it.name}"] as ${getScalarColType(it)}""" }.joinToString(", ")
 
     println("val ${dfVarName}Entries = ${dfVarName}.rows.map { row -> ${dataClassName}(${attrMapping}) }")
 }

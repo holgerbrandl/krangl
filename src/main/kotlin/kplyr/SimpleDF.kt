@@ -245,7 +245,7 @@ open class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
         }
 
 
-        return GroupedDataFrame(by.toList(), groupIndices.map { DataGroup(it, extractGroupByIndex(it, this)) })
+        return GroupedDataFrame(by.toList(), groupIndices.map { DataGroup(it.groupHash, extractGroupByIndex(it, this)) })
     }
 
 
