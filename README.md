@@ -2,9 +2,9 @@
 
 [![Gitter](https://badges.gitter.im/holgerbrandl/kplyr.svg)](https://gitter.im/holgerbrandl/kplyr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-`kplyr` allows to manipulate and combine tabular data.
+`kplyr` allows to manipulate and integrate tabular data.
 
-`kplyr` is a grammar of data manipulation and a blunt clone of the amazing [`dplyr`](https://github.com/hadley/dplyr) for [R](https://www.r-project.org/). `kplyr` is written in [Kotlin](https://kotlinlang.org/) emphasizes on good java-interop and mimics the API of `dplyr` as much as possible while using a more typed constructs where possible.
+`kplyr` is a grammar of data manipulation and a blunt clone of the amazing [`dplyr`](https://github.com/hadley/dplyr) for [R](https://www.r-project.org/). `kplyr` is written in [Kotlin](https://kotlinlang.org/) but emphasizes on good java-interop. It mimicking the API of `dplyr` as much as possible, while carefully adding more typed constructs where possible.
 
 Installation
 ------------
