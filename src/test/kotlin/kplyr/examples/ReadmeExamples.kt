@@ -41,7 +41,7 @@ fun main(args: Array<String>) {
     df.mutate("with_anz", { it["first_name"].asStrings().map { it!!.contains("anz") } })
 
     // Note: kplyr is using 'null' as missing value, and provides convenience methods to process non-NA bits
-    df.mutate("first_name_restored", { it["full_name"].asStrings().rmNA { split(" ".toRegex(), 2)[1] } })
+    df.mutate("first_name_restored", { it["full_name"].asStrings().ignoreNA { split(" ".toRegex(), 2)[1] } })
 
 
     // Resort with arrange

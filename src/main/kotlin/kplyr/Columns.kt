@@ -156,7 +156,7 @@ fun <T> DataCol.data(): List<T?> = this.values() as List<T>
  */
 fun <T> DataCol.dataNA(expr: T.() -> Any?): List<Any?> = (this.values() as List<T>).map { if (it != null) expr(it) else null }.toList()
 
-fun <T> List<T?>.rmNA(expr: T.() -> Any?): List<Any?> = map { if (it != null) expr(it) else null }.toList()
+fun <T> List<T?>.ignoreNA(expr: T.() -> Any?): List<Any?> = map { if (it != null) expr(it) else null }.toList()
 
 
 //
