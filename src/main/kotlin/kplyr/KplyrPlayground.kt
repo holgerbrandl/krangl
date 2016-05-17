@@ -1,39 +1,60 @@
-package kutils.kplyr
+package kplyr
 
 
 fun main(args: Array<String>) {
-    val df = SimpleDataFrame(DoubleCol("test", listOf(2.toDouble(), 3.toDouble(), 1.toDouble()).toDoubleArray()))
+    // create data-frame in memory
+    val df = SimpleDataFrame(DoubleCol("test", listOf(2.toDouble(), 3.toDouble(), 1.toDouble())))
 
-    var newDf = df.mutate("new_attr", { it["test"] + it["test"] })
-    // also support varargs with
-//    var newDf = df.mutate({"new_attr" to  ( it["test"] + it["test"] )})
+    // or from csv
+    val otherDF = fromCSV("path/to/file")
 
-    // this works
-//    val function: (df:DataFrame) -> List<String> = { listOf<String>("test") }
-//    newDf = newDf.mutate("category", function)
+    // print rows
+    df                              // with default printing options
+    df.print(colNames = false)      // with custom  printing options
 
-    newDf = newDf.mutate("category", { "test" })
-//    newDf.print()
-    newDf.glimpse()
-
-    newDf = newDf.arrange("new_attr")
-
-    newDf.print()
-
-    newDf = newDf.filter({ it["test"] eq 1 })
+    // print structure
+    df.glimpse()
 
 
-//            .groupBy().mutate(it.grp.)
+    // add columns with mutate
+    var mutDf = df.mutate("new_attr", { it["test"] + it["test"] })
+    df.mutate("order_name", { "pos" + rowNumber() })
+    mutDf = mutDf.mutate("category", { 3 })
 
-    val groupedDf = newDf.groupBy("new_attr")
+    // or access raw column data without extension function for more custom operations
 
-    groupedDf.arrange("test").summarize("mean_val", { (it["test"] as DoubleCol).values.sum() })
+    mutDf.mutate("cust_value", { (it["test"] as DoubleCol).values.first() })
 
-//      var df = DataFrame.fromTsv()
-//    var df = DataFrame(listOf(*cols, DataCol(name, rows.map { formula(it) })))
-//
-//    val df2 = df.mutate("sdf", {it["sdfd"] + it["sdfdf"]);
-//    (("x"->).arrange(desc("baum"))
 
+    // resort with arrange
+    mutDf = mutDf.arrange("new_attr")
+
+
+    // subset columns with select
+    mutDf.select("test", "new_attr")    // positive selection
+    mutDf.select(-"test", -"category")  // negative selection
+    mutDf.select({ startsWith("te") })    // selector mini-language
+
+
+    // subset rows with filter
+    mutDf.filter { it["test"] gt 2 }
+    mutDf.filter { it["category"] eq "A" }
+
+    // summarize
+    mutDf.summarize("mean_test" to { it["new_attr"].max() })
+    mutDf.summarize("mean_test" to { it["new_attr"].max() }, "naha" to { it["new_attr"].max() }).print()
+
+
+    // grouped operations
+    val groupedDf: DataFrame = mutDf.groupBy("new_attr", "category")
+    groupedDf.summarize("mean_val", { it["test"].mean(remNA = true) })
+
+    val sumDf = groupedDf.ungroup()
+
+    // generate object bindings for kotlin
+    sumDf.toKotlin("groupedDF")
 }
+
+
+
 

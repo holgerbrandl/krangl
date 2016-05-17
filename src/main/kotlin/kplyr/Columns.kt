@@ -1,8 +1,7 @@
-package kutils.kplyr
+package kplyr
 
-/**
- * Created by brandl on 5/16/16.
- */
+import kotlin.comparisons.nullsLast
+
 /**
 Releated projects
 ----------------
@@ -12,85 +11,74 @@ https://github.com/mikera/vectorz
 
  */
 
-//abstract class DataCol(name:String, map: List<DataCell>) {}
+// todo internalize these bits in here as much as possible
+
 abstract class DataCol(val name: String) {
-//    fun setName(name: String) = {
-//        this.name = name
-//    }
 
-    abstract infix operator fun plus(dataCol: DataCol): Any
+    open infix operator fun plus(dataCol: DataCol): Any = throw UnsupportedOperationException()
 
+    fun colHash(): IntArray = values().
+            // convert nulls to odd number for hashing
+            map({ it ?: Int.MIN_VALUE }).
+            // hash
+            map { it.hashCode() }.toIntArray()
 
-    abstract fun colHash(): IntArray
+    internal abstract fun values(): List<*>
 
     abstract val length: Int
 
-//    abstract fun colData() : Any
+    override fun toString(): String {
+        return "$name [${getScalarColType(this)}]"
+    }
+
 }
 
 // https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double-array/index.html
 // most methods are implemented it in kotlin.collections.plus
-class DoubleCol(name: String, val values: DoubleArray) : DataCol(name) {
+class DoubleCol(name: String, val values: List<Double?>) : DataCol(name) {
+    override fun values(): List<*> = values
 
     override val length = values.size
 
-    override fun colHash(): IntArray = values.map { it.hashCode() }.toIntArray()
-
     //        return values + values //wrong because it concatenates list and does not plus them
-    override fun plus(dataCol: DataCol): DoubleArray = when (dataCol) {
-        is DoubleCol -> DoubleArray(values.size, { values[it] }).
-                apply { mapIndexed { index, rowVal -> rowVal + dataCol.values[index] } }
+    override fun plus(dataCol: DataCol): List<Double?> = when (dataCol) {
+        is DoubleCol -> Array(values.size, { values[it] }).toList().
+                apply { mapIndexed { index, rowVal -> naAwarePlus(rowVal, dataCol.values[index]) } }
         else -> throw UnsupportedOperationException()
     }
 
-//    constructor(name:String, val values: Array<Float>) : this(name, DoubleArray())
+    private fun naAwarePlus(first: Double?, second: Double?): Double? {
+        return if (first == null || second == null) null else first + second
+    }
 }
 
-class IntCol(name: String, val values: IntArray) : DataCol(name) {
+class IntCol(name: String, val values: List<Int?>) : DataCol(name) {
+    override fun values(): List<*> = values
 
     override val length = values.size
 
-    override fun colHash(): IntArray = values.map { it.hashCode() }.toIntArray()
-
-    //        return values + values //wrong because it concatenates list and does not plus them
-    override fun plus(dataCol: DataCol): IntArray = when (dataCol) {
-        is IntCol -> IntArray(values.size, { values[it] }).
-                apply { mapIndexed { index, rowVal -> rowVal + dataCol.values[index] } }
+    override fun plus(dataCol: DataCol): List<Int?> = when (dataCol) {
+        is IntCol -> Array(values.size, { values[it] }).
+                apply { mapIndexed { index, rowVal -> naAwarePlus(rowVal, dataCol.values[index]) } }.toList()
         else -> throw UnsupportedOperationException()
     }
 
-//    constructor(name:String, val values: Array<Float>) : this(name, IntArray())
-}
-
-class BooleanCol(name: String, val values: BooleanArray) : DataCol(name) {
-
-
-    override val length = values.size
-
-
-    override fun plus(dataCol: DataCol): BooleanArray {
-        // todo maybe plus should throw an excption for boolean columns instead of doing a counterintuitive AND??
-
-        //        return values + values //wrong because it concatenates list and does not plus them
-
-        return when (dataCol) {
-            is BooleanCol -> BooleanArray(values.size, { values[it] }).
-                    apply { mapIndexed { index, rowVal -> rowVal && dataCol.values[index] } }
-            else -> throw UnsupportedOperationException()
-        }
+    private fun naAwarePlus(first: Int?, second: Int?): Int? {
+        return if (first == null || second == null) null else first + second
     }
-
-    override fun colHash(): IntArray = values.map { it.hashCode() }.toIntArray()
-//    constructor(name:String, val values: Array<Float>) : this(name, BooleanArray())
 }
 
-class StringCol(name: String, val values: List<String>) : DataCol(name) {
+class BooleanCol(name: String, val values: List<Boolean?>) : DataCol(name) {
+    override fun values(): List<*> = values
 
     override val length = values.size
-//    override fun colData() = values
+}
 
-    override fun colHash(): IntArray = values.map { it.hashCode() }.toIntArray()
-//    constructor(name:String, val values: Array<Float>) : this(name, DoubleArray())
+class StringCol(name: String, val values: List<String?>) : DataCol(name) {
+    override fun values(): List<*> = values
+
+    override val length = values.size
+
 
     override fun plus(dataCol: DataCol): List<String> {
         if (dataCol is StringCol) {
@@ -102,35 +90,56 @@ class StringCol(name: String, val values: List<String>) : DataCol(name) {
 }
 
 // scalar operations
-infix operator fun DoubleArray.plus(i: Int): DoubleArray = map { it + i }.toDoubleArray()
-
-infix operator fun DoubleArray.minus(i: Int): DoubleArray = map { it + i }.toDoubleArray()
+// remove because we must work with lists here
+//infix operator fun DoubleArray.plus(i: Int): DoubleArray = map { it + i }.toDoubleArray()
+fun DoubleArray.mean(): Double = sum() / size
 
 
 // vectorized boolean operators
-infix fun BooleanArray.AND(other: BooleanArray): BooleanArray = mapIndexed { index, first -> first && other[index] }.toBooleanArray()
+infix fun List<Boolean>.AND(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first && other[index] }.toList<Boolean>()
 
-infix fun BooleanArray.OR(other: BooleanArray): BooleanArray = mapIndexed { index, first -> first || other[index] }.toBooleanArray()
-infix fun BooleanArray.XOR(other: BooleanArray): BooleanArray = mapIndexed { index, first -> first == other[index] }.toBooleanArray()
+infix fun List<Boolean>.OR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first || other[index] }.toList<Boolean>()
+infix fun List<Boolean>.XOR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first == other[index] }.toList<Boolean>()
 
-infix fun DataCol.gt(i: Int): BooleanArray = when (this) {
-    is DoubleCol -> this.values.map({ it > i }).toBooleanArray()
-    is IntCol -> this.values.map({ it > i }).toBooleanArray()
+infix fun DataCol.gt(i: Number) = when (this) {
+    is DoubleCol -> this.values.map { nullsLast<Double>().compare(it, i.toDouble()) > 0 }
+    is IntCol -> this.values.map { nullsLast<Double>().compare(it!!.toDouble(), i.toDouble()) > 0 }
     else -> throw UnsupportedOperationException()
-}
+}.toBooleanArray()
 
-infix fun DataCol.lt(i: Int): BooleanArray = when (this) {
-    is DoubleCol -> this.values.map({ it < i }).toBooleanArray()
-    is IntCol -> this.values.map({ it < i }).toBooleanArray()
-    else -> throw UnsupportedOperationException()
-}
+infix fun DataCol.lt(i: Int) = gt(i).map { !it }.toBooleanArray()
 
 infix fun DataCol.eq(i: Any): BooleanArray = when (this) {
-    is DoubleCol -> this.values.map({ it == i }).toBooleanArray()
-    is IntCol -> this.values.map({ it == i }).toBooleanArray()
-    is StringCol -> this.values.map({ it == i }).toBooleanArray()
+    is DoubleCol -> this.values.map({ it == i })
+    is IntCol -> this.values.map({ it == i })
+    is BooleanCol -> this.values.map({ it == i })
+    is StringCol -> this.values.map({ it == i })
+    else -> throw UnsupportedOperationException()
+}.toBooleanArray()
+
+
+// Arithmetic Utilities
+fun DataCol.max(): Double = when (this) {
+    is DoubleCol -> values.filterNotNull().max()!!
+    is IntCol -> values.filterNotNull().max()!!.toDouble()
     else -> throw UnsupportedOperationException()
 }
+
+// todo implement remNA
+fun DataCol.mean(remNA: Boolean = false): Double = when (this) {
+    is DoubleCol -> values.filterNotNull().toDoubleArray().mean()
+    is DoubleCol -> values.filterNotNull().toDoubleArray().mean()
+    else -> throw UnsupportedOperationException()
+}
+
+
+fun DataCol.min(): Double = when (this) {
+    is DoubleCol -> values.filterNotNull().min()!!
+    is IntCol -> values.filterNotNull().min()!!.toDouble()
+    else -> throw UnsupportedOperationException()
+}
+
+fun DataCol.median(remNA: Boolean = false): Double? = throw UnsupportedOperationException()
 
 
 //infix operator fun DoubleArray.plus(elements: DoubleArray): DoubleArray {
