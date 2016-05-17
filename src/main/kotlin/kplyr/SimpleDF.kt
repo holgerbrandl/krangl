@@ -6,7 +6,6 @@ import kotlin.comparisons.then
 
 open class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 
-
     override val rows = object : Iterable<Map<String, Any?>> {
         override fun iterator() = object : Iterator<Map<String, Any?>> {
             var curRow = 0
@@ -15,8 +14,8 @@ open class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 
             override fun next(): Map<String, Any?> = row(curRow++)
         }
-
     }
+
 
     override fun select(which: List<Boolean>): DataFrame = SimpleDataFrame(cols.filterIndexed { index, dataCol -> which[index] })
 

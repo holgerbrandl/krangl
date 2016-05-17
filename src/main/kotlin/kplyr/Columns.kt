@@ -2,20 +2,12 @@ package kplyr
 
 import kotlin.comparisons.nullsLast
 
-/**
- */
 
 // todo internalize these bits in here as much as possible
 
 abstract class DataCol(val name: String) {
 
     open infix operator fun plus(something: Any): DataCol = throw UnsupportedOperationException()
-
-    fun colHash(): IntArray = values().
-            // convert nulls to odd number for hashing
-            map({ it ?: Int.MIN_VALUE }).
-            // hash
-            map { it.hashCode() }.toIntArray()
 
     internal abstract fun values(): List<*>
 
@@ -24,7 +16,6 @@ abstract class DataCol(val name: String) {
     override fun toString(): String {
         return "$name [${getScalarColType(this)}]"
     }
-
 }
 
 internal val TMP_COLUMN = "___tmp"
@@ -33,6 +24,7 @@ internal val TMP_COLUMN = "___tmp"
 // https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double-array/index.html
 // most methods are implemented it in kotlin.collections.plus
 class DoubleCol(name: String, val values: List<Double?>) : DataCol(name) {
+
     override fun values(): List<*> = values
 
     override val length = values.size
@@ -53,6 +45,7 @@ class DoubleCol(name: String, val values: List<Double?>) : DataCol(name) {
 }
 
 class IntCol(name: String, val values: List<Int?>) : DataCol(name) {
+
     override fun values(): List<*> = values
 
     override val length = values.size
@@ -72,6 +65,7 @@ class IntCol(name: String, val values: List<Int?>) : DataCol(name) {
 }
 
 class AnyCol<T>(name: String, val values: List<T?>) : DataCol(name) {
+
     override fun values(): List<T?> = values
 
     override val length = values.size
@@ -83,6 +77,7 @@ class AnyCol<T>(name: String, val values: List<T?>) : DataCol(name) {
     }
 }
 
+
 class BooleanCol(name: String, val values: List<Boolean?>) : DataCol(name) {
     override fun values(): List<*> = values
 
@@ -90,6 +85,7 @@ class BooleanCol(name: String, val values: List<Boolean?>) : DataCol(name) {
 }
 
 class StringCol(name: String, val values: List<String?>) : DataCol(name) {
+
     override fun values(): List<*> = values
 
     override val length = values.size
@@ -115,10 +111,10 @@ fun List<Number>.mean(): Double = map { it.toDouble() }.sum() / size
 // Vectorized boolean operators for DataColumn
 //
 
-infix fun List<Boolean>.AND(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first && other[index] }.toList<Boolean>()
+infix fun List<Boolean>.AND(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first && other[index] }
+infix fun List<Boolean>.OR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first || other[index] }
+infix fun List<Boolean>.XOR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first == other[index] }
 
-infix fun List<Boolean>.OR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first || other[index] }.toList<Boolean>()
-infix fun List<Boolean>.XOR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first == other[index] }.toList<Boolean>()
 
 infix fun DataCol.gt(i: Number) = when (this) {
     is DoubleCol -> this.values.map { nullsLast<Double>().compare(it, i.toDouble()) > 0 }
@@ -183,7 +179,7 @@ fun DataCol.mean(remNA: Boolean = false): Double = when (this) {
     else -> throw UnsupportedOperationException()
 }
 
-fun DataCol.cumsum(remNA: Boolean = false): Double = when (this) {
+fun DataCol.cumSum(remNA: Boolean = false): Double = when (this) {
     is DoubleCol -> values.filterNotNull().mean()
     is IntCol -> values.filterNotNull().mean()
     else -> throw UnsupportedOperationException()

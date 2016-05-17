@@ -67,7 +67,7 @@ fun main(args: Array<String>) {
     df.summarize("mean_age" to { it["age"].mean(true) })
     // ... multiple summary statistics
     df.summarize(
-            "min_age" to { it["age"].max() },
+            "min_age" to { it["age"].min() },
             "max_age" to { it["age"].max() }
     )
 
@@ -77,13 +77,12 @@ fun main(args: Array<String>) {
     val sumDF = groupedDf.summarize("mean_weight", { it["weight"].mean(remNA = true) })
 
     // Optionally ungroup the data
-//    println("summary is:\n ${sumDF}")
     sumDF.ungroup()
 
     // generate object bindings for kotlin.
     // Unfortunately the syntax is a bit odd since we can not access the variable name by reflection
     sumDF.toKotlin("sumDF")
-    // This will auto-generate and print the following data to stdout:
+    // This will auto-generate and print the following conversion code to stdout:
     data class SumDF(val age: Int, val mean_weight: Double)
 
     val sumDFEntries = sumDF.rows.map { row -> SumDF(row["age"] as Int, row["mean_weight"] as Double) }

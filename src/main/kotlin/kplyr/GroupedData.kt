@@ -55,6 +55,7 @@ internal class GroupedDataFrame(private val by: List<String>, private val groups
         }.rbind().groupBy(*by.toTypedArray())
     }
 
+    // fixme get rid of rbind.groupby anti-pattern in most core-verbs
 
     override fun select(which: List<Boolean>): DataFrame {
         return groups.map { it.df.select(which) }.rbind().groupBy(*by.toTypedArray())
