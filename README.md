@@ -24,7 +24,7 @@ Examples
 fun main(args : Array<String>) {
 
     // create data-frame in memory
-    val df = SimpleDataFrame(DoubleCol("test", listOf(2.toDouble(), 3.toDouble(), 1.toDouble())))
+    val df = SimpleDataFrame(IntCol("test", listOf(1,2,3)))
 
     // or from csv
     val otherDF = fromCSV("path/to/file")
