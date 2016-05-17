@@ -12,14 +12,14 @@ fun main(args: Array<String>) {
             IntCol("weight", listOf(55, 88, 82))
     )
 
-    df.select(-"weight", -"age")  // negative selection
-
-    df.toKotlin("df")
-
-    // generated code here
-    data class Df(val first_name: String, val last_name: String, val age: Int, val weight: Int)
-
-    val dfEntries = df.rows.map { row -> Df(row["first_name"] as String, row["last_name"] as String, row["age"] as Int, row["weight"] as Int) }
+//    df.select(-"weight", -"age")  // negative selection
+//
+//    df.toKotlin("df")
+//
+//    // generated code here
+//    data class Df(val first_name: String, val last_name: String, val age: Int, val weight: Int)
+//
+//    val dfEntries = df.rows.map { row -> Df(row["first_name"] as String, row["last_name"] as String, row["age"] as Int, row["weight"] as Int) }
 
 
 
@@ -35,7 +35,7 @@ fun main(args: Array<String>) {
 
 
 //    // grouped operations
-//    val groupedDf: DataFrame = df.groupBy("new_attr", "category")
+    val groupedDf: DataFrame = df.groupBy("age")
 //    groupedDf.summarize("mean_val", { it["test"].mean(remNA = true) })
 //
 //    val sumDf = groupedDf.ungroup()
