@@ -80,7 +80,6 @@ fun main(args: Array<String>) {
     )
 
     // Optionally ungroup the data
-    println("summary is:")
     sumDF.ungroup().print()
 
     // generate object bindings for kotlin.

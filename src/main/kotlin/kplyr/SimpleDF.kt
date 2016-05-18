@@ -189,10 +189,13 @@ open class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 
 
         fun extractGroup(col: DataCol, groupIndex: GroupIndex): DataCol = when (col) {
-            is DoubleCol -> DoubleCol(col.name, col.values.filterIndexed { index, d -> groupIndex.rowIndices.contains(index) })
-            is IntCol -> IntCol(col.name, col.values.filterIndexed { index, d -> groupIndex.rowIndices.contains(index) })
-            is BooleanCol -> BooleanCol(col.name, col.values.filterIndexed { index, d -> groupIndex.rowIndices.contains(index) })
-            is StringCol -> StringCol(col.name, col.values.filterIndexed { index, d -> groupIndex.rowIndices.contains(index) })
+        // too inefficient since it requires full loop over all values
+//            is DoubleCol -> DoubleCol(col.name, col.values.filterIndexed { index, d -> groupIndex.rowIndices.contains(index) })
+        // reverse order here and create new array
+            is DoubleCol -> DoubleCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }).toList())
+            is IntCol -> IntCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }).toList())
+            is BooleanCol -> BooleanCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }).toList())
+            is StringCol -> StringCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }).toList())
             else -> throw UnsupportedOperationException()
         }
 

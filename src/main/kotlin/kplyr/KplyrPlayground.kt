@@ -2,8 +2,24 @@
 
 package kplyr
 
+import kotlin.system.exitProcess
+
 
 fun main(args: Array<String>) {
+
+    val msleep = fromCSV("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/msleep.csv")
+    msleep.glimpse()
+    msleep.print()
+
+
+    msleep.groupBy("order").summarize(
+            "mean_weight" to { it["bodywt"].mean(true) }
+    ).filter({ it["mean_weight"] gt 20 }).print()
+
+
+    exitProcess(0)
+
+
     // create data-frame in memory
     var df: DataFrame = SimpleDataFrame(
             StringCol("first_name", listOf("Max", "Franz", "Horst")),

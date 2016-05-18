@@ -128,8 +128,11 @@ Support & Documentation
 References & Related Projects
 ----------
 
+`kplyr` was inspired by
 * [dplyr at CRAN](https://cran.r-project.org/web/packages/dplyr/index.html): Official dplyr website
 * [dplyr API docs](http://www.rdocumentation.org/packages/dplyr/functions/dplyr): Online dplyr API docs
-* https://github.com/mikera/vectorz: Fast and flexible numerical library for Java featuring N-dimensional arrays
 * [Pandas cheat sheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing)
+
+Related Projects:
+* https://github.com/mikera/vectorz: Fast and flexible numerical library for Java featuring N-dimensional arrays
 * https://github.com/kyonifer/golem: A scientific library for Kotlin.

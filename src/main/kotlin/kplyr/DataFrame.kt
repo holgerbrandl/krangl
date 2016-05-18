@@ -125,18 +125,25 @@ fun DataFrame.rowNumber() = IntCol(TMP_COLUMN, (1..nrow).asSequence().toList())
 fun DataFrame.print(colNames: Boolean = true, sep: String = "\t") = println(asString(colNames, sep))
 
 
-fun DataFrame.asString(colNames: Boolean = true, sep: String = "\t"): String {
+fun DataFrame.asString(colNames: Boolean = true, sep: String = "\t", maxRows: Int = 100): String {
+
+    var df = this
 
     if (this !is SimpleDataFrame) {
-        // todo add support for grouped data here
+        df = this.ungroup() as SimpleDataFrame
+    }
+
+    // needed for smartcase
+    if (df !is SimpleDataFrame) {
         throw UnsupportedOperationException()
     }
 
+
     val sb = StringBuilder()
 
-    if (colNames) this.cols.map { it.name }.joinToString(sep).apply { sb.appendln(this) }
+    if (colNames) df.cols.map { it.name }.joinToString(sep).apply { sb.appendln(this) }
 
-    (1..nrow).map { row(it - 1).values.joinToString(sep).apply { sb.appendln(this) } }
+    (1..Math.min(nrow, maxRows)).map { df.row(it - 1).values.joinToString(sep).apply { sb.appendln(this) } }
 
     return sb.toString()
 }

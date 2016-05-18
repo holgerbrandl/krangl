@@ -15,10 +15,12 @@ import java.io.FileReader
 // todo mabye these factory method should be part of DataFrame namespace
 fun fromCSV(file: String) = fromCSV(File(file))
 
-fun fromCSV(file: File): DataFrame {
+fun fromTSV(file: String) = fromCSV(File(file), csvFormat = CSVFormat.TDF)
+
+fun fromCSV(file: File, csvFormat: CSVFormat = CSVFormat.RFC4180): DataFrame {
 
     val fileReader = FileReader(file)
-    val csvParser = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(fileReader)
+    val csvParser = csvFormat.withFirstRecordAsHeader().parse(fileReader)
     val records = csvParser.iterator().asSequence().toList()
 
 
