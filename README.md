@@ -55,14 +55,14 @@ fun main(args: Array<String>) {
     // Note: kplyr dataframes are immutable so we need to (re)assign results to preserve changes.
     df = df.mutate("full_name", { it["first_name"] + " " + it["last_name"] })
 
-    // Also feel free to mix types here since kplyr overloads to arithmetic operators like + for dataframe-columns
-    df.mutate("user_id", { "id" + rowNumber() + it["last_name"] })
+    // Also feel free to mix types here since kplyr overloads  arithmetic operators like + for dataframe-columns
+    df.mutate("user_id", { it["last_name"] + "_id" + rowNumber() })
 
     // Create new attributes with string operations like matching, splitting or extraction.
     df.mutate("with_anz", { it["first_name"].asStrings().map { it!!.contains("anz") } })
 
     // Note: kplyr is using 'null' as missing value, and provides convenience methods to process non-NA bits
-    df.mutate("first_name_restored", { it["full_name"].asStrings().rmNA { split(" ".toRegex(), 2)[1] } })
+    df.mutate("first_name_restored", { it["full_name"].asStrings().ignoreNA { split(" ".toRegex(), 2)[1] } })
 
 
     // Resort with arrange
@@ -88,25 +88,29 @@ fun main(args: Array<String>) {
     df.summarize("mean_age" to { it["age"].mean(true) })
     // ... multiple summary statistics
     df.summarize(
-            "min_age" to { it["age"].max() },
+            "min_age" to { it["age"].min() },
             "max_age" to { it["age"].max() }
     )
 
 
     // Grouped operations
     val groupedDf: DataFrame = df.groupBy("age") // or provide multiple grouping attributes with varargs
-    val sumDF = groupedDf.summarize("mean_weight", { it["weight"].mean(remNA = true) })
+    val sumDF = groupedDf.summarize(
+            "mean_weight" to { it["weight"].mean(remNA = true) },
+            "num_persons" to { nrow }
+    )
 
     // Optionally ungroup the data
-//    println("summary is:\n ${sumDF}")
-    sumDF.ungroup()
+    println("summary is:")
+    sumDF.ungroup().print()
 
     // generate object bindings for kotlin.
     // Unfortunately the syntax is a bit odd since we can not access the variable name by reflection
     sumDF.toKotlin("sumDF")
-    // This will auto-generate and print the following data to stdout:
-    data class SumDF(val age: Int, val mean_weight: Double)
-    val sumDFEntries = sumDF.rows.map { row -> SumDF( row["age"] as Int,  row["mean_weight"] as Double) }
+    // This will generate and print the following conversion code:
+    data class SumDF(val age: Int, val mean_weight: Double, val num_persons: Int)
+
+    val sumDFEntries = sumDF.rows.map { row -> SumDF(row["age"] as Int, row["mean_weight"] as Double, row["num_persons"] as Int) }
 
     // Now we can use the kplyr result table in a strongly typed way
     sumDFEntries.first().mean_weight
@@ -121,10 +125,11 @@ Support & Documentation
 * TBD `kplyr` Cheat Sheet
 
 
-References
+References & Related Projects
 ----------
 
 * [dplyr at CRAN](https://cran.r-project.org/web/packages/dplyr/index.html): Official dplyr website
 * [dplyr API docs](http://www.rdocumentation.org/packages/dplyr/functions/dplyr): Online dplyr API docs
 * https://github.com/mikera/vectorz: Fast and flexible numerical library for Java featuring N-dimensional arrays
 * [Pandas cheat sheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing)
+* https://github.com/kyonifer/golem: A scientific library for Kotlin.

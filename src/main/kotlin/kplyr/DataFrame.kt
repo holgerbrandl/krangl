@@ -53,17 +53,8 @@ interface DataFrame {
 }
 
 
-
-// Extension function that mimic othe major elements of the dplyr API
-
-fun DataFrame.head(numRows: Int = 5) = filter { IntCol("dummy", rowNumber()) lt numRows }
-fun DataFrame.tail(numRows: Int = 5) = filter { IntCol("dummy", rowNumber()) gt (nrow - numRows) }
-fun DataFrame.rowNumber() = (1..nrow).asSequence().toList()
-// supporting n() here seems pointless since nrow will also work in them mutate context
-
-
 ////////////////////////////////////////////////
-// select API
+// select() helpers and API
 ////////////////////////////////////////////////
 
 class ColNames(val names: List<String>)
@@ -93,7 +84,12 @@ fun DataFrame.select(vararg which: ColNames.() -> List<Boolean>): DataFrame {
 }
 
 
-// filter convenience
+// todo implement rename() extension function
+
+////////////////////////////////////////////////
+// filter() convenience
+////////////////////////////////////////////////
+
 // todo implement transmute() extension function
 //fun DataFrame.transmute(formula: DataFrame.(DataFrame) -> Any): DataFrame = throw UnsupportedOperationException()
 
@@ -104,16 +100,26 @@ fun DataFrame.filter(predicate: DataFrame.(DataFrame) -> List<Boolean>): DataFra
 // df.filter({ it["last_name"].asStrings().map { it!!.startsWith("Do") } })
 
 
-// summarize convenience
+////////////////////////////////////////////////
+// summarize() convenience
+////////////////////////////////////////////////
+
 fun DataFrame.summarize(name: String, formula: DataFrame.(DataFrame) -> Any?): DataFrame = summarize(name to formula)
 
 
-// Select Utilities
-
-// todo implement rename() extension function
-
-
+////////////////////////////////////////////////
 // General Utilities
+////////////////////////////////////////////////
+
+
+// Extension function that mimic othe major elements of the dplyr API
+
+fun DataFrame.head(numRows: Int = 5) = filter { rowNumber() lt numRows }
+fun DataFrame.tail(numRows: Int = 5) = filter { rowNumber() gt (nrow - numRows) }
+fun DataFrame.rowNumber() = IntCol(TMP_COLUMN, (1..nrow).asSequence().toList())
+// note: supporting n() here seems pointless since nrow will also work in them mutate context
+
+
 
 /* Prints a dataframe to stdout. df.toString() will also work but has no options .*/
 fun DataFrame.print(colNames: Boolean = true, sep: String = "\t") = println(asString(colNames, sep))
@@ -130,7 +136,7 @@ fun DataFrame.asString(colNames: Boolean = true, sep: String = "\t"): String {
 
     if (colNames) this.cols.map { it.name }.joinToString(sep).apply { sb.appendln(this) }
 
-    rowNumber().map { row(it - 1).values.joinToString(sep).apply { sb.appendln(this) } }
+    (1..nrow).map { row(it - 1).values.joinToString(sep).apply { sb.appendln(this) } }
 
     return sb.toString()
 }
@@ -173,14 +179,5 @@ fun DataFrame.toKotlin(dfVarName: String, dataClassName: String = dfVarName.capi
     val attrMapping = df.cols.map { """ row["${it.name}"] as ${getScalarColType(it)}""" }.joinToString(", ")
 
     println("val ${dfVarName}Entries = ${dfVarName}.rows.map { row -> ${dataClassName}(${attrMapping}) }")
-}
-
-
-internal fun getScalarColType(it: DataCol): String = when (it) {
-    is DoubleCol -> "Double"
-    is IntCol -> "Int"
-    is BooleanCol -> "Boolean"
-    is StringCol -> "String"
-    else -> throw  UnsupportedOperationException()
 }
 

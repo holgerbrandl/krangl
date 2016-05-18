@@ -34,8 +34,8 @@ fun main(args: Array<String>) {
     // Note: kplyr dataframes are immutable so we need to (re)assign results to preserve changes.
     df = df.mutate("full_name", { it["first_name"] + " " + it["last_name"] })
 
-    // Also feel free to mix types here since kplyr overloads to arithmetic operators like + for dataframe-columns
-    df.mutate("user_id", { "id" + rowNumber() + it["last_name"] })
+    // Also feel free to mix types here since kplyr overloads  arithmetic operators like + for dataframe-columns
+    df.mutate("user_id", { it["last_name"] + "_id" + rowNumber() })
 
     // Create new attributes with string operations like matching, splitting or extraction.
     df.mutate("with_anz", { it["first_name"].asStrings().map { it!!.contains("anz") } })
@@ -74,18 +74,22 @@ fun main(args: Array<String>) {
 
     // Grouped operations
     val groupedDf: DataFrame = df.groupBy("age") // or provide multiple grouping attributes with varargs
-    val sumDF = groupedDf.summarize("mean_weight", { it["weight"].mean(remNA = true) })
+    val sumDF = groupedDf.summarize(
+            "mean_weight" to { it["weight"].mean(remNA = true) },
+            "num_persons" to { nrow }
+    )
 
     // Optionally ungroup the data
-    sumDF.ungroup()
+    println("summary is:")
+    sumDF.ungroup().print()
 
     // generate object bindings for kotlin.
     // Unfortunately the syntax is a bit odd since we can not access the variable name by reflection
     sumDF.toKotlin("sumDF")
-    // This will auto-generate and print the following conversion code to stdout:
-    data class SumDF(val age: Int, val mean_weight: Double)
+    // This will generate and print the following conversion code:
+    data class SumDF(val age: Int, val mean_weight: Double, val num_persons: Int)
 
-    val sumDFEntries = sumDF.rows.map { row -> SumDF(row["age"] as Int, row["mean_weight"] as Double) }
+    val sumDFEntries = sumDF.rows.map { row -> SumDF(row["age"] as Int, row["mean_weight"] as Double, row["num_persons"] as Int) }
 
     // Now we can use the kplyr result table in a strongly typed way
     sumDFEntries.first().mean_weight

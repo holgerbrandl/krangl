@@ -28,11 +28,14 @@ internal class GroupedDataFrame(private val by: List<String>, private val groups
         get() = groups.first().df.ncol
 
 
-    val cumIndex: List<Int> by lazy { groups.map { it.df.nrow }.toList().cumSum().toList() }
+    internal val groupOffsets: List<Int> by lazy {
+        val groupSizes = groups.map { it.df.nrow }
+        (listOf(0) + groupSizes.dropLast(1)).cumSum().toList().map { it.toInt() }
+    }
 
     override fun row(rowIndex: Int): Map<String, Any?> {
-        val grpIndex = cumIndex.filter { it <= rowIndex }.size
-        val rowOffset = cumIndex.filter { it <= rowIndex }.last()
+        val grpIndex = groupOffsets.filter { it <= rowIndex }.size - 1
+        val rowOffset = groupOffsets.filter { it <= rowIndex }.last()
 
         return groups[grpIndex].df.row(rowIndex - rowOffset)
     }
@@ -85,8 +88,8 @@ internal class GroupedDataFrame(private val by: List<String>, private val groups
 
 
 // inspired by http://stackoverflow.com/questions/3224935/in-scala-how-do-i-fold-a-list-and-return-the-intermediate-results
-internal fun <T> List<T>.cumSum(): Iterable<T> {
-    return drop(1).fold(listOf(first()), { list, curVal -> list + list.last() + curVal })
+internal fun <T : Number> List<T>.cumSum(): Iterable<Double> {
+    return drop(1).fold(listOf(first().toDouble()), { list, curVal -> list + (list.last().toDouble() + curVal.toDouble()) })
 }
 
 /** Concatenate a list of data-frame by row. */

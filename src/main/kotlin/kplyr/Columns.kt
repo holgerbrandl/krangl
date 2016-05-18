@@ -18,6 +18,15 @@ abstract class DataCol(val name: String) {
     }
 }
 
+
+internal fun getScalarColType(it: DataCol): String = when (it) {
+    is DoubleCol -> "Double"
+    is IntCol -> "Int"
+    is BooleanCol -> "Boolean"
+    is StringCol -> "String"
+    else -> throw  UnsupportedOperationException()
+}
+
 internal val TMP_COLUMN = "___tmp"
 
 
@@ -187,3 +196,10 @@ fun DataCol.cumSum(remNA: Boolean = false): Double = when (this) {
 
 
 fun DataCol.median(remNA: Boolean = false): Double? = throw UnsupportedOperationException()
+
+
+//
+// Category/String helper extensions
+//
+
+// see https://github.com/holgerbrandl/kplyr/issues/3

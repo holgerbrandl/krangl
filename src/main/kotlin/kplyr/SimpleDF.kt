@@ -48,6 +48,7 @@ open class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
     private fun addColumn(newCol: DataCol): SimpleDataFrame {
         require(newCol.length == nrow) { "Column lengths of dataframe ($nrow) and new column (${newCol.length}) differ" }
         require(newCol.name !in names) { "Column '${newCol.name}' already exists in dataframe" }
+        require(newCol.name != TMP_COLUMN) { "Internal temporary column name should not be expose to user" }
 
         val mutatedCols = cols.toMutableList().apply { add(newCol) }
         return SimpleDataFrame(mutatedCols.toList())
@@ -111,54 +112,13 @@ open class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
     override fun mutate(name: String, formula: DataFrame.(DataFrame) -> Any?): DataFrame {
 
         val mutation = formula(this)
+        val newCol = anyAsColumn(mutation, name, nrow)
 
-        // expand scalar values to arrays/lists
-        val arrifiedMutation: Any? = when (mutation) {
-            is Int -> IntArray(nrow, { mutation })
-            is Double -> DoubleArray(nrow, { mutation }).toList()
-            is Boolean -> BooleanArray(nrow, { mutation })
-            is Float -> FloatArray(nrow, { mutation })
-            is String -> Array<String>(nrow) { mutation }.asList()
-        // add/test NA support here
-            else -> mutation
-        }
-
-        // unwrap existing columns to use immutable one with given name
-//        val mutUnwrapped = {}
-
-        val newCol = when (arrifiedMutation) {
-            is DataCol -> when (arrifiedMutation) {
-                is DoubleCol -> DoubleCol(name, arrifiedMutation.values)
-                is IntCol -> IntCol(name, arrifiedMutation.values)
-                is StringCol -> StringCol(name, arrifiedMutation.values)
-                is BooleanCol -> BooleanCol(name, arrifiedMutation.values)
-                else -> throw UnsupportedOperationException()
-            }
-
-        // toodo still needed
-            is DoubleArray -> DoubleCol(name, arrifiedMutation.toList())
-            is IntArray -> IntCol(name, arrifiedMutation.toList())
-            is BooleanArray -> BooleanCol(name, arrifiedMutation.toList())
-
-        // also handle lists here
-            is List<*> -> handleListErasure(name, arrifiedMutation)
-
-            else -> throw UnsupportedOperationException()
-        }
 
         require(newCol.values().size == nrow) { "new column has inconsistent length" }
         require(newCol.name != TMP_COLUMN) { "missing name in new columns" }
 
         return addColumn(newCol)
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun handleListErasure(name: String, mutation: List<*>): DataCol = when (mutation.first()) {
-        is Double -> DoubleCol(name, mutation as List<Double>)
-        is Int -> IntCol(name, mutation as List<Int>)
-        is String -> StringCol(name, mutation as List<String>)
-        is Boolean -> BooleanCol(name, mutation as List<Boolean>)
-        else -> throw UnsupportedOperationException()
     }
 
 
@@ -254,4 +214,55 @@ open class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 
     // todo mimic dplyr.print better here (num observations, hide too many columns, etc.)
     override fun toString(): String = head(5).asString()
+}
+
+
+internal fun anyAsColumn(mutation: Any?, name: String, nrow: Int): DataCol {
+    // expand scalar values to arrays/lists
+    val arrifiedMutation: Any? = when (mutation) {
+        is Int -> IntArray(nrow, { mutation })
+        is Double -> DoubleArray(nrow, { mutation }).toList()
+        is Boolean -> BooleanArray(nrow, { mutation })
+        is Float -> FloatArray(nrow, { mutation })
+        is String -> Array<String>(nrow) { mutation }.asList()
+    // add/test NA support here
+        else -> mutation
+    }
+
+    val newCol = when (arrifiedMutation) {
+        is DataCol -> when (arrifiedMutation) {
+            is DoubleCol -> DoubleCol(name, arrifiedMutation.values)
+            is IntCol -> IntCol(name, arrifiedMutation.values)
+            is StringCol -> StringCol(name, arrifiedMutation.values)
+            is BooleanCol -> BooleanCol(name, arrifiedMutation.values)
+            else -> throw UnsupportedOperationException()
+        }
+
+    // todo still needed
+        is DoubleArray -> DoubleCol(name, arrifiedMutation.toList())
+        is IntArray -> IntCol(name, arrifiedMutation.toList())
+        is BooleanArray -> BooleanCol(name, arrifiedMutation.toList())
+
+    // also handle lists here
+        is List<*> -> handleListErasure(name, arrifiedMutation)
+
+        else -> throw UnsupportedOperationException()
+    }
+    return newCol
+}
+
+//fun Any?.asCol(df:DataFrame) = anyAsColumn(this, TMP_COLUMN, df.nrow)
+
+// Any.+ overloading does not work and is maybe neight a good idea since it's affecting global operator conventions
+//infix operator fun Any.plus(rightCol:DataCol) = anyAsColumn(this, TMP_COLUMN, rightCol.values().size) + rightCol
+fun DataFrame.const(someThing: Any) = anyAsColumn(someThing, TMP_COLUMN, nrow)
+
+
+@Suppress("UNCHECKED_CAST")
+internal fun handleListErasure(name: String, mutation: List<*>): DataCol = when (mutation.first()) {
+    is Double -> DoubleCol(name, mutation as List<Double>)
+    is Int -> IntCol(name, mutation as List<Int>)
+    is String -> StringCol(name, mutation as List<String>)
+    is Boolean -> BooleanCol(name, mutation as List<Boolean>)
+    else -> throw UnsupportedOperationException()
 }

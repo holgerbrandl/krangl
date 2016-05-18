@@ -12,6 +12,10 @@ fun main(args: Array<String>) {
             IntCol("weight", listOf(55, 88, 82))
     )
 
+
+    df.mutate("user_id", { "id" + rowNumber() }) // broken since it does not expand to column
+    df.mutate("user_id", { const("id") + (1..10) })
+
 //    df.select(-"weight", -"age")  // negative selection
 //
 //    df.toKotlin("df")
