@@ -136,3 +136,4 @@ References & Related Projects
 Related Projects:
 * https://github.com/mikera/vectorz: Fast and flexible numerical library for Java featuring N-dimensional arrays
 * https://github.com/kyonifer/golem: A scientific library for Kotlin.
+* https://github.com/wireservice/agate: A Python data analysis library that is optimized for humans instead of machines

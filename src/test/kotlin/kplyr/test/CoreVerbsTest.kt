@@ -1,7 +1,18 @@
 package kplyr.test
 
 import io.kotlintest.specs.FlatSpec
+import kplyr.DataFrame
+import kplyr.fromCSV
+import kplyr.glimpse
 
+
+class CompoundTests : FlatSpec() { init {
+    "it" should "select with regex" {
+        val df = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("/data/msleep.csv"))
+        df.glimpse()
+    }
+}
+}
 
 class SelectTest : FlatSpec() { init {
 

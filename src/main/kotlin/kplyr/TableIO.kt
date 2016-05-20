@@ -2,25 +2,31 @@ package kplyr
 
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVRecord
-import java.io.File
-import java.io.FileReader
+import java.io.*
 
 /**
- * Methods to read and write tables into/from DataFrames
+Methods to read and write tables into/from DataFrames
+ * see also https://commons.apache.org/proper/commons-csv/ for other implementations
+ * https://github.com/databricks/spark-csv
+
  */
 
 
-// see also https://commons.apache.org/proper/commons-csv/ for other implementations
-// https://github.com/databricks/spark-csv
-// todo mabye these factory method should be part of DataFrame namespace
-fun fromCSV(file: String) = fromCSV(File(file))
+fun DataFrame.Companion.fromCSV(file: String) = fromCSV(File(file))
 
-fun fromTSV(file: String) = fromCSV(File(file), csvFormat = CSVFormat.TDF)
+fun DataFrame.Companion.fromTSV(file: String) = fromCSV(File(file), format = CSVFormat.TDF)
 
-fun fromCSV(file: File, csvFormat: CSVFormat = CSVFormat.RFC4180): DataFrame {
+// http://stackoverflow.com/questions/9648811/specific-difference-between-bufferedreader-and-filereader
+fun DataFrame.Companion.fromCSV(file: File, format: CSVFormat = CSVFormat.RFC4180) =
+        fromCSV(BufferedReader(FileReader(file)), format)
 
-    val fileReader = FileReader(file)
-    val csvParser = csvFormat.withFirstRecordAsHeader().parse(fileReader)
+//http://stackoverflow.com/questions/5200187/convert-inputstream-to-bufferedreader
+fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFormat.RFC4180) =
+        fromCSV(BufferedReader(InputStreamReader(inStream, "UTF-8")), format)
+
+
+fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.RFC4180): DataFrame {
+    val csvParser = format.withFirstRecordAsHeader().parse(reader)
     val records = csvParser.iterator().asSequence().toList()
 
 
@@ -92,7 +98,8 @@ internal fun isBoolCol(colName: String?, records: List<CSVRecord>, peekSize: Int
 
 
 fun main(args: Array<String>) {
-    val fromCSV = fromCSV("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/msleep.csv")
+    val fromCSV = DataFrame.fromCSV("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/msleep.csv")
+
     fromCSV.print()
     fromCSV.glimpse()
 }

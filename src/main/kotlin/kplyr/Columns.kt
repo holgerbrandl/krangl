@@ -1,5 +1,6 @@
 package kplyr
 
+import mean
 import kotlin.comparisons.nullsLast
 
 
@@ -109,11 +110,6 @@ class StringCol(name: String, val values: List<String?>) : DataCol(name) {
         return if (first == null || second == null) null else first + second
     }
 }
-
-// scalar operations
-// remove because we must work with lists here
-//infix operator fun DoubleArray.plus(i: Int): DoubleArray = map { it + i }.toDoubleArray()
-fun List<Number>.mean(): Double = map { it.toDouble() }.sum() / size
 
 
 //
