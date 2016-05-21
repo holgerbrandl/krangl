@@ -1,5 +1,7 @@
 package kplyr
 
+import cumSum
+
 
 // To illustrate the structure of th API just core verbs are implemented as instance functions. The rest is implement as extension functions.
 
@@ -87,10 +89,6 @@ internal class GroupedDataFrame(private val by: List<String>, private val groups
 }
 
 
-// inspired by http://stackoverflow.com/questions/3224935/in-scala-how-do-i-fold-a-list-and-return-the-intermediate-results
-internal fun <T : Number> List<T>.cumSum(): Iterable<Double> {
-    return drop(1).fold(listOf(first().toDouble()), { list, curVal -> list + (list.last().toDouble() + curVal.toDouble()) })
-}
 
 /** Concatenate a list of data-frame by row. */
 fun List<DataFrame>.rbind(): DataFrame { // add options about NA-fill over non-overlapping columns

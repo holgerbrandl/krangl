@@ -1,15 +1,19 @@
 package kplyr.test
 
 import io.kotlintest.specs.FlatSpec
-import kplyr.DataFrame
-import kplyr.fromCSV
-import kplyr.glimpse
+import kplyr.*
 
 
 class CompoundTests : FlatSpec() { init {
-    "it" should "select with regex" {
-        val df = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("/data/msleep.csv"))
-        df.glimpse()
+    "it" should "summarize sleep data" {
+        val df = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/msleep.csv"))
+
+        df.filter { it["awake"] gt 3 }.
+                apply { glimpse() }.
+                mutate("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] }).
+                groupBy("vore").
+                summarize("mean_rem_prop", { it["rem_proportion"].mean() }).
+                print()
     }
 }
 }

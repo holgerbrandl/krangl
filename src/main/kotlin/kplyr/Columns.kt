@@ -1,6 +1,7 @@
 package kplyr
 
 import mean
+import median
 import kotlin.comparisons.nullsLast
 
 
@@ -9,6 +10,9 @@ import kotlin.comparisons.nullsLast
 abstract class DataCol(val name: String) {
 
     open infix operator fun plus(something: Any): DataCol = throw UnsupportedOperationException()
+    open infix operator fun minus(something: Any): DataCol = throw UnsupportedOperationException()
+    open infix operator fun div(something: Any): DataCol = throw UnsupportedOperationException()
+    open infix operator fun times(something: Any): DataCol = throw UnsupportedOperationException()
 
     internal abstract fun values(): List<*>
 
@@ -20,13 +24,19 @@ abstract class DataCol(val name: String) {
 }
 
 
-internal fun getScalarColType(it: DataCol): String = when (it) {
-    is DoubleCol -> "Double"
-    is IntCol -> "Int"
-    is BooleanCol -> "Boolean"
-    is StringCol -> "String"
-    else -> throw  UnsupportedOperationException()
+private fun <T> naAwareOp(first: T?, second: T?, op: (T, T) -> T): T? {
+    return if (first == null || second == null) null else op(first, second)
 }
+
+
+internal fun getScalarColType(it: DataCol): String = it.javaClass.simpleName.removeSuffix("Col")
+//        when (it) {
+//    is DoubleCol -> "Double"
+//    is IntCol -> "Int"
+//    is BooleanCol -> "Boolean"
+//    is StringCol -> "String"
+//    else -> throw  UnsupportedOperationException()
+//}
 
 internal val TMP_COLUMN = "___tmp"
 
@@ -39,20 +49,22 @@ class DoubleCol(name: String, val values: List<Double?>) : DataCol(name) {
 
     override val length = values.size
 
-    //        return values + values //wrong because it concatenates list and does not plus them
-    override fun plus(something: Any): DataCol = when (something) {
+    override fun plus(something: Any): DataCol = arithOp(something, { a, b -> a + b })
+    override fun minus(something: Any): DataCol = arithOp(something, { a, b -> a - b })
+
+    override fun times(something: Any): DataCol = arithOp(something, { a, b -> a * b })
+    override fun div(something: Any): DataCol = arithOp(something, { a, b -> a / b })
+
+
+    private fun arithOp(something: Any, op: (Double, Double) -> Double): DataCol = when (something) {
         is DoubleCol -> Array(values.size, { values[it] }).toList()
-                .apply { mapIndexed { index, rowVal -> naAwarePlus(rowVal, something.values[index]) } }
+                .apply { mapIndexed { index, rowVal -> naAwareOp(rowVal, something.values[index], op) } }
 
-        is Number -> Array(values.size, { naAwarePlus(values[it], something.toDouble()) }).toList()
-
+        is Number -> Array(values.size, { naAwareOp(values[it], something.toDouble(), op) }).toList()
         else -> throw UnsupportedOperationException()
     }.let { DoubleCol(TMP_COLUMN, it) }
-
-    private fun naAwarePlus(first: Double?, second: Double?): Double? {
-        return if (first == null || second == null) null else first + second
-    }
 }
+
 
 class IntCol(name: String, val values: List<Int?>) : DataCol(name) {
 
@@ -60,39 +72,22 @@ class IntCol(name: String, val values: List<Int?>) : DataCol(name) {
 
     override val length = values.size
 
-    override fun plus(something: Any): DataCol = when (something) {
-        is IntCol -> Array(values.size, { values[it] }).toList()
-                .apply { mapIndexed { index, rowVal -> naAwarePlus(rowVal, something.values[index]) } }
+    override fun plus(something: Any): DataCol = arithOp(something, { a, b -> a + b })
+    override fun minus(something: Any): DataCol = arithOp(something, { a, b -> a * b })
 
-        is Number -> Array(values.size, { naAwarePlus(values[it], something.toInt()) }).toList()
+    override fun times(something: Any): DataCol = arithOp(something, { a, b -> a - b })
+    override fun div(something: Any): DataCol = arithOp(something, { a, b -> Math.round(a.toDouble() / b.toDouble()).toInt() })
+
+
+    private fun arithOp(something: Any, op: (Int, Int) -> Int): DataCol = when (something) {
+        is IntCol -> Array(values.size, { values[it] }).toList()
+                .apply { mapIndexed { index, rowVal -> naAwareOp(rowVal, something.values[index], op) } }
+
+        is Number -> Array(values.size, { naAwareOp(values[it], something.toInt(), op) }).toList()
         else -> throw UnsupportedOperationException()
     }.let { IntCol(TMP_COLUMN, it) }
-
-
-    private fun naAwarePlus(first: Int?, second: Int?): Int? {
-        return if (first == null || second == null) null else first + second
-    }
 }
 
-class AnyCol<T>(name: String, val values: List<T?>) : DataCol(name) {
-
-    override fun values(): List<T?> = values
-
-    override val length = values.size
-
-    override fun plus(something: Any): DataCol = throw UnsupportedOperationException()
-
-    private fun naAwarePlus(first: Int?, second: Int?): Int? {
-        return if (first == null || second == null) null else first + second
-    }
-}
-
-
-class BooleanCol(name: String, val values: List<Boolean?>) : DataCol(name) {
-    override fun values(): List<*> = values
-
-    override val length = values.size
-}
 
 class StringCol(name: String, val values: List<String?>) : DataCol(name) {
 
@@ -109,6 +104,20 @@ class StringCol(name: String, val values: List<String?>) : DataCol(name) {
     private fun naAwarePlus(first: String?, second: String?): String? {
         return if (first == null || second == null) null else first + second
     }
+}
+
+class AnyCol<T>(name: String, val values: List<T?>) : DataCol(name) {
+
+    override fun values(): List<T?> = values
+
+    override val length = values.size
+}
+
+
+class BooleanCol(name: String, val values: List<Boolean?>) : DataCol(name) {
+    override fun values(): List<*> = values
+
+    override val length = values.size
 }
 
 
@@ -139,8 +148,8 @@ infix fun DataCol.eq(i: Any): BooleanArray = when (this) {
 
 
 // convenience getters for column data
-fun DataCol.asStrings(): List<String?> = this.values() as List<String?>
 
+fun DataCol.asStrings(): List<String?> = this.values() as List<String?>
 fun DataCol.asInts(): List<Int?> = this.values() as List<Int?>
 fun DataCol.asDoubles(): List<Double?> = this.values() as List<Double?>
 fun DataCol.asBooleans(): List<Boolean?> = this.values() as List<Boolean?>
@@ -164,34 +173,29 @@ fun <T> List<T?>.ignoreNA(expr: T.() -> Any?): List<Any?> = map { if (it != null
 // Arithmetic Utilities
 //
 
-// todo add NA argument
-
-fun DataCol.min(): Double = when (this) {
-    is DoubleCol -> values.filterNotNull().min()!!
-    is IntCol -> values.filterNotNull().min()!!.toDouble()
+fun DataCol.min(removeNA: Boolean = false): Double? = when (this) {
+    is DoubleCol -> if (removeNA) values.filterNotNull().min() else values.map { it!! }.min()
+    is IntCol -> if (removeNA) values.filterNotNull().min()?.toDouble() else values.map { it!! }.min()?.toDouble()
     else -> throw UnsupportedOperationException()
 }
 
-fun DataCol.max(): Double = when (this) {
-    is DoubleCol -> values.filterNotNull().max()!!
-    is IntCol -> values.filterNotNull().max()!!.toDouble()
+fun DataCol.max(removeNA: Boolean = false): Double? = when (this) {
+    is DoubleCol -> if (removeNA) values.filterNotNull().max() else values.map { it!! }.max()
+    is IntCol -> if (removeNA) values.filterNotNull().max()?.toDouble() else values.map { it!! }.max()?.toDouble()
     else -> throw UnsupportedOperationException()
 }
 
-fun DataCol.mean(remNA: Boolean = false): Double = when (this) {
-    is DoubleCol -> values.filterNotNull().mean()
-    is IntCol -> values.filterNotNull().mean()
+fun DataCol.mean(removeNA: Boolean = false): Double? = when (this) {
+    is DoubleCol -> if (removeNA) values.filterNotNull().mean() else values.map { it!! }.mean()
+    is IntCol -> if (removeNA) values.filterNotNull().mean() else values.map { it!! }.mean()
     else -> throw UnsupportedOperationException()
 }
 
-fun DataCol.cumSum(remNA: Boolean = false): Double = when (this) {
-    is DoubleCol -> values.filterNotNull().mean()
-    is IntCol -> values.filterNotNull().mean()
+fun DataCol.median(removeNA: Boolean = false): Double? = when (this) {
+    is DoubleCol -> if (removeNA) values.filterNotNull().median() else values.map { it!! }.median()
+    is IntCol -> if (removeNA) values.filterNotNull().map { it.toDouble() }.median() else values.map { it!!.toDouble() }.median()
     else -> throw UnsupportedOperationException()
 }
-
-
-fun DataCol.median(remNA: Boolean = false): Double? = throw UnsupportedOperationException()
 
 
 //

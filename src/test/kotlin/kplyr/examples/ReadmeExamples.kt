@@ -75,7 +75,7 @@ fun main(args: Array<String>) {
     // Grouped operations
     val groupedDf: DataFrame = df.groupBy("age") // or provide multiple grouping attributes with varargs
     val sumDF = groupedDf.summarize(
-            "mean_weight" to { it["weight"].mean(remNA = true) },
+            "mean_weight" to { it["weight"].mean(removeNA = true) },
             "num_persons" to { nrow }
     )
 
