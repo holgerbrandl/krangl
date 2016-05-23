@@ -30,6 +30,7 @@ private fun <T> naAwareOp(first: T?, second: T?, op: (T, T) -> T): T? {
 
 
 internal fun getScalarColType(it: DataCol): String = it.javaClass.simpleName.removeSuffix("Col")
+
 //        when (it) {
 //    is DoubleCol -> "Double"
 //    is IntCol -> "Int"
@@ -173,30 +174,95 @@ fun <T> List<T?>.ignoreNA(expr: T.() -> Any?): List<Any?> = map { if (it != null
 // Arithmetic Utilities
 //
 
+//todo improve java interop by annotating with https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.jvm/-throws/
+
+
+// this would work as well but we would gain little as long as we're just providing min, max, median, and mean. Others
+// like quantile() already require additional parameters and the approach would no longer work
+
+// //val fn : (List<Double>) -> Double = kotlin.collections.min
+// //val fn : (List<Double>) -> Double = Math::min
+
+//private fun DataCol.arithOp1(removeNA: Boolean, op: (List<Double>) -> Double): Double? = when (this) {
+//    is DoubleCol -> values.run { if (removeNA) filterNotNull() else forceNotNull() }.let { op(it) }
+//    is IntCol -> values.map { it?.toDouble() }.run { if (removeNA) filterNotNull() else forceNotNull() }.let { op(it) }
+//    else -> throw InvalidColumnOperationException(this)
+//}
+//fun DataCol.min(removeNA: Boolean = false) = arithOp1(removeNA, kotlin.collections.min)
+
+
+/**
+ * Calculates the minimum of the column values.
+ *
+ * @param removeNA If `true` missing values will be excluded from the operation
+ * @throws MissingValueException If removeNA is `false` but the data contains missing values.
+ * @throws InvalidColumnOperationException If the type of the receiver column is not numeric
+ */
 fun DataCol.min(removeNA: Boolean = false): Double? = when (this) {
-    is DoubleCol -> if (removeNA) values.filterNotNull().min() else values.map { it!! }.min()
-    is IntCol -> if (removeNA) values.filterNotNull().min()?.toDouble() else values.map { it!! }.min()?.toDouble()
-    else -> throw UnsupportedOperationException()
+    is DoubleCol -> values.run { if (removeNA) filterNotNull() else forceNotNull() }.min()
+    is IntCol -> values.map { it?.toDouble() }.run { if (removeNA) filterNotNull() else forceNotNull() }.min()
+    else -> throw InvalidColumnOperationException(this)
 }
 
+/**
+ * Calculates the maximum of the column values.
+ *
+ * @param removeNA If `true` missing values will be excluded from the operation
+ * @throws MissingValueException If removeNA is `false` but the data contains missing values.
+ * @throws InvalidColumnOperationException If the type of the receiver column is not numeric
+ */
 fun DataCol.max(removeNA: Boolean = false): Double? = when (this) {
-    is DoubleCol -> if (removeNA) values.filterNotNull().max() else values.map { it!! }.max()
-    is IntCol -> if (removeNA) values.filterNotNull().max()?.toDouble() else values.map { it!! }.max()?.toDouble()
-    else -> throw UnsupportedOperationException()
+    is DoubleCol -> values.run { if (removeNA) filterNotNull() else forceNotNull() }.max()
+    is IntCol -> values.map { it?.toDouble() }.run { if (removeNA) filterNotNull() else forceNotNull() }.max()
+    else -> throw InvalidColumnOperationException(this)
 }
 
+/**
+ * Calculates the arithmetic mean of the column values.
+ *
+ * @param removeNA If `true` missing values will be excluded from the operation
+ * @throws MissingValueException If removeNA is `false` but the data contains missing values.
+ * @throws InvalidColumnOperationException If the type of the receiver column is not numeric
+ */
 fun DataCol.mean(removeNA: Boolean = false): Double? = when (this) {
-    is DoubleCol -> if (removeNA) values.filterNotNull().mean() else values.map { it!! }.mean()
-    is IntCol -> if (removeNA) values.filterNotNull().mean() else values.map { it!! }.mean()
-    else -> throw UnsupportedOperationException()
+    is DoubleCol -> values.run { if (removeNA) filterNotNull() else forceNotNull() }.mean()
+    is IntCol -> values.map { it?.toDouble() }.run { if (removeNA) filterNotNull() else forceNotNull() }.mean()
+    else -> throw InvalidColumnOperationException(this)
 }
 
+/**
+ * Calculates the median of the column values.
+ *
+ * @param removeNA If `true` missing values will be excluded from the operation
+ * @throws MissingValueException If removeNA is `false` but the data contains missing values.
+ * @throws InvalidColumnOperationException If the type of the receiver column is not numeric
+ */
 fun DataCol.median(removeNA: Boolean = false): Double? = when (this) {
-    is DoubleCol -> if (removeNA) values.filterNotNull().median() else values.map { it!! }.median()
-    is IntCol -> if (removeNA) values.filterNotNull().map { it.toDouble() }.median() else values.map { it!!.toDouble() }.median()
-    else -> throw UnsupportedOperationException()
+    is DoubleCol -> values.run { if (removeNA) filterNotNull() else forceNotNull() }.median()
+    is IntCol -> values.map { it?.toDouble() }.run { if (removeNA) filterNotNull() else forceNotNull() }.median()
+    else -> throw InvalidColumnOperationException(this)
 }
 
+private fun <E : Number> List<E?>.forceDoubleNotNull() = try {
+    map { it!!.toDouble() }
+} catch(e: KotlinNullPointerException) {
+    throw MissingValueException("Missing values in data. Consider to use removeNA argument or DataCol.ignoreNA()")
+}
+
+private fun <E> List<E?>.forceNotNull(): List<E> = try {
+    map { it!! }
+} catch(e: KotlinNullPointerException) {
+    throw MissingValueException("Missing values in data. Consider to use removeNA argument or DataCol.ignoreNA()")
+}
+
+
+/** Thrown if an operation is applied to a column that contains missing values. */
+// todo do we really want this? Shouldn't it rather be NA (or add parameter to suppress Exception )
+class MissingValueException(msg: String) : Throwable(msg)
+
+class InvalidColumnOperationException(msg: String) : Throwable(msg) {
+    constructor(receiver: Any) : this(receiver.javaClass.simpleName + " is not a supported by this operation ")
+}
 
 //
 // Category/String helper extensions

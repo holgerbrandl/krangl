@@ -26,7 +26,9 @@ open class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
                 it.name to when (it) {
                     is DoubleCol -> it.values[rowIndex]
                     is IntCol -> it.values[rowIndex]
+                    is BooleanCol -> it.values[rowIndex]
                     is StringCol -> it.values[rowIndex]
+                    is AnyCol<*> -> it.values[rowIndex]
                     else -> throw UnsupportedOperationException()
                 }
             }.toMap()
@@ -38,7 +40,9 @@ open class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
         when (firstCol) {
             is DoubleCol -> firstCol.values.size
             is IntCol -> firstCol.values.size
+            is BooleanCol -> firstCol.values.size
             is StringCol -> firstCol.values.size
+            is AnyCol<*> -> firstCol.values.size
             else -> throw UnsupportedOperationException()
         }
     }
@@ -97,6 +101,8 @@ open class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
                 is Double -> DoubleCol(key, listOf(sumValue))
                 is Boolean -> BooleanCol(key, listOf(sumValue))
                 is String -> StringCol(key, Array(1, { sumValue.toString() }).toList())
+            // todo does null-handling makes sense at all? Might be not-null in other groups for grouped operations // todo add unit-test
+                null -> AnyCol(key, listOf(null))
                 else -> throw UnsupportedOperationException()
             }.let { sumCols.add(it) }
         }

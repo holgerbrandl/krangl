@@ -10,7 +10,7 @@ internal data class GroupIndex(val groupHash: Int, @Deprecated("unused") val row
 internal data class DataGroup(val groupHash: Int, val df: DataFrame)
 
 
-internal class GroupedDataFrame(private val by: List<String>, private val groups: List<DataGroup>) : DataFrame {
+internal class GroupedDataFrame(val by: List<String>, private val groups: List<DataGroup>) : DataFrame {
 
     override val rows: Iterable<Map<String, Any?>> = object : Iterable<Map<String, Any?>> {
         override fun iterator() = object : Iterator<Map<String, Any?>> {
@@ -86,8 +86,8 @@ internal class GroupedDataFrame(private val by: List<String>, private val groups
 
     override fun toString(): String = "Grouped by: *$by\n" + ungroup().head(5).asString()
 
+    fun groups() = slice(listOf(1)).ungroup().select(*by.toTypedArray())
 }
-
 
 
 /** Concatenate a list of data-frame by row. */
@@ -103,10 +103,11 @@ fun List<DataFrame>.rbind(): DataFrame { // add options about NA-fill over non-o
         val colDataCombined = Array(totalRows, { bindColData(colName)[it] })
 
         when (this.first()[colName]) {
-            is DoubleCol -> DoubleCol(colName, colDataCombined.map { it as Double })
-            is IntCol -> IntCol(colName, colDataCombined.map { it as Int })
-            is StringCol -> StringCol(colName, colDataCombined.map { it as String })
-            is BooleanCol -> BooleanCol(colName, colDataCombined.map { it as Boolean })
+            is DoubleCol -> DoubleCol(colName, colDataCombined.map { it as Double ? })
+            is IntCol -> IntCol(colName, colDataCombined.map { it as Int ? })
+            is StringCol -> StringCol(colName, colDataCombined.map { it as String ? })
+            is BooleanCol -> BooleanCol(colName, colDataCombined.map { it as Boolean ? })
+            is AnyCol<*> -> AnyCol<Any>(colName, colDataCombined.toList())
             else -> throw UnsupportedOperationException()
         }.apply { bindCols.add(this) }
 
@@ -116,8 +117,6 @@ fun List<DataFrame>.rbind(): DataFrame { // add options about NA-fill over non-o
 }
 
 private fun List<DataFrame>.bindColData(colName: String): List<*> {
-    val map = map {
-        it[colName].values()
-    }
-    return map.reduce { accu, curEl -> accu.toMutableList().apply { addAll(curEl) }.toList() }
+    val groupsData: List<List<*>> = map { it[colName].values() }
+    return groupsData.reduce { accu, curEl -> accu.toMutableList().apply { addAll(curEl) }.toList() }
 }
