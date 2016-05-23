@@ -4,7 +4,7 @@ import java.util.*
 import kotlin.comparisons.nullsLast
 import kotlin.comparisons.then
 
-open class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
+internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 
     override val rows = object : Iterable<Map<String, Any?>> {
         override fun iterator() = object : Iterator<Map<String, Any?>> {

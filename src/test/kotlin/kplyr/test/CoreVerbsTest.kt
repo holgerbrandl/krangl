@@ -15,8 +15,6 @@ class CompoundTests : FlatSpec() { init {
                 mutate("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] }).
                 groupBy("vore")
 
-        (groupedSleep as GroupedDataFrame).print()
-        (groupedSleep as GroupedDataFrame).groups().print()
 
         val insectiMeanREM = sleepData.filter { it["awake"] gt 3 }.
                 apply { glimpse() }.
@@ -88,12 +86,26 @@ class GroupedDataTest : FlatSpec() { init {
      */
     "it" should "allow for NA as a group value" {
         // 1) test single attribute grouping with NA
-        (sleepData.groupBy("vore") as GroupedDataFrame).groups().nrow shouldBe 6
+        (sleepData.groupBy("vore") as GroupedDataFrame).groups().nrow shouldBe 5
 
         // 2) test multi-attribute grouping with NA in one or all attributes
 //        (sleepData.groupBy("vore") as GroupedDataFrame).groups().nrow shouldBe 6
         //todo implement me
     }
+
+    "it" should "count group sizes and report distinct rows in a table" {
+        // 1) test single attribute grouping with NA
+        sleepData.count("vore").ncol shouldBe 2
+        sleepData.count("vore").nrow shouldBe 5
+
+        sleepData.distinct("vore", "order").apply {
+            print(this)
+            nrow shouldBe 32
+            ncol shouldBe 11
+        }
+    }
+
+
 }
 }
 

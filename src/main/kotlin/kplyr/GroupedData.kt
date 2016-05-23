@@ -120,3 +120,22 @@ private fun List<DataFrame>.bindColData(colName: String): List<*> {
     val groupsData: List<List<*>> = map { it[colName].values() }
     return groupsData.reduce { accu, curEl -> accu.toMutableList().apply { addAll(curEl) }.toList() }
 }
+
+
+fun DataFrame.count(name: String, formula: DataFrame.(DataFrame) -> Any?): DataFrame = summarize(name to formula)
+
+/** Retain only unique/distinct rows from an input tbl.
+ *
+ * @arg selects: Variables to use when determining uniqueness. If there are multiple rows for a given combination of inputs, only the first row will be preserved.
+ */
+// todo provide more efficient implementation
+fun DataFrame.distinct(vararg selects: String = this.names.toTypedArray()): DataFrame =
+        groupBy(*selects).slice(listOf(1)).ungroup()
+
+
+/** Counts observations by group.*/
+fun DataFrame.count(vararg selects: String = this.names.toTypedArray(), colName: String = "n"): DataFrame =
+        select(*selects).groupBy(*selects).summarize(colName, { nrow })
+
+
+

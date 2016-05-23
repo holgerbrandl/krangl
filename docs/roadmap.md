@@ -6,11 +6,11 @@ Initial Release
 -------------
 
 * travisCI integration
-* basic tests
+* first basic tests [done]
 * implement joins
 * rewrite table reader for better performance
 * table write support using csv-commons wrapper
-* implement count distinct and
+* implement count and distinct [done]
 * remove regrouping in core verbs where possible
 * basic benchmarking framework (without jvm usage)
 * consider to use invoke for row access
