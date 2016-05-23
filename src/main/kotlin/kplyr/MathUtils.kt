@@ -5,14 +5,17 @@
 fun List<Number>.mean(): Double = map { it.toDouble() }.sum() / size
 
 
+// from http://stackoverflow.com/questions/23086291/format-in-kotlin-string-templates
+internal fun Double.format(digits: Int) = java.lang.String.format("%.${digits}f", this)
+
 // http://stackoverflow.com/questions/4662292/scala-median-implementation
-fun List<Double>.median(removeNA: Boolean = false): Double {
+fun List<Double>.median(): Double {
     val (lower, upper) = sorted().let { take(size / 2) to takeLast(size / 2) }
     return if (size % 2 == 0) (lower.last() + upper.first()) / 2.0 else upper.first()
 }
 
 
-fun List<Number>.sd(): Double = Math.sqrt((map { it.toDouble() * it.toDouble() } - mean()).sum() / size)
+fun List<Number>.sd() = if (size == 1) null else Math.sqrt(map { Math.pow(it.toDouble() - mean(), 2.toDouble()) }.sum() / size.toDouble())
 
 // inspired by http://stackoverflow.com/questions/3224935/in-scala-how-do-i-fold-a-list-and-return-the-intermediate-results
 fun <T : Number> List<T>.cumSum(removeNA: Boolean = false): Iterable<Double> {

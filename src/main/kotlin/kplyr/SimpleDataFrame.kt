@@ -17,7 +17,10 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
     }
 
 
-    override fun select(which: List<Boolean>): DataFrame = SimpleDataFrame(cols.filterIndexed { index, dataCol -> which[index] })
+    override fun select(which: List<Boolean>): DataFrame {
+        if (which.isEmpty()) System.err.println("Calling select() without arguments is not sensible")
+        return SimpleDataFrame(cols.filterIndexed { index, dataCol -> which[index] })
+    }
 
     // Utility methods
 
@@ -36,8 +39,9 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
     override val ncol = cols.size
 
     override val nrow by lazy {
-        val firstCol = cols.first()
+        val firstCol = cols.firstOrNull()
         when (firstCol) {
+            null -> 0
             is DoubleCol -> firstCol.values.size
             is IntCol -> firstCol.values.size
             is BooleanCol -> firstCol.values.size
@@ -91,7 +95,11 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
     constructor(vararg cols: DataCol) : this(cols.asList())
 
     override fun summarize(vararg sumRules: Pair<String, DataFrame.(DataFrame) -> Any?>): DataFrame {
-        require(nrow > 0) { "Can not summarize empty data-frame" } // todocan dplyr?
+//        require(nrow > 0) { "Can not summarize empty data-frame" } // todocan dplyr?
+        /**
+        require(dplyr)
+        data_frame() %>% summarize(test=1)
+         */
 
         val sumCols = mutableListOf<DataCol>()
         for ((key, sumRule) in sumRules) {
@@ -129,6 +137,10 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 
 
     override fun arrange(vararg by: String): DataFrame {
+        if (by.isEmpty()) {
+            System.err.println("Calling arrange without arguments is not sensible")
+            return this
+        }
 
         // utility method to convert columns to comparators
         fun asComparator(by: String): Comparator<Int> {
@@ -253,6 +265,7 @@ internal fun anyAsColumn(mutation: Any?, name: String, nrow: Int): DataCol {
         is BooleanArray -> BooleanCol(name, arrifiedMutation.toList())
 
     // also handle lists here
+        emptyList<Int>() -> AnyCol<Any>(name, emptyList())
         is List<*> -> handleListErasure(name, arrifiedMutation)
 
         else -> throw UnsupportedOperationException()

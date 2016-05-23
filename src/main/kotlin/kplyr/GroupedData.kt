@@ -99,7 +99,7 @@ fun List<DataFrame>.rbind(): DataFrame { // add options about NA-fill over non-o
 
     val totalRows = map { it.nrow }.sum()
 
-    for (colName in this.first().names) {
+    for (colName in this.firstOrNull()?.names ?: emptyList()) {
         val colDataCombined = Array(totalRows, { bindColData(colName)[it] })
 
         when (this.first()[colName]) {

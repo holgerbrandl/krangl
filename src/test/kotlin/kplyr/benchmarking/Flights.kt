@@ -1,5 +1,6 @@
 package kplyr.benchmarking
 
+import format
 import kplyr.*
 import mean
 import sd
@@ -21,16 +22,16 @@ kotlinc -J"-Xmx8g" -cp /Users/brandl/projects/kotlin/kplyr/build/classes/main:/U
 
  */
 
-internal data class RunTimes(val runtimes: List<Float>) {
+data class RunTimes(val runtimes: List<Float>) {
     val mean by lazy { runtimes.mean() }
 
     override fun toString(): String {
         // todo use actual confidence interval here
-        return "$mean ± ${runtimes.sd()} SD\t "
+        return "${mean.format(2)} ± ${runtimes.sd()?.format(2)} SD\t "
     }
 
     companion object {
-        public inline fun <R> measure(block: () -> R, numRuns: Int = 1): Pair<R, RunTimes> {
+        inline fun <R> measure(block: () -> R, numRuns: Int = 1): Pair<R, RunTimes> {
             require(numRuns > 0)
 
             var result: R? = null
@@ -52,7 +53,7 @@ internal data class RunTimes(val runtimes: List<Float>) {
 fun main(args: Array<String>) {
     // todo use/create measureTimeMillis-version that return expression value for simplified workflow
 
-    val flights = RunTimes.measure({ DataFrame.fromTSV("/Users/brandl/Desktop/nycflights.tsv") }, 10).apply {
+    val flights = RunTimes.measure({ DataFrame.fromTSV("/Users/brandl/Desktop/nycflights.tsv") }, 3).apply {
         println(second)
     }.first
 
@@ -63,8 +64,7 @@ fun main(args: Array<String>) {
     flights.glimpse()
 
 
-    // fixme and add unit tests for empty (row and column-empty) data-frames
-    SimpleDataFrame().print()
+
 
     var groupedFlights: DataFrame = SimpleDataFrame()
 
@@ -77,4 +77,16 @@ fun main(args: Array<String>) {
                 "mean_arr_delay" to { it["arr_delay"].mean() }
         ).print()
     })
+}
+
+
+fun main3(args: Array<String>) {
+    val fromCSV = RunTimes.measure({ DataFrame.fromCSV("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/msleep.csv") }, numRuns = 10).run {
+        println(second)
+        first
+    }
+
+
+//    fromCSV.print()
+    fromCSV.glimpse()
 }

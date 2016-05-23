@@ -5,11 +5,11 @@ Kplyr Roadmap
 Initial Release
 -------------
 
-* travisCI integration
+* travisCI integration [done]
 * first basic tests [done]
-* implement joins
 * rewrite table reader for better performance
 * table write support using csv-commons wrapper
+* implement joins
 * implement count and distinct [done]
 * remove regrouping in core verbs where possible
 * basic benchmarking framework (without jvm usage)

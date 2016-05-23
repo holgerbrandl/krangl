@@ -1,5 +1,6 @@
 package kplyr.test
 
+import io.kotlintest.matchers.have
 import io.kotlintest.specs.FlatSpec
 import kplyr.*
 
@@ -57,6 +58,34 @@ class FilterTest : FlatSpec() { init {
 
     "it" should "filter in empty table" {
         throw UnsupportedOperationException()
+    }
+}
+}
+
+
+class EmptyTest : FlatSpec() { init {
+    "it" should "handle  empty (row and column-empty) data-frames in all operations" {
+        SimpleDataFrame().apply {
+            // structure
+            ncol shouldBe 0
+            nrow shouldBe 0
+            rows.toList() should have size 0
+            cols.toList() should have size 0
+
+            // rendering
+            glimpse()
+            print()
+
+            // core verbs
+            select(emptyList())
+            filter { BooleanArray(0) }
+            mutate("foo", { "bar" })
+            summarize("foo" to { "bar" })
+            arrange()
+
+            // grouping
+            (groupBy() as GroupedDataFrame).groups()
+        }
     }
 }
 }
