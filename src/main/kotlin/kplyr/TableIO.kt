@@ -2,7 +2,12 @@ package kplyr
 
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
+import org.apache.commons.csv.CSVRecord
 import java.io.*
+import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.zip.GZIPInputStream
 
 /**
@@ -31,7 +36,7 @@ fun DataFrame.Companion.fromCSV(file: File,
         BufferedReader(FileReader(file))
     }
 
-    return fromCSV(bufReader, format)
+    return fromCSVOriginal(bufReader, format)
 }
 
 //http://stackoverflow.com/questions/5200187/convert-inputstream-to-bufferedreader
@@ -43,57 +48,105 @@ fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFo
 fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
     val csvParser = format.withFirstRecordAsHeader().parse(reader)
 
-    val rawCols = mutableMapOf<String, Array<String>>()
-
+    val rawCols = mutableMapOf<String, List<String>>()
     val records = csvParser.records
-    arrayOfNulls<String>(records.size)
 
-    // first fill guess buffer and then
     for (colName in csvParser.headerMap.keys) {
-        rawCols.put(colName)Array(records.size, { records[it][colName] }).toList()
-    }
-
-    for (record in records) {
-        arrayOfNulls<String>(records.size)
-
-        Array(records.size, { records[it][colName].toDoubleOrNull() }).toList()
-        record.toList().mapIndexed { index, value -> rawCols.get(index).add(value) }
+        rawCols.put(colName, records.map { it[colName] })
     }
 
     // parallelize this for better performance
-    val colModel = rawCols.mapIndexed { colIndex, mutableList ->
-        val firstElements = mutableList.take(5)
-        val colName = csvParser.headerMap.keys.toList().get(colIndex)
+//    val colModel = rawCols.toList().pmap { rawCol ->
+    val colModel = rawCols.map { rawCol ->
+        val colData = rawCol.value
+        val colName = rawCol.key
+
+        val firstElements = colData.take(5)
 
         when {
-            isIntCol(firstElements) -> IntCol(colName, mutableList.map { it.toIntOrNull() })
-            isDoubleCol(firstElements) -> DoubleCol(colName, mutableList.map { it.toDoubleOrNull() })
-            isBoolCol(firstElements) -> BooleanCol(colName, mutableList.map { it.toBooleanOrNull() })
-            else -> StringCol(colName, mutableList.map { it.naAsNull() })
+            isIntCol(firstElements) -> IntCol(colName, colData.map { it.toIntOrNull() })
+            isDoubleCol(firstElements) -> DoubleCol(colName, colData.map { it.toDoubleOrNull() })
+            isBoolCol(firstElements) -> BooleanCol(colName, colData.map { it.toBooleanOrNull() })
+            else -> StringCol(colName, colData.map { it.naAsNull() })
         }
     }
 
     return SimpleDataFrame(colModel)
 }
 
-// guess column types and trigger data conversion
-// initial implementation
-//    val records = csvParser.iterator().asSequence().toList()
-//
-//    val numRows = records.toList().size
-//    val cols = mutableListOf<DataCol>()
-//    // fixme: super-inefficient because of incorrect loop order
-//    for (colName in csvParser.headerMap.keys) {
-//        when { // when without arg see https://kotlinlang.org/docs/reference/control-flow.html#when-expression
-//            isDoubleCol(colName, records) -> DoubleCol(colName, Array(numRows, { records[it][colName].toDoubleOrNull() }).toList())
-//            isIntCol(colName, records) -> IntCol(colName, Array(numRows, { records[it][colName].toIntOrNull() }).toList())
-//            isBoolCol(colName, records) -> BooleanCol(colName, Array(numRows, { records[it][colName].toAsBoolNull() }).toList())
-//            else -> StringCol(colName, Array(numRows, { records[it][colName].naAsNull() }).toList())
-//        }.let { cols.add(it) }
-//    }
-//
-//    return SimpleDataFrame(cols)
-//}
+fun <T, R> Iterable<T>.pmap(
+        numThreads: Int = Runtime.getRuntime().availableProcessors() - 2,
+        exec: ExecutorService = Executors.newFixedThreadPool(numThreads),
+        transform: (T) -> R): List<R> {
+
+    // default size is just an inlined version of kotlin.collections.collectionSizeOrDefault
+    val defaultSize = if (this is Collection<*>) this.size else 10
+    val destination = Collections.synchronizedList(ArrayList<R>(defaultSize))
+
+    for (item in this) {
+        exec.submit { destination.add(transform(item)) }
+    }
+
+    exec.shutdown()
+    exec.awaitTermination(1, TimeUnit.DAYS)
+
+    return ArrayList<R>(destination)
+}
+
+@Suppress("unused")
+fun DataFrame.Companion.fromCSVArray(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
+    val csvParser = format.withFirstRecordAsHeader().parse(reader)
+
+    val rawCols = mutableMapOf<String, Array<String>>()
+    val records = csvParser.records
+
+    // first fill guess buffer and then
+    for (colName in csvParser.headerMap.keys) {
+        rawCols.put(colName, Array(records.size, { records[it][colName] }))
+    }
+
+
+    // parallelize this for better performance
+    val colModel = rawCols.map { rawCol ->
+        val colData = rawCol.value
+        val colName = rawCol.key
+
+        val firstElements = rawCol.value.take(5)
+
+        when {
+            isIntCol(firstElements) -> IntCol(colName, colData.map { it.toIntOrNull() })
+            isDoubleCol(firstElements) -> DoubleCol(colName, colData.map { it.toDoubleOrNull() })
+            isBoolCol(firstElements) -> BooleanCol(colName, colData.map { it.toBooleanOrNull() })
+            else -> StringCol(colName, colData.map { it.naAsNull() })
+        }
+    }
+
+    return SimpleDataFrame(colModel)
+}
+
+@Suppress("unused")
+fun DataFrame.Companion.fromCSVOriginal(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
+    val csvParser = format.withFirstRecordAsHeader().parse(reader)
+
+    val records = csvParser.records
+
+//     guess column types and trigger data conversion
+    val numRows = records.toList().size
+    val cols = mutableListOf<DataCol>()
+
+    // fixme: super-inefficient because of incorrect loop order
+    for (colName in csvParser.headerMap.keys) {
+        val firstElements = peekCol(colName, records)
+        when { // when without arg see https://kotlinlang.org/docs/reference/control-flow.html#when-expression
+            isIntCol(firstElements) -> IntCol(colName, Array(numRows, { records[it][colName].toIntOrNull() }).toList())
+            isDoubleCol(firstElements) -> DoubleCol(colName, Array(numRows, { records[it][colName].toDoubleOrNull() }).toList())
+            isBoolCol(firstElements) -> BooleanCol(colName, Array(numRows, { records[it][colName].toBooleanOrNull() }).toList())
+            else -> StringCol(colName, Array(numRows, { records[it][colName].naAsNull() }).toList())
+        }.let { cols.add(it) }
+    }
+
+    return SimpleDataFrame(cols)
+}
 
 
 // NA aware conversions
@@ -134,48 +187,7 @@ internal fun String.toBooleanOrNull(): Boolean? {
     return if (cellValue == "NA") null else cellValue!!.toBoolean()
 }
 
-//internal fun isDoubleCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5): Boolean {
-//    try {
-//        records.take(peekSize).mapIndexed { rowIndex, csvRecord -> records[rowIndex][colName].toDoubleOrNull() }
-//    } catch(e: NumberFormatException) {
-//        return false
-//    }
-//
-//    return true
-//}
-//
-//internal fun isIntCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5): Boolean {
-//    try {
-//        records.take(peekSize).mapIndexed { rowIndex, csvRecord -> records[rowIndex][colName].toIntOrNull() }
-//    } catch(e: NumberFormatException) {
-//        return false
-//    }
-//
-//    return true
-//}
-//
-//internal fun isBoolCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5): Boolean {
-//    try {
-//        records.take(peekSize).mapIndexed { rowIndex, csvRecord ->
-//            var cellValue = records[rowIndex][colName].toLowerCase()
-//
-//            // remap some obvious ones
-//            cellValue = if (cellValue == "NA") "false" else cellValue // fixme add missing value support
-//            cellValue = if (cellValue == "F") "false" else cellValue
-//            cellValue = if (cellValue == "T") "true" else cellValue
-//
-//
-//            if (listOf("true", "false", "T", "F").contains(cellValue)) throw  NumberFormatException("invalid boolean cell value")
-//
-//            return cellValue.toAsBoolNull() ?: true
-//        }
-//
-//    } catch(e: NumberFormatException) {
-//        return false
-//    }
-//
-//    return true
-//}
+internal fun peekCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5) = records.take(peekSize).mapIndexed { rowIndex, csvRecord -> records[rowIndex][colName] }
 
 
 //todo add support for compressed writing
