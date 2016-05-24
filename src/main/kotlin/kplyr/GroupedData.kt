@@ -10,7 +10,7 @@ internal data class GroupIndex(val groupHash: Int, @Deprecated("unused") val row
 internal data class DataGroup(val groupHash: Int, val df: DataFrame)
 
 
-internal class GroupedDataFrame(val by: List<String>, private val groups: List<DataGroup>) : DataFrame {
+internal class GroupedDataFrame(val by: List<String>, internal val groups: List<DataGroup>) : DataFrame {
 
     override val rows: Iterable<Map<String, Any?>> = object : Iterable<Map<String, Any?>> {
         override fun iterator() = object : Iterator<Map<String, Any?>> {
@@ -57,22 +57,22 @@ internal class GroupedDataFrame(val by: List<String>, private val groups: List<D
                 Pair<String, DataFrame.(DataFrame) -> Any?>(groupAttr, { it[groupAttr].values().first() })
             }
             it.df.summarize(*groupSumRules.toTypedArray(), *sumRules)
-        }.rbind().groupBy(*by.toTypedArray())
+        }.bindRows().groupBy(*by.toTypedArray())
     }
 
     // fixme get rid of rbind.groupby anti-pattern in most core-verbs
 
     override fun select(which: List<Boolean>): DataFrame {
-        return groups.map { it.df.select(which) }.rbind().groupBy(*by.toTypedArray())
+        return groups.map { it.df.select(which) }.bindRows().groupBy(*by.toTypedArray())
     }
 
 
     override fun filter(predicate: DataFrame.(DataFrame) -> BooleanArray): DataFrame {
-        return groups.map { it.df.filter(predicate) }.rbind().groupBy(*by.toTypedArray())
+        return groups.map { it.df.filter(predicate) }.bindRows().groupBy(*by.toTypedArray())
     }
 
     override fun mutate(name: String, formula: DataFrame.(DataFrame) -> Any?): DataFrame {
-        return groups.map { it.df.mutate(name, formula) }.rbind().groupBy(*by.toTypedArray())
+        return groups.map { it.df.mutate(name, formula) }.bindRows().groupBy(*by.toTypedArray())
     }
 
     override fun arrange(vararg by: String): DataFrame {
@@ -82,7 +82,7 @@ internal class GroupedDataFrame(val by: List<String>, private val groups: List<D
 
     override fun groupBy(vararg by: String): DataFrame = ungroup().groupBy(*by)
 
-    override fun ungroup(): DataFrame = groups.map { it.df }.rbind()
+    override fun ungroup(): DataFrame = groups.map { it.df }.bindRows()
 
     override fun toString(): String = "Grouped by: *$by\n" + ungroup().head(5).asString()
 
@@ -91,7 +91,7 @@ internal class GroupedDataFrame(val by: List<String>, private val groups: List<D
 
 
 /** Concatenate a list of data-frame by row. */
-fun List<DataFrame>.rbind(): DataFrame { // add options about NA-fill over non-overlapping columns
+fun List<DataFrame>.bindRows(): DataFrame { // add options about NA-fill over non-overlapping columns
     // todo more column model consistency checks here
     // note: use fold to bind with non-overlapping column model
 
@@ -114,6 +114,10 @@ fun List<DataFrame>.rbind(): DataFrame { // add options about NA-fill over non-o
     }
 
     return SimpleDataFrame(bindCols)
+}
+
+fun bindCols(left: DataFrame, right: DataFrame): DataFrame { // add options about NA-fill over non-overlapping columns
+    return SimpleDataFrame((left as SimpleDataFrame).cols.toMutableList().apply { addAll((right as SimpleDataFrame).cols) })
 }
 
 private fun List<DataFrame>.bindColData(colName: String): List<*> {

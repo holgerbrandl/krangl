@@ -7,7 +7,7 @@ Initial Release
 
 * travisCI integration [done]
 * first basic tests [done]
-* rewrite table reader for better performance
+* rewrite table reader for better performance [done]
 * table write support using csv-commons wrapper [done]
 * implement joins
 * implement count and distinct [done]

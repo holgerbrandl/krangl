@@ -31,6 +31,20 @@ class CompoundTests : FlatSpec() { init {
 }
 }
 
+class JoinTests : FlatSpec() { init {
+
+    "it" should "perform an inner join" {
+        val voreInfo = sleepData.groupBy("vore").summarize("vore_mod" to { it["vore"].asStrings().first() + "__2" })
+
+        val sleepWithInfo = joinLeft(sleepData, voreInfo)
+
+        sleepWithInfo.nrow shouldBe sleepData.nrow
+        sleepWithInfo.ncol shouldBe (sleepData.ncol + 1)
+//        sleepWithInfo.names should contain "" // todo reenable
+    }
+}
+}
+
 class SelectTest : FlatSpec() { init {
 
     "it" should "select with regex" {

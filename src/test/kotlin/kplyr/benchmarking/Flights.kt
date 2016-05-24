@@ -1,6 +1,7 @@
 package kplyr.benchmarking
 
 import kplyr.*
+import kplyr.devel.RunTimes
 import kotlin.system.measureTimeMillis
 
 /**

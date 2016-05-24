@@ -111,6 +111,7 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
                 is String -> StringCol(key, Array(1, { sumValue.toString() }).toList())
             // todo does null-handling makes sense at all? Might be not-null in other groups for grouped operations // todo add unit-test
                 null -> AnyCol(key, listOf(null))
+                is DataCol -> throw UnsupportedOperationException("summarize() rules must evaluate to scalar expression but did as: ${sumValue}")
                 else -> throw UnsupportedOperationException()
             }.let { sumCols.add(it) }
         }
@@ -180,6 +181,8 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 
     // use proper generics here
     override fun groupBy(vararg by: String): DataFrame {
+        if (by.isEmpty()) System.err.print("Grouping with empty attribute list is unlikely to have meaningful semantics")
+
         //take all grouping columns
         val groupCols = cols.filter { by.contains(it.name) }
         require(groupCols.size == by.size) { "Could not find all grouping columns" }
