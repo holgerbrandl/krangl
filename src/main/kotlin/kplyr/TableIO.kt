@@ -1,8 +1,11 @@
 package kplyr
 
+import format
+import mean
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import org.apache.commons.csv.CSVRecord
+import sd
 import java.io.*
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -36,7 +39,7 @@ fun DataFrame.Companion.fromCSV(file: File,
         BufferedReader(FileReader(file))
     }
 
-    return fromCSVOriginal(bufReader, format)
+    return fromCSV(bufReader, format)
 }
 
 //http://stackoverflow.com/questions/5200187/convert-inputstream-to-bufferedreader
@@ -44,7 +47,6 @@ fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFo
         fromCSV(BufferedReader(InputStreamReader(inStream, "UTF-8")), format)
 
 
-@Suppress("unused")
 fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
     val csvParser = format.withFirstRecordAsHeader().parse(reader)
 
@@ -74,7 +76,7 @@ fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DE
     return SimpleDataFrame(colModel)
 }
 
-fun <T, R> Iterable<T>.pmap(
+internal fun <T, R> Iterable<T>.pmap(
         numThreads: Int = Runtime.getRuntime().availableProcessors() - 2,
         exec: ExecutorService = Executors.newFixedThreadPool(numThreads),
         transform: (T) -> R): List<R> {
@@ -153,9 +155,25 @@ fun DataFrame.Companion.fromCSVOriginal(reader: Reader, format: CSVFormat = CSVF
 internal fun String.toDoubleOrNull(): Double? = if (this == "NA") null else this.toDouble()
 
 internal fun String.toIntOrNull(): Int? = if (this == "NA") null else this.toInt()
+
+internal fun String.toBooleanOrNull(): Boolean? {
+    var cellValue: String? = toUpperCase()
+
+    cellValue = if (cellValue == "NA") null else cellValue
+    cellValue = if (cellValue == "F") "false" else cellValue
+    cellValue = if (cellValue == "T") "true" else cellValue
+
+    if (!listOf("true", "false", null).contains(cellValue)) throw NumberFormatException("invalid boolean cell value")
+
+    return if (cellValue == "NA") null else cellValue!!.toBoolean()
+}
+
+
 internal fun String.naAsNull(): String? = if (this == "NA") null else this
 
-// add missing value support with user defined string (e.g. NA here) here
+
+// TODO add missing value support with user defined string (e.g. NA here) here
+
 internal fun isDoubleCol(firstElements: List<String>): Boolean = try {
     firstElements.map { it.toDoubleOrNull() };  true
 } catch(e: NumberFormatException) {
@@ -174,23 +192,11 @@ internal fun isBoolCol(firstElements: List<String>): Boolean = try {
     false
 }
 
-
-internal fun String.toBooleanOrNull(): Boolean? {
-    var cellValue: String? = toUpperCase()
-
-    cellValue = if (cellValue == "NA") null else cellValue
-    cellValue = if (cellValue == "F") "false" else cellValue
-    cellValue = if (cellValue == "T") "true" else cellValue
-
-    if (!listOf("true", "false", null).contains(cellValue)) throw NumberFormatException("invalid boolean cell value")
-
-    return if (cellValue == "NA") null else cellValue!!.toBoolean()
-}
-
 internal fun peekCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5) = records.take(peekSize).mapIndexed { rowIndex, csvRecord -> records[rowIndex][colName] }
 
 
-//todo add support for compressed writing
+//TODO add support for compressed writing
+
 fun DataFrame.writeCSV(file: String, format: CSVFormat = CSVFormat.DEFAULT) = writeCSV(File(file), format)
 
 fun DataFrame.writeCSV(file: File, format: CSVFormat = CSVFormat.DEFAULT) {
@@ -213,10 +219,58 @@ fun DataFrame.writeCSV(file: File, format: CSVFormat = CSVFormat.DEFAULT) {
     csvFilePrinter.close()
 }
 
-fun main(args: Array<String>) {
-    val fromCSV = DataFrame.fromCSV("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/msleep.csv")
-    fromCSV.writeCSV("/Users/brandl/Desktop/test.csv", CSVFormat.TDF)
 
-//    fromCSV.print()
-//    fromCSV.glimpse()
+data class RunTimes<T>(val result: T, val runtimes: List<Float>) {
+    val mean by lazy { runtimes.mean() }
+
+    override fun toString(): String {
+        // todo use actual confidence interval here
+        return "${mean.format(2)} ± ${runtimes.sd()?.format(2)} SD\t "
+    }
+
+    companion object {
+        inline fun <R> measure(block: () -> R, numRuns: Int = 1): RunTimes<R> {
+            require(numRuns > 0)
+
+            var result: R? = null
+
+            val runs = (1..numRuns).map {
+                val start = System.currentTimeMillis()
+                result = block()
+                (System.currentTimeMillis() - start) / 1000.toFloat()
+            }
+
+            return RunTimes<R>(result!!, runs)
+        }
+
+    }
+}
+
+fun main(args: Array<String>) {
+
+    fun getFlightsReader(): BufferedReader {
+        val flightsFile = File("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/nycflights.tsv.gz")
+        val gzip = GZIPInputStream(FileInputStream(flightsFile));
+        return BufferedReader(InputStreamReader(gzip));
+    }
+
+
+    RunTimes.measure({
+        DataFrame.fromCSV(getFlightsReader(), CSVFormat.TDF)
+    }, 3).apply {
+        println("fromCSV: $this")
+    }.result//.glimpse()
+
+    RunTimes.measure({
+        DataFrame.fromCSV(getFlightsReader(), CSVFormat.TDF)
+    }, 3).apply {
+        println("fromCSVArray: $this")
+    }.result//.glimpse()
+
+    RunTimes.measure({
+        DataFrame.fromCSVOriginal(getFlightsReader(), CSVFormat.TDF)
+    }, 3).apply {
+        println("fromCSVOriginal: $this")
+    }.result//.glimpse()
+
 }

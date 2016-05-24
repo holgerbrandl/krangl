@@ -1,11 +1,6 @@
 package kplyr.benchmarking
 
-import format
 import kplyr.*
-import mean
-import org.apache.commons.csv.CSVFormat
-import sd
-import java.io.File
 import kotlin.system.measureTimeMillis
 
 /**
@@ -40,18 +35,6 @@ user  system elapsed
 0.553   0.022   0.575
  */
 
-
-fun main(args: Array<String>) {
-    println("running benchmarking")
-
-    val df = RunTimes.measure({
-        DataFrame.fromCSV(File("/Users/brandl/Desktop/nycflights.tsv.gz"), CSVFormat.TDF, isCompressed = true)
-    }, 3).apply {
-        println("data loading time was: $this")
-    }.result//.glimpse()
-
-    df.glimpse()
-}
 
 fun main2(args: Array<String>) {
     val flights = RunTimes.measure({
@@ -91,30 +74,4 @@ fun main3(args: Array<String>) {
 
 //    fromCSV.print()
     fromCSV.glimpse()
-}
-
-data class RunTimes<T>(val result: T, val runtimes: List<Float>) {
-    val mean by lazy { runtimes.mean() }
-
-    override fun toString(): String {
-        // todo use actual confidence interval here
-        return "${mean.format(2)} ± ${runtimes.sd()?.format(2)} SD\t "
-    }
-
-    companion object {
-        inline fun <R> measure(block: () -> R, numRuns: Int = 1): RunTimes<R> {
-            require(numRuns > 0)
-
-            var result: R? = null
-
-            val runs = (1..numRuns).map {
-                val start = System.currentTimeMillis()
-                result = block()
-                (System.currentTimeMillis() - start) / 1000.toFloat()
-            }
-
-            return RunTimes<R>(result!!, runs)
-        }
-
-    }
 }
