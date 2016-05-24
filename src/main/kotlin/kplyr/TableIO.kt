@@ -7,10 +7,6 @@ import org.apache.commons.csv.CSVPrinter
 import org.apache.commons.csv.CSVRecord
 import sd
 import java.io.*
-import java.util.*
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.zip.GZIPInputStream
 
 /**
@@ -47,14 +43,14 @@ fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFo
         fromCSV(BufferedReader(InputStreamReader(inStream, "UTF-8")), format)
 
 
-fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
+internal fun DataFrame.Companion.fromCSVlistArray(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
     val csvParser = format.withFirstRecordAsHeader().parse(reader)
 
-    val rawCols = mutableMapOf<String, List<String>>()
+    val rawCols = mutableMapOf<String, List<String?>>()
     val records = csvParser.records
 
     for (colName in csvParser.headerMap.keys) {
-        rawCols.put(colName, records.map { it[colName] })
+        rawCols.put(colName, records.map { it[colName].naAsNull() })
     }
 
     // parallelize this for better performance
@@ -66,49 +62,36 @@ fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DE
         val firstElements = colData.take(5)
 
         when {
-            isIntCol(firstElements) -> IntCol(colName, colData.map { it.toIntOrNull() })
-            isDoubleCol(firstElements) -> DoubleCol(colName, colData.map { it.toDoubleOrNull() })
-            isBoolCol(firstElements) -> BooleanCol(colName, colData.map { it.toBooleanOrNull() })
-            else -> StringCol(colName, colData.map { it.naAsNull() })
+            isIntCol(firstElements) -> IntCol(colName, colData.map { it?.toInt() })
+            isDoubleCol(firstElements) -> DoubleCol(colName, colData.map { it?.toDouble() })
+            isBoolCol(firstElements) -> BooleanCol(colName, colData.map { it?.cellValueAsBoolean() })
+            else -> StringCol(colName, colData.map { it })
         }
     }
 
     return SimpleDataFrame(colModel)
 }
 
-internal fun <T, R> Iterable<T>.pmap(
-        numThreads: Int = Runtime.getRuntime().availableProcessors() - 2,
-        exec: ExecutorService = Executors.newFixedThreadPool(numThreads),
-        transform: (T) -> R): List<R> {
 
-    // default size is just an inlined version of kotlin.collections.collectionSizeOrDefault
-    val defaultSize = if (this is Collection<*>) this.size else 10
-    val destination = Collections.synchronizedList(ArrayList<R>(defaultSize))
-
-    for (item in this) {
-        exec.submit { destination.add(transform(item)) }
-    }
-
-    exec.shutdown()
-    exec.awaitTermination(1, TimeUnit.DAYS)
-
-    return ArrayList<R>(destination)
-}
-
-@Suppress("unused")
-fun DataFrame.Companion.fromCSVArray(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
+internal fun DataFrame.Companion.fromCSVArray(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
     val csvParser = format.withFirstRecordAsHeader().parse(reader)
 
-    val rawCols = mutableMapOf<String, Array<String>>()
+    val rawCols = mutableMapOf<String, Array<String?>>()
     val records = csvParser.records
 
     // first fill guess buffer and then
     for (colName in csvParser.headerMap.keys) {
-        rawCols.put(colName, Array(records.size, { records[it][colName] }))
+        rawCols.put(colName, Array(records.size, { records[it][colName].naAsNull() }))
     }
 
 
     // parallelize this for better performance
+//    val colModel = rawCols.toList().pmap { rawCol ->
+//
+//        val colName = rawCol.first
+//        val colData = rawCol.second
+//
+//        val firstElements = colData.take(5)
     val colModel = rawCols.map { rawCol ->
         val colData = rawCol.value
         val colName = rawCol.key
@@ -116,33 +99,31 @@ fun DataFrame.Companion.fromCSVArray(reader: Reader, format: CSVFormat = CSVForm
         val firstElements = rawCol.value.take(5)
 
         when {
-            isIntCol(firstElements) -> IntCol(colName, colData.map { it.toIntOrNull() })
-            isDoubleCol(firstElements) -> DoubleCol(colName, colData.map { it.toDoubleOrNull() })
-            isBoolCol(firstElements) -> BooleanCol(colName, colData.map { it.toBooleanOrNull() })
-            else -> StringCol(colName, colData.map { it.naAsNull() })
+            isIntCol(firstElements) -> IntCol(colName, colData.map { it?.toInt() })
+            isDoubleCol(firstElements) -> DoubleCol(colName, colData.map { it?.toDouble() })
+            isBoolCol(firstElements) -> BooleanCol(colName, colData.map { it.cellValueAsBoolean() })
+            else -> StringCol(colName, colData.map { it })
         }
     }
 
     return SimpleDataFrame(colModel)
 }
 
-@Suppress("unused")
-fun DataFrame.Companion.fromCSVOriginal(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
+internal fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
     val csvParser = format.withFirstRecordAsHeader().parse(reader)
 
     val records = csvParser.records
 
 //     guess column types and trigger data conversion
-    val numRows = records.toList().size
+    val numRows = records.size
     val cols = mutableListOf<DataCol>()
 
-    // fixme: super-inefficient because of incorrect loop order
     for (colName in csvParser.headerMap.keys) {
         val firstElements = peekCol(colName, records)
         when { // when without arg see https://kotlinlang.org/docs/reference/control-flow.html#when-expression
-            isIntCol(firstElements) -> IntCol(colName, Array(numRows, { records[it][colName].toIntOrNull() }).toList())
-            isDoubleCol(firstElements) -> DoubleCol(colName, Array(numRows, { records[it][colName].toDoubleOrNull() }).toList())
-            isBoolCol(firstElements) -> BooleanCol(colName, Array(numRows, { records[it][colName].toBooleanOrNull() }).toList())
+            isIntCol(firstElements) -> IntCol(colName, Array(numRows, { records[it][colName].naAsNull()?.toInt() }).toList())
+            isDoubleCol(firstElements) -> DoubleCol(colName, Array(numRows, { records[it][colName].naAsNull()?.toDouble() }).toList())
+            isBoolCol(firstElements) -> BooleanCol(colName, Array(numRows, { records[it][colName].naAsNull().cellValueAsBoolean() }).toList())
             else -> StringCol(colName, Array(numRows, { records[it][colName].naAsNull() }).toList())
         }.let { cols.add(it) }
     }
@@ -152,11 +133,11 @@ fun DataFrame.Companion.fromCSVOriginal(reader: Reader, format: CSVFormat = CSVF
 
 
 // NA aware conversions
-internal fun String.toDoubleOrNull(): Double? = if (this == "NA") null else this.toDouble()
+internal fun String.naAsNull(): String? = if (this == "NA") null else this
 
-internal fun String.toIntOrNull(): Int? = if (this == "NA") null else this.toInt()
+internal fun String?.cellValueAsBoolean(): Boolean? {
+    if (this == null) return null
 
-internal fun String.toBooleanOrNull(): Boolean? {
     var cellValue: String? = toUpperCase()
 
     cellValue = if (cellValue == "NA") null else cellValue
@@ -169,25 +150,24 @@ internal fun String.toBooleanOrNull(): Boolean? {
 }
 
 
-internal fun String.naAsNull(): String? = if (this == "NA") null else this
 
 
 // TODO add missing value support with user defined string (e.g. NA here) here
 
-internal fun isDoubleCol(firstElements: List<String>): Boolean = try {
-    firstElements.map { it.toDoubleOrNull() };  true
+internal fun isDoubleCol(firstElements: List<String?>): Boolean = try {
+    firstElements.map { it?.toDouble() };  true
 } catch(e: NumberFormatException) {
     false
 }
 
-internal fun isIntCol(firstElements: List<String>): Boolean = try {
-    firstElements.map { it.toIntOrNull() };  true
+internal fun isIntCol(firstElements: List<String?>): Boolean = try {
+    firstElements.map { it?.toInt() };  true
 } catch(e: NumberFormatException) {
     false
 }
 
-internal fun isBoolCol(firstElements: List<String>): Boolean = try {
-    firstElements.map { it.toBooleanOrNull() };  true
+internal fun isBoolCol(firstElements: List<String?>): Boolean = try {
+    firstElements.map { it?.cellValueAsBoolean() };  true
 } catch(e: NumberFormatException) {
     false
 }
@@ -254,23 +234,60 @@ fun main(args: Array<String>) {
         return BufferedReader(InputStreamReader(gzip));
     }
 
+    // jvm warmup
+//    DataFrame.fromCSV(getFlightsReader(), CSVFormat.TDF).head(5).writeCSV("flights_head.txt", format = CSVFormat.TDF)
+    repeat(100) { DataFrame.fromTSV("flights_head.txt") }
 
-    RunTimes.measure({
-        DataFrame.fromCSV(getFlightsReader(), CSVFormat.TDF)
-    }, 3).apply {
-        println("fromCSV: $this")
-    }.result//.glimpse()
+    repeat(3) {
+        println("another run:")
 
-    RunTimes.measure({
-        DataFrame.fromCSV(getFlightsReader(), CSVFormat.TDF)
-    }, 3).apply {
-        println("fromCSVArray: $this")
-    }.result//.glimpse()
+        RunTimes.measure({
+            DataFrame.fromCSVlistArray(getFlightsReader(), CSVFormat.TDF)
+        }, 8).apply {
+            println("fromCSVlistArray: $this")
+        }.result//.glimpse()
 
-    RunTimes.measure({
-        DataFrame.fromCSVOriginal(getFlightsReader(), CSVFormat.TDF)
-    }, 3).apply {
-        println("fromCSVOriginal: $this")
-    }.result//.glimpse()
+        RunTimes.measure({
+            DataFrame.fromCSVArray(getFlightsReader(), CSVFormat.TDF)
+        }, 8).apply {
+            println("fromCSVArray: $this")
+        }.result//.glimpse()
 
+        RunTimes.measure({
+            DataFrame.fromCSV(getFlightsReader(), CSVFormat.TDF)
+        }, 8).apply {
+            println("fromCSV: $this")
+        }.result//.glimpse()
+    }
+
+    val df = SimpleDataFrame()
+//    df.appendRow(mapOf("config" to 1))
 }
+
+
+//tdodo finish row append ehtod
+//fun SimpleDataFrame.appendRow(mapOf: Map<String, Int>) {
+//    require(names.e)
+//
+//
+//}
+
+
+//internal fun <T, R> Iterable<T>.pmap(
+//        numThreads: Int = Runtime.getRuntime().availableProcessors() - 2,
+//        exec: ExecutorService = Executors.newFixedThreadPool(numThreads),
+//        transform: (T) -> R): List<R> {
+//
+//    // default size is just an inlined version of kotlin.collections.collectionSizeOrDefault
+//    val defaultSize = if (this is Collection<*>) this.size else 10
+//    val destination = Collections.synchronizedList(ArrayList<R>(defaultSize))
+//
+//    for (item in this) {
+//        exec.submit { destination.add(transform(item)) }
+//    }
+//
+//    exec.shutdown()
+//    exec.awaitTermination(1, TimeUnit.DAYS)
+//
+//    return ArrayList<R>(destination)
+//}
