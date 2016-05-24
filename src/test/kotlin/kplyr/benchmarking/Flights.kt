@@ -30,16 +30,27 @@ flights <- read_tsv("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kply
 system.time(read_tsv("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/nycflights.tsv.gz"))
 ' | R --vanilla
 ```
+
+Compressed data benchmarking
+Original Impl:
+data loading time was: 3.02 ± 1.11 SD
+
+dplyr
+user  system elapsed
+0.553   0.022   0.575
  */
 
 
 fun main(args: Array<String>) {
     println("running benchmarking")
-    RunTimes.measure({
+
+    val df = RunTimes.measure({
         DataFrame.fromCSV(File("/Users/brandl/Desktop/nycflights.tsv.gz"), CSVFormat.TDF, isCompressed = true)
     }, 3).apply {
         println("data loading time was: $this")
     }.result//.glimpse()
+
+    df.glimpse()
 }
 
 fun main2(args: Array<String>) {

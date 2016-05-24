@@ -2,7 +2,6 @@ package kplyr
 
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
-import org.apache.commons.csv.CSVRecord
 import java.io.*
 import java.util.zip.GZIPInputStream
 
@@ -43,74 +42,140 @@ fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFo
 @Suppress("unused")
 fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
     val csvParser = format.withFirstRecordAsHeader().parse(reader)
-    val records = csvParser.iterator().asSequence().toList()
 
+    val rawCols = mutableMapOf<String, Array<String>>()
 
-    val numRows = records.toList().size
-    val cols = mutableListOf<DataCol>()
-    // fixme: super-inefficient because of incorrect loop order
+    val records = csvParser.records
+    arrayOfNulls<String>(records.size)
+
+    // first fill guess buffer and then
     for (colName in csvParser.headerMap.keys) {
-        when { // when without arg see https://kotlinlang.org/docs/reference/control-flow.html#when-expression
-            isDoubleCol(colName, records) -> DoubleCol(colName, Array(numRows, { records[it][colName].toDoubleOrNull() }).toList())
-            isIntCol(colName, records) -> IntCol(colName, Array(numRows, { records[it][colName].toIntOrNull() }).toList())
-            isBoolCol(colName, records) -> BooleanCol(colName, Array(numRows, { records[it][colName].toAsBoolNull() }).toList())
-            else -> StringCol(colName, Array(numRows, { records[it][colName].naAsNull() }).toList())
-        }.let { cols.add(it) }
+        rawCols.put(colName)Array(records.size, { records[it][colName] }).toList()
     }
 
-    return SimpleDataFrame(cols)
-}
+    for (record in records) {
+        arrayOfNulls<String>(records.size)
 
-// we use null to encode NA // todo consider NaN
-// NA aware conversions
-fun String.toDoubleOrNull(): Double? = if (this == "NA") null else this.toDouble()
-
-fun String.toIntOrNull(): Int? = if (this == "NA") null else this.toInt()
-fun String.toAsBoolNull(): Boolean? = if (this == "NA") null else this.toBoolean()
-fun String.naAsNull(): String? = if (this == "NA") null else this
-
-internal fun isDoubleCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5): Boolean {
-    try {
-        records.take(peekSize).mapIndexed { rowIndex, csvRecord -> records[rowIndex][colName].toDoubleOrNull() }
-    } catch(e: NumberFormatException) {
-        return false
+        Array(records.size, { records[it][colName].toDoubleOrNull() }).toList()
+        record.toList().mapIndexed { index, value -> rawCols.get(index).add(value) }
     }
 
-    return true
-}
+    // parallelize this for better performance
+    val colModel = rawCols.mapIndexed { colIndex, mutableList ->
+        val firstElements = mutableList.take(5)
+        val colName = csvParser.headerMap.keys.toList().get(colIndex)
 
-internal fun isIntCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5): Boolean {
-    try {
-        records.take(peekSize).mapIndexed { rowIndex, csvRecord -> records[rowIndex][colName].toIntOrNull() }
-    } catch(e: NumberFormatException) {
-        return false
-    }
-
-    return true
-}
-
-internal fun isBoolCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5): Boolean {
-    try {
-        records.take(peekSize).mapIndexed { rowIndex, csvRecord ->
-            var cellValue = records[rowIndex][colName].toLowerCase()
-
-            // remap some obvious ones
-            cellValue = if (cellValue == "NA") "false" else cellValue // fixme add missing value support
-            cellValue = if (cellValue == "F") "false" else cellValue
-            cellValue = if (cellValue == "T") "true" else cellValue
-
-
-            if (listOf("true", "false", "T", "F").contains(cellValue)) throw  NumberFormatException("invalid boolean cell value")
-
-            return cellValue.toAsBoolNull() ?: true
+        when {
+            isIntCol(firstElements) -> IntCol(colName, mutableList.map { it.toIntOrNull() })
+            isDoubleCol(firstElements) -> DoubleCol(colName, mutableList.map { it.toDoubleOrNull() })
+            isBoolCol(firstElements) -> BooleanCol(colName, mutableList.map { it.toBooleanOrNull() })
+            else -> StringCol(colName, mutableList.map { it.naAsNull() })
         }
-
-    } catch(e: NumberFormatException) {
-        return false
     }
 
-    return true
+    return SimpleDataFrame(colModel)
 }
+
+// guess column types and trigger data conversion
+// initial implementation
+//    val records = csvParser.iterator().asSequence().toList()
+//
+//    val numRows = records.toList().size
+//    val cols = mutableListOf<DataCol>()
+//    // fixme: super-inefficient because of incorrect loop order
+//    for (colName in csvParser.headerMap.keys) {
+//        when { // when without arg see https://kotlinlang.org/docs/reference/control-flow.html#when-expression
+//            isDoubleCol(colName, records) -> DoubleCol(colName, Array(numRows, { records[it][colName].toDoubleOrNull() }).toList())
+//            isIntCol(colName, records) -> IntCol(colName, Array(numRows, { records[it][colName].toIntOrNull() }).toList())
+//            isBoolCol(colName, records) -> BooleanCol(colName, Array(numRows, { records[it][colName].toAsBoolNull() }).toList())
+//            else -> StringCol(colName, Array(numRows, { records[it][colName].naAsNull() }).toList())
+//        }.let { cols.add(it) }
+//    }
+//
+//    return SimpleDataFrame(cols)
+//}
+
+
+// NA aware conversions
+internal fun String.toDoubleOrNull(): Double? = if (this == "NA") null else this.toDouble()
+
+internal fun String.toIntOrNull(): Int? = if (this == "NA") null else this.toInt()
+internal fun String.naAsNull(): String? = if (this == "NA") null else this
+
+// add missing value support with user defined string (e.g. NA here) here
+internal fun isDoubleCol(firstElements: List<String>): Boolean = try {
+    firstElements.map { it.toDoubleOrNull() };  true
+} catch(e: NumberFormatException) {
+    false
+}
+
+internal fun isIntCol(firstElements: List<String>): Boolean = try {
+    firstElements.map { it.toIntOrNull() };  true
+} catch(e: NumberFormatException) {
+    false
+}
+
+internal fun isBoolCol(firstElements: List<String>): Boolean = try {
+    firstElements.map { it.toBooleanOrNull() };  true
+} catch(e: NumberFormatException) {
+    false
+}
+
+
+internal fun String.toBooleanOrNull(): Boolean? {
+    var cellValue: String? = toUpperCase()
+
+    cellValue = if (cellValue == "NA") null else cellValue
+    cellValue = if (cellValue == "F") "false" else cellValue
+    cellValue = if (cellValue == "T") "true" else cellValue
+
+    if (!listOf("true", "false", null).contains(cellValue)) throw NumberFormatException("invalid boolean cell value")
+
+    return if (cellValue == "NA") null else cellValue!!.toBoolean()
+}
+
+//internal fun isDoubleCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5): Boolean {
+//    try {
+//        records.take(peekSize).mapIndexed { rowIndex, csvRecord -> records[rowIndex][colName].toDoubleOrNull() }
+//    } catch(e: NumberFormatException) {
+//        return false
+//    }
+//
+//    return true
+//}
+//
+//internal fun isIntCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5): Boolean {
+//    try {
+//        records.take(peekSize).mapIndexed { rowIndex, csvRecord -> records[rowIndex][colName].toIntOrNull() }
+//    } catch(e: NumberFormatException) {
+//        return false
+//    }
+//
+//    return true
+//}
+//
+//internal fun isBoolCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5): Boolean {
+//    try {
+//        records.take(peekSize).mapIndexed { rowIndex, csvRecord ->
+//            var cellValue = records[rowIndex][colName].toLowerCase()
+//
+//            // remap some obvious ones
+//            cellValue = if (cellValue == "NA") "false" else cellValue // fixme add missing value support
+//            cellValue = if (cellValue == "F") "false" else cellValue
+//            cellValue = if (cellValue == "T") "true" else cellValue
+//
+//
+//            if (listOf("true", "false", "T", "F").contains(cellValue)) throw  NumberFormatException("invalid boolean cell value")
+//
+//            return cellValue.toAsBoolNull() ?: true
+//        }
+//
+//    } catch(e: NumberFormatException) {
+//        return false
+//    }
+//
+//    return true
+//}
 
 
 //todo add support for compressed writing
