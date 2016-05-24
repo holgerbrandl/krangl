@@ -3,7 +3,9 @@ package kplyr.benchmarking
 import format
 import kplyr.*
 import mean
+import org.apache.commons.csv.CSVFormat
 import sd
+import java.io.File
 import kotlin.system.measureTimeMillis
 
 /**
@@ -20,42 +22,32 @@ cat nycflights.tsv | gzip -c > nycflights.tsv.gz
 interactive kotlin repl
 kotlinc -J"-Xmx8g" -cp /Users/brandl/projects/kotlin/kplyr/build/classes/main:/Users/brandl/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-csv/1.3/aeed8320e1b86b27e0b477a898eb7dd049526963/commons-csv-1.3.jar
 
+
+echo '
+# http://stackoverflow.com/questions/6262203/measuring-function-execution-time-in-r
+require(readr)
+flights <- read_tsv("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/nycflights.tsv.gz")
+system.time(read_tsv("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/nycflights.tsv.gz"))
+' | R --vanilla
+```
  */
-
-data class RunTimes(val runtimes: List<Float>) {
-    val mean by lazy { runtimes.mean() }
-
-    override fun toString(): String {
-        // todo use actual confidence interval here
-        return "${mean.format(2)} ± ${runtimes.sd()?.format(2)} SD\t "
-    }
-
-    companion object {
-        inline fun <R> measure(block: () -> R, numRuns: Int = 1): Pair<R, RunTimes> {
-            require(numRuns > 0)
-
-            var result: R? = null
-
-            val runs = (1..numRuns).map {
-                val start = System.currentTimeMillis()
-                result = block()
-                (System.currentTimeMillis() - start) / 1000.toFloat()
-            }.let { RunTimes(it) }
-
-            return result!! to runs
-        }
-
-    }
-}
-
 
 
 fun main(args: Array<String>) {
-    // todo use/create measureTimeMillis-version that return expression value for simplified workflow
+    println("running benchmarking")
+    RunTimes.measure({
+        DataFrame.fromCSV(File("/Users/brandl/Desktop/nycflights.tsv.gz"), CSVFormat.TDF, isCompressed = true)
+    }, 3).apply {
+        println("data loading time was: $this")
+    }.result//.glimpse()
+}
 
-    val flights = RunTimes.measure({ DataFrame.fromTSV("/Users/brandl/Desktop/nycflights.tsv") }, 3).apply {
-        println(second)
-    }.first
+fun main2(args: Array<String>) {
+    val flights = RunTimes.measure({
+        DataFrame.fromTSV("/Users/brandl/Desktop/nycflights.tsv")
+    }, 3).apply {
+        println("data loading time was: $runtimes")
+    }.result
 
     println ("done reading starting glimpsing")
 
@@ -81,12 +73,37 @@ fun main(args: Array<String>) {
 
 
 fun main3(args: Array<String>) {
-    val fromCSV = RunTimes.measure({ DataFrame.fromCSV("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/msleep.csv") }, numRuns = 10).run {
-        println(second)
-        first
-    }
+    val fromCSV = RunTimes.measure({ DataFrame.fromCSV("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/msleep.csv") }, numRuns = 10).apply {
+        println(runtimes)
+    }.result
 
 
 //    fromCSV.print()
     fromCSV.glimpse()
+}
+
+data class RunTimes<T>(val result: T, val runtimes: List<Float>) {
+    val mean by lazy { runtimes.mean() }
+
+    override fun toString(): String {
+        // todo use actual confidence interval here
+        return "${mean.format(2)} ± ${runtimes.sd()?.format(2)} SD\t "
+    }
+
+    companion object {
+        inline fun <R> measure(block: () -> R, numRuns: Int = 1): RunTimes<R> {
+            require(numRuns > 0)
+
+            var result: R? = null
+
+            val runs = (1..numRuns).map {
+                val start = System.currentTimeMillis()
+                result = block()
+                (System.currentTimeMillis() - start) / 1000.toFloat()
+            }
+
+            return RunTimes<R>(result!!, runs)
+        }
+
+    }
 }

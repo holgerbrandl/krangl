@@ -120,14 +120,14 @@ fun DataFrame.summarize(name: String, formula: DataFrame.(DataFrame) -> Any?): D
 //fun DataFrame.rowNumber() = IntCol(TMP_COLUMN, (1..nrow).asSequence().toList())
 fun DataFrame.rowNumber() = (1..nrow).asIterable()
 
-fun DataFrame.head(numRows: Int = 5) = filter { rowNumber().map { it > numRows }.toBooleanArray() }
+fun DataFrame.head(numRows: Int = 5) = filter { rowNumber().map { it < numRows }.toBooleanArray() }
 fun DataFrame.tail(numRows: Int = 5) = filter { rowNumber().map { it > (nrow - numRows) }.toBooleanArray() }
 
 
 /* Select rows by position.
  * Similar to dplyr::slice this operation works in a grouped manner.
  */
-fun DataFrame.slice(slices: List<Int>) = filter { rowNumber().map { slices.contains(it) }.toBooleanArray() }
+fun DataFrame.slice(vararg slices: Int) = filter { rowNumber().map { slices.contains(it) }.toBooleanArray() }
 
 // note: supporting n() here seems pointless since nrow will also work in them mutate context
 

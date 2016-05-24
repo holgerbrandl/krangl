@@ -86,7 +86,7 @@ internal class GroupedDataFrame(val by: List<String>, private val groups: List<D
 
     override fun toString(): String = "Grouped by: *$by\n" + ungroup().head(5).asString()
 
-    fun groups() = slice(listOf(1)).ungroup().select(*by.toTypedArray())
+    fun groups() = slice(1).ungroup().select(*by.toTypedArray())
 }
 
 
@@ -130,7 +130,7 @@ fun DataFrame.count(name: String, formula: DataFrame.(DataFrame) -> Any?): DataF
  */
 // todo provide more efficient implementation
 fun DataFrame.distinct(vararg selects: String = this.names.toTypedArray()): DataFrame =
-        groupBy(*selects).slice(listOf(1)).ungroup()
+        groupBy(*selects).slice(1).ungroup()
 
 
 /** Counts observations by group.*/

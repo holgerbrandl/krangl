@@ -52,8 +52,11 @@ class SelectTest : FlatSpec() { init {
 }
 
 class FilterTest : FlatSpec() { init {
-    "it" should "regrouping of data" {
-        throw UnsupportedOperationException()
+    "it" should "head tail and slic should extract data as expextd" {
+        // todo test that the right portions were extracted and not just size
+        sleepData.head().nrow shouldBe  5
+        sleepData.tail().nrow shouldBe  5
+        sleepData.slice(1, 3, 5).nrow shouldBe  3
     }
 
     "it" should "filter in empty table" {

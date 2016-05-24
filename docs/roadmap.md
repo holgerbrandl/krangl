@@ -8,7 +8,7 @@ Initial Release
 * travisCI integration [done]
 * first basic tests [done]
 * rewrite table reader for better performance
-* table write support using csv-commons wrapper
+* table write support using csv-commons wrapper [done]
 * implement joins
 * implement count and distinct [done]
 * remove regrouping in core verbs where possible

@@ -1,13 +1,16 @@
 package kplyr
 
 import org.apache.commons.csv.CSVFormat
+import org.apache.commons.csv.CSVPrinter
 import org.apache.commons.csv.CSVRecord
 import java.io.*
+import java.util.zip.GZIPInputStream
 
 /**
 Methods to read and write tables into/from DataFrames
  * see also https://commons.apache.org/proper/commons-csv/ for other implementations
  * https://github.com/databricks/spark-csv
+ * https://examples.javacodegeeks.com/core-java/apache/commons/csv-commons/writeread-csv-files-with-apache-commons-csv-example/
 
  */
 
@@ -17,15 +20,28 @@ fun DataFrame.Companion.fromCSV(file: String) = fromCSV(File(file))
 fun DataFrame.Companion.fromTSV(file: String) = fromCSV(File(file), format = CSVFormat.TDF)
 
 // http://stackoverflow.com/questions/9648811/specific-difference-between-bufferedreader-and-filereader
-fun DataFrame.Companion.fromCSV(file: File, format: CSVFormat = CSVFormat.RFC4180) =
-        fromCSV(BufferedReader(FileReader(file)), format)
+fun DataFrame.Companion.fromCSV(file: File,
+                                format: CSVFormat = CSVFormat.DEFAULT,
+                                isCompressed: Boolean = file.name.endsWith(".gz")): DataFrame {
+
+    val bufReader = if (isCompressed) {
+        // http://stackoverflow.com/questions/1080381/gzipinputstream-reading-line-by-line
+        val gzip = GZIPInputStream(FileInputStream(file));
+        BufferedReader(InputStreamReader(gzip));
+    } else {
+        BufferedReader(FileReader(file))
+    }
+
+    return fromCSV(bufReader, format)
+}
 
 //http://stackoverflow.com/questions/5200187/convert-inputstream-to-bufferedreader
-fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFormat.RFC4180) =
+fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFormat.DEFAULT) =
         fromCSV(BufferedReader(InputStreamReader(inStream, "UTF-8")), format)
 
 
-fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.RFC4180): DataFrame {
+@Suppress("unused")
+fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
     val csvParser = format.withFirstRecordAsHeader().parse(reader)
     val records = csvParser.iterator().asSequence().toList()
 
@@ -97,9 +113,33 @@ internal fun isBoolCol(colName: String?, records: List<CSVRecord>, peekSize: Int
 }
 
 
+//todo add support for compressed writing
+fun DataFrame.writeCSV(file: String, format: CSVFormat = CSVFormat.DEFAULT) = writeCSV(File(file), format)
+
+fun DataFrame.writeCSV(file: File, format: CSVFormat = CSVFormat.DEFAULT) {
+    //initialize FileWriter object
+    val fileWriter = FileWriter(file)
+
+    //initialize CSVPrinter object
+    val csvFilePrinter = CSVPrinter(fileWriter, format)
+
+    //Create CSV file header
+    csvFilePrinter.printRecord(names)
+
+    // write records
+    for (record in rows) {
+        csvFilePrinter.printRecord(record.values)
+    }
+
+    fileWriter.flush()
+    fileWriter.close()
+    csvFilePrinter.close()
+}
+
 fun main(args: Array<String>) {
     val fromCSV = DataFrame.fromCSV("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/msleep.csv")
+    fromCSV.writeCSV("/Users/brandl/Desktop/test.csv", CSVFormat.TDF)
 
-    fromCSV.print()
-    fromCSV.glimpse()
+//    fromCSV.print()
+//    fromCSV.glimpse()
 }
