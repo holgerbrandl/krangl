@@ -65,10 +65,12 @@ class ColNames(val names: List<String>)
 // select utitlies see http://www.rdocumentation.org/packages/dplyr/functions/select
 fun ColNames.matches(regex: String) = names.map { it.matches(regex.toRegex()) }
 
+// todo add possiblity to negate selection with mini-language. E.g. -startsWith("name")
 fun ColNames.startsWith(prefix: String) = names.map { it.startsWith(prefix) }
-fun ColNames.endsWith(prefix: String) = names.map { it.startsWith(prefix) }
+
+fun ColNames.endsWith(prefix: String) = names.map { it.endsWith(prefix) }
 fun ColNames.everything() = Array(names.size, { true }).toList()
-fun ColNames.oneOf(someNames: List<String>) = Array(names.size, { someNames.contains(names[it]) }).toList()
+fun ColNames.oneOf(vararg someNames: String) = Array(names.size, { someNames.contains(names[it]) }).toList()
 
 
 // since this affects String namespace it might be not a good idea
@@ -76,7 +78,12 @@ operator fun String.unaryMinus() = fun ColNames.(): List<Boolean> = names.map { 
 //val another = -"dsf"
 
 /** Keeps only the variables you mention.*/
-fun DataFrame.select(vararg columns: String): DataFrame = select(this.names.map { colName -> columns.contains(colName) })
+//
+
+fun DataFrame.select(vararg columns: String): DataFrame {
+    if (columns.isEmpty()) System.err.println("Calling select() without arguments is not sensible")
+    return select(this.names.map { colName -> columns.contains(colName) })
+}
 
 /** Keeps only the variables that match any of the given expressions. E.g. use `startsWith("foo")` to select for columns staring with 'foo'.*/
 fun DataFrame.select(vararg which: ColNames.() -> List<Boolean>): DataFrame {
@@ -120,7 +127,7 @@ fun DataFrame.summarize(name: String, formula: DataFrame.(DataFrame) -> Any?): D
 //fun DataFrame.rowNumber() = IntCol(TMP_COLUMN, (1..nrow).asSequence().toList())
 fun DataFrame.rowNumber() = (1..nrow).asIterable()
 
-fun DataFrame.head(numRows: Int = 5) = filter { rowNumber().map { it < numRows }.toBooleanArray() }
+fun DataFrame.head(numRows: Int = 5) = filter { rowNumber().map { it <= numRows }.toBooleanArray() }
 fun DataFrame.tail(numRows: Int = 5) = filter { rowNumber().map { it > (nrow - numRows) }.toBooleanArray() }
 
 
@@ -130,7 +137,6 @@ fun DataFrame.tail(numRows: Int = 5) = filter { rowNumber().map { it > (nrow - n
 fun DataFrame.slice(vararg slices: Int) = filter { rowNumber().map { slices.contains(it) }.toBooleanArray() }
 
 // note: supporting n() here seems pointless since nrow will also work in them mutate context
-
 
 
 /* Prints a dataframe to stdout. df.toString() will also work but has no options .*/
@@ -168,6 +174,7 @@ fun DataFrame.glimpse(sep: String = "\t") {
     }
 
     val topN = head(8) as SimpleDataFrame
+    println("DataFrame with ${nrow} observations")
 
     for (col in topN.cols) {
         when (col) {
@@ -181,12 +188,7 @@ fun DataFrame.glimpse(sep: String = "\t") {
 
 /** Provides a code to convert  a dataframe to a strongly typed list of kotlin data-class instances.*/
 fun DataFrame.toKotlin(dfVarName: String, dataClassName: String = dfVarName.capitalize()) {
-
-    var df = this.ungroup() as SimpleDataFrame
-//    if (this is GroupedDataFrame) {
-//        df = df.ungroup()
-//    }
-
+    val df = this.ungroup() as SimpleDataFrame
 
     // create type
     val dataSpec = df.cols.map { "val ${it.name}: ${getScalarColType(it) }" }.joinToString(", ")
@@ -199,4 +201,5 @@ fun DataFrame.toKotlin(dfVarName: String, dataClassName: String = dfVarName.capi
 
     println("val ${dfVarName}Entries = ${dfVarName}.rows.map { row -> ${dataClassName}(${attrMapping}) }")
 }
+
 

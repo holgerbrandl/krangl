@@ -4,6 +4,7 @@ import java.util.*
 import kotlin.comparisons.nullsLast
 import kotlin.comparisons.then
 
+
 internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 
     override val rows = object : Iterable<Map<String, Any?>> {
@@ -18,7 +19,8 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 
 
     override fun select(which: List<Boolean>): DataFrame {
-        if (which.isEmpty()) System.err.println("Calling select() without arguments is not sensible")
+        require(which.size == ncol) { "selector array has different dimension than data-frame" }
+
         return SimpleDataFrame(cols.filterIndexed { index, dataCol -> which[index] })
     }
 

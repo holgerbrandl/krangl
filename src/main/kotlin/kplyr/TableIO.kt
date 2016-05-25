@@ -104,7 +104,9 @@ internal fun isBoolCol(firstElements: List<String?>): Boolean = try {
     false
 }
 
-internal fun peekCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5) = records.take(peekSize).mapIndexed { rowIndex, csvRecord -> records[rowIndex][colName] }
+
+// todo keep peeking until we hit the first/N non NA value
+internal fun peekCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5) = records.take(peekSize).mapIndexed { rowIndex, csvRecord -> records[rowIndex][colName].naAsNull() }
 
 
 //TODO add support for compressed writing

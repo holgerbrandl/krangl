@@ -7,6 +7,7 @@ Nice Intro
  * http://www.cburch.com/cs/340/reading/join/index.html
  * https://de.wikipedia.org/wiki/Joinalgorithmen
  * http://codeaffectionate.blogspot.de/2012/09/fun-with-cartesian-products-cartesian.html
+ * https://www.informatik.hu-berlin.de/de/forschung/gebiete/wbi/teaching/archive/sose05/dbs2/slides/09_joins.pdf
  */
 
 enum class JoinType {
@@ -43,7 +44,7 @@ fun joinLeft(left: DataFrame, right: DataFrame, vararg by: String = defaultBy(le
         matchRGroup = if (rightIt.hasNext()) rightIt.next() else null // can happen if a group around the end of L is not present in B
     }
 
-    return SimpleDataFrame()
+    return mergedGroups.reduce { left, right -> listOf(left, right).bindRows() }
 
 }
 
@@ -52,8 +53,8 @@ fun cartesianProduct(left: DataFrame, right: DataFrame): DataFrame {
     //http://codeaffectionate.blogspot.de/2012/09/fun-with-cartesian-products-cartesian.html
 
 //    val leftIndexReplication = IntArray(left.nrow*right.nrow, { index -> }
-    val leftIndexReplication = (1..right.nrow).flatMap { rightIt: Int -> IntArray(left.nrow, { rightIt }).toList() }
-    val rightIndexReplication = (1..right.nrow).flatMap { rightIt: Int -> IntArray(left.nrow, { it }).toList() }
+    val leftIndexReplication = (0..(right.nrow - 1)).flatMap { leftIt: Int -> IntArray(left.nrow, { it }).toList() }
+    val rightIndexReplication = (0..(right.nrow - 1)).flatMap { leftIt: Int -> IntArray(left.nrow, { leftIt }).toList() }
 
     // replicate data
     val leftCartesian: DataFrame = replicateByIndex(left, leftIndexReplication)

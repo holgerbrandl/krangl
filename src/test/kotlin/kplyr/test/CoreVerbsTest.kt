@@ -31,16 +31,24 @@ class CompoundTests : FlatSpec() { init {
 }
 }
 
+
 class JoinTests : FlatSpec() { init {
 
     "it" should "perform an inner join" {
         val voreInfo = sleepData.groupBy("vore").summarize("vore_mod" to { it["vore"].asStrings().first() + "__2" })
+        voreInfo.print()
 
         val sleepWithInfo = joinLeft(sleepData, voreInfo)
+//        sleepWithInfo.print()
+        sleepWithInfo.glimpse()
 
         sleepWithInfo.nrow shouldBe sleepData.nrow
         sleepWithInfo.ncol shouldBe (sleepData.ncol + 1)
 //        sleepWithInfo.names should contain "" // todo reenable
+    }
+
+    "it" should "join calculate cross-product when joining on empty by list" {
+//        TODO()
     }
 }
 }
@@ -48,19 +56,34 @@ class JoinTests : FlatSpec() { init {
 class SelectTest : FlatSpec() { init {
 
     "it" should "select with regex" {
-        throw UnsupportedOperationException()
+        sleepData.select({ endsWith("wt") }).ncol shouldBe 2
+        sleepData.select({ endsWith("wt") }).ncol shouldBe 2
+        sleepData.select({ startsWith("sleep") }).ncol shouldBe 3
+        sleepData.select({ oneOf("conservation", "foobar", "order") }).ncol shouldBe 2
     }
 
     "it" should "select non-existing column" {
-        throw UnsupportedOperationException()
+        try {
+            sleepData.select("foobar")
+            fail("foobar should not be selectable")
+        } catch(t: Throwable) {
+            // todo expect more descriptive exception here. eg. ColumnDoesNotExistException
+        }
     }
 
     "it" should "select no columns" {
-        throw UnsupportedOperationException()
+        try {
+            sleepData.select(listOf())
+            fail("should complain about mismatching selector array dimensionality")
+        } catch(t: Throwable) {
+        }
+
+        sleepData.select(*arrayOf<String>()).ncol shouldBe 0
     }
 
     "it" should "select same columns twice" {
-        throw UnsupportedOperationException()
+        // double selection is flattend out as in dplyr:  iris %>% select(Species, Species) %>% glimpse
+        sleepData.select("name", "name").ncol shouldBe 1
     }
 }
 }
@@ -74,7 +97,10 @@ class FilterTest : FlatSpec() { init {
     }
 
     "it" should "filter in empty table" {
-        throw UnsupportedOperationException()
+        sleepData
+                .filter { it["name"] eq "foo" }
+                // refilter on empty one
+                .filter { it["name"] eq "bar" }
     }
 }
 }
