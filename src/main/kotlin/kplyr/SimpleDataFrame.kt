@@ -189,7 +189,7 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
         val groupCols = cols.filter { by.contains(it.name) }
         require(groupCols.size == by.size) { "Could not find all grouping columns" }
 
-        val NA_GROUP_HASH = Int.MIN_VALUE + 123
+        val NA_GROUP_HASH = Int.MAX_VALUE - 123
 
         // todo use more efficient scheme to avoid hashing of ints
         // extract the group value-tuple for each row and calculate row-hashes

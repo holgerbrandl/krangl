@@ -31,7 +31,14 @@ class CompoundTests : FlatSpec() { init {
 }
 }
 
+/**
+require(dplyr)
+iris[1, "Species"] <- NA
+head(iris)
+group_by(iris, Species)
+group_by(iris, Species) %>% summarize(mean_length=mean(Sepal.Width))
 
+ */
 class JoinTests : FlatSpec() { init {
 
     "it" should "perform an inner join" {
@@ -43,11 +50,21 @@ class JoinTests : FlatSpec() { init {
         sleepWithInfo.glimpse()
 
         sleepWithInfo.nrow shouldBe sleepData.nrow
+        // make sure that by columns don't show up twice
         sleepWithInfo.ncol shouldBe (sleepData.ncol + 1)
 //        sleepWithInfo.names should contain "" // todo reenable
     }
 
+    "it" should "add suffices if join column names have duplicates" {
+        // allow user to specify suffix
+//        TODO()
+    }
     "it" should "join calculate cross-product when joining on empty by list" {
+//        TODO()
+    }
+
+    "it" should "should allow for NA in by attribute-lists" {
+        //todo it's more eyefriendly if NA merge tuples come last in the result table. Can we do the same
 //        TODO()
     }
 }
