@@ -96,7 +96,7 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
     // also provide vararg constructor for convenience
     constructor(vararg cols: DataCol) : this(cols.asList())
 
-    override fun summarize(vararg sumRules: Pair<String, DataFrame.(DataFrame) -> Any?>): DataFrame {
+    override fun summarize(vararg sumRules: TableFormula): DataFrame {
 //        require(nrow > 0) { "Can not summarize empty data-frame" } // todocan dplyr?
         /**
         require(dplyr)
@@ -126,10 +126,10 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 //    operator fun component1() = 1
 
     // todo enforce better typed API
-    override fun mutate(name: String, formula: DataFrame.(DataFrame) -> Any?): DataFrame {
+    override fun mutate(tf: TableFormula): DataFrame {
 
-        val mutation = formula(this)
-        val newCol = anyAsColumn(mutation, name, nrow)
+        val mutation = tf.formula(this, this)
+        val newCol = anyAsColumn(mutation, tf.resultName, nrow)
 
 
         require(newCol.values().size == nrow) { "new column has inconsistent length" }
@@ -277,13 +277,6 @@ internal fun anyAsColumn(mutation: Any?, name: String, nrow: Int): DataCol {
     }
     return newCol
 }
-
-//fun Any?.asCol(df:DataFrame) = anyAsColumn(this, TMP_COLUMN, df.nrow)
-
-// Any.+ overloading does not work and is maybe neight a good idea since it's affecting global operator conventions
-//infix operator fun Any.plus(rightCol:DataCol) = anyAsColumn(this, TMP_COLUMN, rightCol.values().size) + rightCol
-fun DataFrame.const(someThing: Any) = anyAsColumn(someThing, TMP_COLUMN, nrow)
-
 
 @Suppress("UNCHECKED_CAST")
 internal fun handleListErasure(name: String, mutation: List<*>): DataCol = when (mutation.first()) {

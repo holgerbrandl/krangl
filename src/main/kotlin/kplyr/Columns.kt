@@ -264,6 +264,8 @@ class InvalidColumnOperationException(msg: String) : Throwable(msg) {
     constructor(receiver: Any) : this(receiver.javaClass.simpleName + " is not a supported by this operation ")
 }
 
+class NonScalarValueException(tf: TableFormula, result: Any) :
+        Throwable("Table formula '${tf.resultName}' did not evaluate into a scalar value but into '${result}'")
 //
 // Category/String helper extensions
 //
