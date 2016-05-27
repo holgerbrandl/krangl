@@ -174,6 +174,7 @@ class GroupedDataTest : FlatSpec() { init {
     ```
      */
     "it" should "allow for NA as a group value" {
+
         // 1) test single attribute grouping with NA
         (sleepData.groupBy("vore") as GroupedDataFrame).groups().nrow shouldBe 5
 
@@ -184,8 +185,11 @@ class GroupedDataTest : FlatSpec() { init {
 
     "it" should "count group sizes and report distinct rows in a table" {
         // 1) test single attribute grouping with NA
-        sleepData.count("vore").ncol shouldBe 2
-        sleepData.count("vore").nrow shouldBe 5
+        sleepData.count("vore").apply {
+            print()
+            ncol shouldBe 2
+            nrow shouldBe 5
+        }
 
         sleepData.distinct("vore", "order").apply {
             print(this)

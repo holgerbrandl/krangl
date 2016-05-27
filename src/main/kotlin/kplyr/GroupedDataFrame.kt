@@ -51,10 +51,23 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
 
     override fun summarize(vararg sumRules: TableFormula): DataFrame {
-        return groups.map {
-            it.df.summarize(*sumRules)
-        }.bindRows() // todo does dplyr keep the group here?? .groupBy(*by.toTypedArray())
+        // supposedly slow old implementation
+//        return groups.map {
+//            val groupSumRules: List<TableFormula> = by.map {
+//                groupAttr -> TableFormula(groupAttr, { it[groupAttr].values().first() })
+//            }
+//            it.df.summarize(*groupSumRules.toTypedArray(), *sumRules)
+//        }.bindRows() // todo does dplyr keep the group here?? .groupBy(*by.toTypedArray())
+
+        // todo conisder to expose the group tuple via public API
+        return groups.map { gdf ->
+            val groupTuple = gdf.df.select(*by.toTypedArray()).head(1)
+            val groupSummary = gdf.df.summarize(*sumRules)
+
+            bindCols(groupTuple, groupSummary)
+        }.bindRows()
     }
+
 
     // fixme get rid of rbind.groupby anti-pattern in most core-verbs
 
