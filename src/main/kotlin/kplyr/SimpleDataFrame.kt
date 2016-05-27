@@ -279,10 +279,71 @@ internal fun anyAsColumn(mutation: Any?, name: String, nrow: Int): DataCol {
 }
 
 @Suppress("UNCHECKED_CAST")
-internal fun handleListErasure(name: String, mutation: List<*>): DataCol = when (mutation.first()) {
-    is Double -> DoubleCol(name, mutation as List<Double>)
-    is Int -> IntCol(name, mutation as List<Int>)
-    is String -> StringCol(name, mutation as List<String>)
-    is Boolean -> BooleanCol(name, mutation as List<Boolean>)
+internal fun handleListErasure(name: String, mutation: List<*>): DataCol = when {
+    isOfType<Int>(mutation.iterator()) -> IntCol(name, mutation as List<Int>)
+    isOfType<String>(mutation.iterator()) -> StringCol(name, mutation as List<String>)
+    isOfType<Double>(mutation.iterator()) -> DoubleCol(name, mutation as List<Double>)
+    isOfType<Boolean>(mutation.iterator()) -> BooleanCol(name, mutation as List<Boolean>)
     else -> throw UnsupportedOperationException()
 }
+
+
+// find first element in list with specidifc type
+inline fun <reified T> isOfType(iter: Iterator<Any?>): Boolean {
+    if (!iter.hasNext()) throw UnsupportedOperationException("could not detect column type")
+    return iter.next() is T
+}
+
+//@Suppress("UNCHECKED_CAST")
+//internal fun handleListErasureOLD(name: String, mutation: List<*>): DataCol = when (mutation.first()) {
+//    is Double -> DoubleCol(name, mutation as List<Double>)
+//    is Int -> IntCol(name, mutation as List<Int>)
+//    is String -> StringCol(name, mutation as List<String>)
+//    is Boolean -> BooleanCol(name, mutation as List<Boolean>)
+//    else -> throw UnsupportedOperationException()
+//}
+
+
+// todo this is the same as ColumnNames. Should we use just one type here.
+data class TableHeader(val header: List<String>) {
+
+    operator fun invoke(vararg tblData: Any?): DataFrame {
+
+        // 1) break into columns
+        val rawColumns: List<List<Any?>> = tblData.toList()
+                .mapIndexed { i, any -> i.mod(header.size) to any }
+                .groupBy { it.first }.values.map {
+            it.map { it.second }
+        }
+
+
+        // 2) infer column type by peeking into column data
+        val tableColumns = header.zip(rawColumns).map {
+            handleListErasure(it.first, it.second)
+        }
+
+        require(tableColumns.map { it.length }.distinct().size == 1) {
+            "Provided data does not coerce to tablular shape"
+        }
+
+        // 3) bind into data-frame
+        return SimpleDataFrame(tableColumns)
+    }
+}
+
+/**
+Create a new data frame in place.
+
+Example:
+```
+val df = dataFrameOf(
+"foo", "bar") (
+"ll",   2, 3,
+"sdfd", 4, 5,
+"sdf",  5, 8
+)
+```
+@throw
+ */
+fun dataFrameOf(vararg header: String) = TableHeader(header.toList())
+

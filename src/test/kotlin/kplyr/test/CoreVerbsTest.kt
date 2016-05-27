@@ -28,6 +28,20 @@ class CompoundTests : FlatSpec() { init {
 
         ((insectiMeanREM - 3.525) < 1E-5) shouldBe true
     }
+
+    "it" should "allow to create dataframe in place"{
+        // @formatter:off
+        val df = dataFrameOf(
+            "foo", "bar") (
+            "ll",   2,
+            "sdfd", 4,
+            "sdf",  5)
+         //@formatter:on
+
+        df.ncol shouldBe 2
+        df.nrow shouldBe 3
+        df.names shouldBe listOf("foo", "bar")
+    }
 }
 }
 
@@ -57,7 +71,9 @@ class JoinTests : FlatSpec() { init {
 
     "it" should "add suffices if join column names have duplicates" {
         // allow user to specify suffix
-//        TODO()
+        dataFrameOf(
+
+        )
     }
     "it" should "join calculate cross-product when joining on empty by list" {
 //        TODO()
@@ -192,7 +208,7 @@ class GroupedDataTest : FlatSpec() { init {
         }
 
         sleepData.distinct("vore", "order").apply {
-            print(this)
+            print()
             nrow shouldBe 32
             ncol shouldBe 11
         }
