@@ -1,11 +1,9 @@
 package kplyr
 
 
-// as would also prevent us from overwriting to
-//infix fun String.to(that: DataFrame.(DataFrame) -> Any?) = Pair<String, DataFrame.(DataFrame) -> Any?>(this, that)
-
-infix fun String.to(that: DataFrame.(DataFrame) -> Any?) = TableFormula(this, that)
-
+////////////////////////////////////////////////
+// instantiation and aggregation
+////////////////////////////////////////////////
 
 ////////////////////////////////////////////////
 // select() helpers and API
@@ -44,33 +42,47 @@ fun DataFrame.select(vararg which: ColNames.() -> List<Boolean>): DataFrame {
     }).let { select(it.toList()) }
 }
 
+data class RenameRule(val oldName: String, val newName: String)
 
-fun DataFrame.rename(vararg old2new: Pair<String, String>): DataFrame {
+
+// todo dplyr consistency here or "old" to "new" readbility, what's more important
+fun DataFrame.rename(vararg old2new: Pair<String, String>) =
+        this.rename(*old2new.map { RenameRule(it.first, it.second) }.toTypedArray())
+
+fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
 //    renames.map{ it.first to  { df -> df[it.second]} }
-    val changeList = old2new.map { TableFormula(it.first, { df -> df[it.second] }) }
+    val changeList = old2new.map { TableFormula(it.newName, { df -> df[it.oldName] }) }
     return this.mutate(*changeList.toTypedArray())
 }
 
 ////////////////////////////////////////////////
-// filter() convenience
+// mutate() convenience
 ////////////////////////////////////////////////
 
-// todo implement transmute() extension function
-//fun DataFrame.transmute(formula: DataFrame.(DataFrame) -> Any): DataFrame = throw UnsupportedOperationException()
 
-// vararg support for mutate
+// as would also prevent us from overwriting to
+//infix fun String.to(that: DataFrame.(DataFrame) -> Any?) = Pair<String, DataFrame.(DataFrame) -> Any?>(this, that)
+
+infix fun String.to(that: DataFrame.(DataFrame) -> Any?) = TableFormula(this, that)
+
+
 data class TableFormula(val resultName: String, val formula: DataFrame.(DataFrame) -> Any?)
 
-
-//data class RenameRule(val oldName:String, val newName:String)
-
+fun DataFrame.mutate(resultName: String, formula: DataFrame.(DataFrame) -> Any?) = mutate(resultName to formula)
 
 fun DataFrame.mutate(vararg mutations: TableFormula): DataFrame {
     return mutations.fold(this, { df, tf -> df.mutate(tf) })
 }
 
+/** Mutates a data-frame and discards all non-result columns. */
+fun DataFrame.transmute(vararg formula: TableFormula) = mutate(*formula).select(*formula.map { it.resultName }.toTypedArray())
 
-// mutate convenience
+
+////////////////////////////////////////////////
+// filter() convenience
+////////////////////////////////////////////////
+
+
 fun DataFrame.filter(predicate: DataFrame.(DataFrame) -> List<Boolean>): DataFrame = filter({ predicate(this).toBooleanArray() })
 // // todo does not work why?
 // df.filter({ it["last_name"].asStrings().map { it!!.startsWith("Do") } })

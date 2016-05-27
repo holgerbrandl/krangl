@@ -27,17 +27,21 @@ enum class JoinType {
 //fun outerJoin(left: DataFrame, right: DataFrame, vararg by: String = defaultBy(left, right)) = join(left, right, JoinType.LEFT, *by)
 
 
+internal fun addSuffix(df: DataFrame, cols: Iterable<String>, prefix: String = "", suffix: String = ""): DataFrame {
+    val renameRules = cols.map { RenameRule(it, prefix + it + suffix) }
+    return df.rename(*renameRules.toTypedArray())
+}
+
+
 internal fun joinInner(left: DataFrame, right: DataFrame, type: JoinType, vararg by: String = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
+
     // detect common no-by columns and apply optional suffixing
-    val toBeSuffixed = left.names.intersect(right.names).minusElement(by)
+    val toBeSuffixed = left.names.intersect(right.names).minus(by)
 
-    fun addSuffix(df: DataFrame, vararg cols: String) {
-        cols.zip(cols.ma)
-    }
+    val groupedLeft = (addSuffix(left, toBeSuffixed, suffices.first).groupBy(*by) as GroupedDataFrame).hashSorted()
+    val groupedRight = (addSuffix(right, toBeSuffixed, suffices.first).groupBy(*by) as GroupedDataFrame).hashSorted()
 
-    val groupedLeft = (left.groupBy(*by) as GroupedDataFrame).hashSorted()
-    val groupedRight = (right.groupBy(*by) as GroupedDataFrame).hashSorted()
-
+    // start sorted hash-join
     val rightIt = groupedRight.groups.iterator()
 
     var matchRGroup: DataGroup? = rightIt.next()
@@ -60,8 +64,12 @@ internal fun joinInner(left: DataFrame, right: DataFrame, type: JoinType, vararg
 }
 
 internal fun joinLeft(left: DataFrame, right: DataFrame, vararg by: String = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
-    val groupedLeft = (left.groupBy(*by) as GroupedDataFrame).hashSorted()
-    val groupedRight = (right.groupBy(*by) as GroupedDataFrame).hashSorted()
+
+    // detect common no-by columns and apply optional suffixing
+    val toBeSuffixed = left.names.intersect(right.names).minus(by)
+
+    val groupedLeft = (addSuffix(left, toBeSuffixed, suffices.first).groupBy(*by) as GroupedDataFrame).hashSorted()
+    val groupedRight = (addSuffix(right, toBeSuffixed, suffices.first).groupBy(*by) as GroupedDataFrame).hashSorted()
 
     val rightIt = groupedRight.groups.iterator()
 
