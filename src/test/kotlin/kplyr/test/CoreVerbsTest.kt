@@ -36,14 +36,26 @@ class CompoundTests : FlatSpec() { init {
             "ll",   2,
             "sdfd", 4,
             "sdf",  5)
-         //@formatter:on
+        //@formatter:on
 
         df.ncol shouldBe 2
         df.nrow shouldBe 3
         df.names shouldBe listOf("foo", "bar")
+
+        val naDF = dataFrameOf(
+                "foo", "bar") (
+                null, null,
+                "sdfd", null,
+                "sdf", 5)
+
+        (naDF["foo"] is StringCol) shouldBe true
+        (naDF["bar"] is IntCol) shouldBe true
+
+        naDF.summarize("num_na", { it["bar"].isNA().sumBy { if (it) 1 else 0 } }).print()
     }
 }
 }
+
 
 /**
 require(dplyr)
@@ -66,6 +78,8 @@ class JoinTests : FlatSpec() { init {
         sleepWithInfo.nrow shouldBe sleepData.nrow
         // make sure that by columns don't show up twice
         sleepWithInfo.ncol shouldBe (sleepData.ncol + 1)
+
+        sleepWithInfo.head().print()
 //        sleepWithInfo.names should contain "" // todo reenable
     }
 
@@ -138,6 +152,27 @@ class FilterTest : FlatSpec() { init {
 }
 }
 
+class SummarizeTest : FlatSpec() { init {
+    "it" should "fail if summaries are not scalar values" {
+        shouldThrow<NonScalarValueException> {
+            sleepData.summarize("foo", { listOf("a", "b", "c") })
+        }
+        shouldThrow<NonScalarValueException> {
+            sleepData.summarize("foo", { BooleanArray(12) })
+        }
+
+    }
+
+    "it" should "should allow complex objects as summaries" {
+        class Something {
+            override fun toString(): String = "Something(${hashCode()}"
+        }
+
+        sleepData.groupBy("vore").summarize("foo" to { Something() }, "bar" to { Something() }).print()
+    }
+}
+}
+
 
 class EmptyTest : FlatSpec() { init {
     "it" should "handle  empty (row and column-empty) data-frames in all operations" {
@@ -166,13 +201,17 @@ class EmptyTest : FlatSpec() { init {
 }
 }
 
+
 class Playground : FlatSpec() { init {
-    "it" should "regrouping of data" {
-
+    "it" should "do something" {
+//        throw MyException()
     }
-}
+
+//    "it" should "do something else" {
+//    }
 }
 
+}
 
 class GroupedDataTest : FlatSpec() { init {
 

@@ -111,10 +111,15 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
                 is Double -> DoubleCol(key, listOf(sumValue))
                 is Boolean -> BooleanCol(key, listOf(sumValue))
                 is String -> StringCol(key, Array(1, { sumValue.toString() }).toList())
+
+            // prevent non-scalar summaries. See kplyr/test/CoreVerbsTest.kt:165
+                is DataCol -> throw NonScalarValueException(key to sumRule, sumValue)
+                is IntArray, is BooleanArray, is DoubleArray, is FloatArray -> throw NonScalarValueException(key to sumRule, "Array")
+                is Iterable<*> -> throw NonScalarValueException(key to sumRule, "List")
+
             // todo does null-handling makes sense at all? Might be not-null in other groups for grouped operations // todo add unit-test
-                null -> AnyCol(key, listOf(null))
-                is DataCol -> throw UnsupportedOperationException("summarize() rules must evaluate to scalar expression but did as: ${sumValue}")
-                else -> throw UnsupportedOperationException()
+//                null -> AnyCol(key, listOf(null)) // covered by else as well
+                else -> AnyCol(key, listOf(sumValue))
             }.let { sumCols.add(it) }
         }
 
@@ -280,18 +285,23 @@ internal fun anyAsColumn(mutation: Any?, name: String, nrow: Int): DataCol {
 
 @Suppress("UNCHECKED_CAST")
 internal fun handleListErasure(name: String, mutation: List<*>): DataCol = when {
-    isOfType<Int>(mutation.iterator()) -> IntCol(name, mutation as List<Int>)
-    isOfType<String>(mutation.iterator()) -> StringCol(name, mutation as List<String>)
-    isOfType<Double>(mutation.iterator()) -> DoubleCol(name, mutation as List<Double>)
-    isOfType<Boolean>(mutation.iterator()) -> BooleanCol(name, mutation as List<Boolean>)
+    isOfType<Int>(mutation) -> IntCol(name, mutation as List<Int>)
+    isOfType<String>(mutation) -> StringCol(name, mutation as List<String>)
+    isOfType<Double>(mutation) -> DoubleCol(name, mutation as List<Double>)
+    isOfType<Boolean>(mutation) -> BooleanCol(name, mutation as List<Boolean>)
     else -> throw UnsupportedOperationException()
 }
 
 
-// find first element in list with specidifc type
-inline fun <reified T> isOfType(iter: Iterator<Any?>): Boolean {
-    if (!iter.hasNext()) throw UnsupportedOperationException("could not detect column type")
-    return iter.next() is T
+/**Test if for first non-null elemeent in list if it has specific type bu peeking into it from the top. */
+inline fun <reified T> isOfType(items: Iterable<Any?>): Boolean {
+    val it = items.iterator()
+
+    while (it.hasNext()) {
+        if (it.next() is T) return true
+    }
+
+    return false
 }
 
 //@Suppress("UNCHECKED_CAST")

@@ -162,6 +162,9 @@ fun DataCol.asBooleans(): List<Boolean?> = this.values() as List<Boolean?>
  */
 fun <T> DataCol.data(): List<T?> = this.values() as List<T>
 
+fun DataCol.isNA(): BooleanArray = this.values().map { it == null }.toBooleanArray()
+
+
 /** Allows to transform column data into list of same length ignoring missing values, which are kept but processing
  * can be done in a non-null manner.
  */
@@ -256,16 +259,18 @@ private fun <E> List<E?>.forceNotNull(): List<E> = try {
 }
 
 
+// todo just inherit for Throwble once https://github.com/kotlintest/kotlintest/issues/20 is fixed
+
 /** Thrown if an operation is applied to a column that contains missing values. */
 // todo do we really want this? Shouldn't it rather be NA (or add parameter to suppress Exception )
-class MissingValueException(msg: String) : Throwable(msg)
+class MissingValueException(msg: String) : RuntimeException(msg)
 
-class InvalidColumnOperationException(msg: String) : Throwable(msg) {
+class InvalidColumnOperationException(msg: String) : RuntimeException(msg) {
     constructor(receiver: Any) : this(receiver.javaClass.simpleName + " is not a supported by this operation ")
 }
 
 class NonScalarValueException(tf: TableFormula, result: Any) :
-        Throwable("Table formula '${tf.resultName}' did not evaluate into a scalar value but into '${result}'")
+        RuntimeException("summarize() formula for '${tf.resultName}' did not evaluate into a scalar value but into a '${result}'")
 //
 // Category/String helper extensions
 //
