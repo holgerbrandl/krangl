@@ -7,99 +7,6 @@ import kplyr.*
 
 val sleepData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/msleep.csv"))
 
-class CompoundTests : FlatSpec() { init {
-
-    "it" should "summarize sleep data" {
-
-        val groupedSleep = sleepData.filter { it["awake"] gt 3 }.
-                apply { glimpse() }.
-                mutate("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] }).
-                groupBy("vore")
-
-
-        val insectiMeanREM = sleepData.filter { it["awake"] gt 3 }.
-                apply { glimpse() }.
-                mutate("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] }).
-                groupBy("vore").
-                summarize("mean_rem_prop", { it["rem_proportion"].mean(removeNA = true) }).
-                filter { it["vore"] eq  "insecti" }.
-                row(0)["mean_rem_prop"] as Double
-
-
-        ((insectiMeanREM - 3.525) < 1E-5) shouldBe true
-    }
-
-    "it" should "allow to create dataframe in place"{
-        // @formatter:off
-        val df = dataFrameOf(
-            "foo", "bar") (
-            "ll",   2,
-            "sdfd", 4,
-            "sdf",  5)
-        //@formatter:on
-
-        df.ncol shouldBe 2
-        df.nrow shouldBe 3
-        df.names shouldBe listOf("foo", "bar")
-
-        val naDF = dataFrameOf(
-                "foo", "bar") (
-                null, null,
-                "sdfd", null,
-                "sdf", 5)
-
-        (naDF["foo"] is StringCol) shouldBe true
-        (naDF["bar"] is IntCol) shouldBe true
-
-        naDF.summarize("num_na", { it["bar"].isNA().sumBy { if (it) 1 else 0 } }).print()
-    }
-}
-}
-
-
-/**
-require(dplyr)
-iris[1, "Species"] <- NA
-head(iris)
-group_by(iris, Species)
-group_by(iris, Species) %>% summarize(mean_length=mean(Sepal.Width))
-
- */
-class JoinTests : FlatSpec() { init {
-
-    "it" should "perform an inner join" {
-        val voreInfo = sleepData.groupBy("vore").summarize("vore_mod" to { it["vore"].asStrings().first() + "__2" })
-        voreInfo.print()
-
-        val sleepWithInfo = joinLeft(sleepData, voreInfo)
-//        sleepWithInfo.print()
-        sleepWithInfo.glimpse()
-
-        sleepWithInfo.nrow shouldBe sleepData.nrow
-        // make sure that by columns don't show up twice
-        sleepWithInfo.ncol shouldBe (sleepData.ncol + 1)
-
-        sleepWithInfo.head().print()
-//        sleepWithInfo.names should contain "" // todo reenable
-    }
-
-    "it" should "add suffices if join column names have duplicates" {
-        // allow user to specify suffix
-        dataFrameOf(
-
-        )
-    }
-    "it" should "join calculate cross-product when joining on empty by list" {
-//        TODO()
-    }
-
-    "it" should "should allow for NA in by attribute-lists" {
-        //todo it's more eyefriendly if NA merge tuples come last in the result table. Can we do the same
-//        TODO()
-    }
-}
-}
-
 class SelectTest : FlatSpec() { init {
 
     "it" should "select with regex" {
@@ -109,6 +16,7 @@ class SelectTest : FlatSpec() { init {
         sleepData.select({ oneOf("conservation", "foobar", "order") }).ncol shouldBe 2
     }
 
+
     "it" should "select non-existing column" {
         try {
             sleepData.select("foobar")
@@ -117,6 +25,7 @@ class SelectTest : FlatSpec() { init {
             // todo expect more descriptive exception here. eg. ColumnDoesNotExistException
         }
     }
+
 
     "it" should "select no columns" {
         try {
@@ -128,12 +37,34 @@ class SelectTest : FlatSpec() { init {
         sleepData.select(*arrayOf<String>()).ncol shouldBe 0
     }
 
+
     "it" should "select same columns twice" {
         // double selection is flattend out as in dplyr:  iris %>% select(Species, Species) %>% glimpse
         sleepData.select("name", "name").ncol shouldBe 1
     }
 }
 }
+
+
+class MutateTest : FlatSpec() { init {
+    "it" should "rename columns and preserve their positions" {
+        sleepData.rename("vore" to "new_vore", "awake" to "awa2").apply {
+            glimpse()
+            names.contains("vore") shouldBe false
+            names.contains("vore_new") shouldBe true
+
+            // column renaming should preserve positions
+            names.indexOf("vore_new") shouldEqual sleepData.names.indexOf("vore")
+
+            // renaming should not affect column or row counts
+            nrow == sleepData.nrow
+            ncol == sleepData.ncol
+        }
+    }
+
+}
+}
+
 
 class FilterTest : FlatSpec() { init {
     "it" should "head tail and slic should extract data as expextd" {
@@ -151,6 +82,7 @@ class FilterTest : FlatSpec() { init {
     }
 }
 }
+
 
 class SummarizeTest : FlatSpec() { init {
     "it" should "fail if summaries are not scalar values" {
@@ -201,18 +133,6 @@ class EmptyTest : FlatSpec() { init {
 }
 }
 
-
-class Playground : FlatSpec() { init {
-    "it" should "do something" {
-//        throw MyException()
-    }
-
-//    "it" should "do something else" {
-//    }
-}
-
-}
-
 class GroupedDataTest : FlatSpec() { init {
 
     /** dplyr considers NA as a group and kplyr should do the same
@@ -238,6 +158,7 @@ class GroupedDataTest : FlatSpec() { init {
         //todo implement me
     }
 
+
     "it" should "count group sizes and report distinct rows in a table" {
         // 1) test single attribute grouping with NA
         sleepData.count("vore").apply {
@@ -252,8 +173,6 @@ class GroupedDataTest : FlatSpec() { init {
             ncol shouldBe 11
         }
     }
-
-
 }
 }
 

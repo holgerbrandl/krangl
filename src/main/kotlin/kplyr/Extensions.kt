@@ -42,18 +42,31 @@ fun DataFrame.select(vararg which: ColNames.() -> List<Boolean>): DataFrame {
     }).let { select(it.toList()) }
 }
 
-data class RenameRule(val oldName: String, val newName: String)
+data class RenameRule(val oldName: String, val newName: String) {
+    fun asTableFormula() = TableFormula(newName, { df -> df[oldName] })
+}
 
 
-// todo dplyr consistency here or "old" to "new" readbility, what's more important
+// todo dplyr consistency here or "old" to "new" readbility, what's more important (see docs/user_guide.md)
 fun DataFrame.rename(vararg old2new: Pair<String, String>) =
         this.rename(*old2new.map { RenameRule(it.first, it.second) }.toTypedArray())
 
+
+/** Rename one or several columns. Positions should be preserved */
 fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
-//    renames.map{ it.first to  { df -> df[it.second]} }
-    val changeList = old2new.map { TableFormula(it.newName, { df -> df[it.oldName] }) }
-    return this.mutate(*changeList.toTypedArray())
+    // create column list with new names at old positions
+    val namesRestoredPos = old2new.fold(names, { adjNames, renRule ->
+        adjNames.map { if (it == renRule.oldName) renRule.newName else it }
+    })
+
+    // make sure that renaming rule does not contain duplicates to allow for better error reporting
+    val renamed = old2new.fold(this, { df, renRule -> df.mutate(renRule.asTableFormula()).select(-renRule.oldName) })
+
+
+    // restore positions of renamed columns
+    return renamed.select(*namesRestoredPos.toTypedArray())
 }
+
 
 ////////////////////////////////////////////////
 // mutate() convenience

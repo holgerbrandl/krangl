@@ -18,7 +18,9 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
     }
 
 
+    // todo this needs to be reimplemented to become a proper select that can also change positions. A list of booleans is only one way to to it
     override fun select(which: List<Boolean>): DataFrame {
+        // todo require input arguments
         require(which.size == ncol) { "selector array has different dimension than data-frame" }
 
         return SimpleDataFrame(cols.filterIndexed { index, dataCol -> which[index] })
@@ -269,7 +271,7 @@ internal fun anyAsColumn(mutation: Any?, name: String, nrow: Int): DataCol {
             else -> throw UnsupportedOperationException()
         }
 
-    // todo still needed
+    // todo still needed?
         is DoubleArray -> DoubleCol(name, arrifiedMutation.toList())
         is IntArray -> IntCol(name, arrifiedMutation.toList())
         is BooleanArray -> BooleanCol(name, arrifiedMutation.toList())

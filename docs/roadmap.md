@@ -13,7 +13,7 @@ Initial Release
 * implement count and distinct [done]
 * remove regrouping in core verbs where possible
 * basic benchmarking framework (without jvm usage)
-* consider to use invoke for row access
+* consider to use invoke for row access (potentially decouple more arguable extensions in different namespace?)
 
 
 

@@ -15,16 +15,16 @@ enum class JoinType {
     LEFT, RIGHT, INNER, OUTER, ANTI
 }
 
-//fun innerJoin(left: DataFrame, right: DataFrame, vararg by: String = defaultBy(left, right)) = join(left, right, JoinType.INNER, *by)
+//fun innerJoin(left: DataFrame, right: DataFrame,by: Iterable<String> = defaultBy(left, right)) = join(left, right, JoinType.INNER, *by)
 //
-//fun leftJoin(left: DataFrame, right: DataFrame, vararg by: String = defaultBy(left, right)) = join(left, right, JoinType.LEFT, *by)
+//fun leftJoin(left: DataFrame, right: DataFrame,by: Iterable<String> = defaultBy(left, right)) = join(left, right, JoinType.LEFT, *by)
 //
-//fun rightJoin(left: DataFrame, right: DataFrame, vararg by: String = defaultBy(left, right)) = join(right, left, JoinType.LEFT, *by, suffices = ".y" to ".x")
+//fun rightJoin(left: DataFrame, right: DataFrame,by: Iterable<String> = defaultBy(left, right)) = join(right, left, JoinType.LEFT, *by, suffices = ".y" to ".x")
 //
-//fun antiJoin(left: DataFrame, right: DataFrame, vararg by: String = defaultBy(left, right)) = join(left, right, JoinType.ANTI, *by)
+//fun antiJoin(left: DataFrame, right: DataFrame,by: Iterable<String> = defaultBy(left, right)) = join(left, right, JoinType.ANTI, *by)
 
 
-//fun outerJoin(left: DataFrame, right: DataFrame, vararg by: String = defaultBy(left, right)) = join(left, right, JoinType.LEFT, *by)
+//fun outerJoin(left: DataFrame, right: DataFrame,by: Iterable<String> = defaultBy(left, right)) = join(left, right, JoinType.LEFT, *by)
 
 
 internal fun addSuffix(df: DataFrame, cols: Iterable<String>, prefix: String = "", suffix: String = ""): DataFrame {
@@ -33,13 +33,26 @@ internal fun addSuffix(df: DataFrame, cols: Iterable<String>, prefix: String = "
 }
 
 
-internal fun joinInner(left: DataFrame, right: DataFrame, type: JoinType, vararg by: String = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
+internal fun joinOuter(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
+    return left // todo implement me
+}
+
+
+// convencience function with single by withou vararg
+internal fun joinLeft(left: DataFrame, right: DataFrame, by: String, suffices: Pair<String, String> = ".x" to ".y") =
+        joinLeft(left, right, listOf(by), suffices)
+
+internal fun joinInner(left: DataFrame, right: DataFrame, by: String, suffices: Pair<String, String> = ".x" to ".y") =
+        joinInner(left, right, listOf(by), suffices)
+
+
+internal fun joinInner(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
 
     // detect common no-by columns and apply optional suffixing
     val toBeSuffixed = left.names.intersect(right.names).minus(by)
 
-    val groupedLeft = (addSuffix(left, toBeSuffixed, suffices.first).groupBy(*by) as GroupedDataFrame).hashSorted()
-    val groupedRight = (addSuffix(right, toBeSuffixed, suffices.first).groupBy(*by) as GroupedDataFrame).hashSorted()
+    val groupedLeft = (addSuffix(left, toBeSuffixed, suffices.first).groupBy(*by.toList().toTypedArray()) as GroupedDataFrame).hashSorted()
+    val groupedRight = (addSuffix(right, toBeSuffixed, suffices.first).groupBy(*by.toList().toTypedArray()) as GroupedDataFrame).hashSorted()
 
     // start sorted hash-join
     val rightIt = groupedRight.groups.iterator()
@@ -63,13 +76,13 @@ internal fun joinInner(left: DataFrame, right: DataFrame, type: JoinType, vararg
     return mergedGroups.reduce { left, right -> listOf(left, right).bindRows() }
 }
 
-internal fun joinLeft(left: DataFrame, right: DataFrame, vararg by: String = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
+internal fun joinLeft(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
 
     // detect common no-by columns and apply optional suffixing
     val toBeSuffixed = left.names.intersect(right.names).minus(by)
 
-    val groupedLeft = (addSuffix(left, toBeSuffixed, suffices.first).groupBy(*by) as GroupedDataFrame).hashSorted()
-    val groupedRight = (addSuffix(right, toBeSuffixed, suffices.first).groupBy(*by) as GroupedDataFrame).hashSorted()
+    val groupedLeft = (addSuffix(left, toBeSuffixed, suffix = suffices.first).groupBy(*by.toList().toTypedArray()) as GroupedDataFrame).hashSorted()
+    val groupedRight = (addSuffix(right, toBeSuffixed, suffix = suffices.first).groupBy(*by.toList().toTypedArray()) as GroupedDataFrame).hashSorted()
 
     val rightIt = groupedRight.groups.iterator()
 
@@ -95,10 +108,10 @@ internal fun joinLeft(left: DataFrame, right: DataFrame, vararg by: String = def
 }
 
 
-//fun DataFrame.joinLeft(right: DataFrame, vararg by:String) = joinLeft(this, right, *by)
-internal fun defaultBy(left: DataFrame, right: DataFrame): Array<String> = left.names.intersect(right.names).apply {
+//fun DataFrame.joinLeft(right: DataFrame,by:String) = joinLeft(this, right, *by)
+internal fun defaultBy(left: DataFrame, right: DataFrame) = left.names.intersect(right.names).apply {
     System.err.print("""Joining by: ${this.joinToString(",")}""")
-}.toTypedArray()
+}
 
 
 private fun cartesianProduct(left: DataFrame, right: DataFrame, removeFromRight: List<String>): DataFrame {
