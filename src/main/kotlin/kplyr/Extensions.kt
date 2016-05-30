@@ -2,10 +2,6 @@ package kplyr
 
 
 ////////////////////////////////////////////////
-// instantiation and aggregation
-////////////////////////////////////////////////
-
-////////////////////////////////////////////////
 // select() helpers and API
 ////////////////////////////////////////////////
 
@@ -14,43 +10,61 @@ class ColNames(val names: List<String>)
 // select utitlies see http://www.rdocumentation.org/packages/dplyr/functions/select
 fun ColNames.matches(regex: String) = names.map { it.matches(regex.toRegex()) }
 
-// todo add possiblity to negate selection with mini-language. E.g. -startsWith("name")
+// todo add possiblity to negative selection with mini-language. E.g. -startsWith("name")
 fun ColNames.startsWith(prefix: String) = names.map { it.startsWith(prefix) }
 
-fun ColNames.endsWith(prefix: String) = names.map { it.endsWith(prefix) }
+internal fun List<Boolean>.falseAsNull() = map { if (!it) null else true }
+internal fun List<Boolean>.trueAsNull() = map { if (it) null else false }
+internal fun List<Boolean?>.nullAsFalse(): List<Boolean> = map { it ?: false }
+
+fun ColNames.endsWith(prefix: String) = names.map { it.endsWith(prefix) }.falseAsNull()
 fun ColNames.everything() = Array(names.size, { true }).toList()
-fun ColNames.oneOf(vararg someNames: String) = Array(names.size, { someNames.contains(names[it]) }).toList()
+fun ColNames.matches(regex: Regex) = names.map { it.matches(regex) }.falseAsNull()
+fun ColNames.oneOf(vararg someNames: String) = names.map { someNames.contains(it) }.falseAsNull()
 
 
 // since this affects String namespace it might be not a good idea
-operator fun String.unaryMinus() = fun ColNames.(): List<Boolean> = names.map { it != this@unaryMinus }
+operator fun String.unaryMinus() = fun ColNames.(): List<Boolean?> = names.map { it != this@unaryMinus }.trueAsNull()
+
+operator fun Iterable<String>.unaryMinus() = fun ColNames.(): List<Boolean> = names.map { !this@unaryMinus.contains(it) }
+operator fun List<Boolean?>.unaryMinus() = fun ColNames.(): List<Boolean?> = map { it?.not() }
+
 //val another = -"dsf"
 
-/** Keeps only the variables you mention.*/
-//
-
-
 /** Convenience wrapper around to work with varag <code>kplyr.DataFrame.select</code> */
-fun DataFrame.select(vararg columns: String): DataFrame {
-    if (columns.isEmpty()) System.err.println("Calling select() without arguments is not sensible")
-    return select(columns.asList())
-}
+fun DataFrame.select(vararg columns: String): DataFrame = select(columns.asList())
 
 /** Keeps only the variables that match any of the given expressions. E.g. use `startsWith("foo")` to select for columns staring with 'foo'.*/
-fun DataFrame.select(vararg which: ColNames.() -> List<Boolean>): DataFrame {
-    return which.drop(1).fold(which.first()(ColNames(names)), {
-        initial, next ->
-        initial OR next(ColNames(names))
-    }).let {
-        select(it.toList())
+fun DataFrame.select(vararg which: ColNames.() -> List<Boolean?>): DataFrame {
+    val reducedSelector = which.map { it(ColNames(names)) }.reduce { selA, selB -> selA nullAwareAND  selB }
+
+    return select(reducedSelector)
+}
+
+//private infix fun List<Boolean?>.nullOR(other: List<Boolean?>): List<Boolean?> = mapIndexed { index, first ->
+//    if(first==null && other[index] == null) null else (first  ?: false) || (other[index] ?: false)
+//}
+private infix fun List<Boolean?>.nullAwareAND(other: List<Boolean?>): List<Boolean?> = this.zip(other).map {
+    it.run {
+        if (first == null && second == null) {
+            null
+        } else if (first != null && second != null) {
+            first!! && second!!
+        } else {
+            first ?: second
+        }
     }
 }
 
-internal fun DataFrame.select(which: List<Boolean>): DataFrame {
+
+internal fun DataFrame.select(which: List<Boolean?>): DataFrame {
     require(which.size == ncol) { "selector array has different dimension than data-frame" }
 
     // map boolean array to string selection
-    val colSelection = names.zip(which).filter { it.second }.map { it.first }
+    val isPosSelection = which.count { it == true } > 0
+    val whichComplete = which.map { it ?: !isPosSelection }
+    val colSelection: List<String> = names.zip(whichComplete).filter { it.second }.map { it.first }
+
     return select(colSelection)
 }
 
@@ -271,3 +285,6 @@ private fun List<DataFrame>.bindColData(colName: String): List<*> {
 //infix operator fun Any.plus(rightCol:DataCol) = anyAsColumn(this, TMP_COLUMN, rightCol.values().size) + rightCol
 fun DataFrame.const(someThing: Any) = anyAsColumn(someThing, TMP_COLUMN, nrow)
 
+internal inline fun warning(value: Boolean, lazyMessage: () -> Any): Unit {
+    if (!value) System.err.println(lazyMessage())
+}

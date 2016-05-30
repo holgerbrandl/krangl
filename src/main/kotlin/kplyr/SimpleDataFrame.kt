@@ -7,6 +7,15 @@ import kotlin.comparisons.then
 
 internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 
+    // potential performance bottleneck when processing many-groups/joins
+    init {
+        // validate input columns
+        cols.map { it.name }.apply {
+            require(distinct().size == cols.size) { "Column names are not unique (${this})" }
+        }
+    }
+
+
     override val rows = object : Iterable<Map<String, Any?>> {
         override fun iterator() = object : Iterator<Map<String, Any?>> {
             var curRow = 0
@@ -21,7 +30,9 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
     // todo this needs to be reimplemented to become a proper select that can also change positions. A list of booleans is only one way to to it
 
     override fun select(which: List<String>): DataFrame {
+        warning (which.isNotEmpty()) { "Calling select() without arguments is not sensible" }
         require(names.containsAll(which)) { "not all selected columns are contained in table" }
+        require(which.distinct().size == which.size) { "Columns must not be selected more than once" }
 
         return which.fold(SimpleDataFrame(), { df, colName -> df.addColumn(this[colName]) })
     }

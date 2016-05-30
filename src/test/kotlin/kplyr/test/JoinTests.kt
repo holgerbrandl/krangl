@@ -38,7 +38,7 @@ class JoinTests : FlatSpec() { init {
 
     "it" should "add suffices if join column names have duplicates" {
         // allow user to specify suffix
-        val df = (kplyr.dataFrameOf("foo", "bar"))(
+        val df = (dataFrameOf("foo", "bar"))(
                 "a", 2,
                 "b", 3,
                 "c", 4
@@ -51,15 +51,15 @@ class JoinTests : FlatSpec() { init {
             (names == listOf("foo", "bar_1", "bar_2")) shouldBe true
         }
 
-        // again but now join on bar
+        // again but now join on bar. Join columns are expected to come first
         joinInner(df, df, by = "bar", suffices = "_1" to "_2").apply {
             (names == listOf("bar", "foo_1", "foo_2")) shouldBe true
         }
 
         // again but now join on nothing
         joinInner(df, df, by = emptyList(), suffices = "_1" to "_2").apply {
-            (names == listOf("foo_1", "bar_1", "foo_2", "bar_2")) shouldBe true
-            nrow shouldBe 6
+            nrow shouldBe 9
+            names shouldEqual  listOf("foo_1", "bar_1", "foo_2", "bar_2")
         }
     }
 
@@ -71,11 +71,11 @@ class JoinTests : FlatSpec() { init {
                 "c", 4
         )
 
+        // again but now join (todo same as joinInner with by=emptyList()??)
         joinOuter(dfA, dfA, by = emptyList()).apply {
-            nrow shouldBe  6
+            nrow shouldBe  9
             ncol shouldBe 4
-            names.first() shouldBe "foo.x"
-            names.last() shouldBe "bar.y"
+            names shouldEqual listOf("foo.x", "bar.x", "foo.y", "bar.y")
         }
     }
 

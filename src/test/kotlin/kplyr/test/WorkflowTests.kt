@@ -55,30 +55,13 @@ class CompoundTests : FlatSpec() { init {
 
 
 class Playground : FlatSpec() { init {
-    "it" should "add suffices if join column names have duplicates" {
-        // allow user to specify suffix
-        val df = (dataFrameOf("foo", "bar"))(
-                "a", 2,
-                "b", 3,
-                "c", 4
-        )
 
-        // join on foo
-        joinInner(df, df, by = "foo", suffices = "_1" to "_2").apply {
-//            names should contain element "sdf"
-            print()
-            (names == listOf("foo", "bar_1", "bar_2")) shouldBe true
-        }
-
-        // again but now join on bar. Join columns are expected to come first
-        joinInner(df, df, by = "bar", suffices = "_1" to "_2").apply {
-            (names == listOf("bar", "foo_1", "foo_2")) shouldBe true
-        }
-
-        // again but now join on nothing
-        joinInner(df, df, by = emptyList(), suffices = "_1" to "_2").apply {
-            (names == listOf("foo_1", "bar_1", "foo_2", "bar_2")) shouldBe true
-            nrow shouldBe 9
+    "it" should "do combined negative and positive selection" {
+        // cf.  iris %>% select(ends_with("Length"), - Petal.Length) %>% glimpse()
+        // not symmetric:  iris %>% select(- Petal.Length, ends_with("Length")) %>% glimpse()
+        //  iris %>% select(-Petal.Length, ends_with("Length")) %>% glimpse()
+        irisData.select({ endsWith("Length") }, -"Petal.Length").apply {
+            names shouldEqual listOf("Sepal.Length")
         }
     }
 

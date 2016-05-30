@@ -124,7 +124,7 @@ private fun defaultBy(left: DataFrame, right: DataFrame) = left.names.intersect(
 
 private fun cartesianProduct(left: DataFrame, right: DataFrame, removeFromRight: List<String>): DataFrame {
     // first remove columns that are present in both from right-df
-    val rightSlim = right.select({ oneOf(*removeFromRight.toTypedArray()).map { !it } })
+    val rightSlim = right.select({ oneOf(*removeFromRight.toTypedArray()).nullAsFalse().map { !it } })
 
     // http://thushw.blogspot.de/2015/10/cartesian-product-in-scala.html
     //http://codeaffectionate.blogspot.de/2012/09/fun-with-cartesian-products-cartesian.html

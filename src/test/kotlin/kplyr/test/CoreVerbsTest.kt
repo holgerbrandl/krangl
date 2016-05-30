@@ -3,9 +3,11 @@ package kplyr.test
 import io.kotlintest.matchers.have
 import io.kotlintest.specs.FlatSpec
 import kplyr.*
+import org.apache.commons.csv.CSVFormat
 
 
 val sleepData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/msleep.csv"))
+val irisData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF)
 
 class SelectTest : FlatSpec() { init {
 
@@ -40,7 +42,34 @@ class SelectTest : FlatSpec() { init {
 
     "it" should "select same columns twice" {
         // double selection is flattend out as in dplyr:  iris %>% select(Species, Species) %>% glimpse
-        sleepData.select("name", "name").ncol shouldBe 1
+
+        shouldThrow<IllegalArgumentException> {
+            sleepData.select("name", "vore", "name").ncol shouldBe 2
+        }
+
+        sleepData.select("name", "vore").ncol shouldBe 2
+    }
+
+
+    "it" should "do a negative selection" {
+        sleepData.select(-"name", -"vore").apply {
+            names.contains("name") shouldBe false
+            names.contains("vore") shouldBe false
+
+            // ensure preserved order of remaining columns
+            sleepData.names.minus(arrayOf("name", "vore")) shouldEqual names
+        }
+
+    }
+
+    // kplyr should prevent that negative and positive selections are combined in a single select() statement
+    "it" should "do combined negative and positive selection" {
+        // cf.  iris %>% select(ends_with("Length"), - Petal.Length) %>% glimpse()
+        // not symmetric:  iris %>% select(- Petal.Length, ends_with("Length")) %>% glimpse()
+        //  iris %>% select(-Petal.Length, ends_with("Length")) %>% glimpse()
+        irisData.select({ endsWith("Length") }, -"Petal.Length").apply {
+            names shouldEqual listOf("Sepal.Length")
+        }
     }
 }
 }
@@ -119,8 +148,8 @@ class EmptyTest : FlatSpec() { init {
             glimpse()
             print()
 
+            select(emptyList()) // will output warning
             // core verbs
-            select(emptyList())
             filter { BooleanArray(0) }
             mutate("foo", { "bar" })
             summarize("foo" to { "bar" })
