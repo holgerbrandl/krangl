@@ -51,10 +51,10 @@ class MutateTest : FlatSpec() { init {
         sleepData.rename("vore" to "new_vore", "awake" to "awa2").apply {
             glimpse()
             names.contains("vore") shouldBe false
-            names.contains("vore_new") shouldBe true
+            names.contains("new_vore") shouldBe true
 
             // column renaming should preserve positions
-            names.indexOf("vore_new") shouldEqual sleepData.names.indexOf("vore")
+            names.indexOf("new_vore") shouldEqual sleepData.names.indexOf("vore")
 
             // renaming should not affect column or row counts
             nrow == sleepData.nrow

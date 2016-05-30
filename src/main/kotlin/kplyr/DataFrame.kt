@@ -2,6 +2,8 @@
 
 package kplyr
 
+data class ColumnSelection(val colNames: List<String>)
+
 interface DataFrame {
 
     // Accessor functions
@@ -26,7 +28,7 @@ interface DataFrame {
     // Core Manipulation Verbs
 
     /** select() keeps only the variables you mention.*/
-    fun select(which: List<Boolean>): DataFrame
+    fun select(which: List<String>): DataFrame
 
     // todo consider to use List<Boolean> in signature. We can not provide both because of type erasure
     fun filter(predicate: DataFrame.(DataFrame) -> BooleanArray): DataFrame

@@ -11,6 +11,7 @@ This is because operator invocation just works left to right and we don't want t
 ## Known differences to `dplyr` package in R
 
 * `rename()` will preserve column positions whereas `dplyr::rename` add renamed columns to the end of the table
+* `select()` will throw an error if a grouping column is being removed (see [dplyr ticket](https://github.com/hadley/dplyr/issues/1869))
 * The mapping order is inverted in `rename()`. Instead of
    ```
    dplyr::rename(data, new_name=old_name)

@@ -5,7 +5,7 @@ import cumSum
 
 // To illustrate the structure of th API just core verbs are implemented as instance functions. The rest is implement as extension functions.
 
-internal data class GroupIndex(val groupHash: Int, @Deprecated("unused") val rowIndices: IntArray)
+internal data class GroupIndex(val groupHash: Int, val rowIndices: IntArray)
 
 internal data class DataGroup(val groupHash: Int, val df: DataFrame)
 
@@ -69,12 +69,15 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
     }
 
 
-    // fixme get rid of rbind.groupby anti-pattern in most core-verbs
+    override fun select(which: List<String>): DataFrame {
+        // see https://github.com/hadley/dplyr/issues/1869
+        require(which.intersect(by).isEmpty()) { "can not drop grouping columns" }
 
-    override fun select(which: List<Boolean>): DataFrame {
-        return groups.map { it.df.select(which) }.bindRows().groupBy(*by.toTypedArray())
+        return GroupedDataFrame(by, groups.map { DataGroup(it.groupHash, it.df.select(which)) })
     }
 
+
+    // fixme get rid of rbind.groupby anti-pattern in most core-verbs
 
     override fun filter(predicate: DataFrame.(DataFrame) -> BooleanArray): DataFrame {
         return groups.map { it.df.filter(predicate) }.bindRows().groupBy(*by.toTypedArray())

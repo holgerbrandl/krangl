@@ -19,11 +19,11 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 
 
     // todo this needs to be reimplemented to become a proper select that can also change positions. A list of booleans is only one way to to it
-    override fun select(which: List<Boolean>): DataFrame {
-        // todo require input arguments
-        require(which.size == ncol) { "selector array has different dimension than data-frame" }
 
-        return SimpleDataFrame(cols.filterIndexed { index, dataCol -> which[index] })
+    override fun select(which: List<String>): DataFrame {
+        require(names.containsAll(which)) { "not all selected columns are contained in table" }
+
+        return which.fold(SimpleDataFrame(), { df, colName -> df.addColumn(this[colName]) })
     }
 
     // Utility methods
@@ -58,7 +58,8 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 
     /** This method is private to enforce use of mutate which is the primary way to add columns in kplyr. */
     private fun addColumn(newCol: DataCol): SimpleDataFrame {
-        require(newCol.length == nrow) { "Column lengths of dataframe ($nrow) and new column (${newCol.length}) differ" }
+        // make sure that table is either empty or row number matches table row count
+        require(nrow == 0 || newCol.length == nrow) { "Column lengths of dataframe ($nrow) and new column (${newCol.length}) differ" }
         require(newCol.name !in names) { "Column '${newCol.name}' already exists in dataframe" }
         require(newCol.name != TMP_COLUMN) { "Internal temporary column name should not be expose to user" }
 
@@ -359,3 +360,5 @@ val df = dataFrameOf(
  */
 fun dataFrameOf(vararg header: String) = TableHeader(header.toList())
 
+internal fun SimpleDataFrame.addColumn(dataCol: DataCol): SimpleDataFrame =
+        SimpleDataFrame(cols.toMutableList().apply { add(dataCol) })

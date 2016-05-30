@@ -29,9 +29,11 @@ operator fun String.unaryMinus() = fun ColNames.(): List<Boolean> = names.map { 
 /** Keeps only the variables you mention.*/
 //
 
+
+/** Convenience wrapper around to work with varag <code>kplyr.DataFrame.select</code> */
 fun DataFrame.select(vararg columns: String): DataFrame {
     if (columns.isEmpty()) System.err.println("Calling select() without arguments is not sensible")
-    return select(this.names.map { colName -> columns.contains(colName) })
+    return select(columns.asList())
 }
 
 /** Keeps only the variables that match any of the given expressions. E.g. use `startsWith("foo")` to select for columns staring with 'foo'.*/
@@ -39,8 +41,23 @@ fun DataFrame.select(vararg which: ColNames.() -> List<Boolean>): DataFrame {
     return which.drop(1).fold(which.first()(ColNames(names)), {
         initial, next ->
         initial OR next(ColNames(names))
-    }).let { select(it.toList()) }
+    }).let {
+        select(it.toList())
+    }
 }
+
+internal fun DataFrame.select(which: List<Boolean>): DataFrame {
+    require(which.size == ncol) { "selector array has different dimension than data-frame" }
+
+    // map boolean array to string selection
+    val colSelection = names.zip(which).filter { it.second }.map { it.first }
+    return select(colSelection)
+}
+
+
+//
+// Data Reshaping  
+//
 
 data class RenameRule(val oldName: String, val newName: String) {
     fun asTableFormula() = TableFormula(newName, { df -> df[oldName] })
@@ -68,9 +85,9 @@ fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
 }
 
 
-////////////////////////////////////////////////
+//
 // mutate() convenience
-////////////////////////////////////////////////
+//
 
 
 // as would also prevent us from overwriting to
