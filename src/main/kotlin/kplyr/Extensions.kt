@@ -199,7 +199,10 @@ fun DataFrame.asString(colNames: Boolean = true, sep: String = "\t", maxRows: In
 
     if (colNames) df.cols.map { it.name }.joinToString(sep).apply { sb.appendln(this) }
 
-    (1..Math.min(nrow, maxRows)).map { df.row(it - 1).values.joinToString(sep).apply { sb.appendln(this) } }
+    rows.take(Math.min(nrow, maxRows)).map { row: Map<String, Any?> ->
+        // show null as NA when printing data
+        row.mapValues { it.value ?: "<NA>" }.values.joinToString(sep).apply { sb.appendln(this) }
+    }
 
     return sb.toString()
 }

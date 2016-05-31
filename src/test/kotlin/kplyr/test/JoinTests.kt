@@ -71,7 +71,7 @@ class JoinTests : FlatSpec() { init {
                 "c", 4
         )
 
-        // again but now join (todo same as joinInner with by=emptyList()??)
+        // todo should the result be the same as for joinInner with by=emptyList() or should we prevent the empty-join for either of them??)
         joinOuter(dfA, dfA, by = emptyList()).apply {
             nrow shouldBe  9
             ncol shouldBe 4
