@@ -11,41 +11,101 @@ Nice Intro
  */
 
 // needed?
-//enum class JoinType {
-//    LEFT, RIGHT, INNER, OUTER, ANTI
-//}
-
+enum class JoinType {
+    LEFT, RIGHT, INNER, OUTER, ANTI
+}
+//
 
 /** Convenience wrapper around <code>joinInner</code> that works with single single by attribute.*/
 internal fun joinInner(left: DataFrame, right: DataFrame, by: String, suffices: Pair<String, String> = ".x" to ".y") =
         joinInner(left, right, listOf(by), suffices)
 
 
+object UnequalByHelpers {
+
+    fun joinInner(left: DataFrame, right: DataFrame, by: Iterable<Pair<String, String>>, suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
+
+        // rename second to become compliant with first
+        val renamedRight = by.map { it.second to it.first }.fold(right, { df, curBy -> df.rename(curBy) })
+
+        return joinInner(left, renamedRight, by.toMap().keys, suffices)
+    }
+
+}
+
+
 fun joinInner(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
 
     val (groupedLeft, groupedRight) = prep4Join(by, left, right, suffices)
 
-    // start sorted hash-join
     val rightIt = groupedRight.groups.iterator()
+    val leftIt = groupedLeft.groups.iterator()
 
-    var matchRGroup: DataGroup? = rightIt.next()
+    val groupZipper = mutableListOf<Pair<DataGroup?, DataGroup?>>()
+
+    fun <T> Iterator<T>.nextOrNull(): T? = if (hasNext()) next() else null
+
+    var rightGroup = rightIt.nextOrNull()
+
+    leftLoop@
+    while (leftIt.hasNext()) {
+        val leftGroup = leftIt.next()
+
+        rightLoop@
+        while (rightGroup != null) {
+
+            if (leftGroup.groupHash < rightGroup.groupHash) {
+                // right is ahead of left
+                groupZipper.add(leftGroup to null)
+                continue@leftLoop
+
+            } else if (leftGroup.groupHash == rightGroup.groupHash) {
+                groupZipper.add(leftGroup to rightGroup)
+                rightGroup = rightIt.nextOrNull()
+                continue@leftLoop
+
+            } else {
+                // left is ahead of right
+                groupZipper.add(null to rightGroup)
+                rightGroup = rightIt.nextOrNull()
+                continue@rightLoop
+            }
+        }
+
+        // consume unpaired right blocks
+        groupZipper.add(leftGroup to null)
+    }
+
+    // consume rest of right table iterator
+    while (rightIt.hasNext()) groupZipper.add(null to rightIt.next())
+
+
+    // depending on join type build cartesian products and finish
+    val type = JoinType.INNER // todo expose as parameter
+
+    val filterZipper = when (type) {
+        JoinType.INNER -> groupZipper.filter { it.first != null && it.second != null }
+        else -> throw UnsupportedOperationException("join type ${type} is not yet supported")
+    }
 
     val mergedGroups = mutableListOf<DataFrame>()
 
-    for (leftGroup in groupedLeft.groups) {
-        // if group is present in A build cross-product other wise fill with NA
-        if (leftGroup.groupHash == matchRGroup?.groupHash) {
-            val crossProd = cartesianProduct(leftGroup.df, matchRGroup!!.df, by.toList())
-            mergedGroups.add(crossProd)
-        } else {
-            continue
-        }
 
-        matchRGroup = if (rightIt.hasNext()) rightIt.next() else null // can happen if a group around the end of L is not present in B
+    // prepare "overhang null-filler blocks" for cartesian products
+    // note: `left` as argument is not enough here because of column shuffling and suffixing
+    val leftNull = nullRow(groupedLeft.groups.first().df)
+    val rightNull = nullRow(groupedRight.groups.first().df)
+
+
+    // todo this could be multi-threaded but be careful to ensure deterministic order
+    for ((leftGroup, rightGroup) in filterZipper) {
+        cartesianProduct(leftGroup?.df ?: leftNull, rightGroup?.df ?: rightNull, by.toList()).let { mergedGroups.add(it) }
     }
 
+    // todo use more efficient implementation here
     return mergedGroups.reduce { left, right -> listOf(left, right).bindRows() }
 }
+
 
 
 /** Convenience wrapper around <code>joinLeft</code> that works with single single by attribute.*/
@@ -89,6 +149,18 @@ internal fun joinOuter(left: DataFrame, right: DataFrame, by: Iterable<String> =
 //
 // Internal utility methods for join implementation
 //
+
+/** Given a data-frame, this method derives a 1-row table with the same colum types but null as value for all columns. */
+fun nullRow(df: DataFrame): DataFrame = (df as SimpleDataFrame).cols.fold(SimpleDataFrame(), { nullDf, column ->
+    when (column) {
+        is IntCol -> IntCol(column.name, listOf(null))
+        is StringCol -> StringCol(column.name, listOf(null))
+        is BooleanCol -> BooleanCol(column.name, listOf(null))
+        is DoubleCol -> DoubleCol(column.name, listOf(null))
+        else -> AnyCol(column.name, listOf(null))
+
+    }.let { nullDf.addColumn(it) }
+})
 
 
 private fun addSuffix(df: DataFrame, cols: Iterable<String>, prefix: String = "", suffix: String = ""): DataFrame {
@@ -139,6 +211,7 @@ private fun cartesianProduct(left: DataFrame, right: DataFrame, removeFromRight:
 
     return bindCols(leftCartesian, rightCartesian)
 }
+
 
 private fun replicateByIndex(df: DataFrame, repIndex: List<Int>): DataFrame {
     val repCols: List<DataCol> = (df as SimpleDataFrame).cols.map { it ->

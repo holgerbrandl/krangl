@@ -56,12 +56,11 @@ class CompoundTests : FlatSpec() { init {
 
 class Playground : FlatSpec() { init {
 
-    "it" should "do combined negative and positive selection" {
-        // cf.  iris %>% select(ends_with("Length"), - Petal.Length) %>% glimpse()
-        // not symmetric:  iris %>% select(- Petal.Length, ends_with("Length")) %>% glimpse()
-        //  iris %>% select(-Petal.Length, ends_with("Length")) %>% glimpse()
-        irisData.select({ endsWith("Length") }, -"Petal.Length").apply {
-            names shouldEqual listOf("Sepal.Length")
+    "it" should "allow to use different and multiple by columns"{
+        UnequalByHelpers.joinInner(persons, weights, by = listOf("last_name" to "last")).apply {
+            print()
+            nrow shouldBe 2
+            names shouldEqual listOf("last_name", "first_name", "age", "first", "weight")
         }
     }
 

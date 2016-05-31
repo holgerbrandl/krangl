@@ -7,7 +7,11 @@ import cumSum
 
 internal data class GroupIndex(val groupHash: Int, val rowIndices: IntArray)
 
-internal data class DataGroup(val groupHash: Int, val df: DataFrame)
+internal class DataGroup(val groupHash: Int, val df: DataFrame) {
+    override fun toString(): String {
+        return "DataGroup($groupHash)" // just needed for debugging
+    }
+}
 
 
 internal class GroupedDataFrame(val by: List<String>, internal val groups: List<DataGroup>) : DataFrame {

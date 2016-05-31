@@ -210,15 +210,10 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 
         val NA_GROUP_HASH = Int.MAX_VALUE - 123
 
-        // todo use more efficient scheme to avoid hashing of ints
         // extract the group value-tuple for each row and calculate row-hashes
-        val rowHashes = rows.map { row ->
-            groupCols.map {
-                row[it.name]?.hashCode() ?: NA_GROUP_HASH
-            }.hashCode()
+        val rowHashes = SimpleDataFrame(groupCols).rows.map { row ->
+            by.map { row[it]?.hashCode() ?: NA_GROUP_HASH }.hashCode()
         }
-
-        // use filter index for each selector-index
 
         // and  split up original dataframe columns by selector index
         val groupIndices = rowHashes.
@@ -231,9 +226,7 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 
 
         fun extractGroup(col: DataCol, groupIndex: GroupIndex): DataCol = when (col) {
-        // too inefficient since it requires full loop over all values
-//            is DoubleCol -> DoubleCol(col.name, col.values.filterIndexed { index, d -> groupIndex.rowIndices.contains(index) })
-        // reverse order here and create new array
+        // create new array
             is DoubleCol -> DoubleCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }).toList())
             is IntCol -> IntCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }).toList())
             is BooleanCol -> BooleanCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }).toList())

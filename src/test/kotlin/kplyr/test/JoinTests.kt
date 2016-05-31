@@ -2,6 +2,7 @@ package kplyr.test
 
 import io.kotlintest.specs.FlatSpec
 import kplyr.*
+import kplyr.UnequalByHelpers.joinInner
 
 /**
 require(dplyr)
@@ -11,7 +12,7 @@ group_by(iris, Species)
 group_by(iris, Species) %>% summarize(mean_length=mean(Sepal.Width))
 
  */
-class JoinTests : FlatSpec() { init {
+class InnerJoinTests : FlatSpec() { init {
 
     "it" should "perform an inner join" {
         val voreInfo = sleepData.groupBy("vore").summarize("vore_mod" to { it["vore"].asStrings().first() + "__2" })
@@ -64,13 +65,23 @@ class JoinTests : FlatSpec() { init {
     }
 
 
+    "it" should "allow to use different and multiple by columns"{
+        joinInner(persons, weights, by = listOf("name" to "last")).apply {
+            nrow shouldBe 2
+        }
+    }
+}
+}
+
+
+class OuterJoinTest : FlatSpec() { init {
+
     "it" should "join calculate cross-product when joining on empty by list" {
         val dfA = dataFrameOf("foo", "bar")(
                 "a", 2,
                 "b", 3,
                 "c", 4
         )
-
         // todo should the result be the same as for joinInner with by=emptyList() or should we prevent the empty-join for either of them??)
         joinOuter(dfA, dfA, by = emptyList()).apply {
             nrow shouldBe  9
@@ -86,3 +97,41 @@ class JoinTests : FlatSpec() { init {
     }
 }
 }
+
+class LeftJoinTest : FlatSpec() { init {
+
+
+    "it" should "join calculate cross-product when joining on empty by list" {
+
+        // todo should the result be the same as for joinInner with by=emptyList() or should we prevent the empty-join for either of them??)
+
+//        joinOuter(persons, weights, by = "last" to "name").apply {
+//            nrow shouldBe  9
+//            ncol shouldBe 4
+//            names shouldEqual listOf("foo.x", "bar.x", "foo.y", "bar.y")
+//        }
+        fail("")
+    }
+
+
+    "it" should "should allow for NA in by attribute-lists" {
+        //todo it's more eyefriendly if NA merge tuples come last in the result table. Can we do the same
+//        TODO()
+    }
+}
+}
+
+
+val persons = dataFrameOf(
+        "first_name", "last_name", "age")(
+        "max", "smith", 53,
+        "tom", "doe", 30,
+        "eva", "miller", 23
+)
+
+val weights = dataFrameOf(
+        "first", "last", "weight")(
+        "max", "smith", 56.3,
+        "tom", "doe", null,
+        "eva", "meyer", 23.3
+)
