@@ -31,7 +31,7 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 
     override fun select(which: List<String>): DataFrame {
         warning (which.isNotEmpty()) { "Calling select() without arguments is not sensible" }
-        require(names.containsAll(which)) { "not all selected columns are contained in table" }
+        require(names.containsAll(which)) { "not all selected columns (${which.joinToString(", ")})are contained in table" }
         require(which.distinct().size == which.size) { "Columns must not be selected more than once" }
 
         return which.fold(SimpleDataFrame(), { df, colName -> df.addColumn(this[colName]) })

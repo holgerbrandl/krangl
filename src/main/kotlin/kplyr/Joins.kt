@@ -62,7 +62,7 @@ fun semiJoin(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy
             // just keep one instance per group
             .distinct(*by.toList().toTypedArray()) //  slow for bigger data (because grouped here and later again)??
             // remove non-grouping columns to prevent columns suffixing
-            .run { select(names.minus(by)) }
+            .select(*by.toList().toTypedArray())
 
     return join(left, rightReduced, by, suffices, INNER)
 }

@@ -2,7 +2,6 @@ package kplyr.test
 
 import io.kotlintest.specs.FlatSpec
 import kplyr.*
-import kplyr.UnequalByHelpers.innerJoin
 
 
 class CompoundTests : FlatSpec() { init {
@@ -62,12 +61,18 @@ class Playground : FlatSpec() { init {
             "c", 4
     )
 
-    "it" should "allow to use different and multiple by columns"{
-        innerJoin(df, df, by = emptyList(), suffices = "_1" to "_2").apply {
-            nrow shouldBe 0
-            names shouldEqual  listOf("foo_1", "bar_1", "foo_2", "bar_2")
-        }
-    }
+//    "it" should "allow to use different and multiple by columns"{
+//        innerJoin(df, df, by = emptyList(), suffices = "_1" to "_2").apply {
+//            nrow shouldBe 0
+//            names shouldEqual  listOf("foo_1", "bar_1", "foo_2", "bar_2")
+//        }
+//    }
+
+//    "it" should "allow to use different and multiple by columns"({
+//        innerJoin(persons.rename("last_name" to "name"), weights, by = listOf("name" to "last")).apply {
+//            nrow shouldBe 2
+//        }
+//    })
 
 }
 
