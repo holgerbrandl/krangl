@@ -1,5 +1,7 @@
 package kplyr
 
+import kplyr.JoinType.*
+
 /**
 DataFrame joining
 
@@ -12,29 +14,79 @@ Nice Intro
 
 // needed?
 enum class JoinType {
-    LEFT, RIGHT, INNER, OUTER, ANTI
+    LEFT, RIGHT, INNER, OUTER
 }
 //
 
+// todo more consistent wrappers needed
+
 /** Convenience wrapper around <code>joinInner</code> that works with single single by attribute.*/
-internal fun joinInner(left: DataFrame, right: DataFrame, by: String, suffices: Pair<String, String> = ".x" to ".y") =
-        joinInner(left, right, listOf(by), suffices)
+
+
+//
+// Left Join
+//
+
+/** Convenience wrapper around <code>joinLeft</code> that works with single single by attribute.*/
+
+fun leftJoin(left: DataFrame, right: DataFrame, by: String, suffices: Pair<String, String> = ".x" to ".y") =
+        join(left, right, listOf(by), suffices, LEFT)
+
+fun leftJoin(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y") =
+        join(left, right, by, suffices, LEFT)
+
+
+//
+// Inner Join
+//
+
+
+fun innerJoin(left: DataFrame, right: DataFrame, by: String, suffices: Pair<String, String> = ".x" to ".y") =
+        join(left, right, listOf(by), suffices, INNER)
+
+
+fun innerJoin(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y") =
+        join(left, right, by, suffices, INNER)
+
+//
+// Semi Join: Special case of inner join against distinct right side
+//
+
+fun semiJoin(left: DataFrame, right: DataFrame, by: String) = semiJoin(left, right, listOf(by))
+
+fun semiJoin(left: DataFrame, right: DataFrame, by: Iterable<Pair<String, String>>) =
+        semiJoin(left, resolveUnequalBy(right, by), by.toMap().keys)
+
+fun semiJoin(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
+    val rightReduced = right
+            // just keep one instance per group
+            .distinct(*by.toList().toTypedArray()) //  slow for bigger data (because grouped here and later again)??
+            // remove non-grouping columns to prevent columns suffixing
+            .run { select(names.minus(by)) }
+
+    return join(left, rightReduced, by, suffices, INNER)
+}
+
+
+//
+// Outer Join: Special case of inner join against distinct right side
+//
+
+
+fun joinOuter(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right)) =
+        join(left, right, by, type = OUTER)
 
 
 object UnequalByHelpers {
 
-    fun joinInner(left: DataFrame, right: DataFrame, by: Iterable<Pair<String, String>>, suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
+    fun innerJoin(left: DataFrame, right: DataFrame, by: Iterable<Pair<String, String>>, suffices: Pair<String, String> = ".x" to ".y") =
+            join(left, resolveUnequalBy(right, by), by.toMap().keys, suffices, INNER)
 
-        // rename second to become compliant with first
-        val renamedRight = by.map { it.second to it.first }.fold(right, { df, curBy -> df.rename(curBy) })
-
-        return joinInner(left, renamedRight, by.toMap().keys, suffices)
-    }
 
 }
 
 
-fun joinInner(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
+fun join(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y", type: JoinType): DataFrame {
 
     val (groupedLeft, groupedRight) = prep4Join(by, left, right, suffices)
 
@@ -45,7 +97,7 @@ fun joinInner(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultB
 
     fun <T> Iterator<T>.nextOrNull(): T? = if (hasNext()) next() else null
 
-    var rightGroup = rightIt.nextOrNull()
+    var rightGroup = rightIt.nextOrNull() // stdlib method??
 
     leftLoop@
     while (leftIt.hasNext()) {
@@ -77,18 +129,20 @@ fun joinInner(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultB
     }
 
     // consume rest of right table iterator
-    while (rightIt.hasNext()) groupZipper.add(null to rightIt.next())
+    while (rightGroup != null) {
+        groupZipper.add(null to rightGroup)
+        rightGroup = rightIt.nextOrNull()
+    }
 
 
     // depending on join type build cartesian products and finish
-    val type = JoinType.INNER // todo expose as parameter
 
     val filterZipper = when (type) {
-        JoinType.INNER -> groupZipper.filter { it.first != null && it.second != null }
-        else -> throw UnsupportedOperationException("join type ${type} is not yet supported")
+        LEFT -> groupZipper.filter { it.first != null }
+        RIGHT -> groupZipper.filter { it.second != null }
+        INNER -> groupZipper.filter { it.first != null && it.second != null }
+        OUTER -> groupZipper
     }
-
-    val mergedGroups = mutableListOf<DataFrame>()
 
 
     // prepare "overhang null-filler blocks" for cartesian products
@@ -98,51 +152,16 @@ fun joinInner(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultB
 
 
     // todo this could be multi-threaded but be careful to ensure deterministic order
-    for ((leftGroup, rightGroup) in filterZipper) {
-        cartesianProduct(leftGroup?.df ?: leftNull, rightGroup?.df ?: rightNull, by.toList()).let { mergedGroups.add(it) }
-    }
-
-    // todo use more efficient implementation here
-    return mergedGroups.reduce { left, right -> listOf(left, right).bindRows() }
-}
-
-
-
-/** Convenience wrapper around <code>joinLeft</code> that works with single single by attribute.*/
-internal fun joinLeft(left: DataFrame, right: DataFrame, by: String, suffices: Pair<String, String> = ".x" to ".y") =
-        joinLeft(left, right, listOf(by), suffices)
-
-
-fun joinLeft(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
-
-    val (groupedLeft, groupedRight) = prep4Join(by, left, right, suffices)
-
-    val rightIt = groupedRight.groups.iterator()
-
-    var matchRGroup: DataGroup? = rightIt.next()
-
     val mergedGroups = mutableListOf<DataFrame>()
 
-    for (leftGroup in groupedLeft.groups) {
-        // if group is present in A build cross-product other wise fill with NA
-        val crossProd = if (leftGroup.groupHash == matchRGroup?.groupHash) {
-            cartesianProduct(leftGroup.df, matchRGroup!!.df, by.toList())
-        } else {
-            // maybe fill with NA when row-binding merge groups??
-            by.fold(leftGroup.df, { df, byAttr -> df.mutate(byAttr to { null }) })
-        }
-
-        mergedGroups.add(crossProd)
-
-        matchRGroup = if (rightIt.hasNext()) rightIt.next() else null // can happen if a group around the end of L is not present in B
+    for ((unzipLeft, unzipRight) in filterZipper) {
+        cartesianProduct(unzipLeft?.df ?: leftNull, unzipRight?.df ?: rightNull, by.toList()).let { mergedGroups.add(it) }
     }
 
-    return mergedGroups.reduce { left, right -> listOf(left, right).bindRows() }
-}
-
-
-internal fun joinOuter(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
-    return left // todo implement me
+    // todo use more efficient row-bind implementation here
+    val header = bindCols(leftNull, rightNull.select(-by)).head(0)
+    return mergedGroups.fold(header, { left, right -> listOf(left, right).bindRows() })
+//    return mergedGroups.reduce { left, right -> listOf(left, right).bindRows() }
 }
 
 
@@ -150,8 +169,18 @@ internal fun joinOuter(left: DataFrame, right: DataFrame, by: Iterable<String> =
 // Internal utility methods for join implementation
 //
 
+
+/** rename second to become compliant with first. */
+private fun resolveUnequalBy(df: DataFrame, by: Iterable<Pair<String, String>>): DataFrame {
+    // just do something if the pairs are actually unqueal
+//    if (by.count { it.first != it.second } == 0) return df
+
+    return by.map { it.second to it.first }.fold(df, { df, curBy -> df.rename(curBy) })
+}
+
+
 /** Given a data-frame, this method derives a 1-row table with the same colum types but null as value for all columns. */
-fun nullRow(df: DataFrame): DataFrame = (df as SimpleDataFrame).cols.fold(SimpleDataFrame(), { nullDf, column ->
+private fun nullRow(df: DataFrame): DataFrame = (df as SimpleDataFrame).cols.fold(SimpleDataFrame(), { nullDf, column ->
     when (column) {
         is IntCol -> IntCol(column.name, listOf(null))
         is StringCol -> StringCol(column.name, listOf(null))
@@ -178,6 +207,7 @@ private fun prep4Join(by: Iterable<String>, left: DataFrame, right: DataFrame, s
             // move join columns to the left
             .run { select(by.toMutableList().apply { addAll(names.minus(by)) }) }
             .groupBy(*by.toList().toTypedArray()) as GroupedDataFrame).hashSorted()
+
 
     val groupedRight = (addSuffix(right, toBeSuffixed, suffix = suffices.second)
             // move join columns to the left

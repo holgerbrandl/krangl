@@ -2,7 +2,7 @@ package kplyr.test
 
 import io.kotlintest.specs.FlatSpec
 import kplyr.*
-import kplyr.UnequalByHelpers.joinInner
+import kplyr.UnequalByHelpers.innerJoin
 
 /**
 require(dplyr)
@@ -18,7 +18,7 @@ class InnerJoinTests : FlatSpec() { init {
         val voreInfo = sleepData.groupBy("vore").summarize("vore_mod" to { it["vore"].asStrings().first() + "__2" })
         voreInfo.print()
 
-        val sleepWithInfo = joinLeft(sleepData, voreInfo) // auto detect 'by' here
+        val sleepWithInfo = leftJoin(sleepData, voreInfo) // auto detect 'by' here
 
 //        sleepWithInfo.print()
         sleepWithInfo.glimpse()
@@ -33,7 +33,15 @@ class InnerJoinTests : FlatSpec() { init {
 
 
     "it" should "allow to join by all columns" {
-        joinInner(sleepData, sleepData).names shouldBe sleepData.names
+        innerJoin(sleepData, sleepData).names shouldBe sleepData.names
+    }
+
+
+    "it" should "no-overlap data should still return correct column model" {
+        innerJoin(sleepData, irisData.mutate("vore", { "foobar" }), by = "vore").apply {
+            (names.size > 15) shouldBe true
+            nrow shouldBe 0
+        }
     }
 
 
@@ -46,30 +54,30 @@ class InnerJoinTests : FlatSpec() { init {
         )
 
         // join on foo
-        joinInner(df, df, by = "foo", suffices = "_1" to "_2").apply {
+        innerJoin(df, df, by = "foo", suffices = "_1" to "_2").apply {
 //            names should contain element "sdf"
             print()
             (names == listOf("foo", "bar_1", "bar_2")) shouldBe true
         }
 
         // again but now join on bar. Join columns are expected to come first
-        joinInner(df, df, by = "bar", suffices = "_1" to "_2").apply {
+        innerJoin(df, df, by = "bar", suffices = "_1" to "_2").apply {
             (names == listOf("bar", "foo_1", "foo_2")) shouldBe true
         }
 
         // again but now join on nothing
-        joinInner(df, df, by = emptyList(), suffices = "_1" to "_2").apply {
-            nrow shouldBe 9
+        innerJoin(df, df, by = emptyList(), suffices = "_1" to "_2").apply {
+            nrow shouldBe 0
             names shouldEqual  listOf("foo_1", "bar_1", "foo_2", "bar_2")
         }
     }
 
 
-    "it" should "allow to use different and multiple by columns"{
-        joinInner(persons, weights, by = listOf("name" to "last")).apply {
+    "it" should "allow to use different and multiple by columns"({
+        innerJoin(persons, weights, by = listOf("name" to "last")).apply {
             nrow shouldBe 2
         }
-    }
+    })
 }
 }
 
@@ -97,6 +105,41 @@ class OuterJoinTest : FlatSpec() { init {
     }
 }
 }
+
+
+class SemiAndAntiJoinTest : FlatSpec() { init {
+
+    "it" should "join calculate cross-product when joining on empty by list" {
+        val dfA = dataFrameOf("foo", "bar")(
+                "a", 2,
+                "b", 3,
+                "c", 4
+        )
+        val filter = dataFrameOf("foo", "bar")(
+                "a", 3.2,
+                "a", 1.1,
+                "b", 3.0,
+                "d", 3.2
+        )
+
+        // todo should the result be the same as for joinInner with by=emptyList() or should we prevent the empty-join for either of them??)
+        semiJoin(dfA, filter, by = "bar").apply {
+            nrow shouldBe  2
+            ncol shouldBe 2
+
+            // make sure that renaming does not kick in
+            names shouldEqual listOf("foo", "bar")
+        }
+    }
+
+
+    "it" should "should allow for NA in by attribute-lists" {
+        //todo it's more eyefriendly if NA merge tuples come last in the result table. Can we do the same
+//        TODO()
+    }
+}
+}
+
 
 class LeftJoinTest : FlatSpec() { init {
 

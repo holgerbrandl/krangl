@@ -209,10 +209,18 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
         require(groupCols.size == by.size) { "Could not find all grouping columns" }
 
         val NA_GROUP_HASH = Int.MAX_VALUE - 123
+        val EMPTY_BY_HASH = Random().nextInt()
 
         // extract the group value-tuple for each row and calculate row-hashes
-        val rowHashes = SimpleDataFrame(groupCols).rows.map { row ->
-            by.map { row[it]?.hashCode() ?: NA_GROUP_HASH }.hashCode()
+        // note: when joining with empty `by` row hashes would be 1 which would result in incorrect cartesian products
+        //       thus
+
+        val rowHashes = rows.map { row ->
+            if (by.isEmpty()) {
+                EMPTY_BY_HASH
+            } else {
+                by.map { row[it]?.hashCode() ?: NA_GROUP_HASH }.hashCode()
+            }
         }
 
         // and  split up original dataframe columns by selector index
