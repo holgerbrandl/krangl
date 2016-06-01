@@ -1,7 +1,5 @@
 package kplyr
 
-import mean
-import median
 import kotlin.comparisons.nullsLast
 
 

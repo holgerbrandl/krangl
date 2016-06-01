@@ -1,6 +1,5 @@
 package kplyr
 
-import cumSum
 
 
 // To illustrate the structure of th API just core verbs are implemented as instance functions. The rest is implement as extension functions.

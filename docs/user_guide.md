@@ -1,4 +1,10 @@
+# Kplyr User Guide
 
+TODO write this! :-)
+
+## Core Verbs
+
+### Mutate
 
 To make create columns starting with constant values those need to be expanded to static  columns using .asCol.
 ```

@@ -1,3 +1,6 @@
+package kplyr
+
+
 // scalar operations
 // remove because we must work with lists here
 //infix operator fun DoubleArray.plus(i: Int): DoubleArray = map { it + i }.toDoubleArray()

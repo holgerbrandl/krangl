@@ -124,6 +124,11 @@ Support & Documentation
 
 * TBD `kplyr` Cheat Sheet
 
+* [Kplyr Introduction](TODO) A presentation from June 2016 ([sources](./docs/bier_slides_june2016/kplyr_intro.md))
+* [Kplyr User Guide](./docs/user_guide.md) for detailed information about the API and usage examples.
+* [Developer Information](./docs/devel.md) with details about to build, test, release and improve `kplyr`
+* [Roadmap](./docs/roadmap.md) complementing the tracker with where the project is heading
+
 
 References & Related Projects
 ----------

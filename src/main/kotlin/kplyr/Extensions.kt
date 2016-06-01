@@ -1,4 +1,7 @@
+@file:JvmName("Extensions")
+
 package kplyr
+
 
 
 ////////////////////////////////////////////////
@@ -178,7 +181,7 @@ fun DataFrame.slice(vararg slices: Int) = filter { rowNumber().map { slices.cont
 
 
 /* Prints a dataframe to stdout. df.toString() will also work but has no options .*/
-fun DataFrame.print(colNames: Boolean = true, sep: String = "\t") = println(asString(colNames, sep))
+@JvmOverloads fun DataFrame.print(colNames: Boolean = true, sep: String = "\t") = println(asString(colNames, sep))
 
 
 fun DataFrame.asString(colNames: Boolean = true, sep: String = "\t", maxRows: Int = 100): String {

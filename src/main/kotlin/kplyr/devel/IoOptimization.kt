@@ -1,10 +1,7 @@
 package kplyr.devel
 
-import format
 import kplyr.*
-import mean
 import org.apache.commons.csv.CSVFormat
-import sd
 import java.io.*
 import java.util.*
 import java.util.concurrent.ExecutorService
