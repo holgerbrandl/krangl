@@ -8,6 +8,8 @@ import org.apache.commons.csv.CSVFormat
 
 val sleepData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/msleep.csv"))
 val irisData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF)
+val flights = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/nycflights.tsv.gz"), format = CSVFormat.TDF, isCompressed = true)
+
 
 class SelectTest : FlatSpec() { init {
 
@@ -202,6 +204,23 @@ class GroupedDataTest : FlatSpec() { init {
             ncol shouldBe 11
         }
     }
+
+
+    "it" should "should auto-select grouping attributes from a grouped dataframe"{
+//        flights.glimpse()
+        val subFlights = flights
+                .groupBy("year", "month", "day")
+//                .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
+                .select("arr_delay", "dep_delay", "year")
+
+        subFlights.apply {
+            ncol shouldBe 5
+            (this is GroupedDataFrame) shouldBe true
+            (this as GroupedDataFrame).groups.toList().first().df.ncol shouldBe 5
+        }
+
+    }
+
 }
 }
 

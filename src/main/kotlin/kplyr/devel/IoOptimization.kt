@@ -143,18 +143,19 @@ data class RunTimes<T>(val result: T, val runtimes: List<Float>) {
     }
 
     companion object {
-        inline fun <R> measure(block: () -> R, numRuns: Int = 1): RunTimes<R> {
+        inline fun <R> measure(block: () -> R, numRuns: Int = 1, warmUp: Int = 0): RunTimes<R> {
+
             require(numRuns > 0)
 
             var result: R? = null
 
-            val runs = (1..numRuns).map {
+            val runs = (1..(numRuns + warmUp)).map {
                 val start = System.currentTimeMillis()
                 result = block()
                 (System.currentTimeMillis() - start) / 1000.toFloat()
             }
 
-            return RunTimes<R>(result!!, runs)
+            return RunTimes<R>(result!!, runs.drop(warmUp))
         }
 
     }

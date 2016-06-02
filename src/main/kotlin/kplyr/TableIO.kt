@@ -36,8 +36,14 @@ fun DataFrame.Companion.fromCSV(file: File,
 }
 
 //http://stackoverflow.com/questions/5200187/convert-inputstream-to-bufferedreader
-fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFormat.DEFAULT) =
-        fromCSV(BufferedReader(InputStreamReader(inStream, "UTF-8")), format)
+fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFormat.DEFAULT, isCompressed: Boolean = false) =
+        if (isCompressed) {
+            InputStreamReader(GZIPInputStream(inStream))
+        } else {
+            BufferedReader(InputStreamReader(inStream, "UTF-8"))
+        }.run {
+            fromCSV(this, format)
+        }
 
 
 internal fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
@@ -80,8 +86,6 @@ internal fun String?.cellValueAsBoolean(): Boolean? {
 
     return cellValue?.toBoolean()
 }
-
-
 
 
 // TODO add missing value support with user defined string (e.g. NA here) here

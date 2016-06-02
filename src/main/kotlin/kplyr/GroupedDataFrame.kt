@@ -74,9 +74,14 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
     override fun select(which: List<String>): DataFrame {
         // see https://github.com/hadley/dplyr/issues/1869
-        require(which.intersect(by).isEmpty()) { "can not drop grouping columns" }
+//        require(which.intersect(by).isEmpty()) { "can not drop grouping columns" }
+        warning(by.minus(which).isEmpty()) {
+            "Adding missing grouping variables: ${by.minus(which).joinToString(",")}"
+        }
 
-        return GroupedDataFrame(by, groups.map { DataGroup(it.groupHash, it.df.select(which)) })
+
+        val groupsAndWhich = by.toMutableList().apply { addAll(which.minus(by)) }
+        return GroupedDataFrame(by, groups.map { DataGroup(it.groupHash, it.df.select(groupsAndWhich)) })
     }
 
 

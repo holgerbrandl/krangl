@@ -3,7 +3,6 @@
 package kplyr
 
 
-
 ////////////////////////////////////////////////
 // select() helpers and API
 ////////////////////////////////////////////////
@@ -14,16 +13,25 @@ class ColNames(val names: List<String>)
 fun ColNames.matches(regex: String) = names.map { it.matches(regex.toRegex()) }
 
 // todo add possiblity to negative selection with mini-language. E.g. -startsWith("name")
-fun ColNames.startsWith(prefix: String) = names.map { it.startsWith(prefix) }
 
 internal fun List<Boolean>.falseAsNull() = map { if (!it) null else true }
 internal fun List<Boolean>.trueAsNull() = map { if (it) null else false }
 internal fun List<Boolean?>.nullAsFalse(): List<Boolean> = map { it ?: false }
 
+fun ColNames.startsWith(prefix: String) = names.map { it.startsWith(prefix) }
 fun ColNames.endsWith(prefix: String) = names.map { it.endsWith(prefix) }.falseAsNull()
 fun ColNames.everything() = Array(names.size, { true }).toList()
 fun ColNames.matches(regex: Regex) = names.map { it.matches(regex) }.falseAsNull()
 fun ColNames.oneOf(vararg someNames: String) = names.map { someNames.contains(it) }.falseAsNull()
+
+
+fun ColNames.range(from: String, to: String): List<Boolean?> {
+    val rangeStart = names.indexOf(from)
+    val rangeEnd = names.indexOf(to)
+
+    val rangeSelection = (rangeStart..rangeEnd).map { names[it] }
+    return names.map { rangeSelection.contains(it) }.falseAsNull()
+}
 
 
 // since this affects String namespace it might be not a good idea
@@ -52,6 +60,7 @@ private infix fun List<Boolean?>.nullAwareAND(other: List<Boolean?>): List<Boole
         if (first == null && second == null) {
             null
         } else if (first != null && second != null) {
+            20
             first!! && second!!
         } else {
             first ?: second
@@ -129,8 +138,14 @@ fun DataFrame.transmute(vararg formula: TableFormula) = mutate(*formula).select(
 // filter() convenience
 ////////////////////////////////////////////////
 
+/** Filter the rows of a table with a single predicate.*/
 
 fun DataFrame.filter(predicate: DataFrame.(DataFrame) -> List<Boolean>): DataFrame = filter({ predicate(this).toBooleanArray() })
+
+/** AND-filter a table with different filters.*/
+fun DataFrame.filter(vararg predicates: DataFrame.(DataFrame) -> List<Boolean>): DataFrame =
+        predicates.fold(this, { df, p -> df.filter (p) })
+
 // // todo does not work why?
 // df.filter({ it["last_name"].asStrings().map { it!!.startsWith("Do") } })
 

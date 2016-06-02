@@ -117,6 +117,38 @@ fun main(args: Array<String>) {
 }
 ```
 
+kplyr vs. dplyr
+--------------
+
+As said above, kplyr is mimicking the API of dplyr. Here's an example using airline on-time data for all [flights departing NYC in 2013](https://cran.r-project.org/web/packages/nycflights13/index.html).
+
+dplyr:
+```{r}
+flights %>%
+    group_by(year, month, day) %>%
+    select(year:day, arr_delay, dep_delay) %>%
+    summarise(
+        mean_arr_delay = mean(arr_delay, na.rm = TRUE),
+        mean_dep_delay = mean(dep_delay, na.rm = TRUE)
+    ) %>%
+    filter(mean_arr_delay > 30 | mean_dep_delay > 30)
+```
+
+And the same when using `kplyr`
+```
+flights
+    .groupBy("year", "month", "day")
+    .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
+    .summarize(
+            "mean_arr_delay" to { it["arr_delay"].mean(removeNA = true) },
+            "mean_dep_delay" to { it["arr_delay"].mean(removeNA = true) }
+    )
+    .filter { (it["mean_arr_delay"] gt  30)  OR  (it["mean_arr_delay"] gt  30) }
+```
+The only major annoyence/limiation are the comparison operators, which Kotlin does not allow to [be overridden](https://kotlinlang.org/docs/reference/operator-overloading.html) in a vectorized way.
+
+For sure `dplyr` goes way beyhond what `kplyr` does at the moment (e.g. database access). Also other R packages crucial for data science are not yet available in Kotlin. We aim to provide at least few of them as detailed out in our roadmap.
+
 Support & Documentation
 ----------------------
 

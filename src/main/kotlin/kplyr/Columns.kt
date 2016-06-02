@@ -128,6 +128,11 @@ infix fun List<Boolean>.AND(other: List<Boolean>): List<Boolean> = mapIndexed { 
 infix fun List<Boolean>.OR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first || other[index] }
 infix fun List<Boolean>.XOR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first == other[index] }
 
+// Boolean operators for filter expressions
+infix fun BooleanArray.AND(other: BooleanArray) = mapIndexed { index, first -> first && other[index] }.toList()
+
+infix fun BooleanArray.OR(other: BooleanArray) = mapIndexed { index, first -> first || other[index] }.toBooleanArray()
+
 
 infix fun DataCol.gt(i: Number) = when (this) {
     is DoubleCol -> this.values.map { nullsLast<Double>().compare(it, i.toDouble()) > 0 }
@@ -168,7 +173,8 @@ fun DataCol.isNA(): BooleanArray = this.values().map { it == null }.toBooleanArr
  */
 fun <T> DataCol.dataNA(expr: T.() -> Any?): List<Any?> = (this.values() as List<T>).map { if (it != null) expr(it) else null }.toList()
 
-fun <T> List<T?>.ignoreNA(expr: T.() -> Any?): List<Any?> = map { if (it != null) expr(it) else null }.toList()
+/** Allows to process a list of null-containing elements with an expression. NA will be kept where they were in the resulting table.*/
+fun <T, R> List<T?>.ignoreNA(expr: T.() -> R?): List<R?> = map { if (it != null) expr(it) else null }.toList()
 
 
 //

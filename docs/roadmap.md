@@ -16,6 +16,12 @@ Initial Release
 * [ ] consider to use invoke for row access (potentially decouple more arguable extensions in different namespace?)
 
 
+Upcoming Releases
+-------------
+
+* [ ] provide eqivalent for dplyr::summarize_each and dplyr::mutate_each [#4](https://github.com/holgerbrandl/kplyr/issues/4)
+* [ ] implement kplyrized `tidyr::separate` and `tidyr::gather` [#2](https://github.com/holgerbrandl/kplyr/issues/2)
+
 
 Future Plans
 -------------

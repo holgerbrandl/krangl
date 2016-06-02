@@ -2,6 +2,8 @@ package kplyr.benchmarking
 
 import kplyr.*
 import kplyr.devel.RunTimes
+import org.apache.commons.csv.CSVFormat
+import java.io.File
 import kotlin.system.measureTimeMillis
 
 /**
@@ -51,8 +53,6 @@ fun main2(args: Array<String>) {
     flights.glimpse()
 
 
-
-
     var groupedFlights: DataFrame = SimpleDataFrame()
 
     println("group flights took " + measureTimeMillis {
@@ -67,12 +67,45 @@ fun main2(args: Array<String>) {
 }
 
 
-fun main3(args: Array<String>) {
-    val fromCSV = RunTimes.measure({ DataFrame.fromCSV("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/msleep.csv") }, numRuns = 10).apply {
+fun main(args: Array<String>) {
+    val flights = RunTimes.measure({
+//        DataFrame.fromCSV("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/msleep.csv")
+        DataFrame.fromCSV(File("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/nycflights.tsv.gz"), format = CSVFormat.TDF)
+    }, numRuns = 1).apply {
         println(runtimes)
     }.result
 
 
-//    fromCSV.print()
-    fromCSV.glimpse()
+    flights.glimpse()
+
+
+    /*
+            flights %>%
+        group_by(year, month, day) %>%
+        select(year:day, arr_delay, dep_delay) %>%
+        summarise(
+            mean_arr_delay = mean(arr_delay, na.rm = TRUE),
+            mean_dep_delay = mean(dep_delay, na.rm = TRUE)
+        ) %>%
+        filter(mean_arr_delay > 30 | mean_dep_delay > 30)
+
+         */
+
+    RunTimes.measure({
+
+        val flightsSummary = flights
+                .groupBy("year", "month", "day")
+                .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
+                .summarize(
+                        "mean_arr_delay" to { it["arr_delay"].mean(removeNA = true) },
+                        "mean_dep_delay" to { it["arr_delay"].mean(removeNA = true) }
+                )
+                .filter { (it["mean_arr_delay"] gt  30)  OR  (it["mean_arr_delay"] gt  30) }
+
+//        flightsSummary.glimpse()
+//        flightsSummary.print()
+
+    }, numRuns = 20).apply {
+        println(runtimes)
+    }
 }

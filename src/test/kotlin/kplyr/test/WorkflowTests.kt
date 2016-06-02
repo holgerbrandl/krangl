@@ -55,11 +55,20 @@ class CompoundTests : FlatSpec() { init {
 
 
 class Playground : FlatSpec() { init {
-    val df = (dataFrameOf("foo", "bar"))(
-            "a", 2,
-            "b", 3,
-            "c", 4
-    )
+    "it" should "select from a grouped dataframe should auto-seelct grouping attributes"{
+//        flights.glimpse()
+        val subFlights = flights
+                .groupBy("year", "month", "day")
+//                .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
+                .select("arr_delay", "dep_delay", "year")
+
+        subFlights.apply {
+            ncol shouldBe 5
+            (this is GroupedDataFrame) shouldBe true
+            (this as GroupedDataFrame).groups.toList().first().df.ncol shouldBe 5
+        }
+
+    }
 
 //    "it" should "allow to use different and multiple by columns"{
 //        innerJoin(df, df, by = emptyList(), suffices = "_1" to "_2").apply {
