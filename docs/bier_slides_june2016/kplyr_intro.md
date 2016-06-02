@@ -43,9 +43,11 @@ Conceptually JobList `jl` is just managing lists of job-ids as reported by the u
 
 * Using flights example grouping, aggregation, filtering)
 * dplyr: 20ms
-* kplyr: 2700
+* kplyr: 2500
 
-100x performance differenct
+ performance difference: > 100x
+
+However, initial focus: How close can we come to the dplyr API experience when using Kotlin?
 
 ---
 # Please welcome  ... **JobList**

@@ -9,10 +9,10 @@ Initial Release
 * [X] first basic tests
 * [X] rewrite table reader for better performance
 * [X] table write support using csv-commons wrapper
-* [ ] implement joins
+* [X] implement joins
 * [X] implement count and distinct
 * [ ] remove regrouping in core verbs where possible
-* [ ] basic benchmarking framework (without jvm usage)
+* [X] basic benchmarking framework (without jvm usage)
 * [ ] consider to use invoke for row access (potentially decouple more arguable extensions in different namespace?)
 
 
