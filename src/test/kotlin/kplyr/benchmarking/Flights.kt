@@ -98,9 +98,9 @@ fun main(args: Array<String>) {
                 .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
                 .summarize(
                         "mean_arr_delay" to { it["arr_delay"].mean(removeNA = true) },
-                        "mean_dep_delay" to { it["arr_delay"].mean(removeNA = true) }
+                        "mean_dep_delay" to { it["dep_delay"].mean(removeNA = true) }
                 )
-                .filter { (it["mean_arr_delay"] gt  30)  OR  (it["mean_arr_delay"] gt  30) }
+                .filter { (it["mean_arr_delay"] gt  30)  OR  (it["mean_dep_delay"] gt  30) }
 
 //        flightsSummary.glimpse()
 //        flightsSummary.print()
