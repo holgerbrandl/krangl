@@ -105,7 +105,8 @@ fun main(args: Array<String>) {
 //        flightsSummary.glimpse()
 //        flightsSummary.print()
 
-    }, numRuns = 20).apply {
-        println(runtimes)
+    }, numRuns = 25, warmUp = 5).apply {
+        runtimes
+        println(this)
     }
 }

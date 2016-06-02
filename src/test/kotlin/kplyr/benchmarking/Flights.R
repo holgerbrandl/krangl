@@ -1,6 +1,6 @@
 devtools::source_url("https://raw.githubusercontent.com/holgerbrandl/datautils/v1.25/R/core_commons.R")
 
-#loadpack(nycflights13)
+loadpack(nycflights13)
 
 loadpack(microbenchmark) # see http://adv-r.had.co.nz/Profiling.html
 

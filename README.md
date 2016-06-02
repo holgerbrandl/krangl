@@ -143,32 +143,34 @@ flights
     )
     .filter { (it["mean_arr_delay"] gt  30)  OR  (it["mean_dep_delay"] gt  30) }
 ```
-The  major annoyence/limitations are the comparison operators, which Kotlin does not allow to [be overridden](https://kotlinlang.org/docs/reference/operator-overloading.html) in a vectorized way.
+The biggest different are the comparison operators, which Kotlin does not allow to [be overridden](https://kotlinlang.org/docs/reference/operator-overloading.html) in a vectorized way.
 
-For sure `dplyr` goes way beyhond what `kplyr` does at the moment (e.g. database access). Also other R packages crucial for data science are not yet available in Kotlin. We aim to provide at least few of them as detailed out in our roadmap.
+For sure `dplyr` goes way beyond over what is possible with `kplyr` at the moment (e.g. database access, 10x better performance). Also other R packages crucial for data science are not yet available in Kotlin. We aim to provide at least few of them as detailed out in our roadmap.
 
 Support & Documentation
 ----------------------
 
 `kplyr` is not yet mature, full of bugs and its API is in constant flux. Nevertheless, feel welcome to submit pull-requests or tickets, or simply get in touch via gitter (see button on top).
 
-* TBD `kplyr` Cheat Sheet
 
 * [Kplyr Introduction](TODO) A presentation from June 2016 ([sources](./docs/bier_slides_june2016/kplyr_intro.md))
 * [Kplyr User Guide](./docs/user_guide.md) for detailed information about the API and usage examples.
 * [Developer Information](./docs/devel.md) with details about to build, test, release and improve `kplyr`
 * [Roadmap](./docs/roadmap.md) complementing the tracker with where the project is heading
 
+* TBD `kplyr` Cheat Sheet
+
 
 References & Related Projects
 ----------
 
-`kplyr` was inspired by
-* [dplyr at CRAN](https://cran.r-project.org/web/packages/dplyr/index.html): Official dplyr website
-* [dplyr API docs](http://www.rdocumentation.org/packages/dplyr/functions/dplyr): Online dplyr API docs
+Related Projects:
+* [Joinery](https://github.com/cardillo/joinery): Data frames for Java
+* [vectorz](https://github.com/mikera/vectorz): Fast and flexible numerical library for Java featuring N-dimensional arrays
+* [golem](https://github.com/kyonifer/golem): A scientific library for Kotlin.
+* [agate](https://github.com/wireservice/agate): A Python data analysis library that is optimized for humans instead of machines
 * [Pandas cheat sheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing)
 
-Related Projects:
-* https://github.com/mikera/vectorz: Fast and flexible numerical library for Java featuring N-dimensional arrays
-* https://github.com/kyonifer/golem: A scientific library for Kotlin.
-* https://github.com/wireservice/agate: A Python data analysis library that is optimized for humans instead of machines
+`dplyr` references
+* [dplyr at CRAN](https://cran.r-project.org/web/packages/dplyr/index.html): Official dplyr website
+* [dplyr API docs](http://www.rdocumentation.org/packages/dplyr/functions/dplyr): Online dplyr API docs

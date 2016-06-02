@@ -39,29 +39,13 @@ Conceptually JobList `jl` is just managing lists of job-ids as reported by the u
 * Metrics?
 
 ---
-# Why not snakemake, GATK/Q or DRMAA?
+# Benchmarking
 
-* Workflow-graph not always well defined or contains just a single node
-* [Snakemake](https://bitbucket.org/johanneskoester/snakemake/wiki/Home): own programming language
-* [Queue](https://www.broadinstitute.org/gatk/guide/topic?name=queue): Too much tuned to GATK
-* Not tools for direct flow control, but for workflow execution engines
+* Using flights example grouping, aggregation, filtering)
+* dplyr: 20ms
+* kplyr: 2700
 
-* [DRMAA](http://www.drmaa.org/): Just (bloated) API not a tool; reference v2 has not been touched since 3y
-
-Needed:
-* Simplistic cross-cluster job-control toolchain, with reporting, convenient API access, and support for different HPC platforms
-
-???
-
-Other motivations
-* increase robustness and quality of existing hpc-workflows
-* deepen understanding of HPC in general
-* get away from bash
-* hone scala skills
-* do some nice API design
-
-http://www.drmaa.org/ogf34.pdf
-
+100x performance differenct
 
 ---
 # Please welcome  ... **JobList**
