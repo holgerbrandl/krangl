@@ -1,4 +1,4 @@
-# kplyr
+# krangl
 
 [![Gitter](https://badges.gitter.im/holgerbrandl/kplyr.svg)](https://gitter.im/holgerbrandl/kplyr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/holgerbrandl/kplyr.svg?branch=master)](https://travis-ci.org/holgerbrandl/kplyr)
 
