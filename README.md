@@ -2,9 +2,9 @@
 
 [![Gitter](https://badges.gitter.im/holgerbrandl/krangl.svg)](https://gitter.im/holgerbrandl/krangl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/holgerbrandl/krangl.svg?branch=master)](https://travis-ci.org/holgerbrandl/krangl)
 
-`krangl` is a {K}otlin library for data w{rangl}ing. It allows to manipulate and integrate tabular data.
+`krangl` is a {K}otlin library for data w{rangl}ing. By implementing a grammar of data manipulation, it allows to filter, aggregate and reshape tabular data.
 
-`krangl` is a grammar of data manipulation and a blunt clone of the amazing [`dplyr`](https://github.com/hadley/dplyr) for [R](https://www.r-project.org/). `krangl` is written in [Kotlin](https://kotlinlang.org/), excels in Kotlin, but emphasizes as well on good java-interop. It is mimicking the API of `dplyr`, while carefully adding more typed constructs where possible.
+`krangl` is inspired by (and still close to a being blunt cloneof) the amazing [`dplyr`](https://github.com/hadley/dplyr) for [R](https://www.r-project.org/). `krangl` is written in [Kotlin](https://kotlinlang.org/), excels in Kotlin, but emphasizes as well on good java-interop. It is mimicking the API of `dplyr`, while carefully adding more typed constructs where possible.
 
 Installation
 ------------
