@@ -16,7 +16,10 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
     }
 
 
-    override val rows = object : Iterable<Map<String, Any?>> {
+    // deprecated indexed row access
+    @Deprecated("use news zip-iterator instead")
+    private val rowsIndexded = object : Iterable<Map<String, Any?>> {
+
         override fun iterator() = object : Iterator<Map<String, Any?>> {
             var curRow = 0
 
@@ -25,6 +28,47 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
             override fun next(): Map<String, Any?> = row(curRow++)
         }
     }
+
+
+    private data class ColIterator(val name: String, val iterator: Iterator<Any?>)
+
+//    override val rows = object : Iterable<Map<String, Any?>> {
+//
+//        override fun iterator() = object : Iterator<Map<String, Any?>> {
+//
+//            val colIterators = cols.map { it.values().iterator() }.zip(names).map { ColIterator(it.second, it.first) }
+//
+//            override fun hasNext(): Boolean = colIterators.first().iterator.hasNext()
+//
+//            override fun next(): Map<String, Any?> = colIterators.map { it.name to it.iterator.next() }.toMap()
+//        }
+//    }
+
+    override val rows = object : Iterable<Map<String, Any?>> {
+
+        override fun iterator() = object : Iterator<Map<String, Any?>> {
+
+            val colIterators = rawRows.iterator()
+
+            override fun hasNext(): Boolean = colIterators.hasNext()
+
+            override fun next(): Map<String, Any?> = names.zip(colIterators.next()).toMap()
+        }
+    }
+
+    override val rawRows = object : Iterable<Iterable<Any?>> {
+
+        override fun iterator() = object : Iterator<Iterable<Any?>> {
+
+            val colIterators = cols.map { it.values().iterator() }
+
+            override fun hasNext(): Boolean = colIterators.firstOrNull()?.hasNext() ?: false
+
+            override fun next(): Iterable<Any?> = colIterators.map { it.next() }
+        }
+    }
+
+//    override val raw = object : Iterable<Map<String, Any?>> {
 
 
     // todo this needs to be reimplemented to become a proper select that can also change positions. A list of booleans is only one way to to it

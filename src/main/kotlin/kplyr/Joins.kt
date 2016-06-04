@@ -181,6 +181,7 @@ private fun resolveUnequalBy(df: DataFrame, by: Iterable<Pair<String, String>>):
 
 /** Given a data-frame, this method derives a 1-row table with the same colum types but null as value for all columns. */
 private fun nullRow(df: DataFrame): DataFrame = (df as SimpleDataFrame).cols.fold(SimpleDataFrame(), { nullDf, column ->
+
     when (column) {
         is IntCol -> IntCol(column.name, listOf(null))
         is StringCol -> StringCol(column.name, listOf(null))

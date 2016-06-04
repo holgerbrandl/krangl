@@ -139,7 +139,7 @@ data class RunTimes<T>(val result: T, val runtimes: List<Float>) {
 
     override fun toString(): String {
         // todo use actual confidence interval here
-        return "${mean.format(2)} ± ${runtimes.sd()?.format(2)} SD\t "
+        return "${mean.format(2)} ± ${runtimes.sd()?.format(2)} SD\t, N=${runtimes.size} "
     }
 
     companion object {

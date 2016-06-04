@@ -128,8 +128,8 @@ fun DataFrame.writeCSV(file: File, format: CSVFormat = CSVFormat.DEFAULT) {
     csvFilePrinter.printRecord(names)
 
     // write records
-    for (record in rows) {
-        csvFilePrinter.printRecord(record.values)
+    for (record in rawRows) {
+        csvFilePrinter.printRecord(record)
     }
 
     fileWriter.flush()

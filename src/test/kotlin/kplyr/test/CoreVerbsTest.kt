@@ -93,6 +93,13 @@ class MutateTest : FlatSpec() { init {
         }
     }
 
+    "it" should "allow to use a new column in the same mutate call" {
+        sleepData.mutate(
+                "vore_new" to { it["vore"] },
+                "vore_first_char" to { it["vore"].asStrings().ignoreNA { this.toList().first().toString() } }
+        )
+    }
+
 }
 }
 
@@ -219,6 +226,27 @@ class GroupedDataTest : FlatSpec() { init {
             (this as GroupedDataFrame).groups.toList().first().df.ncol shouldBe 5
         }
 
+    }
+
+
+    "it" should "calculate same group hash irrespective of column order"{
+//        flights.glimpse()
+
+        var dfA: DataFrame = dataFrameOf(
+                "first_name", "last_name", "age", "weight")(
+                "Max", "Doe", 23, 55,
+                "Franz", "Smith", 23, 88,
+                "Horst", "Keanes", 12, 82
+        )
+
+        val dfB = dfA.select("age", "last_name", "weight", "first_name")
+
+        // by joining with multiple attributes we inherentily group (which is the actual test
+        val dummyJoin = leftJoin(dfA, dfB, by = listOf("last_name", "first_name"))
+
+        dummyJoin.apply {
+            nrow shouldBe 3
+        }
     }
 
 }

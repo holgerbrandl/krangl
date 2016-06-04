@@ -183,7 +183,10 @@ fun DataFrame.count(vararg selects: String = this.names.toTypedArray(), colName:
 //fun DataFrame.rowNumber() = IntCol(TMP_COLUMN, (1..nrow).asSequence().toList())
 fun DataFrame.rowNumber() = (1..nrow).asIterable()
 
-fun DataFrame.head(numRows: Int = 5) = filter { rowNumber().map { it <= numRows }.toBooleanArray() }
+fun DataFrame.head(numRows: Int = 5) = filter {
+    listOf<Number>(1, 2, 3).subList(0, 3)
+    rowNumber().map { it <= numRows }.toBooleanArray()
+}
 fun DataFrame.tail(numRows: Int = 5) = filter { rowNumber().map { it > (nrow - numRows) }.toBooleanArray() }
 
 
@@ -295,6 +298,13 @@ fun bindCols(left: DataFrame, right: DataFrame): DataFrame { // add options abou
 private fun List<DataFrame>.bindColData(colName: String): List<*> {
     val groupsData: List<List<*>> = map { it[colName].values() }
     return groupsData.reduce { accu, curEl -> accu.toMutableList().apply { addAll(curEl) }.toList() }
+
+//    listOf(1,2,3).toMutableList().addAll(3)
+//    val test: Sequence<Int> = listOf(1, 2, 3).asSequence() + listOf(4, 5, 6).asSequence()
+//
+//            .
+//    // todo maybe get rid of reduce here compile lists before --> this might break kplyr.test.MutateTest
+//   return groupsData.reduce { accu, curEl -> accu.plus().apply { addAll(curEl) }.toList() }
 }
 
 // Misc or TBD

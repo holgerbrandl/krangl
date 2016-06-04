@@ -1,7 +1,6 @@
 package kplyr
 
 
-
 // To illustrate the structure of th API just core verbs are implemented as instance functions. The rest is implement as extension functions.
 
 internal data class GroupIndex(val groupHash: Int, val rowIndices: IntArray)
@@ -15,6 +14,10 @@ internal class DataGroup(val groupHash: Int, val df: DataFrame) {
 
 internal class GroupedDataFrame(val by: List<String>, internal val groups: List<DataGroup>) : DataFrame {
 
+    override val rawRows: Iterable<Any?>
+        get() = throw UnsupportedOperationException()
+
+    // todo simple aggregate group-row-iterators into compound iterator to prevent indexed access
     override val rows: Iterable<Map<String, Any?>> = object : Iterable<Map<String, Any?>> {
         override fun iterator() = object : Iterator<Map<String, Any?>> {
             var curRow = 0
@@ -100,7 +103,9 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
         return GroupedDataFrame(this.by, groups.map { DataGroup(it.groupHash, it.df.arrange(*by)) })
     }
 
-    override fun groupBy(vararg by: String): DataFrame = ungroup().groupBy(*by)
+    override fun groupBy(vararg by: String): DataFrame =
+            ungroup().groupBy(*by)
+//            if(by.toList().sorted() ==this.by.sorted()) this else ungroup().groupBy(*by)
 
     override fun ungroup(): DataFrame = groups.map { it.df }.bindRows()
 

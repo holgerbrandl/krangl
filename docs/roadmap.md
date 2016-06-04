@@ -23,6 +23,17 @@ Upcoming Releases
 * [ ] implement kplyrized `tidyr::separate` and `tidyr::gather` [#2](https://github.com/holgerbrandl/kplyr/issues/2)
 
 
+Performance optimization
+------------------------
+
+* [ ] 30% flights HOTSPOT: `kplyr/Extensions.kt:275` can we get rid fo the array creation?
+* [ ] `kplyr.head` should use view instead of copy
+* [ ] `kplyr.SimpleDataFrame.addColumn` should avoid `toMutatbleList`
+* [ ] `get rid of other `toMutableList` and use view instead
+
+References
+* https://softwarecave.org/2014/03/19/views-in-java-collections-framework/
+
 Future Plans
 -------------
 

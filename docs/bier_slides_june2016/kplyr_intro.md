@@ -43,7 +43,8 @@ Conceptually JobList `jl` is just managing lists of job-ids as reported by the u
 
 * Using flights example grouping, aggregation, filtering)
 * dplyr: 20ms
-* kplyr: 2500
+* kplyr: 0.54 ± 0.02 SD	, N=25
+
 
  performance difference: > 100x
 

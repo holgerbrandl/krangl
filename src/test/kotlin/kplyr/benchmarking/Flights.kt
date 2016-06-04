@@ -91,6 +91,7 @@ fun main(args: Array<String>) {
 
          */
 
+    println("running benchmark")
     RunTimes.measure({
 
         val flightsSummary = flights
@@ -105,7 +106,7 @@ fun main(args: Array<String>) {
 //        flightsSummary.glimpse()
 //        flightsSummary.print()
 
-    }, numRuns = 25, warmUp = 5).apply {
+    }, numRuns = 10, warmUp = 0).apply {
         runtimes
         println(this)
     }

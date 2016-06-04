@@ -6,11 +6,12 @@ import kplyr.*
 fun main(args: Array<String>) {
 
     // Create data-frame in memory
-    var df: DataFrame = SimpleDataFrame(
-            StringCol("first_name", listOf("Max", "Franz", "Horst")),
-            StringCol("last_name", listOf("Doe", "Smith", "Keanes")),
-            IntCol("age", listOf(23, 23, 12)),
-            IntCol("weight", listOf(55, 88, 82))
+
+    var df: DataFrame = dataFrameOf(
+            "first_name", "last_name", "age", "weight")(
+            "Max", "Doe", 23, 55,
+            "Franz", "Smith", 23, 88,
+            "Horst", "Keanes", 12, 82
     )
 
     // Or from csv
