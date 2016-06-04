@@ -8,7 +8,7 @@ import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
 
-    val msleep = DataFrame.fromCSV("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/msleep.csv")
+    val msleep = DataFrame.fromCSV("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv")
     msleep.glimpse()
     msleep.print()
 

@@ -32,16 +32,16 @@ fun main(args: Array<String>) {
     // by doing basic column arithmetics
     df.mutate("age_3y_later", { it["age"] + 3 })
 
-    // Note: kplyr dataframes are immutable so we need to (re)assign results to preserve changes.
+    // Note: krangl dataframes are immutable so we need to (re)assign results to preserve changes.
     df = df.mutate("full_name", { it["first_name"] + " " + it["last_name"] })
 
-    // Also feel free to mix types here since kplyr overloads  arithmetic operators like + for dataframe-columns
+    // Also feel free to mix types here since krangl overloads  arithmetic operators like + for dataframe-columns
     df.mutate("user_id", { it["last_name"] + "_id" + rowNumber() })
 
     // Create new attributes with string operations like matching, splitting or extraction.
     df.mutate("with_anz", { it["first_name"].asStrings().map { it!!.contains("anz") } })
 
-    // Note: kplyr is using 'null' as missing value, and provides convenience methods to process non-NA bits
+    // Note: krangl is using 'null' as missing value, and provides convenience methods to process non-NA bits
     df.mutate("first_name_restored", { it["full_name"].asStrings().ignoreNA { split(" ".toRegex(), 2)[1] } })
 
 
@@ -91,6 +91,6 @@ fun main(args: Array<String>) {
 
     val sumDFEntries = sumDF.rows.map { row -> SumDF(row["age"] as Int, row["mean_weight"] as Double, row["num_persons"] as Int) }
 
-    // Now we can use the kplyr result table in a strongly typed way
+    // Now we can use the krangl result table in a strongly typed way
     sumDFEntries.first().mean_weight
 }

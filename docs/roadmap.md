@@ -19,16 +19,16 @@ Initial Release
 Upcoming Releases
 -------------
 
-* [ ] provide eqivalent for dplyr::summarize_each and dplyr::mutate_each [#4](https://github.com/holgerbrandl/kplyr/issues/4)
-* [ ] implement kplyrized `tidyr::separate` and `tidyr::gather` [#2](https://github.com/holgerbrandl/kplyr/issues/2)
+* [ ] provide eqivalent for dplyr::summarize_each and dplyr::mutate_each [#4](https://github.com/holgerbrandl/krangl/issues/4)
+* [ ] implement kranglized `tidyr::separate` and `tidyr::gather` [#2](https://github.com/holgerbrandl/krangl/issues/2)
 
 
 Performance optimization
 ------------------------
 
-* [ ] 30% flights HOTSPOT: `kplyr/Extensions.kt:275` can we get rid fo the array creation?
-* [ ] `kplyr.head` should use view instead of copy
-* [ ] `kplyr.SimpleDataFrame.addColumn` should avoid `toMutatbleList`
+* [ ] 30% flights HOTSPOT: `krangl/Extensions.kt:275` can we get rid fo the array creation?
+* [ ] `krangl.head` should use view instead of copy
+* [ ] `krangl.SimpleDataFrame.addColumn` should avoid `toMutatbleList`
 * [ ] `get rid of other `toMutableList` and use view instead
 
 References
@@ -37,7 +37,7 @@ References
 Future Plans
 -------------
 
-https://github.com/holgerbrandl/kplyr/issues
+https://github.com/holgerbrandl/krangl/issues
 
 * golem bindings
 

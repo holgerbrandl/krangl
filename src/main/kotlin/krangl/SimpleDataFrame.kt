@@ -111,7 +111,7 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
     }
 
 
-    /** This method is private to enforce use of mutate which is the primary way to add columns in kplyr. */
+    /** This method is private to enforce use of mutate which is the primary way to add columns in krangl. */
     private fun addColumn(newCol: DataCol): SimpleDataFrame {
         // make sure that table is either empty or row number matches table row count
         require(nrow == 0 || newCol.length == nrow) { "Column lengths of dataframe ($nrow) and new column (${newCol.length}) differ" }
@@ -170,7 +170,7 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
                 is Boolean -> BooleanCol(key, listOf(sumValue))
                 is String -> StringCol(key, Array(1, { sumValue.toString() }).toList())
 
-            // prevent non-scalar summaries. See kplyr/test/CoreVerbsTest.kt:165
+            // prevent non-scalar summaries. See krangl/test/CoreVerbsTest.kt:165
                 is DataCol -> throw NonScalarValueException(key to sumRule, sumValue)
                 is IntArray, is BooleanArray, is DoubleArray, is FloatArray -> throw NonScalarValueException(key to sumRule, "Array")
                 is Iterable<*> -> throw NonScalarValueException(key to sumRule, "List")

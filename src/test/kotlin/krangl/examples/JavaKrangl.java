@@ -12,16 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static krangl.ColumnsKt.asDoubles;
-import static krangl.DataFrame.Companion;
 import static krangl.Extensions.*;
 import static krangl.MathHelpersKt.mean;
 import static krangl.TableIOKt.fromCSV;
 
 
-public class JavaKplyr {
+public class JavaKrangl {
 
     public static void main(String[] args) {
-        DataFrame df = fromCSV(Companion, "/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/msleep.csv");
+        DataFrame df = fromCSV(DataFrame.Companion, "/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv");
 
         DataFrame joinResult = JoinsKt.leftJoin(df, df, "vore", new Pair<String, String>("so", "sdf"));
 

@@ -21,7 +21,7 @@ This is because operator invocation just works left to right and we don't want t
    ```
    dplyr::rename(data, new_name=old_name)
    ```
-   the kplyr syntax is inverted to be more readible
+   the krangl syntax is inverted to be more readible
    ```
    data.rename("old_name" to "new_name")
    ```

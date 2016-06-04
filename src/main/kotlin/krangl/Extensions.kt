@@ -42,7 +42,7 @@ operator fun List<Boolean?>.unaryMinus() = fun ColNames.(): List<Boolean?> = map
 
 //val another = -"dsf"
 
-/** Convenience wrapper around to work with varag <code>kplyr.DataFrame.select</code> */
+/** Convenience wrapper around to work with varag <code>krangl.DataFrame.select</code> */
 fun DataFrame.select(vararg columns: String): DataFrame = select(columns.asList())
 
 /** Keeps only the variables that match any of the given expressions. E.g. use `startsWith("foo")` to select for columns staring with 'foo'.*/
@@ -303,7 +303,7 @@ private fun List<DataFrame>.bindColData(colName: String): List<*> {
 //    val test: Sequence<Int> = listOf(1, 2, 3).asSequence() + listOf(4, 5, 6).asSequence()
 //
 //            .
-//    // todo maybe get rid of reduce here compile lists before --> this might break kplyr.test.MutateTest
+//    // todo maybe get rid of reduce here compile lists before --> this might break krangl.test.MutateTest
 //   return groupsData.reduce { accu, curEl -> accu.plus().apply { addAll(curEl) }.toList() }
 }
 

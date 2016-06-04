@@ -279,4 +279,4 @@ class NonScalarValueException(tf: TableFormula, result: Any) :
 // Category/String helper extensions
 //
 
-// see https://github.com/holgerbrandl/kplyr/issues/3
+// see https://github.com/holgerbrandl/krangl/issues/3

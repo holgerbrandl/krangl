@@ -1,17 +1,17 @@
 # krangl
 
-[![Gitter](https://badges.gitter.im/holgerbrandl/kplyr.svg)](https://gitter.im/holgerbrandl/kplyr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/holgerbrandl/kplyr.svg?branch=master)](https://travis-ci.org/holgerbrandl/kplyr)
+[![Gitter](https://badges.gitter.im/holgerbrandl/krangl.svg)](https://gitter.im/holgerbrandl/krangl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/holgerbrandl/krangl.svg?branch=master)](https://travis-ci.org/holgerbrandl/krangl)
 
-`kplyr` allows to manipulate and integrate tabular data.
+`krangl` is a {K}otlin library for data w{rangl}ing. It allows to manipulate and integrate tabular data.
 
-`kplyr` is a grammar of data manipulation and a blunt clone of the amazing [`dplyr`](https://github.com/hadley/dplyr) for [R](https://www.r-project.org/). `kplyr` is written in [Kotlin](https://kotlinlang.org/), excels in Kotlin, but emphasizes as well on good java-interop. It is mimicking the API of `dplyr`, while carefully adding more typed constructs where possible.
+`krangl` is a grammar of data manipulation and a blunt clone of the amazing [`dplyr`](https://github.com/hadley/dplyr) for [R](https://www.r-project.org/). `krangl` is written in [Kotlin](https://kotlinlang.org/), excels in Kotlin, but emphasizes as well on good java-interop. It is mimicking the API of `dplyr`, while carefully adding more typed constructs where possible.
 
 Installation
 ------------
 
 To get started simply add it as a dependency via BinTray:
 ```
-compile "de.mpicbg.scicomp:kplyr:0.1-SNAPSHOT"
+compile "de.mpicbg.scicomp:krangl:0.1-SNAPSHOT"
 ```
 
 
@@ -19,7 +19,7 @@ Examples
 --------
 
 ```kotlin
-import kplyr.*
+import krangl.*
 
 
 fun main(args: Array<String>) {
@@ -50,16 +50,16 @@ fun main(args: Array<String>) {
     // by doing basic column arithmetics
     df.mutate("age_3y_later", { it["age"] + 3 })
 
-    // Note: kplyr dataframes are immutable so we need to (re)assign results to preserve changes.
+    // Note: krangl dataframes are immutable so we need to (re)assign results to preserve changes.
     df = df.mutate("full_name", { it["first_name"] + " " + it["last_name"] })
 
-    // Also feel free to mix types here since kplyr overloads  arithmetic operators like + for dataframe-columns
+    // Also feel free to mix types here since krangl overloads  arithmetic operators like + for dataframe-columns
     df.mutate("user_id", { it["last_name"] + "_id" + rowNumber() })
 
     // Create new attributes with string operations like matching, splitting or extraction.
     df.mutate("with_anz", { it["first_name"].asStrings().map { it!!.contains("anz") } })
 
-    // Note: kplyr is using 'null' as missing value, and provides convenience methods to process non-NA bits
+    // Note: krangl is using 'null' as missing value, and provides convenience methods to process non-NA bits
     df.mutate("first_name_restored", { it["full_name"].asStrings().ignoreNA { split(" ".toRegex(), 2)[1] } })
 
 
@@ -110,15 +110,15 @@ fun main(args: Array<String>) {
 
     val sumDFEntries = sumDF.rows.map { row -> SumDF(row["age"] as Int, row["mean_weight"] as Double, row["num_persons"] as Int) }
 
-    // Now we can use the kplyr result table in a strongly typed way
+    // Now we can use the krangl result table in a strongly typed way
     sumDFEntries.first().mean_weight
 }
 ```
 
-kplyr vs. dplyr
+krangl vs. dplyr
 --------------
 
-As said above, `kplyr` is mimicking the API of `dplyr`. Here's an example using airline on-time data for all [flights departing NYC in 2013](https://cran.r-project.org/web/packages/nycflights13/index.html).
+As said above, `krangl` is mimicking the API of `dplyr`. Here's an example using airline on-time data for all [flights departing NYC in 2013](https://cran.r-project.org/web/packages/nycflights13/index.html).
 
 `dplyr`:
 ```{r}
@@ -132,7 +132,7 @@ flights %>%
     filter(mean_arr_delay > 30 | mean_dep_delay > 30)
 ```
 
-And the same rewritten using `kplyr`
+And the same rewritten using `krangl`
 ```{kotlin}
 flights
     .groupBy("year", "month", "day")
@@ -145,20 +145,20 @@ flights
 ```
 The biggest different are the comparison operators, which Kotlin does not allow to [be overridden](https://kotlinlang.org/docs/reference/operator-overloading.html) in a vectorized way.
 
-For sure `dplyr` goes way beyond over what is possible with `kplyr` at the moment (e.g. database access, 10x better performance). Also other R packages crucial for data science are not yet available in Kotlin. We aim to provide at least few of them as detailed out in our roadmap.
+For sure `dplyr` goes way beyond over what is possible with `krangl` at the moment (e.g. database access, 10x better performance). Also other R packages crucial for data science are not yet available in Kotlin. We aim to provide at least few of them as detailed out in our roadmap.
 
 Support & Documentation
 ----------------------
 
-`kplyr` is not yet mature, full of bugs and its API is in constant flux. Nevertheless, feel welcome to submit pull-requests or tickets, or simply get in touch via gitter (see button on top).
+`krangl` is not yet mature, full of bugs and its API is in constant flux. Nevertheless, feel welcome to submit pull-requests or tickets, or simply get in touch via gitter (see button on top).
 
 
-* [Kplyr Introduction](TODO) A presentation from June 2016 ([sources](./docs/bier_slides_june2016/kplyr_intro.md))
+* [Kplyr Introduction](TODO) A presentation from June 2016 ([sources](./docs/bier_slides_june2016/krangl_intro.md))
 * [Kplyr User Guide](./docs/user_guide.md) for detailed information about the API and usage examples.
-* [Developer Information](./docs/devel.md) with details about to build, test, release and improve `kplyr`
+* [Developer Information](./docs/devel.md) with details about to build, test, release and improve `krangl`
 * [Roadmap](./docs/roadmap.md) complementing the tracker with where the project is heading
 
-* TBD `kplyr` Cheat Sheet
+* TBD `krangl` Cheat Sheet
 
 
 References & Related Projects

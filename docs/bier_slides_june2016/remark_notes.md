@@ -2,18 +2,18 @@ http://tech.graze.com/2015/07/31/easily-create-slideshow-presentations-from-mark
 
 ```
 # cd /Users/brandl/Dropbox/Public/jl_presentation
-# markdown-to-slides kplyr_intro.md -o kplyr_intro.html
+# markdown-to-slides krangl_intro.md -o krangl_intro.html
 #
 # ## or with custom style
-# markdown-to-slides -s remark_style.css kplyr_intro.md -o kplyr_intro.html
+# markdown-to-slides -s remark_style.css krangl_intro.md -o krangl_intro.html
 #
 # ## and using document mode
-# markdown-to-slides -d -s remark_style.css kplyr_intro.md -o kplyr_intro.html
+# markdown-to-slides -d -s remark_style.css krangl_intro.md -o krangl_intro.html
 
-cd /Users/brandl/projects/kotlin/kplyr/docs/bier_slides_june2016
+cd /Users/brandl/projects/kotlin/krangl/docs/bier_slides_june2016
 while :
 do
-    markdown-to-slides -s remark_style.css kplyr_intro.md -o kplyr_intro.html
+    markdown-to-slides -s remark_style.css krangl_intro.md -o krangl_intro.html
     sleep 2
 done
 ```
@@ -27,7 +27,7 @@ https://github.com/gnab/remark
 http://remarkjs.com/#1
 
 https://gnab.github.io/remark/remarkise
-https://gnab.github.io/remark/remarkise?url=https%3A%2F%2Fdl.dropboxusercontent.com%2Fu%2F113630701%2Fjl_presentation%2Fkplyr_intro.md#1
+https://gnab.github.io/remark/remarkise?url=https%3A%2F%2Fdl.dropboxusercontent.com%2Fu%2F113630701%2Fjl_presentation%2Fkrangl_intro.md#1
 
 
 * Code chunkds by language (From http://remarkjs.com/#15)
@@ -103,19 +103,19 @@ see https://help.github.com/articles/creating-project-pages-manually/
 
 ```
 cd ~/Desktop
-git clone https://github.com/holgerbrandl/kplyr.git
-cd kplyr
+git clone https://github.com/holgerbrandl/krangl.git
+cd krangl
 git checkout gh-pages
 ## just needed for initial run:
 #git rm -rf .
-#cp -r /Users/brandl/Dropbox/cluster_sync/kplyr/docs/kplyr_intro .
-#rm kplyr_intro/*md kplyr_intro/*.css kplyr_intro/remark_notes.md
-# git add -A kplyr_intro
+#cp -r /Users/brandl/Dropbox/cluster_sync/krangl/docs/krangl_intro .
+#rm krangl_intro/*md krangl_intro/*.css krangl_intro/remark_notes.md
+# git add -A krangl_intro
 
-cp /Users/brandl/Dropbox/cluster_sync/kplyr/docs/kplyr_intro/kplyr_intro.html kplyr_intro/
+cp /Users/brandl/Dropbox/cluster_sync/krangl/docs/krangl_intro/krangl_intro.html krangl_intro/
 git commit -m "fixed some typos"
 git push origin gh-pages
 
 ```
 
-http://holgerbrandl.github.io/kplyr/kplyr_intro/kplyr_intro.html
+http://holgerbrandl.github.io/krangl/krangl_intro/krangl_intro.html

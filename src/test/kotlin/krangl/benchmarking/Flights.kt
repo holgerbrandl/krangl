@@ -18,14 +18,14 @@ write_tsv(flights, "nycflights.tsv")
 cat nycflights.tsv | gzip -c > nycflights.tsv.gz
 
 interactive kotlin repl
-kotlinc -J"-Xmx8g" -cp /Users/brandl/projects/kotlin/kplyr/build/classes/main:/Users/brandl/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-csv/1.3/aeed8320e1b86b27e0b477a898eb7dd049526963/commons-csv-1.3.jar
+kotlinc -J"-Xmx8g" -cp /Users/brandl/projects/kotlin/krangl/build/classes/main:/Users/brandl/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-csv/1.3/aeed8320e1b86b27e0b477a898eb7dd049526963/commons-csv-1.3.jar
 
 
 echo '
 # http://stackoverflow.com/questions/6262203/measuring-function-execution-time-in-r
 require(readr)
-flights <- read_tsv("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/nycflights.tsv.gz")
-system.time(read_tsv("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/nycflights.tsv.gz"))
+flights <- read_tsv("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz")
+system.time(read_tsv("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"))
 ' | R --vanilla
 ```
 
@@ -69,8 +69,8 @@ fun main2(args: Array<String>) {
 
 fun main(args: Array<String>) {
     val flights = RunTimes.measure({
-//        DataFrame.fromCSV("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/msleep.csv")
-        DataFrame.fromCSV(File("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/nycflights.tsv.gz"), format = CSVFormat.TDF)
+//        DataFrame.fromCSV("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv")
+        DataFrame.fromCSV(File("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"), format = CSVFormat.TDF)
     }, numRuns = 1).apply {
         println(runtimes)
     }.result

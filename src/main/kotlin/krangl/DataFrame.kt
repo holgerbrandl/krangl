@@ -55,7 +55,7 @@ interface DataFrame {
 
     // Grouping
 
-    /** Creates a grouped data-frame given a list of grouping attributes. Most kplyr verbs like mutate, summarize,
+    /** Creates a grouped data-frame given a list of grouping attributes. Most krangl verbs like mutate, summarize,
      * etc. will be executed per group.
      */
     fun groupBy(vararg by: String): DataFrame

@@ -6,7 +6,7 @@ loadpack(microbenchmark) # see http://adv-r.had.co.nz/Profiling.html
 
 
 benchResults <- microbenchmark(
-#    flights <-read_tsv("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/nycflights.tsv.gz"),
+#    flights <-read_tsv("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"),
 flights %>%
     group_by(year, month, day) %>%
     select(year:day, arr_delay, dep_delay) %>%

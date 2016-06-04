@@ -64,7 +64,7 @@ class SelectTest : FlatSpec() { init {
 
     }
 
-    // kplyr should prevent that negative and positive selections are combined in a single select() statement
+    // krangl should prevent that negative and positive selections are combined in a single select() statement
     "it" should "do combined negative and positive selection" {
         // cf.  iris %>% select(ends_with("Length"), - Petal.Length) %>% glimpse()
         // not symmetric:  iris %>% select(- Petal.Length, ends_with("Length")) %>% glimpse()
@@ -173,7 +173,7 @@ class EmptyTest : FlatSpec() { init {
 
 class GroupedDataTest : FlatSpec() { init {
 
-    /** dplyr considers NA as a group and kplyr should do the same
+    /** dplyr considers NA as a group and krangl should do the same
 
     ```
     require(dplyr)

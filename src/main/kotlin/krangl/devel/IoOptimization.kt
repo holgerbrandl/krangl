@@ -98,7 +98,7 @@ fun <T, R> Iterable<T>.pmap(
 internal fun main(args: Array<String>) {
 
     fun getFlightsReader(): BufferedReader {
-        val flightsFile = File("/Users/brandl/projects/kotlin/kplyr/src/test/resources/kplyr/data/nycflights.tsv.gz")
+        val flightsFile = File("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz")
         val gzip = GZIPInputStream(FileInputStream(flightsFile));
         return BufferedReader(InputStreamReader(gzip));
     }
