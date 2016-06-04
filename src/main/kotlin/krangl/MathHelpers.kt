@@ -1,4 +1,4 @@
-package kplyr
+package krangl
 
 
 // scalar operations

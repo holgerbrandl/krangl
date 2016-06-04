@@ -1,6 +1,6 @@
-package kplyr.examples
+package krangl.examples
 
-import kplyr.*
+import krangl.*
 
 
 fun main(args: Array<String>) {

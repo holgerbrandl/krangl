@@ -1,8 +1,8 @@
-package kplyr.test
+package krangl.test
 
 import io.kotlintest.specs.FlatSpec
-import kplyr.*
-import kplyr.UnequalByHelpers.innerJoin
+import krangl.*
+import krangl.UnequalByHelpers.innerJoin
 
 /**
 require(dplyr)

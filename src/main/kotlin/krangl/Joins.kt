@@ -1,6 +1,6 @@
-package kplyr
+package krangl
 
-import kplyr.JoinType.*
+import krangl.JoinType.*
 
 /**
 DataFrame joining

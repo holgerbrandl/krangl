@@ -1,8 +1,8 @@
-package kplyr.test
+package krangl.test
 
 import io.kotlintest.matchers.have
 import io.kotlintest.specs.FlatSpec
-import kplyr.*
+import krangl.*
 import org.apache.commons.csv.CSVFormat
 
 

@@ -1,7 +1,7 @@
-package kplyr.benchmarking
+package krangl.benchmarking
 
-import kplyr.*
-import kplyr.devel.RunTimes
+import krangl.*
+import krangl.devel.RunTimes
 import org.apache.commons.csv.CSVFormat
 import java.io.File
 import kotlin.system.measureTimeMillis

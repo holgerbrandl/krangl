@@ -1,8 +1,8 @@
 @file:Suppress("CanBeVal")
 
-package kplyr.devel
+package krangl.devel
 
-import kplyr.*
+import krangl.*
 import kotlin.system.exitProcess
 
 

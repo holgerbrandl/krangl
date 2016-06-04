@@ -1,21 +1,21 @@
-package kplyr.examples;
+package krangl.examples;
 
 import kotlin.Pair;
 import kotlin.jvm.functions.Function1;
 import kotlin.jvm.functions.Function2;
-import kplyr.ColNames;
-import kplyr.DataFrame;
-import kplyr.JoinsKt;
-import kplyr.TableFormula;
+import krangl.ColNames;
+import krangl.DataFrame;
+import krangl.JoinsKt;
+import krangl.TableFormula;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static kplyr.ColumnsKt.asDoubles;
-import static kplyr.DataFrame.Companion;
-import static kplyr.Extensions.*;
-import static kplyr.MathHelpersKt.mean;
-import static kplyr.TableIOKt.fromCSV;
+import static krangl.ColumnsKt.asDoubles;
+import static krangl.DataFrame.Companion;
+import static krangl.Extensions.*;
+import static krangl.MathHelpersKt.mean;
+import static krangl.TableIOKt.fromCSV;
 
 
 public class JavaKplyr {

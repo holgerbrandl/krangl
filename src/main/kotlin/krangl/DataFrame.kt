@@ -1,6 +1,6 @@
 //@file:Suppress("unused")
 
-package kplyr
+package krangl
 
 data class ColumnSelection(val colNames: List<String>)
 

@@ -1,4 +1,4 @@
-package kplyr
+package krangl
 
 
 // To illustrate the structure of th API just core verbs are implemented as instance functions. The rest is implement as extension functions.

@@ -1,6 +1,6 @@
 @file:JvmName("Extensions")
 
-package kplyr
+package krangl
 
 
 ////////////////////////////////////////////////

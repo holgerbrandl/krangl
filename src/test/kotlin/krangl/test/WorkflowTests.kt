@@ -1,7 +1,7 @@
-package kplyr.test
+package krangl.test
 
 import io.kotlintest.specs.FlatSpec
-import kplyr.*
+import krangl.*
 
 
 class CompoundTests : FlatSpec() { init {
@@ -28,7 +28,7 @@ class CompoundTests : FlatSpec() { init {
 
     "it" should "allow to create dataframe in place"{
         // @formatter:off
-        val df = (kplyr.dataFrameOf(
+        val df = (krangl.dataFrameOf(
                 "foo", "bar")) (
             "ll",   2,
             "sdfd", 4,
