@@ -55,14 +55,12 @@ class CompoundTests : FlatSpec() { init {
 
 
 class Playground : FlatSpec() { init {
-    "it" should "select from a grouped dataframe should auto-seelct grouping attributes"{
-        sleepData.distinct("vore", "order").apply {
-            print()
-            nrow shouldBe 32
-            ncol shouldBe 11
-        }
-
-
+    "it" should "test something"{
+//        sleepData.rename("vore" to "vore").names shouldBe sleepData.names
+        UnequalByHelpers.innerJoin(sleepData, sleepData.rename("order" to "new_order"), by = listOf(
+                "vore" to "vore",
+                "order" to "new_order"
+        )).nrow shouldBe 597
     }
 
 //    "it" should "allow to use different and multiple by columns"{

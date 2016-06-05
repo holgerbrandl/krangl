@@ -37,6 +37,14 @@ class InnerJoinTests : FlatSpec() { init {
     }
 
 
+    "it" should "allow with actually equal bys in unequal mode" {
+        innerJoin(sleepData, sleepData.rename("order" to "new_order"), by = listOf(
+                "vore" to "vore",
+                "order" to "new_order"
+        )).nrow shouldBe 597
+    }
+
+
     "it" should "no-overlap data should still return correct column model" {
         innerJoin(sleepData, irisData.mutate("vore", { "foobar" }), by = "vore").apply {
             (names.size > 15) shouldBe true

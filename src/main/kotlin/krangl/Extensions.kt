@@ -97,13 +97,16 @@ fun DataFrame.rename(vararg old2new: Pair<String, String>) =
 
 /** Rename one or several columns. Positions should be preserved */
 fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
+    // ignore dummy renames like "foo" to "foo" ( can happen when doing unequal joins; also because of consistency)
+    val old2NewFilt = old2new.filter { it.oldName != it.newName }
+
     // create column list with new names at old positions
-    val namesRestoredPos = old2new.fold(names, { adjNames, renRule ->
+    val namesRestoredPos = old2NewFilt.fold(names, { adjNames, renRule ->
         adjNames.map { if (it == renRule.oldName) renRule.newName else it }
     })
 
     // make sure that renaming rule does not contain duplicates to allow for better error reporting
-    val renamed = old2new.fold(this, { df, renRule -> df.mutate(renRule.asTableFormula()).select(-renRule.oldName) })
+    val renamed = old2NewFilt.fold(this, { df, renRule -> df.mutate(renRule.asTableFormula()).select(-renRule.oldName) })
 
 
     // restore positions of renamed columns

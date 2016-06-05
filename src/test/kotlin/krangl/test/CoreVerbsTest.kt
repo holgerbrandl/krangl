@@ -93,6 +93,10 @@ class MutateTest : FlatSpec() { init {
         }
     }
 
+    "it" should "allow dummy rename" {
+        sleepData.rename("vore" to "vore").names shouldBe sleepData.names
+    }
+
     "it" should "allow to use a new column in the same mutate call" {
         sleepData.mutate(
                 "vore_new" to { it["vore"] },
