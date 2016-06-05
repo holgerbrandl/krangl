@@ -1,7 +1,7 @@
 template: inverse
 class: middle, center, inverse
 
-# Kplyr
+# Krangl
 
 A task list manager for hpc-clusters. Among others it supports monitoring, automatic resubmission, profiling, and reporting of job lists
 

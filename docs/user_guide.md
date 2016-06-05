@@ -1,4 +1,4 @@
-# Kplyr User Guide
+# Krangl User Guide
 
 TODO write this! :-)
 
