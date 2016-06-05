@@ -134,12 +134,12 @@ internal fun main(args: Array<String>) {
 }
 
 
-data class RunTimes<T>(val result: T, val runtimes: List<Float>) {
-    val mean by lazy { runtimes.mean() }
+data class RunTimes<T>(val result: T, val runtimes: List<Double>) {
+    val mean by lazy { runtimes.toTypedArray().mean() }
 
     override fun toString(): String {
         // todo use actual confidence interval here
-        return "${mean.format(2)} ± ${runtimes.sd()?.format(2)} SD, N=${runtimes.size} "
+        return "${mean.format(2)} ± ${runtimes.toTypedArray().sd()?.format(2)} SD, N=${runtimes.size} "
     }
 
     companion object {
@@ -152,7 +152,7 @@ data class RunTimes<T>(val result: T, val runtimes: List<Float>) {
             val runs = (1..(numRuns + warmUp)).map {
                 val start = System.currentTimeMillis()
                 result = block()
-                (System.currentTimeMillis() - start) / 1000.toFloat()
+                (System.currentTimeMillis() - start) / 1000.toDouble()
             }
 
             return RunTimes<R>(result!!, runs.drop(warmUp))

@@ -12,7 +12,7 @@ abstract class DataCol(val name: String) {
     open infix operator fun div(something: Any): DataCol = throw UnsupportedOperationException()
     open infix operator fun times(something: Any): DataCol = throw UnsupportedOperationException()
 
-    internal abstract fun values(): List<*>
+    internal abstract fun values(): Array<*>
 
     abstract val length: Int
 
@@ -42,9 +42,11 @@ internal val TMP_COLUMN = "___tmp"
 
 // https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double-array/index.html
 // most methods are implemented it in kotlin.collections.plus
-class DoubleCol(name: String, val values: List<Double?>) : DataCol(name) {
+class DoubleCol(name: String, val values: Array<Double?>) : DataCol(name) {
 
-    override fun values(): List<*> = values
+    constructor(name: String, values: List<Double?>) : this(name, values.toTypedArray())
+
+    override fun values(): Array<Double?> = values
 
     override val length = values.size
 
@@ -56,18 +58,20 @@ class DoubleCol(name: String, val values: List<Double?>) : DataCol(name) {
 
 
     private fun arithOp(something: Any, op: (Double, Double) -> Double): DataCol = when (something) {
-        is DoubleCol -> Array(values.size, { values[it] }).toList()
+        is DoubleCol -> Array(values.size, { values[it] })
                 .apply { mapIndexed { index, rowVal -> naAwareOp(rowVal, something.values[index], op) } }
 
-        is Number -> Array(values.size, { naAwareOp(values[it], something.toDouble(), op) }).toList()
+        is Number -> Array(values.size, { naAwareOp(values[it], something.toDouble(), op) })
         else -> throw UnsupportedOperationException()
     }.let { DoubleCol(TMP_COLUMN, it) }
 }
 
 
-class IntCol(name: String, val values: List<Int?>) : DataCol(name) {
+class IntCol(name: String, val values: Array<Int?>) : DataCol(name) {
 
-    override fun values(): List<*> = values
+    constructor(name: String, values: List<Int?>) : this(name, values.toTypedArray())
+
+    override fun values(): Array<Int?> = values
 
     override val length = values.size
 
@@ -79,25 +83,27 @@ class IntCol(name: String, val values: List<Int?>) : DataCol(name) {
 
 
     private fun arithOp(something: Any, op: (Int, Int) -> Int): DataCol = when (something) {
-        is IntCol -> Array(values.size, { values[it] }).toList()
+        is IntCol -> Array(values.size, { values[it] })
                 .apply { mapIndexed { index, rowVal -> naAwareOp(rowVal, something.values[index], op) } }
 
-        is Number -> Array(values.size, { naAwareOp(values[it], something.toInt(), op) }).toList()
+        is Number -> Array(values.size, { naAwareOp(values[it], something.toInt(), op) })
         else -> throw UnsupportedOperationException()
     }.let { IntCol(TMP_COLUMN, it) }
 }
 
 
-class StringCol(name: String, val values: List<String?>) : DataCol(name) {
+class StringCol(name: String, val values: Array<String?>) : DataCol(name) {
 
-    override fun values(): List<*> = values
+    constructor(name: String, values: List<String?>) : this(name, values.toTypedArray())
+
+    override fun values(): Array<String?> = values
 
     override val length = values.size
 
 
     override fun plus(something: Any): DataCol = when (something) {
-        is StringCol -> values.zip(something.values).map { naAwarePlus(it.first, it.second) }
-        else -> values.map { naAwarePlus(it, something.toString()) }
+        is StringCol -> values.zip(something.values).map { naAwarePlus(it.first, it.second) }.toTypedArray()
+        else -> values.map { naAwarePlus(it, something.toString()) }.toTypedArray()
     }.let { StringCol(TMP_COLUMN, it) }
 
     private fun naAwarePlus(first: String?, second: String?): String? {
@@ -105,16 +111,19 @@ class StringCol(name: String, val values: List<String?>) : DataCol(name) {
     }
 }
 
-class AnyCol<T>(name: String, val values: List<T?>) : DataCol(name) {
+class AnyCol(name: String, val values: Array<Any?>) : DataCol(name) {
+    constructor(name: String, values: List<Any?>) : this(name, values.toTypedArray<Any?>())
 
-    override fun values(): List<T?> = values
+    override fun values(): Array<Any?> = values
 
     override val length = values.size
 }
 
 
-class BooleanCol(name: String, val values: List<Boolean?>) : DataCol(name) {
-    override fun values(): List<*> = values
+class BooleanCol(name: String, val values: Array<Boolean?>) : DataCol(name) {
+    constructor(name: String, values: List<Boolean?>) : this(name, values.toTypedArray())
+
+    override fun values(): Array<Boolean?> = values
 
     override val length = values.size
 }
@@ -153,10 +162,10 @@ infix fun DataCol.eq(i: Any): BooleanArray = when (this) {
 
 // convenience getters for column data
 
-fun DataCol.asStrings(): List<String?> = this.values() as List<String?>
-fun DataCol.asInts(): List<Int?> = this.values() as List<Int?>
-fun DataCol.asDoubles(): List<Double?> = this.values() as List<Double?>
-fun DataCol.asBooleans(): List<Boolean?> = this.values() as List<Boolean?>
+fun DataCol.asStrings(): Array<String?> = (this as StringCol).values()
+fun DataCol.asInts(): Array<Int?> = (this as IntCol).values()
+fun DataCol.asDoubles(): Array<Double?> = (this as DoubleCol).values()
+fun DataCol.asBooleans(): Array<Boolean?> = (this as BooleanCol).values()
 
 
 /**
@@ -174,7 +183,7 @@ fun DataCol.isNA(): BooleanArray = this.values().map { it == null }.toBooleanArr
 fun <T> DataCol.dataNA(expr: T.() -> Any?): List<Any?> = (this.values() as List<T>).map { if (it != null) expr(it) else null }.toList()
 
 /** Allows to process a list of null-containing elements with an expression. NA will be kept where they were in the resulting table.*/
-fun <T, R> List<T?>.ignoreNA(expr: T.() -> R?): List<R?> = map { if (it != null) expr(it) else null }.toList()
+fun <T, R> Array<T?>.ignoreNA(expr: T.() -> R?): List<R?> = map { if (it != null) expr(it) else null }.toList()
 
 
 //
@@ -206,8 +215,8 @@ fun <T, R> List<T?>.ignoreNA(expr: T.() -> R?): List<R?> = map { if (it != null)
  * @throws InvalidColumnOperationException If the type of the receiver column is not numeric
  */
 fun DataCol.min(removeNA: Boolean = false): Double? = when (this) {
-    is DoubleCol -> values.run { if (removeNA) filterNotNull() else forceNotNull() }.min()
-    is IntCol -> values.map { it?.toDouble() }.run { if (removeNA) filterNotNull() else forceNotNull() }.min()
+    is DoubleCol -> values.run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.min()
+    is IntCol -> values.map { it?.toDouble() }.toTypedArray().run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.min()
     else -> throw InvalidColumnOperationException(this)
 }
 
@@ -219,8 +228,8 @@ fun DataCol.min(removeNA: Boolean = false): Double? = when (this) {
  * @throws InvalidColumnOperationException If the type of the receiver column is not numeric
  */
 fun DataCol.max(removeNA: Boolean = false): Double? = when (this) {
-    is DoubleCol -> values.run { if (removeNA) filterNotNull() else forceNotNull() }.max()
-    is IntCol -> values.map { it?.toDouble() }.run { if (removeNA) filterNotNull() else forceNotNull() }.max()
+    is DoubleCol -> values.run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.max()
+    is IntCol -> values.map { it?.toDouble() }.toTypedArray().run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.max()
     else -> throw InvalidColumnOperationException(this)
 }
 
@@ -232,8 +241,8 @@ fun DataCol.max(removeNA: Boolean = false): Double? = when (this) {
  * @throws InvalidColumnOperationException If the type of the receiver column is not numeric
  */
 fun DataCol.mean(removeNA: Boolean = false): Double? = when (this) {
-    is DoubleCol -> values.run { if (removeNA) filterNotNull() else forceNotNull() }.mean()
-    is IntCol -> values.map { it?.toDouble() }.run { if (removeNA) filterNotNull() else forceNotNull() }.mean()
+    is DoubleCol -> values.run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.mean()
+    is IntCol -> values.map { it?.toDouble() }.toTypedArray().run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.mean()
     else -> throw InvalidColumnOperationException(this)
 }
 
@@ -245,19 +254,19 @@ fun DataCol.mean(removeNA: Boolean = false): Double? = when (this) {
  * @throws InvalidColumnOperationException If the type of the receiver column is not numeric
  */
 fun DataCol.median(removeNA: Boolean = false): Double? = when (this) {
-    is DoubleCol -> values.run { if (removeNA) filterNotNull() else forceNotNull() }.median()
-    is IntCol -> values.map { it?.toDouble() }.run { if (removeNA) filterNotNull() else forceNotNull() }.median()
+    is DoubleCol -> values.run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.median()
+    is IntCol -> values.map { it?.toDouble() }.toTypedArray().run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.median()
     else -> throw InvalidColumnOperationException(this)
 }
 
-private fun <E : Number> List<E?>.forceDoubleNotNull() = try {
+private fun <E : Number> Array<E?>.forceDoubleNotNull() = try {
     map { it!!.toDouble() }
 } catch(e: KotlinNullPointerException) {
     throw MissingValueException("Missing values in data. Consider to use removeNA argument or DataCol.ignoreNA()")
 }
 
-private fun <E> List<E?>.forceNotNull(): List<E> = try {
-    map { it!! }
+private inline fun <reified E> Array<E?>.forceNotNull(): Array<E> = try {
+    map { it!! }.toTypedArray()
 } catch(e: KotlinNullPointerException) {
     throw MissingValueException("Missing values in data. Consider to use removeNA argument or DataCol.ignoreNA()")
 }

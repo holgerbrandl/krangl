@@ -99,7 +99,6 @@ class MutateTest : FlatSpec() { init {
                 "vore_first_char" to { it["vore"].asStrings().ignoreNA { this.toList().first().toString() } }
         )
     }
-
 }
 }
 

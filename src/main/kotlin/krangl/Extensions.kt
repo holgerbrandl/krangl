@@ -275,14 +275,14 @@ fun List<DataFrame>.bindRows(): DataFrame { // add options about NA-fill over no
     val totalRows = map { it.nrow }.sum()
 
     for (colName in this.firstOrNull()?.names ?: emptyList()) {
-        val colDataCombined = Array(totalRows, { bindColData(colName)[it] })
+        val colDataCombined: Array<*> = bindColData(colName)
 
         when (this.first()[colName]) {
             is DoubleCol -> DoubleCol(colName, colDataCombined.map { it as Double ? })
             is IntCol -> IntCol(colName, colDataCombined.map { it as Int ? })
             is StringCol -> StringCol(colName, colDataCombined.map { it as String ? })
             is BooleanCol -> BooleanCol(colName, colDataCombined.map { it as Boolean ? })
-            is AnyCol<*> -> AnyCol<Any>(colName, colDataCombined.toList())
+            is AnyCol -> AnyCol(colName, colDataCombined.toList())
             else -> throw UnsupportedOperationException()
         }.apply { bindCols.add(this) }
 
@@ -295,16 +295,20 @@ fun bindCols(left: DataFrame, right: DataFrame): DataFrame { // add options abou
     return SimpleDataFrame((left as SimpleDataFrame).cols.toMutableList().apply { addAll((right as SimpleDataFrame).cols) })
 }
 
-private fun List<DataFrame>.bindColData(colName: String): List<*> {
-    val groupsData: List<List<*>> = map { it[colName].values() }
-    return groupsData.reduce { accu, curEl -> accu.toMutableList().apply { addAll(curEl) }.toList() }
+private fun List<DataFrame>.bindColData(colName: String): Array<*> {
+    val totalRows = map { it.nrow }.sum()
 
-//    listOf(1,2,3).toMutableList().addAll(3)
-//    val test: Sequence<Int> = listOf(1, 2, 3).asSequence() + listOf(4, 5, 6).asSequence()
-//
-//            .
-//    // todo maybe get rid of reduce here compile lists before --> this might break krangl.test.MutateTest
-//   return groupsData.reduce { accu, curEl -> accu.plus().apply { addAll(curEl) }.toList() }
+    val arrayList = Array<Any?>(totalRows, { 0 })
+
+    var iter = 0
+
+    forEach {
+        it[colName].values().forEach {
+            arrayList[iter++] = it
+        }
+    }
+
+    return arrayList
 }
 
 // Misc or TBD
