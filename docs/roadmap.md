@@ -30,12 +30,14 @@ Performance optimization
 * [ ] `krangl.head` should use view instead of copy
 * [ ] `krangl.SimpleDataFrame.addColumn` should avoid `toMutatbleList`
 * [ ] `get rid of other `toMutableList` and use view instead
+* [ ] More consistent use of List vs using arrays as column datastore (see [array vs list](http://stackoverflow.com/questions/716597/array-or-list-in-java-which-is-faster)). This would avoid array conversion which are omnipresent in the API at the moment.
 
 References
 * https://softwarecave.org/2014/03/19/views-in-java-collections-framework/
 
 Future Plans
 -------------
+
 
 https://github.com/holgerbrandl/krangl/issues
 
@@ -80,3 +82,5 @@ newTable.src.x
 * improve benchmarking by avoid jmv warmup with -XX:CompileThreshold=1 [src](http://stackoverflow.com/questions/1481853/technique-or-utility-to-minimize-java-warm-up-time)
 
 * Integrate idoms to do enrichment testing with fisher test from [commons-math](http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math3/distribution/HypergeometricDistribution.html)
+
+* misc consider to use kotlin.collections.ArrayAsCollection
