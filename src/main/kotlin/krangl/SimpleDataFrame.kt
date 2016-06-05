@@ -56,15 +56,15 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
         }
     }
 
-    override val rawRows = object : Iterable<Iterable<Any?>> {
+    override val rawRows = object : Iterable<List<Any?>> {
 
-        override fun iterator() = object : Iterator<Iterable<Any?>> {
+        override fun iterator() = object : Iterator<List<Any?>> {
 
-            val colIterators = cols.map { it.values().iterator() }
+            val colIterators = cols.map { it.values().iterator() }.toList()
 
             override fun hasNext(): Boolean = colIterators.firstOrNull()?.hasNext() ?: false
 
-            override fun next(): Iterable<Any?> = colIterators.map { it.next() }
+            override fun next(): List<Any?> = colIterators.map { it.next() }
         }
     }
 
@@ -249,8 +249,8 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
         if (by.isEmpty()) System.err.print("Grouping with empty attribute list is unlikely to have meaningful semantics")
 
         //take all grouping columns
-        val groupCols = cols.filter { by.contains(it.name) }
-        require(groupCols.size == by.size) { "Could not find all grouping columns" }
+        val groupCols = select(*by) //cols.filter { by.contains(it.name) }
+        require(groupCols.ncol == by.size) { "Could not find all grouping columns" }
 
         val NA_GROUP_HASH = Int.MAX_VALUE - 123
         val EMPTY_BY_HASH = Random().nextInt()
@@ -259,11 +259,23 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
         // note: when joining with empty `by` row hashes would be 1 which would result in incorrect cartesian products
         //       thus
 
-        val rowHashes = rows.map { row ->
-            if (by.isEmpty()) {
-                EMPTY_BY_HASH
-            } else {
-                by.map { row[it]?.hashCode() ?: NA_GROUP_HASH }.hashCode()
+        // old (SLOW!) named row iterator approach
+//        val rowHashes = rows.map { row ->
+//            if (by.isEmpty()) {
+//                EMPTY_BY_HASH
+//            } else {
+//                by.map { row[it]?.hashCode() ?: NA_GROUP_HASH }.hashCode()
+//            }
+//        }
+
+        // old (FAST!) raw row iterator approach
+        val rowHashes: List<Int> = if (by.isEmpty()) {
+            IntArray(nrow, { EMPTY_BY_HASH }).toList()
+        } else {
+            groupCols.rawRows.map { row: List<Any?> ->
+//                by.map { row[it]?.hashCode() ?: NA_GROUP_HASH }.hashCode()
+                // we make the assumption here that group columns are as in `by`
+                row.map { it?.hashCode() ?: NA_GROUP_HASH }.hashCode()
             }
         }
 

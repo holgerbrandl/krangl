@@ -24,7 +24,7 @@ interface DataFrame {
 
     val rows: Iterable<Map<String, Any?>>
 
-    val rawRows: Iterable<Any?>
+    val rawRows: Iterable<List<Any?>>
 
 
     // Core Manipulation Verbs

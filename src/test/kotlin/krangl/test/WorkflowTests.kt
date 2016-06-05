@@ -56,17 +56,12 @@ class CompoundTests : FlatSpec() { init {
 
 class Playground : FlatSpec() { init {
     "it" should "select from a grouped dataframe should auto-seelct grouping attributes"{
-//        flights.glimpse()
-        val subFlights = flights
-                .groupBy("year", "month", "day")
-//                .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
-                .select("arr_delay", "dep_delay", "year")
-
-        subFlights.apply {
-            ncol shouldBe 5
-            (this is GroupedDataFrame) shouldBe true
-            (this as GroupedDataFrame).groups.toList().first().df.ncol shouldBe 5
+        sleepData.distinct("vore", "order").apply {
+            print()
+            nrow shouldBe 32
+            ncol shouldBe 11
         }
+
 
     }
 
