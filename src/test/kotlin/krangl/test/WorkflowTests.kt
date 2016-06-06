@@ -56,6 +56,8 @@ class CompoundTests : FlatSpec() { init {
 
 class Playground : FlatSpec() { init {
     "it" should "test something"{
+        flights.mutate("speed" to { it["distance"] / it["air_time"] * 60 })
+        irisData.count("Species")
 //        sleepData.rename("vore" to "vore").names shouldBe sleepData.names
         UnequalByHelpers.innerJoin(sleepData, sleepData.rename("order" to "new_order"), by = listOf(
                 "vore" to "vore",

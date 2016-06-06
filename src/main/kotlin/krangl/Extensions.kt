@@ -160,7 +160,7 @@ fun DataFrame.filter(vararg predicates: DataFrame.(DataFrame) -> List<Boolean>):
 fun DataFrame.summarize(name: String, formula: DataFrame.(DataFrame) -> Any?): DataFrame = summarize(name to formula)
 
 
-fun DataFrame.count(name: String, formula: DataFrame.(DataFrame) -> Any?): DataFrame = summarize(name to formula)
+//fun DataFrame.count(name: String, formula: DataFrame.(DataFrame) -> Any?): DataFrame = summarize(name to formula)
 
 /** Retain only unique/distinct rows from an input tbl.
  *
@@ -172,8 +172,7 @@ fun DataFrame.distinct(vararg selects: String = this.names.toTypedArray()): Data
 
 
 /** Counts observations by group.*/
-fun DataFrame.count(vararg selects: String = this.names.toTypedArray(), colName: String = "n"): DataFrame =
-        select(*selects).groupBy(*selects).summarize(colName, { nrow })
+fun DataFrame.count(vararg selects: String = this.names.toTypedArray(), countName: String = "n"): DataFrame = select(*selects).groupBy(*selects).summarize(countName, { nrow })
 
 
 ////////////////////////////////////////////////

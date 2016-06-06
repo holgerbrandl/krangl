@@ -1,7 +1,7 @@
 http://tech.graze.com/2015/07/31/easily-create-slideshow-presentations-from-markdown-with-remark-js/
 
 ```
-# cd /Users/brandl/Dropbox/Public/jl_presentation
+# cd /Users/brandl/projects/kotlin/krangl/docs/bier_slides_june2016
 # markdown-to-slides krangl_intro.md -o krangl_intro.html
 #
 # ## or with custom style
