@@ -15,7 +15,7 @@ _6.6.2016 MPI-CBG - BIER_
 
 # 90% of Data Science
 
-are just *just* Table Integration
+is just *just* table integration!
 
 ---
 
@@ -89,8 +89,7 @@ Seriously, What else  ???
 * too much for many applications
 
 
-### Query execution in Spark
-
+Query execution in Spark:
 The Catalyst query optimizer creates the physical Execution Plan for DataFrames
 
 ![](.images/spark_query_execution.jpg)
@@ -133,7 +132,6 @@ sqlContext.sql("SELECT auctionid, item,  count(bid) FROM auction GROUP BY auctio
 # Can we do better?
 
 * Pick a javm-langauge that promises to allow for flexible DSL/API design
-* Try to mimick
 * consistent grammar --> Steal from the best!! --> Steal from `dplyr`
 
 ---
@@ -149,7 +147,25 @@ Informative infographics.
 
 
 ---
-## Please welcome: Krangl
+# Kotlin
+
+![](.images/kotlin.jpg)
+
+
+---
+# What's so cool about Kotlin?
+
+* Runs on the JVM
+* Is extremely good at interoperating with existing java code and libraries.
+* Statically typed (thus far far easier to refactor)
+* Has a bit more evolved type system than Java.
+* Is much safer than Java. Nullability is a first class compiler level construct - something that helps address a large number of likely defects aka the billion dollar bug). There is a lot to write home about here.
+* Has a clear system of distinguishing between mutable and immutable structures. While it doesn't make an opinionated stand in favour of immutability, it gives you the programmer enough helpful constructs to chart your course down that path.
+* Has support for type inference which helps reduce your boiler plate and keeps code shorter
+* Has a wonderful story to tell in terms of it providing programmers an ability to write extension functions to existing classes (or for that matter even primitives).
+* Support for Higher Order Functions, Higher kinded types
+---
+# Please welcome: `krangl`
 
 
 > krangl is a {K}otlin library for data w{rangl}ing.
@@ -265,7 +281,7 @@ storms.arrange("wind")
 
 
 ---
-# Summarise values with `summarise()`
+## Summarise values with `summarise()`
 
 
 `summarise()` collapses a table to just a single row.
@@ -282,7 +298,7 @@ flights.summarize(
 * Common summary functions are `sum`, `min`, `max`, `mean`, `median`,`var` or `sd`
 
 ---
-# Grouped operations with `group_by()`
+## Grouped operations with `group_by()`
 
 
 In `krangl`, grouping is its own action. It is done as its own step in the pipeline.
@@ -290,14 +306,14 @@ In `krangl`, grouping is its own action. It is done as its own step in the pipel
 Once data is grouped, `filter`, `mutate` and `summarise` will be applied for each group separately
 
 Calculate mean flight delays for each carrier
-```{r}
-flightsGrpd  <- group_by(flights, carrier)
-summarise(flightsGrpd, delay = mean(dep_delay, na.rm = TRUE))
+```{kotlin}
+val flightsGrpd  = flights.group_by("carrier")
+flightsGrpd.summarise( delay to  { it["dep_delay"].mean() })
 ```
 
 
 ---
-# Piping with %>% vs Method chaining?
+## Piping with %>% vs Method chaining?
 
 ```{r}
 iris %>%
@@ -308,6 +324,17 @@ iris %>%
 Hadely's concern
 > Method chaining is more succinct, but only
   the owner of the class can add new methods
+
+```{kotlin}
+flights
+    .groupBy("year", "month", "day")
+    .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
+    .summarize(
+            "mean_arr_delay" to { it["arr_delay"].mean(removeNA = true) },
+            "mean_dep_delay" to { it["dep_delay"].mean(removeNA = true) }
+    )
+    .filter { (it["mean_arr_delay"] gt  30)  OR  (it["mean_dep_delay"] gt  30) }
+```
 
 However:
 Everyone can add methods to a class in Kotlin via [extension fuctions](https://kotlinlang.org/docs/reference/extensions.html#extension-functions)
@@ -345,23 +372,6 @@ Also noteworthy
 * expression body function implemtation (as compared to java-style block body implementations)
 * default arguments
 
----
-# Concept
-
-Conceptually JobList `jl` is just managing lists of job-ids as reported by the underlying queuing system
-```
->cat .some_jobs 
-860671
-860681
-860686
-860688
-860691
-```
-
-* Processing states: Did they finish? Exit codes?
-* Runtime statistics: How long? How much pending When?
-* Stderr/out Logs?
-* Metrics?
 
 ---
 # Benchmarking
@@ -379,18 +389,19 @@ However, initial focus: How close can we come to the dplyr API experience when u
 # Current State & Roadmap
 
  Let's ask the data wraning sheet again
-* better reshape support needed: `gather()` and `separate()` --> easy kotlin api because no lambda
+* Better reshape support needed: `gather()` and `separate()` --> easy kotlin api because no lambda
+* Improve join performance (don't use `reduce` & friends but old-style loops)
+* See [https://github.com/holgerbrandl/krangl/blob/master/docs/roadmap.md](https://github.com/holgerbrandl/krangl/blob/master/docs/roadmap.md)
+* See [issue tracker](https://github.com/holgerbrandl/krangl/issues)
 
 
 Later or no clue how to do so
-* embed interactive table view ???
+* Embed interactive table view ???
 * Index backend for grouped operations (instead of split-backend as of now)
 
-* some notes
 
----
 
-# Questions, comments?
+### Questions, comments?
 
 Thank you for your attention!
 
