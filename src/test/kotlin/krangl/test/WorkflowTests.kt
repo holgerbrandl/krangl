@@ -55,6 +55,7 @@ class CompoundTests : FlatSpec() { init {
 
 
 class Playground : FlatSpec() { init {
+
     "it" should "test something"{
         flights.mutate("speed" to { it["distance"] / it["air_time"] * 60 })
         irisData.count("Species")

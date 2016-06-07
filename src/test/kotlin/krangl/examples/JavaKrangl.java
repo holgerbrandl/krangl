@@ -22,7 +22,7 @@ public class JavaKrangl {
     public static void main(String[] args) {
         DataFrame df = fromCSV(DataFrame.Companion, "/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv");
 
-        DataFrame joinResult = JoinsKt.leftJoin(df, df, "vore", new Pair<String, String>("so", "sdf"));
+        DataFrame joinResult = JoinsKt.leftJoin(df, df, "vore", new Pair<String, String>(".x", ".y"));
 
         select(df, unaryMinus("brain_wt"), new Function1<ColNames, List<Boolean>>() {
             public List<Boolean> invoke(ColNames colNames) {
@@ -48,7 +48,8 @@ public class JavaKrangl {
                     public Object invoke(DataFrame df, DataFrame dataFrame2) {
                         return mean(asDoubles(df.get("time")));
                     }
-                }), new TableFormula("median_time", new Function2<DataFrame, DataFrame, Object>() {
+                }),
+                new TableFormula("median_time", new Function2<DataFrame, DataFrame, Object>() {
                     public Object invoke(DataFrame df, DataFrame dataFrame2) {
                         return mean(asDoubles(df.get("time")));
                     }

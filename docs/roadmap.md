@@ -21,6 +21,7 @@ Upcoming Releases
 
 * [ ] provide eqivalent for dplyr::summarize_each and dplyr::mutate_each [#4](https://github.com/holgerbrandl/krangl/issues/4)
 * [ ] implement kranglized `tidyr::separate` and `tidyr::gather` [#2](https://github.com/holgerbrandl/krangl/issues/2)
+* `sample_frac()` and `sample_n()`
 
 
 Performance optimization
