@@ -7,7 +7,7 @@ fun main(args: Array<String>) {
 
     // Create data-frame in memory
 
-    var df: DataFrame = dataFrameOf(
+    val df: DataFrame = dataFrameOf(
             "first_name", "last_name", "age", "weight")(
             "Max", "Doe", 23, 55,
             "Franz", "Smith", 23, 88,
@@ -33,7 +33,7 @@ fun main(args: Array<String>) {
     df.mutate("age_3y_later", { it["age"] + 3 })
 
     // Note: krangl dataframes are immutable so we need to (re)assign results to preserve changes.
-    df = df.mutate("full_name", { it["first_name"] + " " + it["last_name"] })
+    df.mutate("full_name", { it["first_name"] + " " + it["last_name"] })
 
     // Also feel free to mix types here since krangl overloads  arithmetic operators like + for dataframe-columns
     df.mutate("user_id", { it["last_name"] + "_id" + rowNumber() })
@@ -42,7 +42,7 @@ fun main(args: Array<String>) {
     df.mutate("with_anz", { it["first_name"].asStrings().map { it!!.contains("anz") } })
 
     // Note: krangl is using 'null' as missing value, and provides convenience methods to process non-NA bits
-    df.mutate("first_name_restored", { it["full_name"].asStrings().ignoreNA { split(" ".toRegex(), 2)[1] } })
+    df.mutate("first_name_initial", { it["first_name"].asStrings().ignoreNA { first().toString() } })
 
 
     // Resort with arrange
