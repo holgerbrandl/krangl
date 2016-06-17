@@ -153,7 +153,7 @@ Support & Documentation
 `krangl` is not yet mature, full of bugs and its API is in constant flux. Nevertheless, feel welcome to submit pull-requests or tickets, or simply get in touch via gitter (see button on top).
 
 
-* [Krangl Introduction](TODO) A presentation from June 2016 ([sources](./docs/bier_slides_june2016/krangl_intro.md))
+* [Krangl Introduction](http://holgerbrandl.github.io/krangl/krangl_intro/krangl_intro.html) A presentation from June 2016 ([sources](./docs/bier_slides_june2016/krangl_intro.md))
 * [Krangl User Guide](./docs/user_guide.md) for detailed information about the API and usage examples.
 * [Developer Information](./docs/devel.md) with details about to build, test, release and improve `krangl`
 * [Roadmap](./docs/roadmap.md) complementing the tracker with where the project is heading

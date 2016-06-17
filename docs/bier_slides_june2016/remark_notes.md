@@ -105,15 +105,20 @@ see https://help.github.com/articles/creating-project-pages-manually/
 cd ~/Desktop
 git clone https://github.com/holgerbrandl/krangl.git
 cd krangl
-git checkout gh-pages
-## just needed for initial run:
-#git rm -rf .
-#cp -r /Users/brandl/Dropbox/cluster_sync/krangl/docs/krangl_intro .
-#rm krangl_intro/*md krangl_intro/*.css krangl_intro/remark_notes.md
-# git add -A krangl_intro
 
-cp /Users/brandl/Dropbox/cluster_sync/krangl/docs/krangl_intro/krangl_intro.html krangl_intro/
-git commit -m "fixed some typos"
+git checkout gh-pages
+
+## just needed for initial run:
+# git checkout -b gh-pages
+# git rm -rf .
+# mkdir krangl_intro
+# cp /Users/brandl/projects/kotlin/krangl/docs/bier_slides_june2016/remark_style.css krangl_intro
+# cp /Users/brandl/projects/kotlin/krangl/docs/bier_slides_june2016/krangl_intro.html krangl_intro
+# cp -r /Users/brandl/projects/kotlin/krangl/docs/bier_slides_june2016/assets krangl_intro
+# git add -A
+
+cp /Users/brandl/Dropbox/cluster_sync/krangl/docs/krangl_intro/krangl_intro.html krangl_intro
+git commit -m "fixed invalid image urls"
 git push origin gh-pages
 
 ```

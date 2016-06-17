@@ -52,7 +52,7 @@ flights %>%
 * Organized by task.
 * Informative infographics
 
-[![](.images/dplyr_wrangling_cheatshet.jpg)](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
+[![](assets/dplyr_wrangling_cheatshet.jpg)](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
 
 ---
 ## Awesome ways to do it. Part2
@@ -93,12 +93,12 @@ Table<String, Character, Integer> table = Tables.newCustomTable(
 ```
 
 Seriously for the No1 programming language, what else please  ???
-![](.images/tiobe_june_2016.jpg)
+![](assets/tiobe_june_2016.jpg)
 
 ---
 # Awesome ways to do it. Apache Spark
 
-![](.images/spark_web_header.jpg)
+![](assets/spark_web_header.jpg)
 * Huge depedency tree
 * Too _much_ for many applications
 * _Just_ SQL for more complex queries
@@ -106,7 +106,7 @@ Seriously for the No1 programming language, what else please  ???
 
 Query execution model in Spark: The Catalyst query optimizer that creates the physical Execution Plan:
 
-![](.images/spark_query_execution.jpg)
+![](assets/spark_query_execution.jpg)
 
 ---
 # Spark Example
@@ -159,7 +159,7 @@ Solution
 ---
 # Kotlin
 
-![](.images/kotlin.jpg)
+![](assets/kotlin.jpg)
 
 
 ---
@@ -184,7 +184,7 @@ Solution
 * More a technology experiment than a library for now
 * Covers all major `dplyr` verbs
 
-![](.images/repo_snapshot.jpg)
+![](assets/repo_snapshot.jpg)
 
 ---
 ## Why `krangl` and not `dplyk` or `kplyr`
@@ -192,7 +192,7 @@ Solution
 * Don't stick too much to R conventions but rather embrace Kotlin naming conventions
 * _He_ likes it
 
-![](.images/name_origin.jpg)
+![](assets/name_origin.jpg)
 
 
 ---
@@ -206,7 +206,7 @@ Often you work with large datasets with many columns where only a few are actual
 storms.select("storm", "pressure")
 ```
 
-![](.images/storms_select.jpg)
+![](assets/storms_select.jpg)
 
 
 ---
@@ -241,7 +241,7 @@ Which storms had a wind speed greater than 50?
 ```{kotlin}
 storms.filter { it["wind"] gt 50 }
 ```
-![](.images/storms_filter.jpg)
+![](assets/storms_filter.jpg)
 
 
 ---
