@@ -29,11 +29,13 @@ enum class JoinType {
 
 /** Convenience wrapper around <code>joinLeft</code> that works with single single by attribute.*/
 
-fun leftJoin(left: DataFrame, right: DataFrame, by: String, suffices: Pair<String, String> = ".x" to ".y") =
-        join(left, right, listOf(by), suffices, LEFT)
 
-fun leftJoin(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y") =
-        join(left, right, by, suffices, LEFT)
+fun DataFrame.leftJoin(right: DataFrame, by: String, suffices: Pair<String, String> = ".x" to ".y") =
+        join(this, right, listOf(by), suffices, LEFT)
+
+
+fun DataFrame.leftJoin(right: DataFrame, by: Iterable<String> = defaultBy(this, right), suffices: Pair<String, String> = ".x" to ".y") =
+        join(this, right, by, suffices, LEFT)
 
 
 //
@@ -41,30 +43,31 @@ fun leftJoin(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy
 //
 
 
-fun innerJoin(left: DataFrame, right: DataFrame, by: String, suffices: Pair<String, String> = ".x" to ".y") =
-        join(left, right, listOf(by), suffices, INNER)
+fun DataFrame.innerJoin(right: DataFrame, by: String, suffices: Pair<String, String> = ".x" to ".y") =
+        join(this, right, listOf(by), suffices, INNER)
 
 
-fun innerJoin(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y") =
-        join(left, right, by, suffices, INNER)
+fun DataFrame.innerJoin(right: DataFrame, by: Iterable<String> = defaultBy(this, right), suffices: Pair<String, String> = ".x" to ".y") =
+        join(this, right, by, suffices, INNER)
 
 //
 // Semi Join: Special case of inner join against distinct right side
 //
 
-fun semiJoin(left: DataFrame, right: DataFrame, by: String) = semiJoin(left, right, listOf(by))
+fun DataFrame.semiJoin(right: DataFrame, by: String) = semiJoin(right, listOf(by))
 
-fun semiJoin(left: DataFrame, right: DataFrame, by: Iterable<Pair<String, String>>) =
-        semiJoin(left, resolveUnequalBy(right, by), by.toMap().keys)
 
-fun semiJoin(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
+fun DataFrame.semiJoin(right: DataFrame, by: Iterable<Pair<String, String>>) = semiJoin(resolveUnequalBy(right, by), by.toMap().keys)
+
+
+fun DataFrame.semiJoin(right: DataFrame, by: Iterable<String> = defaultBy(this, right), suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
     val rightReduced = right
             // just keep one instance per group
             .distinct(*by.toList().toTypedArray()) //  slow for bigger data (because grouped here and later again)??
             // remove non-grouping columns to prevent columns suffixing
             .select(*by.toList().toTypedArray())
 
-    return join(left, rightReduced, by, suffices, INNER)
+    return join(this, rightReduced, by, suffices, INNER)
 }
 
 
@@ -73,14 +76,13 @@ fun semiJoin(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy
 //
 
 
-fun joinOuter(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right)) =
-        join(left, right, by, type = OUTER)
+fun DataFrame.outerJoin(right: DataFrame, by: Iterable<String> = defaultBy(this, right)) = join(this, right, by, type = OUTER)
 
 
 object UnequalByHelpers {
 
-    fun innerJoin(left: DataFrame, right: DataFrame, by: Iterable<Pair<String, String>>, suffices: Pair<String, String> = ".x" to ".y") =
-            join(left, resolveUnequalBy(right, by), by.toMap().keys, suffices, INNER)
+    fun DataFrame.innerJoin(right: DataFrame, by: Iterable<Pair<String, String>>, suffices: Pair<String, String> = ".x" to ".y") =
+            join(this, resolveUnequalBy(right, by), by.toMap().keys, suffices, INNER)
 
 
 }

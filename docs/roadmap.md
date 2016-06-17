@@ -11,13 +11,14 @@ Initial Release
 * [X] table write support using csv-commons wrapper
 * [X] implement joins
 * [X] implement count and distinct
-* [ ] remove regrouping in core verbs where possible
 * [X] basic benchmarking framework (without jvm usage)
-* [ ] consider to use invoke for row access (potentially decouple more arguable extensions in different namespace?)
 
 
 Upcoming Releases
--------------
+-----------------
+
+* [ ] remove regrouping in core verbs where possible
+* [ ] consider to use invoke for row access (potentially decouple more arguable extensions in different namespace?)
 
 * [ ] provide eqivalent for dplyr::summarize_each and dplyr::mutate_each [#4](https://github.com/holgerbrandl/krangl/issues/4)
 * [ ] implement kranglized `tidyr::separate` and `tidyr::gather` [#2](https://github.com/holgerbrandl/krangl/issues/2)
@@ -43,7 +44,7 @@ Future Plans
 https://github.com/holgerbrandl/krangl/issues
 
 * golem bindings
-
+* Add a `DataFrame.transpose()` method
 * Make use of kotlin.Number to simplify API
 
 * Use JvmName to allow for more strongly typed (see  http://stackoverflow.com/questions/29268526/how-to-overcome-same-jvm-signature-error-when-implementing-a-java-interface)
