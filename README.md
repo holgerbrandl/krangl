@@ -1,6 +1,6 @@
 # krangl
 
-[![Gitter](https://badges.gitter.im/holgerbrandl/krangl.svg)](https://gitter.im/holgerbrandl/krangl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/holgerbrandl/krangl.svg?branch=master)](https://travis-ci.org/holgerbrandl/krangl)
+[ ![Download](https://api.bintray.com/packages/holgerbrandl/mpicbg-scicomp/krangl/images/download.svg) ](https://bintray.com/holgerbrandl/mpicbg-scicomp/krangl/_latestVersion)  [![Build Status](https://travis-ci.org/holgerbrandl/krangl.svg?branch=master)](https://travis-ci.org/holgerbrandl/krangl) [![Gitter](https://badges.gitter.im/holgerbrandl/krangl.svg)](https://gitter.im/holgerbrandl/krangl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 `krangl` is a {K}otlin library for data w{rangl}ing. By implementing a grammar of data manipulation, it allows to filter, aggregate and reshape tabular data.
 
@@ -9,9 +9,9 @@
 Installation
 ------------
 
-To get started simply add it as a dependency via BinTray:
+To get started simply add it as a dependency via Jcenter:
 ```
-compile "de.mpicbg.scicomp:krangl:0.1-SNAPSHOT"
+compile "de.mpicbg.scicomp:krangl:0.3"
 ```
 
 
