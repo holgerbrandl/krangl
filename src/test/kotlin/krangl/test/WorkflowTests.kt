@@ -2,6 +2,7 @@ package krangl.test
 
 import io.kotlintest.specs.FlatSpec
 import krangl.*
+import krangl.UnequalByHelpers.innerJoin
 
 
 class CompoundTests : FlatSpec() { init {
@@ -60,7 +61,7 @@ class Playground : FlatSpec() { init {
         flights.mutate("speed" to { it["distance"] / it["air_time"] * 60 })
         irisData.count("Species")
 //        sleepData.rename("vore" to "vore").names shouldBe sleepData.names
-        UnequalByHelpers.innerJoin(sleepData, sleepData.rename("order" to "new_order"), by = listOf(
+        sleepData.innerJoin(sleepData.rename("order" to "new_order"), by = listOf(
                 "vore" to "vore",
                 "order" to "new_order"
         )).nrow shouldBe 597

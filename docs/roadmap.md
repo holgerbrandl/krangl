@@ -2,18 +2,6 @@ Krangl Roadmap
 ==============
 
 
-Initial Release
--------------
-
-* [X] travisCI integration
-* [X] first basic tests
-* [X] rewrite table reader for better performance
-* [X] table write support using csv-commons wrapper
-* [X] implement joins
-* [X] implement count and distinct
-* [X] basic benchmarking framework (without jvm usage)
-
-
 Upcoming Releases
 -----------------
 

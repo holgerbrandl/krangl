@@ -145,6 +145,7 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
                 is DoubleCol -> DoubleCol(it.name, it.values.filterIndexed { index, value -> indexFilter[index] }.toTypedArray())
                 is IntCol -> IntCol(it.name, it.values.filterIndexed { index, value -> indexFilter[index] }.toTypedArray())
                 is StringCol -> StringCol(it.name, it.values.filterIndexed { index, value -> indexFilter[index] }.toList().toTypedArray())
+                is AnyCol -> AnyCol(it.name, it.values.filterIndexed { index, value -> indexFilter[index] }.toList().toTypedArray())
                 else -> throw UnsupportedOperationException()
             }
         }.let { SimpleDataFrame(it) }
@@ -198,7 +199,7 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
         require(newCol.values().size == nrow) { "new column has inconsistent length" }
         require(newCol.name != TMP_COLUMN) { "missing name in new columns" }
 
-        return addColumn(newCol)
+        return if (newCol.name in names) replaceColumn(newCol) else addColumn(newCol)
     }
 
 
@@ -247,6 +248,8 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
     // use proper generics here
     override fun groupBy(vararg by: String): DataFrame {
         if (by.isEmpty()) System.err.print("Grouping with empty attribute list is unlikely to have meaningful semantics")
+
+        // todo test if data is already grouped by the given 'by' and skip regrouping if so
 
         //take all grouping columns
         val groupCols = select(*by) //cols.filter { by.contains(it.name) }
@@ -313,9 +316,7 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
     }
 
 
-    override fun ungroup(): DataFrame {
-        throw UnsupportedOperationException()
-    }
+    override fun ungroup(): DataFrame = this // for ungrouped data ungrouping won't do anything
 
     // todo mimic dplyr.print better here (num observations, hide too many columns, etc.)
     override fun toString(): String = head(5).asString()
@@ -416,6 +417,10 @@ inline fun <reified T> isListOfType(items: List<Any?>): Boolean {
 data class TableHeader(val header: List<String>) {
 
     operator fun invoke(vararg tblData: Any?): DataFrame {
+//        if(tblData.first() is Iterable<Any?>) {
+//            tblData = tblData.first() as Iterable<Any?>
+//        }
+
 
         // 1) break into columns
         val rawColumns: List<List<Any?>> = tblData.toList()
@@ -437,6 +442,12 @@ data class TableHeader(val header: List<String>) {
         // 3) bind into data-frame
         return SimpleDataFrame(tableColumns)
     }
+
+
+//    operator fun invoke(values: List<Any?>): DataFrame {
+//        return invoke(values.toTypedArray())
+//    }
+
 }
 
 /**
@@ -457,6 +468,18 @@ fun dataFrameOf(vararg header: String) = TableHeader(header.toList())
 
 internal fun SimpleDataFrame.addColumn(dataCol: DataCol): SimpleDataFrame =
         SimpleDataFrame(cols.toMutableList().apply { add(dataCol) })
+
+
+private fun SimpleDataFrame.replaceColumn(newCol: DataCol): DataFrame {
+    val newColIndex = names.indexOf(newCol.name)
+    require(newColIndex >= 0) { "columns $newCol does not exist in data-frame" }
+
+    return cols.toMutableList().apply {
+        removeAt(newColIndex)
+        add(newColIndex, newCol)
+    }.let { SimpleDataFrame(it) }
+}
+
 
 fun <T> arrayListOf(size: Int, initFun: (Int) -> T?): ArrayList<T?> {
     val arrayList = ArrayList<T?>(size)

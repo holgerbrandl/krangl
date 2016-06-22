@@ -149,6 +149,8 @@ class SemiAndAntiJoinTest : FlatSpec() { init {
 }
 }
 
+// todo write test to use different/incompatible types for merge key columns
+// todo test that grouped dataframes can be joined as well
 
 class LeftJoinTest : FlatSpec() { init {
 

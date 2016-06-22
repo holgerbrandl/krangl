@@ -97,6 +97,10 @@ class MutateTest : FlatSpec() { init {
         sleepData.rename("vore" to "vore").names shouldBe sleepData.names
     }
 
+    "it" should "mutate existing columns while keeping their posi" {
+        irisData.mutate("Sepal.Length" to { it["Sepal.Length"] + 10 }).names shouldBe irisData.names
+    }
+
     "it" should "allow to use a new column in the same mutate call" {
         sleepData.mutate(
                 "vore_new" to { it["vore"] },
@@ -245,7 +249,7 @@ class GroupedDataTest : FlatSpec() { init {
         val dfB = dfA.select("age", "last_name", "weight", "first_name")
 
         // by joining with multiple attributes we inherentily group (which is the actual test
-        val dummyJoin = leftJoin(dfA, dfB, by = listOf("last_name", "first_name"))
+        val dummyJoin = dfA.leftJoin(dfB, by = listOf("last_name", "first_name"))
 
         dummyJoin.apply {
             nrow shouldBe 3

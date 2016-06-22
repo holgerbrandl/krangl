@@ -16,7 +16,7 @@ fun main(args: Array<String>) {
     RunTimes.measure({
 
         val flights50k = flights.head(5000)
-        val bigJoin = innerJoin(flights50k, flights50k, by = listOf("dep_delay" to "dep_delay", "carrier" to "carrier"))
+        val bigJoin = flights50k.innerJoin(flights50k, by = listOf("dep_delay" to "dep_delay", "carrier" to "carrier"))
         println(bigJoin.nrow)
 
         // expected 50k result: 14305392
