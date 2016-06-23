@@ -22,7 +22,8 @@ fun ColNames.startsWith(prefix: String) = names.map { it.startsWith(prefix) }
 fun ColNames.endsWith(prefix: String) = names.map { it.endsWith(prefix) }.falseAsNull()
 fun ColNames.everything() = Array(names.size, { true }).toList()
 fun ColNames.matches(regex: Regex) = names.map { it.matches(regex) }.falseAsNull()
-fun ColNames.oneOf(vararg someNames: String) = names.map { someNames.contains(it) }.falseAsNull()
+fun ColNames.oneOf(vararg someNames: String): List<Boolean?> = names.map { someNames.contains(it) }.falseAsNull()
+fun ColNames.oneOf(someNames: List<String>): List<Boolean?> = names.map { someNames.contains(it) }.falseAsNull()
 
 
 fun ColNames.range(from: String, to: String): List<Boolean?> {
@@ -38,7 +39,7 @@ fun ColNames.range(from: String, to: String): List<Boolean?> {
 operator fun String.unaryMinus() = fun ColNames.(): List<Boolean?> = names.map { it != this@unaryMinus }.trueAsNull()
 
 operator fun Iterable<String>.unaryMinus() = fun ColNames.(): List<Boolean> = names.map { !this@unaryMinus.contains(it) }
-operator fun List<Boolean?>.unaryMinus() = fun ColNames.(): List<Boolean?> = map { it?.not() }
+operator fun List<Boolean?>.unaryMinus() = map { it?.not() }
 
 //val another = -"dsf"
 
@@ -189,7 +190,19 @@ fun DataFrame.head(numRows: Int = 5) = filter {
     listOf<Number>(1, 2, 3).subList(0, 3)
     rowNumber().map { it <= numRows }.toBooleanArray()
 }
+
 fun DataFrame.tail(numRows: Int = 5) = filter { rowNumber().map { it > (nrow - numRows) }.toBooleanArray() }
+
+
+/** Creates a grouped data-frame where each group consists of exactly one line. Thereby the row-number is used a group-hash. */
+fun DataFrame.rowwise(): DataFrame {
+
+    val rowsAsGroups: List<DataGroup> = (1..nrow).map { rowIndex ->
+        DataGroup(rowIndex, filter { BooleanArray(nrow, { index -> index == rowIndex }) })
+    }.toList()
+
+    return GroupedDataFrame(by = listOf("_row_"), groups = rowsAsGroups)
+}
 
 
 /* Select rows by position.
@@ -294,7 +307,7 @@ fun List<DataFrame>.bindRows(): DataFrame { // add options about NA-fill over no
 }
 
 fun bindCols(left: DataFrame, right: DataFrame): DataFrame { // add options about NA-fill over non-overlapping columns
-    return SimpleDataFrame((left as SimpleDataFrame).cols.toMutableList().apply { addAll((right as SimpleDataFrame).cols) })
+    return SimpleDataFrame(left.cols.toMutableList().apply { addAll((right as SimpleDataFrame).cols) })
 }
 
 private fun List<DataFrame>.bindColData(colName: String): Array<*> {

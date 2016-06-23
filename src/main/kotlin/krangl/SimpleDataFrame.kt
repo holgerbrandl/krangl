@@ -5,7 +5,7 @@ import kotlin.comparisons.nullsLast
 import kotlin.comparisons.then
 
 
-internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
+internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
     // potential performance bottleneck when processing many-groups/joins
     init {
@@ -320,6 +320,24 @@ internal class SimpleDataFrame(val cols: List<DataCol>) : DataFrame {
 
     // todo mimic dplyr.print better here (num observations, hide too many columns, etc.)
     override fun toString(): String = head(5).asString()
+
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other?.javaClass != javaClass) return false
+
+        other as SimpleDataFrame
+
+        if (cols != other.cols) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return cols.hashCode()
+    }
+
+
 }
 
 
@@ -362,9 +380,13 @@ internal fun anyAsColumn(mutation: Any?, name: String, nrow: Int): DataCol {
 
 @Suppress("UNCHECKED_CAST")
 internal fun handleArrayErasure(name: String, mutation: Array<*>): DataCol = when {
+//    isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, mutation as Array<Int?>)
     isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, Array<Int?>(mutation.size, { mutation[it] as? Int }))
+//    isOfType<String>(mutation) -> StringCol(name, mutation as Array<String?>)
     isOfType<String>(mutation) -> StringCol(name, Array<String?>(mutation.size, { mutation[it] as? String }))
+//    isOfType<Double>(mutation) -> DoubleCol(name, mutation as Array<Double?>)
     isOfType<Double>(mutation) -> DoubleCol(name, Array<Double?>(mutation.size, { mutation[it] as? Double }))
+//    isOfType<Boolean>(mutation) -> BooleanCol(name, mutation as Array<Boolean?>)
     isOfType<Boolean>(mutation) -> BooleanCol(name, Array<Boolean?>(mutation.size, { mutation[it] as? Boolean }))
     mutation.isEmpty() -> AnyCol(name, emptyArray())
     else -> throw UnsupportedOperationException()

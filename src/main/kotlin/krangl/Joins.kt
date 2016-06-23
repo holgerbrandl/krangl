@@ -182,7 +182,7 @@ private fun resolveUnequalBy(df: DataFrame, by: Iterable<Pair<String, String>>):
 
 
 /** Given a data-frame, this method derives a 1-row table with the same colum types but null as value for all columns. */
-private fun nullRow(df: DataFrame): DataFrame = (df as SimpleDataFrame).cols.fold(SimpleDataFrame(), { nullDf, column ->
+private fun nullRow(df: DataFrame): DataFrame = df.cols.fold(SimpleDataFrame(), { nullDf, column ->
 
     when (column) {
         is IntCol -> IntCol(column.name, listOf(null))
@@ -247,7 +247,7 @@ private fun cartesianProduct(left: DataFrame, right: DataFrame, removeFromRight:
 
 
 private fun replicateByIndex(df: DataFrame, repIndex: List<Int>): DataFrame {
-    val repCols: List<DataCol> = (df as SimpleDataFrame).cols.map { it ->
+    val repCols: List<DataCol> = df.cols.map { it ->
         when (it) {
             is DoubleCol -> DoubleCol(it.name, Array(repIndex.size, { index -> it.values[repIndex[index]] }).toList())
             is IntCol -> IntCol(it.name, Array(repIndex.size, { index -> it.values[repIndex[index]] }).toList())

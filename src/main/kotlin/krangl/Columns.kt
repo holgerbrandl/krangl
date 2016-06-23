@@ -1,5 +1,6 @@
 package krangl
 
+import java.util.*
 import kotlin.comparisons.nullsLast
 
 
@@ -18,6 +19,24 @@ abstract class DataCol(val name: String) {
 
     override fun toString(): String {
         return "$name [${getScalarColType(this)}]"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DataCol) return false
+
+        if (name != other.name) return false
+        if (length != other.length) return false
+//        http://stackoverflow.com/questions/35272761/how-to-compare-two-arrays-in-kotlin
+        if (Arrays.equals(values(), other.values())) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + length + Arrays.hashCode(values())
+        return result
     }
 }
 

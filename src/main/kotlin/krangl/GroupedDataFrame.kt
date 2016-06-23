@@ -28,12 +28,20 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
         }
     }
 
-    override val names: List<String>
-        get() = groups.first().df.names
+
+    override val nrow: Int
+        get() = groups.map { it.df.nrow }.sum()
 
 
     override val ncol: Int
         get() = groups.first().df.ncol
+
+    override val names: List<String>
+        get() = groups.first().df.names
+
+
+    override val cols: List<DataCol>
+        get() = ungroup().cols
 
 
     internal val groupOffsets: List<Int> by lazy {
@@ -50,10 +58,6 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
 
     override fun get(name: String): DataCol = ungroup()[name]
-
-
-    override val nrow: Int
-        get() = groups.map { it.df.nrow }.sum()
 
 
     override fun summarize(vararg sumRules: TableFormula): DataFrame {

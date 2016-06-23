@@ -1,6 +1,13 @@
 Krangl Release History
 ======================
 
+v0.4 (Not yet released)
+----
+
+* spread-gather support for data reshaping
+* mutate can now change existing columns without altering column positions
+
+
 v0.3
 ----
 

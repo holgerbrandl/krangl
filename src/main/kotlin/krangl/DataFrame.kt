@@ -16,6 +16,10 @@ interface DataFrame {
     /** Returns the ordered list of column names of this data-frame. */
     val names: List<String>
 
+
+    /** Returns the ordered list of column this data-frame. */
+    val cols: List<DataCol>
+
     operator fun get(name: String): DataCol
 
 
