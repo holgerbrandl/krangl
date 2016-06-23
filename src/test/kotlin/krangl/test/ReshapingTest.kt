@@ -109,3 +109,34 @@ class GatherTest : FlatSpec() { init {
     }
 }
 }
+
+
+class SpreadUniteTest : FlatSpec() { init {
+
+    "it" should "spread and unit columns" {
+
+        sleepData.unite("test", listOf("name", "order"), remove = false).apply {
+            head().print()
+            names.contains("name") shouldBe true
+            this["test"].values().size shouldEqual nrow
+        }
+
+        sleepData.unite("test", { oneOf("name", "order") }).apply {
+            head().print()
+
+            names.contains("name") shouldBe false
+            this["test"].values().size shouldEqual nrow
+        }
+
+        val united = sleepData.unite("test", { oneOf("name", "sleep_rem") })
+
+        united.separate("test", listOf("new_name", "new_sleep_rem"), convert = true).apply {
+            head().print()
+            glimpse()
+
+            this["new_name"] == sleepData["name"]
+            this["new_sleep_rem"] == sleepData["sleep_rem"]
+        }
+    }
+}
+}

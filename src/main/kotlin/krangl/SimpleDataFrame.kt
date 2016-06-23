@@ -484,7 +484,6 @@ val df = dataFrameOf(
 "sdf",  5, 8
 )
 ```
-@throw
  */
 fun dataFrameOf(vararg header: String) = TableHeader(header.toList())
 

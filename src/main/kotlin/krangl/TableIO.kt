@@ -73,6 +73,8 @@ internal fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSV
 // NA aware conversions
 internal fun String.naAsNull(): String? = if (this == "NA") null else this
 
+internal fun String?.nullAsNA(): String = this ?: "NA"
+
 internal fun String?.cellValueAsBoolean(): Boolean? {
     if (this == null) return null
 
@@ -136,3 +138,24 @@ fun DataFrame.writeCSV(file: File, format: CSVFormat = CSVFormat.DEFAULT) {
     fileWriter.close()
     csvFilePrinter.close()
 }
+
+
+/**
+An example data frame with 83 rows and 11 variables
+
+This is an updated and expanded version of the mammals sleep dataset. Updated sleep times and weights were taken from V. M. Savage and G. B. West. A quantitative, theoretical framework for understanding mammalian sleep. Proceedings of the National Academy of Sciences, 104 (3):1051-1056, 2007.
+
+Additional variables order, conservation status and vore were added from wikipedia.
+- name. common name
+- genus.
+- vore. carnivore, omnivore or herbivore?
+- order.
+- conservation. the conservation status of the animal
+- sleep\_total. total amount of sleep, in hours
+- sleep\_rem. rem sleep, in hours
+- sleep\_cycle. length of sleep cycle, in hours
+- awake. amount of time spent awake, in hours
+- brainwt. brain weight in kilograms
+- bodywt. body weight in kilograms
+ */
+val sleepData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/msleep.csv"))

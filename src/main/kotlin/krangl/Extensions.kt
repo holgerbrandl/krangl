@@ -48,10 +48,36 @@ fun DataFrame.select(vararg columns: String): DataFrame = select(columns.asList(
 
 /** Keeps only the variables that match any of the given expressions. E.g. use `startsWith("foo")` to select for columns staring with 'foo'.*/
 fun DataFrame.select(vararg which: ColNames.() -> List<Boolean?>): DataFrame {
-    val reducedSelector = which.map { it(ColNames(names)) }.reduce { selA, selB -> selA nullAwareAND  selB }
+    val reducedSelector = reduceColSelectors(which)
 
     return select(reducedSelector)
 }
+
+internal fun DataFrame.reduceColSelectors(which: Array<out ColNames.() -> List<Boolean?>>): List<Boolean?> {
+    val reducedSelector = which.map { it(ColNames(names)) }.reduce { selA, selB -> selA nullAwareAND  selB }
+    return reducedSelector
+}
+
+internal fun DataFrame.select(which: List<Boolean?>): DataFrame {
+    val colSelection: List<String> = colSelectAsNames(which)
+
+    return select(colSelection)
+}
+
+internal fun DataFrame.colSelectAsNames(which: List<Boolean?>): List<String> {
+    require(which.size == ncol) { "selector array has different dimension than data-frame" }
+
+    // map boolean array to string selection
+    val isPosSelection = which.count { it == true } > 0
+    val whichComplete = which.map { it ?: !isPosSelection }
+
+    val colSelection: List<String> = names
+            .zip(whichComplete)
+            .filter { it.second }.map { it.first }
+
+    return colSelection
+}
+
 
 //private infix fun List<Boolean?>.nullOR(other: List<Boolean?>): List<Boolean?> = mapIndexed { index, first ->
 //    if(first==null && other[index] == null) null else (first  ?: false) || (other[index] ?: false)
@@ -67,18 +93,6 @@ private infix fun List<Boolean?>.nullAwareAND(other: List<Boolean?>): List<Boole
             first ?: second
         }
     }
-}
-
-
-internal fun DataFrame.select(which: List<Boolean?>): DataFrame {
-    require(which.size == ncol) { "selector array has different dimension than data-frame" }
-
-    // map boolean array to string selection
-    val isPosSelection = which.count { it == true } > 0
-    val whichComplete = which.map { it ?: !isPosSelection }
-    val colSelection: List<String> = names.zip(whichComplete).filter { it.second }.map { it.first }
-
-    return select(colSelection)
 }
 
 
@@ -257,7 +271,9 @@ fun DataFrame.glimpse(sep: String = "\t") {
         when (col) {
             is DoubleCol -> listOf("[Dbl]\t", col.values.toList())
             is IntCol -> listOf("[Int]\t", col.values.toList())
-            is StringCol -> listOf("[Str]\t", col.values)
+            is StringCol -> listOf("[Str]\t", col.values.toList())
+            is BooleanCol -> listOf("[Bol]\t", col.values.toList())
+            is AnyCol -> listOf("[Any]\t", col.values.toList())
             else -> throw UnsupportedOperationException()
         }.joinToString(", ", prefix = col.name + "\t: ").apply { println(this) }
     }

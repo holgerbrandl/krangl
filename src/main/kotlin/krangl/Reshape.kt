@@ -6,7 +6,7 @@ package krangl
  * @param key The bare (unquoted) name of the column whose values will be used as column headings.
  * @param value The bare (unquoted) name of the column whose values will populate the cells.
  * @param fill If set, missing values will be replaced with this value.
- * @param convert If set, automatic type conversion will be run on all new columns. This is useful if the value column
+ * @param convert If set, attempt to do a type conversion will be run on all new columns. This is useful if the value column
  *                was a mix of variables that was coerced to a string.
  */
 fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boolean = false): DataFrame {
@@ -78,17 +78,10 @@ fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boo
  * @param convert If TRUE will automatically run `convertType` on the key column. This is useful if the
  *                column names are actually numeric, integer, or logical.
  */
+fun DataFrame.gather(key: String, value: String, which: List<String> = this.names, convert: Boolean = false): DataFrame {
+    require(which.isNotEmpty()) { "the column selection to be `gather`ed must not be empty" }
 
-fun DataFrame.gather(key: String, value: String, convert: Boolean = false, vararg which: String = names.toTypedArray()): DataFrame =
-        gather(key, value, convert, if (which.isEmpty()) this else this.select(*which))
-
-fun DataFrame.gather(key: String, value: String, convert: Boolean = false, vararg which: ColNames.() -> List<Boolean?>): DataFrame =
-        gather(key, value, convert, if (which.isEmpty()) this else this.select(*which))
-
-
-// internal api only
-
-internal fun DataFrame.gather(key: String, value: String, convert: Boolean = false, gatherColumns: DataFrame): DataFrame {
+    val gatherColumns = select(which)
 
     // 1) convert each gather column into a block
     val distinctCols = gatherColumns.cols.map { it.javaClass }.distinct()
@@ -128,17 +121,93 @@ internal fun DataFrame.gather(key: String, value: String, convert: Boolean = fal
 }
 
 
-/** Convert a character vector to logical, integer, numeric, complex or factor as appropriate. See tidyr::type.convert */
-internal fun convertType(df: DataFrame, spreadCol: String): DataFrame {
-    val columnData = df[spreadCol].asStrings()
+fun DataFrame.gather(key: String, value: String, vararg which: ColNames.() -> List<Boolean?>, convert: Boolean = false): DataFrame =
+        gather(key, value, colSelectAsNames(reduceColSelectors(which)), convert)
+
+
+/**
+ * Convert a character vector to logical, integer, numeric, complex or factor as appropriate.
+ *
+ * @see tidyr::type.convert
+ */
+internal fun convertType(df: DataFrame, spreadColName: String): DataFrame {
+    val spreadCol = df[spreadColName]
+    val convColumn: DataCol = convertType(spreadCol)
+
+    return df.mutate(spreadColName to { convColumn })
+}
+
+internal fun convertType(spreadCol: DataCol): DataCol {
+    val columnData = spreadCol.asStrings()
     val firstElements = columnData.take(20).toList()
 
     val convColumn: DataCol = when {
-        isIntCol(firstElements) -> IntCol(spreadCol, columnData.map { it?.toInt() })
-        isDoubleCol(firstElements) -> DoubleCol(spreadCol, columnData.map { it?.toDouble() })
-        isBoolCol(firstElements) -> BooleanCol(spreadCol, columnData.map { it?.toBoolean() })
-        else -> df[spreadCol]
+        isIntCol(firstElements) -> IntCol(spreadCol.name, columnData.map { it?.toInt() })
+        isDoubleCol(firstElements) -> DoubleCol(spreadCol.name, columnData.map { it?.toDouble() })
+        isBoolCol(firstElements) -> BooleanCol(spreadCol.name, columnData.map { it?.toBoolean() })
+        else -> spreadCol
+    }
+    return convColumn
+}
+
+/**
+ * Convenience function to paste together multiple columns into one.
+
+ * @param colName Name of the column to add
+ * @param sep Separator to use between values.
+ * @param remove If TRUE, remove input columns from output data frame.
+ *
+ * @see @separate
+ *
+ */
+fun DataFrame.unite(colName: String, which: List<String>, sep: String = "_", remove: Boolean = true): DataFrame {
+    require(which.isNotEmpty()) { "the column selection to be `unite`ed must not be empty" }
+
+    val uniteBlock = select(which)
+    val uniteResult = uniteBlock.rows.map { it.values.map { it?.toString().nullAsNA() }.joinToString(sep) }
+
+    val rest = if (remove) select({ -oneOf(uniteBlock.names) }) else this
+
+    return rest.mutate(colName to { uniteResult })
+}
+
+
+fun DataFrame.unite(colName: String, vararg which: ColNames.() -> List<Boolean?>, sep: String = "_", remove: Boolean = true): DataFrame =
+        unite(colName, which = colSelectAsNames(reduceColSelectors(which)), sep = sep, remove = remove)
+
+
+/**
+ * Given either regular expression or a vector of character positions, separate() turns a single character column into multiple columns.
+ *
+ * @param column Bare column name.
+ * @param into Names of new variables to create as character vector.
+ * @param sep Separator between columns. If character, is interpreted as a regular expression. The default value is a regular @param expression that matches any sequence of non-alphanumeric values. If numeric, interpreted as positions to split at. Positive values start at 1 at the far-left of the string; negative value start at -1 at the far-right of the string. The length of sep should be one less than into.
+ * @param remove If TRUE, remove input column from output data frame.
+ * @param convert If set, attempt to do a type conversion will be run on all new columns. This                  is useful if the value column was a mix of variables that was coerced to a string.
+ */
+fun DataFrame.separate(column: String, into: List<String>, sep: String = "_", remove: Boolean = true, convert: Boolean = false): DataFrame {
+
+    val sepCol = this[column]
+
+    // split colum  by given delimter and keep NAs
+    val splitData = sepCol.asStrings().map { it?.split(delimiters = sep)?.map { it.naAsNull() } }
+    val splitWidths = splitData.map { it?.size }.filterNotNull().distinct()
+    val numSplits = splitWidths.first()
+
+    require(splitWidths.size == 1) { "unequal splits are not yet supported" }
+    require(numSplits == into.size) { "mimatch between number of splits ${numSplits} and provided new column names '${into}'" }
+
+    // vertically split into columns and perform optional type conversion
+    val splitCols: List<DataCol> = (0..(numSplits - 1)).map { splitIndex ->
+        println(splitIndex)
+        StringCol(into[splitIndex], splitData.map { it?.get(splitIndex) })
+    }.map {
+        // optionally do type conversion
+        if (convert) convertType(it) else it
     }
 
-    return df.mutate(spreadCol to { convColumn })
+    // column bind rest and separated columns into final result
+    val rest = if (remove) select(-column) else this
+
+    return bindCols(rest, SimpleDataFrame(splitCols))
 }

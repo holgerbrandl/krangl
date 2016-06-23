@@ -5,6 +5,7 @@ Krangl Roadmap
 Upcoming Releases
 -----------------
 
+* [ ] directly access values with it["foo"] and not just column object. For the latter DataFrame.cols can be used
 * [ ] remove regrouping in core verbs where possible
 * [ ] consider to use invoke for row access (potentially decouple more arguable extensions in different namespace?)
 
