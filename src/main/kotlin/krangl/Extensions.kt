@@ -2,6 +2,8 @@
 
 package krangl
 
+import java.util.*
+
 
 ////////////////////////////////////////////////
 // select() helpers and API
@@ -167,6 +169,63 @@ fun DataFrame.filter(vararg predicates: DataFrame.(DataFrame) -> List<Boolean>):
 // // todo does not work why?
 // df.filter({ it["last_name"].asStrings().map { it!!.startsWith("Do") } })
 
+
+/**
+ * Select random rows from a table.  If receiver is grouped, sampling is done per group.
+ *
+ * @param fraction Fraction of rows to sample.
+ * @param replace Sample with or without replacement
+ */
+fun DataFrame.sampleFrac(fraction: Double, replace: Boolean = false): DataFrame = if (this is GroupedDataFrame) {
+    transformGroups({ it.sampleFrac(fraction, replace) })
+} else {
+    sampleN(Math.round(fraction.toDouble() * nrow).toInt(), replace)
+}
+
+
+/**
+ * Select random rows from a table. If receiver is grouped, sampling is done per group.
+ *
+ * @param n Number of rows to sample.
+ * @param replace Sample with or without replacement
+ */
+fun DataFrame.sampleN(n: Int, replace: Boolean = false): DataFrame {
+    if (this is GroupedDataFrame) {
+        return transformGroups { it.sampleN(n, replace) }
+    }
+
+    require(replace || n <= nrow) { "can not over-sample data without replacement (nrow<${n})" }
+    require(n >= 0) { "Sample size must be greater equal than 0 but was ${n}" }
+
+    // depending on replacement-mode randomly sample the index vector
+    val sampling: List<Int> = if (replace) {
+        mutableListOf<Int>().apply { while (size < n) add(_rand.nextInt(nrow)) }
+
+    } else {
+        // from http://stackoverflow.com/questions/196017/unique-non-repeating-random-numbers-in-o1#196065
+
+        // 1. Create a list, 0..1000. + 2. Shuffle the list.
+        val shufIndices = (0..(nrow - 1)).toMutableList().apply { Collections.shuffle(this, _rand) }
+
+        // 3. Return numbers in order from the shuffled list.
+        shufIndices.subList(0, n)
+    }
+
+    // // more pretty but does not allow to do over-sampling
+    // //build the filter and subset the data
+    // return filter({ BooleanArray(nrow, { sampling.contains(it) }) })
+
+    return this.cols.map { column ->
+        handleArrayErasure(column, column.name, Array(sampling.size, { column.values()[sampling[it]] }))
+    }.let { SimpleDataFrame(it) }
+}
+
+/** Randomize the row order of a data-frame. */
+fun DataFrame.shuffle(): DataFrame = sampleN(nrow)
+
+
+/** Random number generator used to row sampling. Reassign to set seed for deterministic sampling. */
+var _rand = Random(3) // use var here to allow users to set seeds in order to do deterministic sampling
 
 ////////////////////////////////////////////////
 // summarize() convenience
@@ -354,3 +413,6 @@ fun DataFrame.const(someThing: Any) = anyAsColumn(someThing, TMP_COLUMN, nrow)
 internal inline fun warning(value: Boolean, lazyMessage: () -> Any): Unit {
     if (!value) System.err.println(lazyMessage())
 }
+
+internal fun GroupedDataFrame.transformGroups(trafo: (DataFrame) -> DataFrame): GroupedDataFrame =
+        groups.map { DataGroup(it.groupHash, trafo(it.df)) }.let { GroupedDataFrame(by, it) }

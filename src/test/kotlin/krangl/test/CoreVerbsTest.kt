@@ -124,6 +124,61 @@ class FilterTest : FlatSpec() { init {
                 // refilter on empty one
                 .filter { it["name"] eq "bar" }
     }
+
+    "it" should "sub sample data" {
+
+//        sleepData.count("vore").print()
+
+        // fixed sampling should work
+        sleepData.sampleN(2).nrow shouldBe 2
+        sleepData.sampleN(1000, replace = true).nrow shouldBe 1000 // oversampling
+
+        //  fractional sampling should work as well
+        sleepData.sampleFrac(0.3).nrow shouldBe Math.round(sleepData.nrow * 0.3).toInt()
+        sleepData.sampleFrac(0.3, replace = true).nrow shouldBe Math.round(sleepData.nrow * 0.3).toInt()
+        sleepData.sampleFrac(2.0, replace = true).nrow shouldBe sleepData.nrow * 2 // oversampling
+
+        // also test boundary conditions
+        sleepData.sampleN(0).nrow shouldBe 0
+        sleepData.sampleN(0, replace = true).nrow shouldBe 0
+        sleepData.sampleFrac(0.0).nrow shouldBe 0
+        sleepData.sampleFrac(0.0, replace = true).nrow shouldBe 0
+
+        sleepData.sampleN(sleepData.nrow).nrow shouldBe sleepData.nrow
+        sleepData.sampleN(sleepData.nrow, replace = true).nrow shouldBe sleepData.nrow
+        sleepData.sampleFrac(1.0).nrow shouldBe sleepData.nrow
+        sleepData.sampleFrac(1.0, replace = true).nrow shouldBe sleepData.nrow
+
+
+        // make sure that invalid sampling parameters throw exceptions
+        shouldThrow<IllegalArgumentException> { sleepData.sampleN(-1) }
+        shouldThrow<IllegalArgumentException> { sleepData.sampleN(-1, replace = true) }
+        shouldThrow<IllegalArgumentException> { sleepData.sampleFrac(-.3) }
+        shouldThrow<IllegalArgumentException> { sleepData.sampleFrac(-.3, replace = true) }
+
+        // oversampling without replacement should not work
+        shouldThrow<IllegalArgumentException> { sleepData.sampleN(1000) }
+        shouldThrow<IllegalArgumentException> { sleepData.sampleFrac(1.3) }
+
+
+        // fixed sampling of grouped data should be done per group
+        val groupCounts = sleepData.groupBy("vore").sampleN(2).count("vore")
+        groupCounts["n"].asInts().distinct().apply {
+            size shouldBe 1
+            first() shouldBe 2
+        }
+
+        //  fractional sampling of grouped data should be done per group
+        sleepData
+                .groupBy("vore")
+                .sampleFrac(0.5)
+                .count("vore")
+                .filter({ it["vore"] eq "omni" })
+                .apply {
+                    this["n"].asInts().first() shouldBe 10
+                }
+    }
+
 }
 }
 
@@ -136,7 +191,6 @@ class SummarizeTest : FlatSpec() { init {
         shouldThrow<NonScalarValueException> {
             sleepData.summarize("foo", { BooleanArray(12) })
         }
-
     }
 
     "it" should "should allow complex objects as summaries" {

@@ -5,13 +5,9 @@ Krangl Roadmap
 Upcoming Releases
 -----------------
 
-* [ ] directly access values with it["foo"] and not just column object. For the latter DataFrame.cols can be used
-* [ ] remove regrouping in core verbs where possible
-* [ ] consider to use invoke for row access (potentially decouple more arguable extensions in different namespace?)
-
-* [ ] provide eqivalent for dplyr::summarize_each and dplyr::mutate_each [#4](https://github.com/holgerbrandl/krangl/issues/4)
-* [ ] implement kranglized `tidyr::separate` and `tidyr::gather` [#2](https://github.com/holgerbrandl/krangl/issues/2)
-* `sample_frac()` and `sample_n()`
+* remove regrouping in core verbs where possible
+* consider to use invoke for row access (potentially decouple more arguable extensions in different namespace?)
+* provide eqivalent for dplyr::summarize_each and dplyr::mutate_each [#4](https://github.com/holgerbrandl/krangl/issues/4)
 
 
 Performance optimization
@@ -47,6 +43,9 @@ fun DataFrame.mutate(name: String, formula: (DataFrame) -> List<String>): DataFr
 }
 
 ```
+
+* directly access values with it["foo"] and not just column object. For the latter DataFrame.cols can be used
+    * Not a good idea because all extension function would then be defined for common lists like List<Int> etc. It's more important to keep the namespace clear
 
 * Provide adhoc/data class conversion for column model [adhoc](https://kotlinlang.org/docs/reference/object-declarations.html#object-expressions)/data class objects
 ```kotlin

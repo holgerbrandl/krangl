@@ -2,7 +2,6 @@ package krangl.test
 
 import io.kotlintest.specs.FlatSpec
 import krangl.*
-import krangl.UnequalByHelpers.innerJoin
 
 
 class CompoundTests : FlatSpec() { init {
@@ -55,31 +54,12 @@ class CompoundTests : FlatSpec() { init {
 }
 
 
-class Playground : FlatSpec() { init {
+class TestPlayground : FlatSpec() { init {
 
     "it" should "test something"{
-        flights.mutate("speed" to { it["distance"] / it["air_time"] * 60 })
-        irisData.count("Species")
-//        sleepData.rename("vore" to "vore").names shouldBe sleepData.names
-        sleepData.innerJoin(sleepData.rename("order" to "new_order"), by = listOf(
-                "vore" to "vore",
-                "order" to "new_order"
-        )).nrow shouldBe 597
+
+
     }
-
-//    "it" should "allow to use different and multiple by columns"{
-//        innerJoin(df, df, by = emptyList(), suffices = "_1" to "_2").apply {
-//            nrow shouldBe 0
-//            names shouldEqual  listOf("foo_1", "bar_1", "foo_2", "bar_2")
-//        }
-//    }
-
-//    "it" should "allow to use different and multiple by columns"({
-//        innerJoin(persons.rename("last_name" to "name"), weights, by = listOf("name" to "last")).apply {
-//            nrow shouldBe 2
-//        }
-//    })
-
 }
 
 }

@@ -379,6 +379,17 @@ internal fun anyAsColumn(mutation: Any?, name: String, nrow: Int): DataCol {
 }
 
 @Suppress("UNCHECKED_CAST")
+internal fun handleArrayErasure(otherCol: DataCol, name: String, mutation: Array<*>): DataCol = when (otherCol) {
+//    isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, mutation as Array<Int?>)
+    is IntCol -> IntCol(name, Array<Int?>(mutation.size, { mutation[it] as? Int }))
+    is StringCol -> StringCol(name, Array<String?>(mutation.size, { mutation[it] as? String }))
+    is DoubleCol -> DoubleCol(name, Array<Double?>(mutation.size, { mutation[it] as? Double }))
+    is BooleanCol -> BooleanCol(name, Array<Boolean?>(mutation.size, { mutation[it] as? Boolean }))
+    is BooleanCol -> BooleanCol(name, Array<Boolean?>(mutation.size, { mutation[it] as? Boolean }))
+    else -> AnyCol(name, mutation as Array<Any?>)
+}
+
+@Suppress("UNCHECKED_CAST")
 internal fun handleArrayErasure(name: String, mutation: Array<*>): DataCol = when {
 //    isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, mutation as Array<Int?>)
     isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, Array<Int?>(mutation.size, { mutation[it] as? Int }))
