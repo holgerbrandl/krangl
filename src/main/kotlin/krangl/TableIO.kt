@@ -93,19 +93,19 @@ internal fun String?.cellValueAsBoolean(): Boolean? {
 // TODO add missing value support with user defined string (e.g. NA here) here
 
 internal fun isDoubleCol(firstElements: List<String?>): Boolean = try {
-    firstElements.map { it?.toDouble() };  true
+    firstElements.map { it?.toDouble() }; true
 } catch(e: NumberFormatException) {
     false
 }
 
 internal fun isIntCol(firstElements: List<String?>): Boolean = try {
-    firstElements.map { it?.toInt() };  true
+    firstElements.map { it?.toInt() }; true
 } catch(e: NumberFormatException) {
     false
 }
 
 internal fun isBoolCol(firstElements: List<String?>): Boolean = try {
-    firstElements.map { it?.cellValueAsBoolean() };  true
+    firstElements.map { it?.cellValueAsBoolean() }; true
 } catch(e: NumberFormatException) {
     false
 }
@@ -119,7 +119,7 @@ internal fun peekCol(colName: String?, records: List<CSVRecord>, peekSize: Int =
 
 fun DataFrame.writeCSV(file: String, format: CSVFormat = CSVFormat.DEFAULT) = writeCSV(File(file), format)
 
-fun DataFrame.writeCSV(file: File, format: CSVFormat = CSVFormat.DEFAULT) {
+fun DataFrame.writeCSV(file: File, format: CSVFormat = CSVFormat.DEFAULT, colNames: Boolean = true) {
     //initialize FileWriter object
     val fileWriter = FileWriter(file)
 
@@ -127,7 +127,7 @@ fun DataFrame.writeCSV(file: File, format: CSVFormat = CSVFormat.DEFAULT) {
     val csvFilePrinter = CSVPrinter(fileWriter, format)
 
     //Create CSV file header
-    csvFilePrinter.printRecord(names)
+    if (colNames) csvFilePrinter.printRecord(names)
 
     // write records
     for (record in rawRows) {
