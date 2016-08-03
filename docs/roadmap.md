@@ -74,3 +74,21 @@ newTable.src.x
 * Integrate idoms to do enrichment testing with fisher test from [commons-math](http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math3/distribution/HypergeometricDistribution.html)
 
 * misc consider to use kotlin.collections.ArrayAsCollection
+
+
+
+Related libraries 
+
+https://github.com/lwhite1/tablesaw
+
+* allows for column indicies to speed up access 
+
+
+http://dexvis.com or github https://github.com/PatMartin/Dex
+
+
+fast column storage
+https://github.com/lemire/JavaFastPFOR
+http://fastutil.di.unimi.it/
+
+http://nd4j.org/

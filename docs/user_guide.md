@@ -14,6 +14,11 @@ df.mutate("user_id", {  "id".asCol(it) + rowNumber() })
 This is because operator invocation just works left to right and we don't want to change + in a global manner
 
 
+## Joins
+
+
+https://blog.jooq.org/2016/07/05/say-no-to-venn-diagrams-when-explaining-joins/
+
 ## Known differences to `dplyr` package in R
 
 * `rename()` will preserve column positions whereas `dplyr::rename` add renamed columns to the end of the table

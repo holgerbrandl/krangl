@@ -58,7 +58,12 @@ internal fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSV
         val firstElements = peekCol(colName, records)
 
         when {
-            isIntCol(firstElements) -> IntCol(colName, records.map { it[colName].naAsNull()?.toInt() })
+        // see https://github.com/holgerbrandl/krangl/issues/10
+            isIntCol(firstElements) -> try {
+                IntCol(colName, records.map { it[colName].naAsNull()?.toInt() })
+            } catch (e: NumberFormatException) {
+                StringCol(colName, records.map { it[colName].naAsNull() })
+            }
             isDoubleCol(firstElements) -> DoubleCol(colName, records.map { it[colName].naAsNull()?.toDouble() })
             isBoolCol(firstElements) -> BooleanCol(colName, records.map { it[colName].naAsNull()?.cellValueAsBoolean() })
             else -> StringCol(colName, records.map { it[colName].naAsNull() })
@@ -117,7 +122,7 @@ internal fun peekCol(colName: String?, records: List<CSVRecord>, peekSize: Int =
 
 //TODO add support for compressed writing
 
-fun DataFrame.writeCSV(file: String, format: CSVFormat = CSVFormat.DEFAULT) = writeCSV(File(file), format)
+fun DataFrame.writeCSV(file: String, format: CSVFormat = CSVFormat.DEFAULT, colNames: Boolean = true) = writeCSV(File(file), format, colNames)
 
 fun DataFrame.writeCSV(file: File, format: CSVFormat = CSVFormat.DEFAULT, colNames: Boolean = true) {
     //initialize FileWriter object
