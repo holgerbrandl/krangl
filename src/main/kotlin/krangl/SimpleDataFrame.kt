@@ -145,6 +145,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
                 is DoubleCol -> DoubleCol(it.name, it.values.filterIndexed { index, value -> indexFilter[index] }.toTypedArray())
                 is IntCol -> IntCol(it.name, it.values.filterIndexed { index, value -> indexFilter[index] }.toTypedArray())
                 is StringCol -> StringCol(it.name, it.values.filterIndexed { index, value -> indexFilter[index] }.toList().toTypedArray())
+                is BooleanCol -> BooleanCol(it.name, it.values.filterIndexed { index, value -> indexFilter[index] }.toList().toTypedArray())
                 is AnyCol -> AnyCol(it.name, it.values.filterIndexed { index, value -> indexFilter[index] }.toList().toTypedArray())
                 else -> throw UnsupportedOperationException()
             }
@@ -384,7 +385,6 @@ internal fun handleArrayErasure(otherCol: DataCol, name: String, mutation: Array
     is IntCol -> IntCol(name, Array<Int?>(mutation.size, { mutation[it] as? Int }))
     is StringCol -> StringCol(name, Array<String?>(mutation.size, { mutation[it] as? String }))
     is DoubleCol -> DoubleCol(name, Array<Double?>(mutation.size, { mutation[it] as? Double }))
-    is BooleanCol -> BooleanCol(name, Array<Boolean?>(mutation.size, { mutation[it] as? Boolean }))
     is BooleanCol -> BooleanCol(name, Array<Boolean?>(mutation.size, { mutation[it] as? Boolean }))
     else -> AnyCol(name, mutation as Array<Any?>)
 }

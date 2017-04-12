@@ -15,7 +15,7 @@ Important Bug Fixes
 
 Other
 * New property accessor  `DataFrame.cols` to access all columns of a data-frame
-
+* Incremented kotlin version to 1.1
 
 
 v0.3
