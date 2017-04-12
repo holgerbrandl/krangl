@@ -260,7 +260,6 @@ fun DataFrame.count(vararg selects: String = this.names.toTypedArray(), countNam
 fun DataFrame.rowNumber() = (1..nrow).asIterable()
 
 fun DataFrame.head(numRows: Int = 5) = filter {
-    listOf<Number>(1, 2, 3).subList(0, 3)
     rowNumber().map { it <= numRows }.toBooleanArray()
 }
 
