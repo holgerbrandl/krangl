@@ -1,8 +1,15 @@
 Krangl Release History
 ======================
 
-v0.4 (Not yet released)
+v0.5
 ----
+
+* fixed: Add arbitrary typed columns with `mutate` [#15](https://github.com/holgerbrandl/krangl/issues/15)
+
+v0.4
+----
+
+released on 2017-4-12
 
 New Features
 
@@ -31,3 +38,5 @@ Initial Release
 * Support for `count()` and `distinct()`
 * Basic benchmarking framework (without jvm usage)
 
+[sdf](file:///Users/brandl/Desktop/README.pdf)
+[sdf](file:///Users/brandl/Desktop/README__DOES_NOT_EXIST.pdf)

@@ -422,7 +422,8 @@ internal fun handleListErasure(name: String, mutation: List<*>): DataCol = when 
     isListOfType<Double>(mutation) -> DoubleCol(name, mutation as List<Double>)
     isListOfType<Boolean>(mutation) -> BooleanCol(name, mutation as List<Boolean>)
     mutation.isEmpty() -> AnyCol(name, emptyArray())
-    else -> throw UnsupportedOperationException()
+    else -> AnyCol(name, mutation)
+//    else -> throw UnsupportedOperationException()
 }
 
 
