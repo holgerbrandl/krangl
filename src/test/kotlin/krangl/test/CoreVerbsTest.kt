@@ -6,8 +6,8 @@ import krangl.*
 import org.apache.commons.csv.CSVFormat
 
 
-val irisData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF)
-val flights = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/nycflights.tsv.gz"), format = CSVFormat.TDF, isCompressed = true)
+val irisData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())
+val flights = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/nycflights.tsv.gz"), format = CSVFormat.TDF.withHeader(), isCompressed = true)
 
 
 class SelectTest : FlatSpec() { init {

@@ -47,7 +47,7 @@ fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFo
 
 
 internal fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
-    val csvParser = format.withFirstRecordAsHeader().parse(reader)
+    val csvParser = format.parse(reader)
 
     val records = csvParser.records
 
@@ -163,4 +163,4 @@ Additional variables order, conservation status and vore were added from wikiped
 - brainwt. brain weight in kilograms
 - bodywt. body weight in kilograms
  */
-val sleepData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/msleep.csv"))
+val sleepData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/msleep.csv"), CSVFormat.DEFAULT.withHeader())
