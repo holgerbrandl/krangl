@@ -1,3 +1,5 @@
+dist: trusty
+
 language: java
 
 ## https://docs.travis-ci.com/user/languages/java
@@ -6,3 +8,10 @@ language: java
 ## gradle check or gradle test
 
 ## http://stackoverflow.com/questions/17606874/trigger-a-travis-ci-rebuild-without-pushing-a-commit
+
+jdk:
+  - oraclejdk8
+
+install: gradle -q assemble
+
+script: gradle clean check --stacktrace
