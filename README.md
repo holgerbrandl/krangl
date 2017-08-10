@@ -168,6 +168,7 @@ Related Projects:
 * [Joinery](https://github.com/cardillo/joinery): Data frames for Java
 * [vectorz](https://github.com/mikera/vectorz): Fast and flexible numerical library for Java featuring N-dimensional arrays
 * [golem](https://github.com/kyonifer/golem): A scientific library for Kotlin.
+* [Scala DataTable](https://github.com/martincooper/scala-datatable): a lightweight, in-memory table structure written in Scala
 * [agate](https://github.com/wireservice/agate): A Python data analysis library that is optimized for humans instead of machines
 * [Pandas cheat sheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing)
 
