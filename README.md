@@ -182,6 +182,8 @@ Related Projects:
 * [Scala DataTable](https://github.com/martincooper/scala-datatable): a lightweight, in-memory table structure written in Scala
 * [agate](https://github.com/wireservice/agate): A Python data analysis library that is optimized for humans instead of machines
 * [Pandas cheat sheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing)
+* [koma](https://kyonifer.github.io/koma/) is a scientific computing library written in Kotlin, designed to allow development of cross-platform numerical applications
+
 
 `dplyr` references
 * [dplyr at CRAN](https://cran.r-project.org/web/packages/dplyr/index.html): Official dplyr website
