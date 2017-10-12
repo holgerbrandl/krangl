@@ -183,6 +183,7 @@ Related Projects:
 * [agate](https://github.com/wireservice/agate): A Python data analysis library that is optimized for humans instead of machines
 * [Pandas cheat sheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing)
 * [koma](https://kyonifer.github.io/koma/) is a scientific computing library written in Kotlin, designed to allow development of cross-platform numerical applications
+* [termsql](https://github.com/tobimensch/termsql) converts text from a file or from stdin into SQL table and query it instantly. Uses sqlite as backend.
 
 
 `dplyr` references
