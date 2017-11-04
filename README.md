@@ -184,6 +184,13 @@ Related Projects:
 * [Pandas cheat sheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing)
 * [koma](https://kyonifer.github.io/koma/) is a scientific computing library written in Kotlin, designed to allow development of cross-platform numerical applications
 * [termsql](https://github.com/tobimensch/termsql) converts text from a file or from stdin into SQL table and query it instantly. Uses sqlite as backend.
+* https://github.com/jtablesaw/tablesaw which is the supposedly The simplest way to slice data in Java
+* https://github.com/netzwerg/paleo which provides immutable Java 8 data frames with typed columns
+* https://github.com/timmolter/XChart is a light weight Java library for plotting data
+
+
+
+
 
 
 `dplyr` references
