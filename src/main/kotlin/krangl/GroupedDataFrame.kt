@@ -102,13 +102,13 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
         return groups.map { it.df.filter(predicate) }.bindRows().groupBy(*by.toTypedArray())
     }
 
-    override fun mutate(tf: TableFormula): DataFrame {
-        return groups.map { it.df.mutate(tf) }.bindRows().groupBy(*by.toTypedArray())
+    override fun createColumn(tf: TableFormula): DataFrame {
+        return groups.map { it.df.createColumn(tf) }.bindRows().groupBy(*by.toTypedArray())
     }
 
-    override fun arrange(vararg by: String): DataFrame {
+    override fun sortBy(vararg by: String): DataFrame {
         // fixme this is not dplyr-consistent which keeps grouping index detached from global row order
-        return GroupedDataFrame(this.by, groups.map { DataGroup(it.groupHash, it.df.arrange(*by)) })
+        return GroupedDataFrame(this.by, groups.map { DataGroup(it.groupHash, it.df.sortBy(*by)) })
     }
 
     override fun groupBy(vararg by: String): DataFrame =

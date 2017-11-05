@@ -104,12 +104,12 @@ class MutateTest : Matchers {
 
     @Test
     fun `it should mutate existing columns while keeping their posi`() {
-        irisData.mutate("Sepal.Length" to { it["Sepal.Length"] + 10 }).names shouldBe irisData.names
+        irisData.createColumn("Sepal.Length" to { it["Sepal.Length"] + 10 }).names shouldBe irisData.names
     }
 
     @Test
     fun `it should allow to use a new column in the same mutate call`() {
-        sleepData.mutate(
+        sleepData.createColumns(
                 "vore_new" to { it["vore"] },
                 "vore_first_char" to { it["vore"].asStrings().ignoreNA { this.toList().first().toString() } }
         )
@@ -234,9 +234,9 @@ class EmptyTest : FlatSpec() { init {
             select(emptyList()) // will output warning
             // core verbs
             filter { BooleanArray(0) }
-            mutate("foo", { "bar" })
+            createColumn("foo", { "bar" })
             summarize("foo" to { "bar" })
-            arrange()
+            sortBy()
 
             // grouping
             (groupBy() as GroupedDataFrame).groups()

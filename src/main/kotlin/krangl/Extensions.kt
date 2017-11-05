@@ -123,7 +123,7 @@ fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
     })
 
     // make sure that renaming rule does not contain duplicates to allow for better error reporting
-    val renamed = old2NewFilt.fold(this, { df, renRule -> df.mutate(renRule.asTableFormula()).select(-renRule.oldName) })
+    val renamed = old2NewFilt.fold(this, { df, renRule -> df.createColumn(renRule.asTableFormula()).select(-renRule.oldName) })
 
 
     // restore positions of renamed columns
@@ -145,16 +145,14 @@ infix fun String.to(that: DataFrame.(DataFrame) -> Any?) = TableFormula(this, th
 data class TableFormula(val resultName: String, val formula: DataFrame.(DataFrame) -> Any?)
 
 fun DataFrame.createColumn(columnName: String, expression: DataFrame.(DataFrame) -> Any?): DataFrame =
-        mutate(columnName to expression)
+        createColumn(columnName to expression)
 
-fun DataFrame.mutate(resultName: String, formula: DataFrame.(DataFrame) -> Any?) = createColumn(resultName, formula)
-
-fun DataFrame.mutate(vararg mutations: TableFormula): DataFrame {
-    return mutations.fold(this, { df, tf -> df.mutate(tf) })
+fun DataFrame.createColumns(vararg mutations: TableFormula): DataFrame {
+    return mutations.fold(this, { df, tf -> df.createColumn(tf) })
 }
 
 /** Mutates a data-frame and discards all non-result columns. */
-fun DataFrame.transmute(vararg formula: TableFormula) = mutate(*formula).select(*formula.map { it.resultName }.toTypedArray())
+fun DataFrame.transmute(vararg formula: TableFormula) = createColumns(*formula).select(*formula.map { it.resultName }.toTypedArray())
 
 
 ////////////////////////////////////////////////

@@ -11,6 +11,8 @@ import java.io.FileReader
 
 fun main(args: Array<String>) {
 
+
+    sleepData.arr
     val tt = sleepData.createColumn("user_id") {
         const("id") + rowNumber
     }
@@ -68,8 +70,8 @@ fun main2(args: Array<String>) {
     )
 
 
-    df.mutate("ot" to { it["ll"] })
-    df.mutate("ot" to { it["ll"] })
+    df.createColumn("ot" to { it["ll"] })
+    df.createColumn("ot" to { it["ll"] })
 
 
     // most wanted

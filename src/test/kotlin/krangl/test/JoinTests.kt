@@ -46,7 +46,7 @@ class InnerJoinTests : FlatSpec() { init {
 
 
     "it" should "no-overlap data should still return correct column model" {
-        sleepData.innerJoin(irisData.mutate("vore", { "foobar" }), by = "vore").apply {
+        sleepData.innerJoin(irisData.createColumn("vore", { "foobar" }), by = "vore").apply {
             (names.size > 15) shouldBe true
             nrow shouldBe 0
         }

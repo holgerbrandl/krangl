@@ -27,28 +27,28 @@ fun main(args: Array<String>) {
 
     // Add columns with mutate
     // by adding constant values as new column
-    df.mutate("salary_category", { 3 })
+    df.createColumn("salary_category") { 3 }
 
     // by doing basic column arithmetics
-    df.mutate("age_3y_later", { it["age"] + 3 })
+    df.createColumn("age_3y_later") { it["age"] + 3 }
 
     // Note: krangl dataframes are immutable so we need to (re)assign results to preserve changes.
-    df.mutate("full_name", { it["first_name"] + " " + it["last_name"] })
+    df.createColumn("full_name") { it["first_name"] + " " + it["last_name"] }
 
     // Also feel free to mix types here since krangl overloads  arithmetic operators like + for dataframe-columns
-    df.mutate("user_id", { it["last_name"] + "_id" + rowNumber })
+    df.createColumn("user_id") { it["last_name"] + "_id" + rowNumber }
 
     // Create new attributes with string operations like matching, splitting or extraction.
-    df.mutate("with_anz", { it["first_name"].asStrings().map { it!!.contains("anz") } })
+    df.createColumn("with_anz") { it["first_name"].asStrings().map { it!!.contains("anz") } }
 
     // Note: krangl is using 'null' as missing value, and provides convenience methods to process non-NA bits
-    df.mutate("first_name_initial", { it["first_name"].asStrings().ignoreNA { first().toString() } })
+    df.createColumn("first_name_initial") { it["first_name"].asStrings().ignoreNA { first().toString() } }
 
 
     // Resort with arrange
-    df.arrange("age")
+    df.sortBy("age")
     // and add secondary sorting attributes as varargs
-    df.arrange("age", "weight")
+    df.sortBy("age", "weight")
 
 
     // Subset columns with select

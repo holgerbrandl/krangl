@@ -41,8 +41,8 @@ interface DataFrame {
     // todo consider to use List<Boolean> in signature. We can not provide both because of type erasure
     fun filter(predicate: DataFrame.(DataFrame) -> BooleanArray): DataFrame
 
-    /** Mutate adds new variables and preserves existing.*/
-    fun mutate(tf: TableFormula): DataFrame
+    /** Adds new variables and preserves existing.*/
+    fun createColumn(tf: TableFormula): DataFrame
     // todo maybe as would be more readible: df.mutate({ mean(it["foo")} as "mean_foo")
     // todo Also support varargs similar to summarize: var newDf = df.mutate({"new_attr" to  ( it["test"] + it["test"] )})
 
@@ -51,7 +51,7 @@ interface DataFrame {
     /** arrange resorts tables. The first argument defines the primary attribute to sort by. Additional ones are used to
      * resolve ties.
      */
-    fun arrange(vararg by: String): DataFrame
+    fun sortBy(vararg by: String): DataFrame
 
     /** Creates a summary of a table or a group. The provided formula is expected to evaluate to a scalar value and not into a column.
      * @throws

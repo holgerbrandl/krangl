@@ -193,7 +193,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     //    operator fun component1() = 1
 
     // todo enforce better typed API
-    override fun mutate(tf: TableFormula): DataFrame {
+    override fun createColumn(tf: TableFormula): DataFrame {
 
         val mutation = tf.formula(this, this)
         val newCol = anyAsColumn(mutation, tf.resultName, nrow)
@@ -206,7 +206,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     }
 
 
-    override fun arrange(vararg by: String): DataFrame {
+    override fun sortBy(vararg by: String): DataFrame {
         if (by.isEmpty()) {
             System.err.println("Calling arrange without arguments is not sensible")
             return this
