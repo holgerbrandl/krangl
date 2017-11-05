@@ -144,7 +144,10 @@ infix fun String.to(that: DataFrame.(DataFrame) -> Any?) = TableFormula(this, th
 
 data class TableFormula(val resultName: String, val formula: DataFrame.(DataFrame) -> Any?)
 
-fun DataFrame.mutate(resultName: String, formula: DataFrame.(DataFrame) -> Any?) = mutate(resultName to formula)
+fun DataFrame.createColumn(columnName: String, expression: DataFrame.(DataFrame) -> Any?): DataFrame =
+        mutate(columnName to expression)
+
+fun DataFrame.mutate(resultName: String, formula: DataFrame.(DataFrame) -> Any?) = createColumn(resultName, formula)
 
 fun DataFrame.mutate(vararg mutations: TableFormula): DataFrame {
     return mutations.fold(this, { df, tf -> df.mutate(tf) })
@@ -257,13 +260,13 @@ fun DataFrame.count(vararg selects: String = this.names.toTypedArray(), countNam
 // Extension function that mimic other major elements of the dplyr API
 
 //fun DataFrame.rowNumber() = IntCol(TMP_COLUMN, (1..nrow).asSequence().toList())
-fun DataFrame.rowNumber() = (1..nrow).asIterable()
+//fun DataFrame.rowNumber() = IntCol("row_number", (1..nrow).toList() )
 
 fun DataFrame.head(numRows: Int = 5) = filter {
-    rowNumber().map { it <= numRows }.toBooleanArray()
+    rowNumber.map { it <= numRows }.toBooleanArray()
 }
 
-fun DataFrame.tail(numRows: Int = 5) = filter { rowNumber().map { it > (nrow - numRows) }.toBooleanArray() }
+fun DataFrame.tail(numRows: Int = 5) = filter { rowNumber.map { it > (nrow - numRows) }.toBooleanArray() }
 
 
 /** Creates a grouped data-frame where each group consists of exactly one line. Thereby the row-number is used a group-hash. */
@@ -280,7 +283,7 @@ fun DataFrame.rowwise(): DataFrame {
 /* Select rows by position.
  * Similar to dplyr::slice this operation works in a grouped manner.
  */
-fun DataFrame.slice(vararg slices: Int) = filter { rowNumber().map { slices.contains(it) }.toBooleanArray() }
+fun DataFrame.slice(vararg slices: Int) = filter { rowNumber.map { slices.contains(it) }.toBooleanArray() }
 
 // note: supporting n() here seems pointless since nrow will also work in them mutate context
 

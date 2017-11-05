@@ -1,17 +1,38 @@
 package krangl
 
 import java.util.*
-import kotlin.comparisons.nullsLast
 
 
 // todo internalize these bits in here as much as possible
 
 abstract class DataCol(val name: String) {
 
-    open infix operator fun plus(something: Any): DataCol = throw UnsupportedOperationException()
-    open infix operator fun minus(something: Any): DataCol = throw UnsupportedOperationException()
-    open infix operator fun div(something: Any): DataCol = throw UnsupportedOperationException()
-    open infix operator fun times(something: Any): DataCol = throw UnsupportedOperationException()
+
+    open infix operator fun plus(something: Number): DataCol = plusInternal(something)
+    open infix operator fun plus(something: DataCol): DataCol = plusInternal(something)
+    open infix operator fun plus(something: Iterable<*>): DataCol = plusInternal(handleArrayErasure("foo", something.toList().toTypedArray()))
+    open protected fun plusInternal(something: Any): DataCol = throw UnsupportedOperationException()
+
+
+    open infix operator fun minus(something: Number): DataCol = minusInternal(something)
+    open infix operator fun minus(something: DataCol): DataCol = minusInternal(something)
+    open protected fun minusInternal(something: Any): DataCol = throw UnsupportedOperationException()
+
+    open infix operator fun div(something: Number): DataCol = divInternal(something)
+    open infix operator fun div(something: DataCol): DataCol = divInternal(something)
+    open protected fun divInternal(something: Any): DataCol = throw UnsupportedOperationException()
+
+
+    open infix operator fun times(something: Number): DataCol = timesInternal(something)
+    open infix operator fun times(something: DataCol): DataCol = timesInternal(something)
+    open protected infix fun timesInternal(something: Any): DataCol = throw UnsupportedOperationException()
+
+
+    infix operator fun plus(something: String): DataCol = when (this) {
+        is StringCol -> values.map { naAwarePlus(it, something) }
+        else -> throw UnsupportedOperationException()
+    }.toTypedArray().let { StringCol(TMP_COLUMN, it) }
+
 
     internal abstract fun values(): Array<*>
 
@@ -27,7 +48,7 @@ abstract class DataCol(val name: String) {
 
         if (name != other.name) return false
         if (length != other.length) return false
-//        http://stackoverflow.com/questions/35272761/how-to-compare-two-arrays-in-kotlin
+        //        http://stackoverflow.com/questions/35272761/how-to-compare-two-arrays-in-kotlin
         if (Arrays.equals(values(), other.values())) return false
 
         return true
@@ -38,10 +59,12 @@ abstract class DataCol(val name: String) {
         result = 31 * result + length + Arrays.hashCode(values())
         return result
     }
+
+    operator fun get(index: Int) = values()[index]
 }
 
 
-private fun <T> naAwareOp(first: T?, second: T?, op: (T, T) -> T): T? {
+private inline fun <T> naAwareOp(first: T?, second: T?, op: (T, T) -> T): T? {
     return if (first == null || second == null) null else op(first, second)
 }
 
@@ -69,11 +92,11 @@ class DoubleCol(name: String, val values: Array<Double?>) : DataCol(name) {
 
     override val length = values.size
 
-    override fun plus(something: Any): DataCol = arithOp(something, { a, b -> a + b })
-    override fun minus(something: Any): DataCol = arithOp(something, { a, b -> a - b })
+    override fun plusInternal(something: Any): DataCol = arithOp(something, { a, b -> a + b })
+    override fun minusInternal(something: Any): DataCol = arithOp(something, { a, b -> a - b })
 
-    override fun times(something: Any): DataCol = arithOp(something, { a, b -> a * b })
-    override fun div(something: Any): DataCol = arithOp(something, { a, b -> a / b })
+    override fun timesInternal(something: Any): DataCol = arithOp(something, { a, b -> a * b })
+    override fun divInternal(something: Any): DataCol = arithOp(something, { a, b -> a / b })
 
 
     private fun arithOp(something: Any, op: (Double, Double) -> Double): DataCol = when (something) {
@@ -86,28 +109,59 @@ class DoubleCol(name: String, val values: Array<Double?>) : DataCol(name) {
 }
 
 
-class IntCol(name: String, val values: Array<Int?>) : DataCol(name) {
+abstract class NumberCol(name: String) : DataCol(name)
+
+
+class IntCol(name: String, val values: Array<Int?>) : NumberCol(name) {
 
     constructor(name: String, values: List<Int?>) : this(name, values.toTypedArray())
+
+    // does not work because of signature clash
+    // constructor(name: String, vararg values: Int?) : this(name, values.asList().toTypedArray())
 
     override fun values(): Array<Int?> = values
 
     override val length = values.size
 
-    override fun plus(something: Any): DataCol = arithOp(something, { a, b -> a + b })
-    override fun minus(something: Any): DataCol = arithOp(something, { a, b -> a * b })
 
-    override fun times(something: Any): DataCol = arithOp(something, { a, b -> a - b })
-    override fun div(something: Any): DataCol = arithOp(something, { a, b -> Math.round(a.toDouble() / b.toDouble()).toInt() })
+    override fun plusInternal(something: Any): DataCol = genericIntOp(something, { a, b -> a + b }) { a, b -> a + b }
+    override fun minusInternal(something: Any): DataCol = genericIntOp(something, { a, b -> a - b }) { a, b -> a - b }
+    override fun timesInternal(something: Any): DataCol = genericIntOp(something, { a, b -> a * b }, { a, b -> a * b })
+    override fun divInternal(something: Any): DataCol = doubleOp(something, { a, b -> a / b })
 
 
-    private fun arithOp(something: Any, op: (Int, Int) -> Int): DataCol = when (something) {
-        is IntCol -> Array(values.size, { values[it] })
-                .apply { mapIndexed { index, rowVal -> naAwareOp(rowVal, something.values[index], op) } }
+    private fun genericIntOp(something: Any, intOp: (Int, Int) -> Int, doubleOp: (Double, Double) -> Double): DataCol {
+        return when (something) {
+            is IntCol -> intOp(something, intOp)
+            is DoubleCol -> doubleOp(something, doubleOp)
 
-        is Number -> Array(values.size, { naAwareOp(values[it], something.toInt(), op) })
+            is Int -> this.intOp(something, intOp)
+            is Double -> this.doubleOp(something, doubleOp)
+
+
+            else -> throw UnsupportedOperationException()
+        }
+    }
+
+
+    private fun doubleOp(something: Any, op: (Double, Double) -> Double): DataCol = when (something) {
+
+        is DoubleCol -> Array(values.size, { values[it] }).apply { mapIndexed { index, rowVal -> naAwareOp(rowVal?.toDouble(), something.values[index], op) } }
+
+        is Double -> Array(values.size, { naAwareOp(values[it]?.toDouble(), something, op) })
+
         else -> throw UnsupportedOperationException()
-    }.let { IntCol(TMP_COLUMN, it) }
+    }.let { handleArrayErasure(TMP_COLUMN, it) }
+
+
+    private fun intOp(something: Any, op: (Int, Int) -> Int): DataCol = when (something) {
+
+        is IntCol -> Array(values.size, { values[it] }).apply { mapIndexed { index, rowVal -> naAwareOp(rowVal, something.values[index], op) } }
+
+        is Int -> Array(values.size, { naAwareOp(values[it], something, op) })
+
+        else -> throw UnsupportedOperationException()
+    }.let { handleArrayErasure(TMP_COLUMN, it) }
 }
 
 
@@ -120,12 +174,16 @@ class StringCol(name: String, val values: Array<String?>) : DataCol(name) {
     override val length = values.size
 
 
-    override fun plus(something: Any): DataCol = when (something) {
-        is StringCol -> values.zip(something.values).map { naAwarePlus(it.first, it.second) }.toTypedArray()
-        else -> values.map { naAwarePlus(it, something.toString()) }.toTypedArray()
-    }.let { StringCol(TMP_COLUMN, it) }
+    override fun plusInternal(something: Any): DataCol = when (something) {
+        is DataCol -> Array(values.size, { values[it] }).mapIndexed { index, rowVal ->
+            naAwarePlus(rowVal, something.values()[index]?.toString())
+        }
+        else -> throw UnsupportedOperationException()
+    }.let {
+        StringCol(TMP_COLUMN, it)
+    }
 
-    private fun naAwarePlus(first: String?, second: String?): String? {
+    internal fun naAwarePlus(first: String?, second: String?): String? {
         return if (first == null || second == null) null else first + second
     }
 }
@@ -280,13 +338,13 @@ fun DataCol.median(removeNA: Boolean = false): Double? = when (this) {
 
 private fun <E : Number> Array<E?>.forceDoubleNotNull() = try {
     map { it!!.toDouble() }
-} catch(e: KotlinNullPointerException) {
+} catch (e: KotlinNullPointerException) {
     throw MissingValueException("Missing values in data. Consider to use removeNA argument or DataCol.ignoreNA()")
 }
 
 private inline fun <reified E> Array<E?>.forceNotNull(): Array<E> = try {
     map { it!! }.toTypedArray()
-} catch(e: KotlinNullPointerException) {
+} catch (e: KotlinNullPointerException) {
     throw MissingValueException("Missing values in data. Consider to use removeNA argument or DataCol.ignoreNA()")
 }
 

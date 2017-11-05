@@ -1,9 +1,11 @@
 package krangl.test
 
+import io.kotlintest.matchers.Matchers
 import io.kotlintest.matchers.have
 import io.kotlintest.specs.FlatSpec
 import krangl.*
 import org.apache.commons.csv.CSVFormat
+import org.junit.Test
 
 
 val irisData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())
@@ -24,7 +26,7 @@ class SelectTest : FlatSpec() { init {
         try {
             sleepData.select("foobar")
             fail("foobar should not be selectable")
-        } catch(t: Throwable) {
+        } catch (t: Throwable) {
             // todo expect more descriptive exception here. eg. ColumnDoesNotExistException
         }
     }
@@ -34,7 +36,7 @@ class SelectTest : FlatSpec() { init {
         try {
             sleepData.select(listOf())
             fail("should complain about mismatching selector array dimensionality")
-        } catch(t: Throwable) {
+        } catch (t: Throwable) {
         }
 
         sleepData.select(*arrayOf<String>()).ncol shouldBe 0
@@ -76,8 +78,10 @@ class SelectTest : FlatSpec() { init {
 }
 
 
-class MutateTest : FlatSpec() { init {
-    "it" should "rename columns and preserve their positions" {
+class MutateTest : Matchers {
+
+    @Test
+    fun `rename columns and preserve their positions`() {
         sleepData.rename("vore" to "new_vore", "awake" to "awa2").apply {
             glimpse()
             names.contains("vore") shouldBe false
@@ -89,33 +93,43 @@ class MutateTest : FlatSpec() { init {
             // renaming should not affect column or row counts
             nrow == sleepData.nrow
             ncol == sleepData.ncol
+
         }
     }
 
-    "it" should "allow dummy rename" {
+    @Test
+    fun `allow dummy rename`() {
         sleepData.rename("vore" to "vore").names shouldBe sleepData.names
     }
 
-    "it" should "mutate existing columns while keeping their posi" {
+    @Test
+    fun `it should mutate existing columns while keeping their posi`() {
         irisData.mutate("Sepal.Length" to { it["Sepal.Length"] + 10 }).names shouldBe irisData.names
     }
 
-    "it" should "allow to use a new column in the same mutate call" {
+    @Test
+    fun `it should allow to use a new column in the same mutate call`() {
         sleepData.mutate(
                 "vore_new" to { it["vore"] },
                 "vore_first_char" to { it["vore"].asStrings().ignoreNA { this.toList().first().toString() } }
         )
     }
-}
+
+    @Test
+    fun `it should allow add a rownumber column`() {
+        sleepData.createColumn("user_id") {
+            const("id") + rowNumber
+        }["user_id"][1] shouldBe "id2"
+    }
 }
 
 
 class FilterTest : FlatSpec() { init {
     "it" should "head tail and slic should extract data as expextd" {
         // todo test that the right portions were extracted and not just size
-        sleepData.head().nrow shouldBe  5
-        sleepData.tail().nrow shouldBe  5
-        sleepData.slice(1, 3, 5).nrow shouldBe  3
+        sleepData.head().nrow shouldBe 5
+        sleepData.tail().nrow shouldBe 5
+        sleepData.slice(1, 3, 5).nrow shouldBe 3
     }
 
     "it" should "filter in empty table" {
@@ -127,7 +141,7 @@ class FilterTest : FlatSpec() { init {
 
     "it" should "sub sample data" {
 
-//        sleepData.count("vore").print()
+        //        sleepData.count("vore").print()
 
         // fixed sampling should work
         sleepData.sampleN(2).nrow shouldBe 2
@@ -252,7 +266,7 @@ class GroupedDataTest : FlatSpec() { init {
         (sleepData.groupBy("vore") as GroupedDataFrame).groups().nrow shouldBe 5
 
         // 2) test multi-attribute grouping with NA in one or all attributes
-//        (sleepData.groupBy("vore") as GroupedDataFrame).groups().nrow shouldBe 6
+        //        (sleepData.groupBy("vore") as GroupedDataFrame).groups().nrow shouldBe 6
         //todo implement me
     }
 
@@ -274,10 +288,10 @@ class GroupedDataTest : FlatSpec() { init {
 
 
     "it" should "should auto-select grouping attributes from a grouped dataframe"{
-//        flights.glimpse()
+        //        flights.glimpse()
         val subFlights = flights
                 .groupBy("year", "month", "day")
-//                .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
+                //                .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
                 .select("arr_delay", "dep_delay", "year")
 
         subFlights.apply {
@@ -290,7 +304,7 @@ class GroupedDataTest : FlatSpec() { init {
 
 
     "it" should "calculate same group hash irrespective of column order"{
-//        flights.glimpse()
+        //        flights.glimpse()
 
         var dfA: DataFrame = dataFrameOf(
                 "first_name", "last_name", "age", "weight")(

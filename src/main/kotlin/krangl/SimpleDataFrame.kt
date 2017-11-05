@@ -1,8 +1,6 @@
 package krangl
 
 import java.util.*
-import kotlin.comparisons.nullsLast
-import kotlin.comparisons.then
 
 
 internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
@@ -32,17 +30,17 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
     private data class ColIterator(val name: String, val iterator: Iterator<Any?>)
 
-//    override val rows = object : Iterable<Map<String, Any?>> {
-//
-//        override fun iterator() = object : Iterator<Map<String, Any?>> {
-//
-//            val colIterators = cols.map { it.values().iterator() }.zip(names).map { ColIterator(it.second, it.first) }
-//
-//            override fun hasNext(): Boolean = colIterators.first().iterator.hasNext()
-//
-//            override fun next(): Map<String, Any?> = colIterators.map { it.name to it.iterator.next() }.toMap()
-//        }
-//    }
+    //    override val rows = object : Iterable<Map<String, Any?>> {
+    //
+    //        override fun iterator() = object : Iterator<Map<String, Any?>> {
+    //
+    //            val colIterators = cols.map { it.values().iterator() }.zip(names).map { ColIterator(it.second, it.first) }
+    //
+    //            override fun hasNext(): Boolean = colIterators.first().iterator.hasNext()
+    //
+    //            override fun next(): Map<String, Any?> = colIterators.map { it.name to it.iterator.next() }.toMap()
+    //        }
+    //    }
 
     override val rows = object : Iterable<Map<String, Any?>> {
 
@@ -68,13 +66,13 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         }
     }
 
-//    override val raw = object : Iterable<Map<String, Any?>> {
+    //    override val raw = object : Iterable<Map<String, Any?>> {
 
 
     // todo this needs to be reimplemented to become a proper select that can also change positions. A list of booleans is only one way to to it
 
     override fun select(which: List<String>): DataFrame {
-        warning (which.isNotEmpty()) { "Calling select() without arguments is not sensible" }
+        warning(which.isNotEmpty()) { "Calling select() without arguments is not sensible" }
         require(names.containsAll(which)) { "not all selected columns (${which.joinToString(", ")})are contained in table" }
         require(which.distinct().size == which.size) { "Columns must not be selected more than once" }
 
@@ -96,6 +94,10 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
             }.toMap()
 
     override val ncol = cols.size
+
+
+    override val rowNumber: Iterable<Int>  by lazy { (1..nrow) }
+
 
     override val nrow by lazy {
         val firstCol: DataCol? = cols.firstOrNull()
@@ -128,7 +130,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
     override operator fun get(name: String): DataCol = try {
         cols.first { it.name == name }
-    } catch(e: NoSuchElementException) {
+    } catch (e: NoSuchElementException) {
         throw NoSuchElementException("Could not find column '${name}' in dataframe")
     }
 
@@ -144,9 +146,9 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
             when (it) {
                 is DoubleCol -> DoubleCol(it.name, it.values.filterIndexed { index, value -> indexFilter[index] }.toTypedArray())
                 is IntCol -> IntCol(it.name, it.values.filterIndexed { index, value -> indexFilter[index] }.toTypedArray())
-                is StringCol -> StringCol(it.name, it.values.filterIndexed { index, value -> indexFilter[index] }.toList().toTypedArray())
-                is BooleanCol -> BooleanCol(it.name, it.values.filterIndexed { index, value -> indexFilter[index] }.toList().toTypedArray())
-                is AnyCol -> AnyCol(it.name, it.values.filterIndexed { index, value -> indexFilter[index] }.toList().toTypedArray())
+                is StringCol -> StringCol(it.name, it.values.filterIndexed { index, _ -> indexFilter[index] }.toList().toTypedArray())
+                is BooleanCol -> BooleanCol(it.name, it.values.filterIndexed { index, _ -> indexFilter[index] }.toList().toTypedArray())
+                is AnyCol -> AnyCol(it.name, it.values.filterIndexed { index, _ -> indexFilter[index] }.toList().toTypedArray())
                 else -> throw UnsupportedOperationException()
             }
         }.let { SimpleDataFrame(it) }
@@ -157,7 +159,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     constructor(vararg cols: DataCol) : this(cols.asList())
 
     override fun summarize(vararg sumRules: TableFormula): DataFrame {
-//        require(nrow > 0) { "Can not summarize empty data-frame" } // todocan dplyr?
+        //        require(nrow > 0) { "Can not summarize empty data-frame" } // todocan dplyr?
         /**
         require(dplyr)
         data_frame() %>% summarize(test=1)
@@ -178,7 +180,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
                 is Iterable<*> -> throw NonScalarValueException(key to sumRule, "List")
 
             // todo does null-handling makes sense at all? Might be not-null in other groups for grouped operations // todo add unit-test
-//                null -> AnyCol(key, listOf(null)) // covered by else as well
+            //                null -> AnyCol(key, listOf(null)) // covered by else as well
                 else -> AnyCol(key, arrayOf(sumValue))
             }.let { sumCols.add(it) }
         }
@@ -187,8 +189,8 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     }
 
 
-//    https://kotlinlang.org/docs/reference/multi-declarations.html
-//    operator fun component1() = 1
+    //    https://kotlinlang.org/docs/reference/multi-declarations.html
+    //    operator fun component1() = 1
 
     // todo enforce better typed API
     override fun mutate(tf: TableFormula): DataFrame {
@@ -213,7 +215,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         // utility method to convert columns to comparators
         fun asComparator(by: String): Comparator<Int> {
             val dataCol = this[by]
-//            return naturalOrder<*>()
+            //            return naturalOrder<*>()
             return when (dataCol) {
             // todo use nullsLast
                 is DoubleCol -> Comparator { left, right -> nullsLast<Double>().compare(dataCol.values[left], dataCol.values[right]) }
@@ -264,20 +266,20 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         //       thus
 
         // old (SLOW!) named row iterator approach
-//        val rowHashes = rows.map { row ->
-//            if (by.isEmpty()) {
-//                EMPTY_BY_HASH
-//            } else {
-//                by.map { row[it]?.hashCode() ?: NA_GROUP_HASH }.hashCode()
-//            }
-//        }
+        //        val rowHashes = rows.map { row ->
+        //            if (by.isEmpty()) {
+        //                EMPTY_BY_HASH
+        //            } else {
+        //                by.map { row[it]?.hashCode() ?: NA_GROUP_HASH }.hashCode()
+        //            }
+        //        }
 
         // old (FAST!) raw row iterator approach
         val rowHashes: List<Int> = if (by.isEmpty()) {
             IntArray(nrow, { EMPTY_BY_HASH }).toList()
         } else {
             groupCols.rawRows.map { row: List<Any?> ->
-//                by.map { row[it]?.hashCode() ?: NA_GROUP_HASH }.hashCode()
+                //                by.map { row[it]?.hashCode() ?: NA_GROUP_HASH }.hashCode()
                 // we make the assumption here that group columns are as in `by`
                 row.map { it?.hashCode() ?: NA_GROUP_HASH }.hashCode()
             }
@@ -293,8 +295,8 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
                 }
 
 
-//        Array<String>(3, { it.toString()}).toList()
-//        arrayListOf<String>(3, { it.toString()})
+        //        Array<String>(3, { it.toString()}).toList()
+        //        arrayListOf<String>(3, { it.toString()})
 
         fun extractGroup(col: DataCol, groupIndex: GroupIndex): DataCol = when (col) {
         // create new array
@@ -451,9 +453,9 @@ inline fun <reified T> isListOfType(items: List<Any?>): Boolean {
 data class TableHeader(val header: List<String>) {
 
     operator fun invoke(vararg tblData: Any?): DataFrame {
-//        if(tblData.first() is Iterable<Any?>) {
-//            tblData = tblData.first() as Iterable<Any?>
-//        }
+        //        if(tblData.first() is Iterable<Any?>) {
+        //            tblData = tblData.first() as Iterable<Any?>
+        //        }
 
 
         // 1) break into columns
@@ -478,9 +480,9 @@ data class TableHeader(val header: List<String>) {
     }
 
 
-//    operator fun invoke(values: List<Any?>): DataFrame {
-//        return invoke(values.toTypedArray())
-//    }
+    //    operator fun invoke(values: List<Any?>): DataFrame {
+    //        return invoke(values.toTypedArray())
+    //    }
 
 }
 

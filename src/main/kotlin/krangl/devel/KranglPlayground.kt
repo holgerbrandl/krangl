@@ -3,7 +3,6 @@
 package krangl.devel
 
 import krangl.*
-import kotlin.system.exitProcess
 
 
 fun main(args: Array<String>) {
@@ -18,7 +17,7 @@ fun main(args: Array<String>) {
     ).filter({ it["mean_weight"] gt 20 }).print()
 
 
-    exitProcess(0)
+    //    exitProcess(0)
 
 
     // create data-frame in memory
@@ -30,8 +29,12 @@ fun main(args: Array<String>) {
     )
 
 
-    df.mutate("user_id", { "id" + rowNumber() }) // broken since it does not expand to column
-    df.mutate("user_id", { const("id") + (1..10) })
+    //    df.mutate("user_id", { "id" + rowNumber() }) // broken since it does not expand to column
+
+    // should adding of arrays be supported?
+    val foo = df.createColumn("user_id") { const("id") + nrow }
+
+    //    df.mutate("user_id", { const("id") + (1..10) /**/}) // this should not be valid anyway
 
 //    df.select(-"weight", -"age")  // negative selection
 //

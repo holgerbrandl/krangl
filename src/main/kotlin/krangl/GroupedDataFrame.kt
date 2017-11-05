@@ -32,6 +32,10 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
     override val nrow: Int
         get() = groups.map { it.df.nrow }.sum()
 
+    override val rowNumber: Iterable<Int>
+        get() = 1..nrow
+
+
 
     override val ncol: Int
         get() = groups.first().df.ncol

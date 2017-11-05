@@ -36,7 +36,7 @@ fun main(args: Array<String>) {
     df.mutate("full_name", { it["first_name"] + " " + it["last_name"] })
 
     // Also feel free to mix types here since krangl overloads  arithmetic operators like + for dataframe-columns
-    df.mutate("user_id", { it["last_name"] + "_id" + rowNumber() })
+    df.mutate("user_id", { it["last_name"] + "_id" + rowNumber })
 
     // Create new attributes with string operations like matching, splitting or extraction.
     df.mutate("with_anz", { it["first_name"].asStrings().map { it!!.contains("anz") } })
