@@ -1,7 +1,9 @@
 package krangl.test
 
+import io.kotlintest.matchers.Matchers
 import io.kotlintest.specs.FlatSpec
 import krangl.*
+import org.junit.Test
 
 /**
 require(dplyr)
@@ -10,9 +12,10 @@ head(iris)
 group_by(iris, Species)
 group_by(iris, Species) %>% summarize(mean_length=mean(Sepal.Width))
  */
-class SpreadTest : FlatSpec() { init {
+class SpreadTest : Matchers {
 
-    "it" should "reshape from long to wide" {
+    @Test
+    fun `it should reshape from long to wide`() {
         val longDf = dataFrameOf("person", "year", "weight", "sex")(
                 "max", 2014, 33.1, "M",
                 "max", 2015, 32.3, "M",
@@ -28,13 +31,14 @@ class SpreadTest : FlatSpec() { init {
             ncol shouldBe 6  // name, sex, 4 year columns
 
             // ensure that types were coerced correctly
-            (this["2013"] is DoubleCol) shouldBe  true
-            (this["2016"] is DoubleCol) shouldBe  true
+            (this["2013"] is DoubleCol) shouldBe true
+            (this["2016"] is DoubleCol) shouldBe true
         }
     }
 
 
-    "it" should "type convert stringified values from long to wide" {
+    @Test
+    fun `it should type convert stringified values from long to wide`() {
         val longDf = dataFrameOf("person", "property", "value", "sex")(
                 "max", "salary", "33.1", "M",
                 "max", "city", "London", "M",
@@ -47,35 +51,34 @@ class SpreadTest : FlatSpec() { init {
             ncol shouldBe 4  // name, sex, 4 year columns
 
             // ensure that types were coerced correctly
-            (this["city"] is StringCol) shouldBe  true
-            (this["salary"] is DoubleCol) shouldBe  true
+            (this["city"] is StringCol) shouldBe true
+            (this["salary"] is DoubleCol) shouldBe true
         }
     }
 }
-}
 
+class GatherTest : Matchers {
 
-class GatherTest : FlatSpec() { init {
-
-    "it" should "reshape from wide to long" {
-//        val longDf = dataFrameOf("person", "year", "weight", "sex")(
-//                "max", 2014, 33.1, "M",
-//                "max", 2015, 32.3, "M",
-//                "max", 2016, null, "M",
-//                "anna", 2013, 33.5, "F",
-//                "anna", 2014, 37.3, "F",
-//                "anna", 2015, 39.2, "F",
-//                "anna", 2016, 39.9, "F"
-//        )
-//
-//        longDf.spread("year", "weight").apply {
-//            nrow shouldBe 2
-//            ncol shouldBe 6  // name, sex, 4 year columns
-//
-//            // ensure that types were coerced correctly
-//            (this["2013"] is DoubleCol) shouldBe  true
-//            (this["2016"] is DoubleCol) shouldBe  true
-//        }
+    @Test
+    fun `it should reshape from wide to long`() {
+        //        val longDf = dataFrameOf("person", "year", "weight", "sex")(
+        //                "max", 2014, 33.1, "M",
+        //                "max", 2015, 32.3, "M",
+        //                "max", 2016, null, "M",
+        //                "anna", 2013, 33.5, "F",
+        //                "anna", 2014, 37.3, "F",
+        //                "anna", 2015, 39.2, "F",
+        //                "anna", 2016, 39.9, "F"
+        //        )
+        //
+        //        longDf.spread("year", "weight").apply {
+        //            nrow shouldBe 2
+        //            ncol shouldBe 6  // name, sex, 4 year columns
+        //
+        //            // ensure that types were coerced correctly
+        //            (this["2013"] is DoubleCol) shouldBe  true
+        //            (this["2016"] is DoubleCol) shouldBe  true
+        //        }
     }
 
     val longDf = dataFrameOf("person", "property", "value", "sex")(
@@ -88,7 +91,8 @@ class GatherTest : FlatSpec() { init {
     val wideDf = longDf.spread("property", "value")
 
 
-    "it" should "allow to exclude key columns from gathering" {
+    @Test
+    fun `it should allow to exclude key columns from gathering`() {
         wideDf.gather("property", "value", which = -"person").apply {
             print()
 
@@ -98,7 +102,8 @@ class GatherTest : FlatSpec() { init {
     }
 
 
-    "it" should "maintain spread gather equality" {
+    @Test
+    fun `it should maintain spread gather equality`() {
         val longAgain: DataFrame = wideDf.gather("property", "value")
 
         longAgain.let {
@@ -108,12 +113,12 @@ class GatherTest : FlatSpec() { init {
 
     }
 }
-}
 
 
-class SpreadUniteTest : FlatSpec() { init {
+class SpreadUniteTest : Matchers {
 
-    "it" should "spread and unit columns" {
+    @Test
+    fun `it should spread and unit columns`() {
 
         sleepData.unite("test", listOf("name", "order"), remove = false).apply {
             head().print()
@@ -138,5 +143,4 @@ class SpreadUniteTest : FlatSpec() { init {
             this["new_sleep_rem"] == sleepData["sleep_rem"]
         }
     }
-}
 }

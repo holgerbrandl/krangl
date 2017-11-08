@@ -15,14 +15,14 @@ Methods to read and write tables into/from DataFrames
  */
 
 
-fun DataFrame.Companion.fromCSV(file: String) = fromCSV(File(file))
+fun fromCSV(file: String) = fromCSV(File(file))
 
-fun DataFrame.Companion.fromTSV(file: String) = fromCSV(File(file), format = CSVFormat.TDF)
+fun fromTSV(file: String) = fromCSV(File(file), format = CSVFormat.TDF)
 
 // http://stackoverflow.com/questions/9648811/specific-difference-between-bufferedreader-and-filereader
-fun DataFrame.Companion.fromCSV(file: File,
-                                format: CSVFormat = CSVFormat.DEFAULT,
-                                isCompressed: Boolean = file.name.endsWith(".gz")): DataFrame {
+fun fromCSV(file: File,
+            format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
+            isCompressed: Boolean = file.name.endsWith(".gz")): DataFrame {
 
     val bufReader = if (isCompressed) {
         // http://stackoverflow.com/questions/1080381/gzipinputstream-reading-line-by-line
@@ -36,7 +36,7 @@ fun DataFrame.Companion.fromCSV(file: File,
 }
 
 //http://stackoverflow.com/questions/5200187/convert-inputstream-to-bufferedreader
-fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFormat.DEFAULT, isCompressed: Boolean = false) =
+fun fromCSV(inStream: InputStream, format: CSVFormat = CSVFormat.DEFAULT, isCompressed: Boolean = false) =
         if (isCompressed) {
             InputStreamReader(GZIPInputStream(inStream))
         } else {
@@ -46,15 +46,23 @@ fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFo
         }
 
 
-internal fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
+internal fun fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT.withHeader()): DataFrame {
     val csvParser = format.parse(reader)
 
     val records = csvParser.records
 
     val cols = mutableListOf<DataCol>()
 
+    // todo also support reading files without header --> use generic column names if so
+
+    val columnNames= csvParser.headerMap?.keys ?:
+            (1..csvParser.records[0].count()).mapIndexed { index, _ ->  "X${index}"}
+
+
+    // todo make column names unique when reading them + unit test
+
 //    csvParser.headerMap.keys.pmap{colName ->
-    for (colName in csvParser.headerMap.keys) {
+    for (colName in columnNames) {
         val firstElements = peekCol(colName, records)
 
         when {
@@ -75,10 +83,12 @@ internal fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSV
 }
 
 
-// NA aware conversions
-internal fun String.naAsNull(): String? = if (this == "NA") null else this
+val NA = "NA"
 
-internal fun String?.nullAsNA(): String = this ?: "NA"
+// NA aware conversions
+internal fun String.naAsNull(): String? = if (this == NA) null else this
+
+internal fun String?.nullAsNA(): String = this ?: NA
 
 internal fun String?.cellValueAsBoolean(): Boolean? {
     if (this == null) return null
@@ -163,4 +173,4 @@ Additional variables order, conservation status and vore were added from wikiped
 - brainwt. brain weight in kilograms
 - bodywt. body weight in kilograms
  */
-val sleepData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/msleep.csv"), CSVFormat.DEFAULT.withHeader())
+val sleepData by lazy { fromCSV(DataFrame::class.java.getResourceAsStream("data/msleep.csv"), CSVFormat.DEFAULT.withHeader()) }

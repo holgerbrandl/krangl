@@ -1,12 +1,15 @@
 package krangl.test
 
+import io.kotlintest.matchers.Matchers
 import io.kotlintest.specs.FlatSpec
 import krangl.*
+import org.junit.Test
 
 
-class CompoundTests : FlatSpec() { init {
+class CompoundTests : Matchers {
 
-    "it" should "summarize sleep data" {
+    @Test
+    fun `it should summarize sleep data`() {
 
         val groupedSleep = sleepData.filter { it["awake"] gt 3 }.
                 apply { glimpse() }.
@@ -19,14 +22,15 @@ class CompoundTests : FlatSpec() { init {
                 createColumn("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] }).
                 groupBy("vore").
                 summarize("mean_rem_prop", { it["rem_proportion"].mean(removeNA = true) }).
-                filter { it["vore"] eq  "insecti" }.
+                filter { it["vore"] eq "insecti" }.
                 row(0)["mean_rem_prop"] as Double
 
 
         ((insectiMeanREM - 3.525) < 1E-5) shouldBe true
     }
 
-    "it" should "allow to create dataframe in place"{
+    @Test
+    fun `it should allow to create dataframe in place`() {
         // @formatter:off
         val df = (krangl.dataFrameOf(
                 "foo", "bar")) (
@@ -40,7 +44,7 @@ class CompoundTests : FlatSpec() { init {
         df.names shouldBe listOf("foo", "bar")
 
         val naDF = dataFrameOf(
-                "foo", "bar") (
+                "foo", "bar")(
                 null, null,
                 "sdfd", null,
                 "sdf", 5)
@@ -51,15 +55,13 @@ class CompoundTests : FlatSpec() { init {
         naDF.summarize("num_na", { it["bar"].isNA().sumBy { if (it) 1 else 0 } }).print()
     }
 }
-}
 
 
-class TestPlayground : FlatSpec() { init {
+class TestPlayground {
 
-    "it" should "test something"{
+    @Test
+    fun `it should test something`() {
 
 
     }
-}
-
 }

@@ -158,7 +158,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     // also provide vararg constructor for convenience
     constructor(vararg cols: DataCol) : this(cols.asList())
 
-    override fun summarize(vararg sumRules: TableFormula): DataFrame {
+    override fun summarize(vararg sumRules: ColumnFormula): DataFrame {
         //        require(nrow > 0) { "Can not summarize empty data-frame" } // todocan dplyr?
         /**
         require(dplyr)
@@ -193,10 +193,10 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     //    operator fun component1() = 1
 
     // todo enforce better typed API
-    override fun createColumn(tf: TableFormula): DataFrame {
+    override fun createColumn(tf: ColumnFormula): DataFrame {
 
-        val mutation = tf.formula(this, this)
-        val newCol = anyAsColumn(mutation, tf.resultName, nrow)
+        val mutation = tf.expression(this, this)
+        val newCol = anyAsColumn(mutation, tf.name, nrow)
 
 
         require(newCol.values().size == nrow) { "new column has inconsistent length" }
@@ -206,7 +206,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     }
 
 
-    override fun sortBy(vararg by: String): DataFrame {
+    override fun sortedBy(vararg by: String): DataFrame {
         if (by.isEmpty()) {
             System.err.println("Calling arrange without arguments is not sensible")
             return this

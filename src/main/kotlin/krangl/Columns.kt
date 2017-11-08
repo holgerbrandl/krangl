@@ -30,9 +30,13 @@ abstract class DataCol(val name: String) {
 
     infix operator fun plus(something: String): DataCol = when (this) {
         is StringCol -> values.map { naAwarePlus(it, something) }
-        else -> throw UnsupportedOperationException()
+        else -> values().map{ (it?.toString() ?: NA) + something}
     }.toTypedArray().let { StringCol(TMP_COLUMN, it) }
 
+
+    operator fun unaryMinus(): DataCol = this * -1
+
+    open operator fun not(): DataCol = throw UnsupportedOperationException()
 
     internal abstract fun values(): Array<*>
 
@@ -109,7 +113,8 @@ class DoubleCol(name: String, val values: Array<Double?>) : DataCol(name) {
 }
 
 
-abstract class NumberCol(name: String) : DataCol(name)
+abstract class NumberCol(name: String) : DataCol(name) {
+}
 
 
 class IntCol(name: String, val values: Array<Int?>) : NumberCol(name) {
@@ -199,6 +204,10 @@ class AnyCol(name: String, val values: Array<Any?>) : DataCol(name) {
 
 class BooleanCol(name: String, val values: Array<Boolean?>) : DataCol(name) {
     constructor(name: String, values: List<Boolean?>) : this(name, values.toTypedArray())
+
+    override fun not(): DataCol {
+        return BooleanCol(name, values.map { it?.not() })
+    }
 
     override fun values(): Array<Boolean?> = values
 
@@ -359,8 +368,8 @@ class InvalidColumnOperationException(msg: String) : RuntimeException(msg) {
     constructor(receiver: Any) : this(receiver.javaClass.simpleName + " is not a supported by this operation ")
 }
 
-class NonScalarValueException(tf: TableFormula, result: Any) :
-        RuntimeException("summarize() formula for '${tf.resultName}' did not evaluate into a scalar value but into a '${result}'")
+class NonScalarValueException(tf: ColumnFormula, result: Any) :
+        RuntimeException("summarize() expression for '${tf.name}' did not evaluate into a scalar value but into a '${result}'")
 //
 // Category/String helper extensions
 //

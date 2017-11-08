@@ -2,16 +2,17 @@
 
 TODO write this! :-)
 
+learn from https://jtablesaw.wordpress.com/an-introduction/
+
 ## Core Verbs
 
-### Mutate
+### Create New Columns
 
-To make create columns starting with constant values those need to be expanded to static  columns using .asCol.
+To make create columns starting with constant values those need to be expanded to static columns using with `const`
 ```
-df.mutate("user_id", {  "id".asCol(it) + rowNumber() })
+df.createColumn("user_id") { const("id") + nrow }
 
 ```
-This is because operator invocation just works left to right and we don't want to change + in a global manner
 
 
 ## Joins

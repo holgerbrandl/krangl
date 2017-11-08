@@ -1,6 +1,15 @@
 Krangl Release History
 ======================
 
+v0.6
+----
+
+* more idiomatic API
+* more kotlinesque naming of methods
+* added `DataFrame.sortBy(TableFormula)`
+* Changed column expression API from Any to a constrained set of support types
+* Fixed issues when combining columns of different types (e.g. DoubleCol + IntCol
+
 v0.5
 ----
 

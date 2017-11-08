@@ -64,11 +64,11 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
     override fun get(name: String): DataCol = ungroup()[name]
 
 
-    override fun summarize(vararg sumRules: TableFormula): DataFrame {
+    override fun summarize(vararg sumRules: ColumnFormula): DataFrame {
         // supposedly slow old implementation
 //        return groups.map {
-//            val groupSumRules: List<TableFormula> = by.map {
-//                groupAttr -> TableFormula(groupAttr, { it[groupAttr].values().first() })
+//            val groupSumRules: List<ColumnFormula> = by.map {
+//                groupAttr -> ColumnFormula(groupAttr, { it[groupAttr].values().first() })
 //            }
 //            it.df.summarize(*groupSumRules.toTypedArray(), *sumRules)
 //        }.bindRows() // todo does dplyr keep the group here?? .groupBy(*by.toTypedArray())
@@ -102,13 +102,13 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
         return groups.map { it.df.filter(predicate) }.bindRows().groupBy(*by.toTypedArray())
     }
 
-    override fun createColumn(tf: TableFormula): DataFrame {
+    override fun createColumn(tf: ColumnFormula): DataFrame {
         return groups.map { it.df.createColumn(tf) }.bindRows().groupBy(*by.toTypedArray())
     }
 
-    override fun sortBy(vararg by: String): DataFrame {
+    override fun sortedBy(vararg by: String): DataFrame {
         // fixme this is not dplyr-consistent which keeps grouping index detached from global row order
-        return GroupedDataFrame(this.by, groups.map { DataGroup(it.groupHash, it.df.sortBy(*by)) })
+        return GroupedDataFrame(this.by, groups.map { DataGroup(it.groupHash, it.df.sortedBy(*by)) })
     }
 
     override fun groupBy(vararg by: String): DataFrame =

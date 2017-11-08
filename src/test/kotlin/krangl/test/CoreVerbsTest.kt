@@ -2,27 +2,27 @@ package krangl.test
 
 import io.kotlintest.matchers.Matchers
 import io.kotlintest.matchers.have
-import io.kotlintest.specs.FlatSpec
 import krangl.*
 import org.apache.commons.csv.CSVFormat
 import org.junit.Test
 
 
-val irisData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())
-val flights = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/nycflights.tsv.gz"), format = CSVFormat.TDF.withHeader(), isCompressed = true)
+val irisData = fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())
+val flights = fromCSV(DataFrame::class.java.getResourceAsStream("data/nycflights.tsv.gz"), format = CSVFormat.TDF.withHeader(), isCompressed = true)
 
 
-class SelectTest : FlatSpec() { init {
+class SelectTest : Matchers {
 
-    "it" should "select with regex" {
+    @Test
+    fun `it should select with regex`() {
         sleepData.select({ endsWith("wt") }).ncol shouldBe 2
         sleepData.select({ endsWith("wt") }).ncol shouldBe 2
         sleepData.select({ startsWith("sleep") }).ncol shouldBe 3
         sleepData.select({ oneOf("conservation", "foobar", "order") }).ncol shouldBe 2
     }
 
-
-    "it" should "select non-existing column" {
+    @Test
+    fun `it should select non-existing column`() {
         try {
             sleepData.select("foobar")
             fail("foobar should not be selectable")
@@ -32,7 +32,8 @@ class SelectTest : FlatSpec() { init {
     }
 
 
-    "it" should "select no columns" {
+    @Test
+    fun `it should select no columns`() {
         try {
             sleepData.select(listOf())
             fail("should complain about mismatching selector array dimensionality")
@@ -43,7 +44,8 @@ class SelectTest : FlatSpec() { init {
     }
 
 
-    "it" should "select same columns twice" {
+    @Test
+    fun `it should select same columns twice`() {
         // double selection is flattend out as in dplyr:  iris %>% select(Species, Species) %>% glimpse
 
         shouldThrow<IllegalArgumentException> {
@@ -54,7 +56,8 @@ class SelectTest : FlatSpec() { init {
     }
 
 
-    "it" should "do a negative selection" {
+    @Test
+    fun `it should do a negative selection`() {
         sleepData.select(-"name", -"vore").apply {
             names.contains("name") shouldBe false
             names.contains("vore") shouldBe false
@@ -66,7 +69,8 @@ class SelectTest : FlatSpec() { init {
     }
 
     // krangl should prevent that negative and positive selections are combined in a single select() statement
-    "it" should "do combined negative and positive selection" {
+    @Test
+    fun `it should do combined negative and positive selection`() {
         // cf.  iris %>% select(ends_with("Length"), - Petal.Length) %>% glimpse()
         // not symmetric:  iris %>% select(- Petal.Length, ends_with("Length")) %>% glimpse()
         //  iris %>% select(-Petal.Length, ends_with("Length")) %>% glimpse()
@@ -74,7 +78,6 @@ class SelectTest : FlatSpec() { init {
             names shouldEqual listOf("Sepal.Length")
         }
     }
-}
 }
 
 
@@ -103,12 +106,12 @@ class MutateTest : Matchers {
     }
 
     @Test
-    fun `it should mutate existing columns while keeping their posi`() {
+    fun `it should  mutate existing columns while keeping their posi`() {
         irisData.createColumn("Sepal.Length" to { it["Sepal.Length"] + 10 }).names shouldBe irisData.names
     }
 
     @Test
-    fun `it should allow to use a new column in the same mutate call`() {
+    fun `it should  allow to use a new column in the same mutate call`() {
         sleepData.createColumns(
                 "vore_new" to { it["vore"] },
                 "vore_first_char" to { it["vore"].asStrings().ignoreNA { this.toList().first().toString() } }
@@ -116,7 +119,7 @@ class MutateTest : Matchers {
     }
 
     @Test
-    fun `it should allow add a rownumber column`() {
+    fun `it should  allow add a rownumber column`() {
         sleepData.createColumn("user_id") {
             const("id") + rowNumber
         }["user_id"][1] shouldBe "id2"
@@ -124,22 +127,26 @@ class MutateTest : Matchers {
 }
 
 
-class FilterTest : FlatSpec() { init {
-    "it" should "head tail and slic should extract data as expextd" {
+class FilterTest : Matchers {
+
+    @Test
+    fun `it should head tail and slic should extract data as expextd`() {
         // todo test that the right portions were extracted and not just size
         sleepData.head().nrow shouldBe 5
         sleepData.tail().nrow shouldBe 5
         sleepData.slice(1, 3, 5).nrow shouldBe 3
     }
 
-    "it" should "filter in empty table" {
+    @Test
+    fun `it should filter in empty table`() {
         sleepData
                 .filter { it["name"] eq "foo" }
                 // refilter on empty one
                 .filter { it["name"] eq "bar" }
     }
 
-    "it" should "sub sample data" {
+    @Test
+    fun `it should sub sample data`() {
 
         //        sleepData.count("vore").print()
 
@@ -194,11 +201,27 @@ class FilterTest : FlatSpec() { init {
     }
 
 }
+
+
+class SortTest() : Matchers {
+
+    @Test
+    fun `use selector api for reverse sorting`() {
+        val data = dataFrameOf("user_id")(
+                2,
+                3,
+                4
+        )
+
+        data.sortedBy({ -it["user_id"] })["user_id"][0] shouldBe 4
+    }
 }
 
 
-class SummarizeTest : FlatSpec() { init {
-    "it" should "fail if summaries are not scalar values" {
+class SummarizeTest : Matchers {
+
+    @Test
+    fun `it should fail if summaries are not scalar values`() {
         shouldThrow<NonScalarValueException> {
             sleepData.summarize("foo", { listOf("a", "b", "c") })
         }
@@ -207,19 +230,23 @@ class SummarizeTest : FlatSpec() { init {
         }
     }
 
-    "it" should "should allow complex objects as summaries" {
-        class Something {
-            override fun toString(): String = "Something(${hashCode()}"
-        }
+    class Something {
+        override fun toString(): String = "Something(${hashCode()}"
+    }
+
+    @Test
+    fun `it should should allow complex objects as summaries`() {
+
 
         sleepData.groupBy("vore").summarize("foo" to { Something() }, "bar" to { Something() }).print()
     }
 }
-}
 
 
-class EmptyTest : FlatSpec() { init {
-    "it" should "handle  empty (row and column-empty) data-frames in all operations" {
+class EmptyTest : Matchers {
+
+    @Test
+    fun `it should handle empty (row and column-empty) data-frames in all operations`() {
         SimpleDataFrame().apply {
             // structure
             ncol shouldBe 0
@@ -236,16 +263,16 @@ class EmptyTest : FlatSpec() { init {
             filter { BooleanArray(0) }
             createColumn("foo", { "bar" })
             summarize("foo" to { "bar" })
-            sortBy()
+            sortedBy()
 
             // grouping
             (groupBy() as GroupedDataFrame).groups()
         }
     }
 }
-}
 
-class GroupedDataTest : FlatSpec() { init {
+
+class GroupedDataTest : Matchers {
 
     /** dplyr considers NA as a group and krangl should do the same
 
@@ -260,7 +287,8 @@ class GroupedDataTest : FlatSpec() { init {
     grpdIris %>% slice(1)
     ```
      */
-    "it" should "allow for NA as a group value" {
+    @Test
+    fun `it should allow for NA as a group value`() {
 
         // 1) test single attribute grouping with NA
         (sleepData.groupBy("vore") as GroupedDataFrame).groups().nrow shouldBe 5
@@ -271,7 +299,8 @@ class GroupedDataTest : FlatSpec() { init {
     }
 
 
-    "it" should "count group sizes and report distinct rows in a table" {
+    @Test
+    fun `it should count group sizes and report distinct rows in a table`() {
         // 1) test single attribute grouping with NA
         sleepData.count("vore").apply {
             print()
@@ -287,7 +316,8 @@ class GroupedDataTest : FlatSpec() { init {
     }
 
 
-    "it" should "should auto-select grouping attributes from a grouped dataframe"{
+    @Test
+    fun `it should should auto-select grouping attributes from a grouped dataframe`() {
         //        flights.glimpse()
         val subFlights = flights
                 .groupBy("year", "month", "day")
@@ -303,7 +333,8 @@ class GroupedDataTest : FlatSpec() { init {
     }
 
 
-    "it" should "calculate same group hash irrespective of column order"{
+    @Test
+    fun `it should calculate same group hash irrespective of column order`() {
         //        flights.glimpse()
 
         var dfA: DataFrame = dataFrameOf(
@@ -323,6 +354,6 @@ class GroupedDataTest : FlatSpec() { init {
         }
     }
 
-}
+
 }
 

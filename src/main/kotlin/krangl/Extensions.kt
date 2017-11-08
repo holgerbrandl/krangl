@@ -2,6 +2,7 @@
 
 package krangl
 
+import tech.tablesaw.api.QueryHelper.not
 import java.util.*
 
 
@@ -42,6 +43,7 @@ operator fun String.unaryMinus() = fun ColNames.(): List<Boolean?> = names.map {
 
 operator fun Iterable<String>.unaryMinus() = fun ColNames.(): List<Boolean> = names.map { !this@unaryMinus.contains(it) }
 operator fun List<Boolean?>.unaryMinus() = map { it?.not() }
+//operator fun List<Boolean?>.not() = map { it?.not() } // todo needed?
 
 //val another = -"dsf"
 
@@ -56,7 +58,7 @@ fun DataFrame.select(vararg which: ColNames.() -> List<Boolean?>): DataFrame {
 }
 
 internal fun DataFrame.reduceColSelectors(which: Array<out ColNames.() -> List<Boolean?>>): List<Boolean?> {
-    val reducedSelector = which.map { it(ColNames(names)) }.reduce { selA, selB -> selA nullAwareAND  selB }
+    val reducedSelector = which.map { it(ColNames(names)) }.reduce { selA, selB -> selA nullAwareAND selB }
     return reducedSelector
 }
 
@@ -103,7 +105,7 @@ private infix fun List<Boolean?>.nullAwareAND(other: List<Boolean?>): List<Boole
 //
 
 data class RenameRule(val oldName: String, val newName: String) {
-    fun asTableFormula() = TableFormula(newName, { df -> df[oldName] })
+    fun asTableFormula() = ColumnFormula(newName, { df -> df[oldName] })
 }
 
 
@@ -136,23 +138,25 @@ fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
 //
 
 
+typealias TableExpression = DataFrame.(DataFrame) -> Any?
+
 // as would also prevent us from overwriting to
-//infix fun String.to(that: DataFrame.(DataFrame) -> Any?) = Pair<String, DataFrame.(DataFrame) -> Any?>(this, that)
+//infix fun String.to(that: TableExpression) = Pair<String, DataFrame.(DataFrame) -> Any?>(this, that)
 
-infix fun String.to(that: DataFrame.(DataFrame) -> Any?) = TableFormula(this, that)
+infix fun String.to(that: TableExpression) = ColumnFormula(this, that)
 
 
-data class TableFormula(val resultName: String, val formula: DataFrame.(DataFrame) -> Any?)
+data class ColumnFormula(val name: String, val expression: TableExpression)
 
-fun DataFrame.createColumn(columnName: String, expression: DataFrame.(DataFrame) -> Any?): DataFrame =
+fun DataFrame.createColumn(columnName: String, expression: TableExpression): DataFrame =
         createColumn(columnName to expression)
 
-fun DataFrame.createColumns(vararg mutations: TableFormula): DataFrame {
-    return mutations.fold(this, { df, tf -> df.createColumn(tf) })
+fun DataFrame.createColumns(vararg coiumSpecs: ColumnFormula): DataFrame {
+    return coiumSpecs.fold(this, { df, tf -> df.createColumn(tf) })
 }
 
 /** Mutates a data-frame and discards all non-result columns. */
-fun DataFrame.transmute(vararg formula: TableFormula) = createColumns(*formula).select(*formula.map { it.resultName }.toTypedArray())
+fun DataFrame.transmute(vararg formula: ColumnFormula) = createColumns(*formula).select(*formula.map { it.name }.toTypedArray())
 
 
 ////////////////////////////////////////////////
@@ -165,7 +169,7 @@ fun DataFrame.filter(predicate: DataFrame.(DataFrame) -> List<Boolean>): DataFra
 
 /** AND-filter a table with different filters.*/
 fun DataFrame.filter(vararg predicates: DataFrame.(DataFrame) -> List<Boolean>): DataFrame =
-        predicates.fold(this, { df, p -> df.filter (p) })
+        predicates.fold(this, { df, p -> df.filter(p) })
 
 // // todo does not work why?
 // df.filter({ it["last_name"].asStrings().map { it!!.startsWith("Do") } })
@@ -228,14 +232,36 @@ fun DataFrame.shuffle(): DataFrame = sampleN(nrow)
 /** Random number generator used to row sampling. Reassign to set seed for deterministic sampling. */
 var _rand = Random(3) // use var here to allow users to set seeds in order to do deterministic sampling
 
+
+////////////////////////////////////////////////
+// sortedBy() convenience
+////////////////////////////////////////////////
+
+// allow to rather use selectors
+//TODO report incorrect highlighting to idea
+
+//fun DataFrame.sortedBy(tableExpression: TableExpression): DataFrame = sortedBy(*arrayOf(tableExpression))
+
+fun DataFrame.sortedBy(vararg tableExpressions: TableExpression): DataFrame {
+    // create derived data frame sort by new columns trash new columns
+    val sortBys = tableExpressions.mapIndexed{index, value  -> "__sort$index" to value}
+    val sortByNames = sortBys.map { it.name }.toTypedArray()
+
+    return createColumns(*sortBys.toTypedArray()).
+           sortedBy(*sortByNames).
+           select({ -oneOf(*sortByNames) })
+//           select({ oneOf(*sortByNames).not() })
+}
+
 ////////////////////////////////////////////////
 // summarize() convenience
 ////////////////////////////////////////////////
 
-fun DataFrame.summarize(name: String, formula: DataFrame.(DataFrame) -> Any?): DataFrame = summarize(name to formula)
+
+fun DataFrame.summarize(name: String, tableExpression: TableExpression): DataFrame = summarize(name to tableExpression)
 
 
-//fun DataFrame.count(name: String, formula: DataFrame.(DataFrame) -> Any?): DataFrame = summarize(name to formula)
+//fun DataFrame.count(name: String, expression: TableExpression): DataFrame = summarize(name to expression)
 
 /** Retain only unique/distinct rows from an input tbl.
  *
@@ -287,7 +313,8 @@ fun DataFrame.slice(vararg slices: Int) = filter { rowNumber.map { slices.contai
 
 
 /* Prints a dataframe to stdout. df.toString() will also work but has no options .*/
-@JvmOverloads fun DataFrame.print(colNames: Boolean = true, sep: String = "\t") = println(asString(colNames, sep))
+@JvmOverloads
+fun DataFrame.print(colNames: Boolean = true, sep: String = "\t") = println(asString(colNames, sep))
 
 
 fun DataFrame.asString(colNames: Boolean = true, sep: String = "\t", maxRows: Int = 100): String {
@@ -343,7 +370,7 @@ fun DataFrame.toKotlin(dfVarName: String, dataClassName: String = dfVarName.capi
     val df = this.ungroup() as SimpleDataFrame
 
     // create type
-    val dataSpec = df.cols.map { "val ${it.name}: ${getScalarColType(it) }" }.joinToString(", ")
+    val dataSpec = df.cols.map { "val ${it.name}: ${getScalarColType(it)}" }.joinToString(", ")
     println("data class ${dataClassName}(${dataSpec})")
 
     // map dataframe to
@@ -368,10 +395,10 @@ fun List<DataFrame>.bindRows(): DataFrame { // add options about NA-fill over no
         val colDataCombined: Array<*> = bindColData(colName)
 
         when (this.first()[colName]) {
-            is DoubleCol -> DoubleCol(colName, colDataCombined.map { it as Double ? })
-            is IntCol -> IntCol(colName, colDataCombined.map { it as Int ? })
-            is StringCol -> StringCol(colName, colDataCombined.map { it as String ? })
-            is BooleanCol -> BooleanCol(colName, colDataCombined.map { it as Boolean ? })
+            is DoubleCol -> DoubleCol(colName, colDataCombined.map { it as Double? })
+            is IntCol -> IntCol(colName, colDataCombined.map { it as Int? })
+            is StringCol -> StringCol(colName, colDataCombined.map { it as String? })
+            is BooleanCol -> BooleanCol(colName, colDataCombined.map { it as Boolean? })
             is AnyCol -> AnyCol(colName, colDataCombined.toList())
             else -> throw UnsupportedOperationException()
         }.apply { bindCols.add(this) }

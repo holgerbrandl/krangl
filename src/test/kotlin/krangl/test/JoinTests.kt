@@ -1,8 +1,10 @@
 package krangl.test
 
+import io.kotlintest.matchers.Matchers
 import io.kotlintest.specs.FlatSpec
 import krangl.*
 import krangl.UnequalByHelpers.innerJoin
+import org.junit.Test
 
 /**
 require(dplyr)
@@ -12,15 +14,16 @@ group_by(iris, Species)
 group_by(iris, Species) %>% summarize(mean_length=mean(Sepal.Width))
 
  */
-class InnerJoinTests : FlatSpec() { init {
+class InnerJoinTests : Matchers {
 
-    "it" should "perform an inner join" {
+    @Test
+    fun `it should perform an inner join`() {
         val voreInfo = sleepData.groupBy("vore").summarize("vore_mod" to { it["vore"].asStrings().first() + "__2" })
         voreInfo.print()
 
         val sleepWithInfo = sleepData.leftJoin(voreInfo) // auto detect 'by' here
 
-//        sleepWithInfo.print()
+        //        sleepWithInfo.print()
         sleepWithInfo.glimpse()
 
         sleepWithInfo.nrow shouldBe sleepData.nrow
@@ -28,16 +31,18 @@ class InnerJoinTests : FlatSpec() { init {
         sleepWithInfo.ncol shouldBe (sleepData.ncol + 1)
 
         sleepWithInfo.head().print()
-//        sleepWithInfo.names should contain "" // todo reenable
+        //        sleepWithInfo.names should contain "" // todo reenable
     }
 
 
-    "it" should "allow to join by all columns" {
+    @Test
+    fun `it should allow to join by all columns`() {
         sleepData.innerJoin(sleepData).names shouldBe sleepData.names
     }
 
 
-    "it" should "allow with actually equal bys in unequal mode" {
+    @Test
+    fun `it should allow with actually equal bys in unequal mode`() {
         sleepData.innerJoin(sleepData.rename("order" to "new_order"), by = listOf(
                 "vore" to "vore",
                 "order" to "new_order"
@@ -45,7 +50,8 @@ class InnerJoinTests : FlatSpec() { init {
     }
 
 
-    "it" should "no-overlap data should still return correct column model" {
+    @Test
+    fun `it should no-overlap data should still return correct column model`() {
         sleepData.innerJoin(irisData.createColumn("vore", { "foobar" }), by = "vore").apply {
             (names.size > 15) shouldBe true
             nrow shouldBe 0
@@ -53,7 +59,8 @@ class InnerJoinTests : FlatSpec() { init {
     }
 
 
-    "it" should "add suffices if join column names have duplicates" {
+    @Test
+    fun `it should add suffices if join column names have duplicates`() {
         // allow user to specify suffix
         val df = (dataFrameOf("foo", "bar"))(
                 "a", 2,
@@ -63,7 +70,7 @@ class InnerJoinTests : FlatSpec() { init {
 
         // join on foo
         df.innerJoin(df, by = "foo", suffices = "_1" to "_2").apply {
-//            names should contain element "sdf"
+            //            names should contain element "sdf"
             print()
             (names == listOf("foo", "bar_1", "bar_2")) shouldBe true
         }
@@ -76,23 +83,23 @@ class InnerJoinTests : FlatSpec() { init {
         // again but now join on nothing
         df.innerJoin(df, by = emptyList(), suffices = "_1" to "_2").apply {
             nrow shouldBe 0
-            names shouldEqual  listOf("foo_1", "bar_1", "foo_2", "bar_2")
+            names shouldEqual listOf("foo_1", "bar_1", "foo_2", "bar_2")
         }
     }
 
 
-    "it" should "allow to use different and multiple by columns"({
+    @Test
+    fun `it should allow to use different and multiple by columns`() {
         persons.rename("last_name" to "name").innerJoin(weights, by = listOf("name" to "last")).apply {
             nrow shouldBe 2
         }
-    })
+    }
 }
-}
 
 
-class OuterJoinTest : FlatSpec() { init {
+class OuterJoinTest : Matchers {
 
-    "it" should "join calculate cross-product when joining on empty by list" {
+    fun `it should join calculate cross-product when joining on empty by list`() {
         val dfA = dataFrameOf("foo", "bar")(
                 "a", 2,
                 "b", 3,
@@ -101,22 +108,21 @@ class OuterJoinTest : FlatSpec() { init {
         // todo should the result be the same as for joinInner with by=emptyList() or should we prevent the empty-join for either of them??)
         dfA.outerJoin(dfA, by = emptyList()).apply {
             print()
-            nrow shouldBe  6
+            nrow shouldBe 6
             ncol shouldBe 4
             names shouldEqual listOf("foo.x", "bar.x", "foo.y", "bar.y")
         }
     }
 
 
-    "it" should "should allow for NA in by attribute-lists" {
+    fun `it should should allow for NA in by attribute-lists`() {
         //todo it's more eyefriendly if NA merge tuples come last in the result table. Can we do the same
-//        TODO()
+        //        TODO()
     }
 }
-}
 
 
-class SemiAndAntiJoinTest : FlatSpec() { init {
+class SemiAndAntiJoinTest : Matchers {
 
     val dfA = dataFrameOf("foo", "bar")(
             "a", 2,
@@ -129,11 +135,12 @@ class SemiAndAntiJoinTest : FlatSpec() { init {
             "b", 3.0,
             "d", 3.2
     )
-    "it" should "join calculate cross-product when joining on empty by list" {
+
+    fun `it should join calculate cross-product when joining on empty by list`() {
 
         // todo should the result be the same as for joinInner with by=emptyList() or should we prevent the empty-join for either of them??)
         dfA.semiJoin(filter, by = "foo").apply {
-            nrow shouldBe  2
+            nrow shouldBe 2
             ncol shouldBe 2
 
             // make sure that renaming does not kick in
@@ -142,38 +149,39 @@ class SemiAndAntiJoinTest : FlatSpec() { init {
     }
 
 
-    "it" should "should allow for NA in by attribute-lists" {
+    fun `it should should allow for NA in by attribute-lists`() {
         //todo it's more eyefriendly if NA merge tuples come last in the result table. Can we do the same
-//        TODO()
+        //        TODO()
     }
 }
-}
+
 
 // todo write test to use different/incompatible types for merge key columns
 // todo test that grouped dataframes can be joined as well
 
-class LeftJoinTest : FlatSpec() { init {
+class LeftJoinTest : Matchers {
 
 
-    "it" should "left join calculate cross-product when joining on empty by list" {
+    @Test
+    fun `it should left join calculate cross-product when joining on empty by list`() {
 
         // todo should the result be the same as for joinInner with by=emptyList() or should we prevent the empty-join for either of them??)
 
-//        joinOuter(persons, weights, by = "last" to "name").apply {
-//            nrow shouldBe  9
-//            ncol shouldBe 4
-//            names shouldEqual listOf("foo.x", "bar.x", "foo.y", "bar.y")
-//        }
-//        fail("")
+        //        joinOuter(persons, weights, by = "last" to "name").apply {
+        //            nrow shouldBe  9
+        //            ncol shouldBe 4
+        //            names shouldEqual listOf("foo.x", "bar.x", "foo.y", "bar.y")
+        //        }
+        //        fail("")
         // todo spec out and implement for v0.9
     }
 
 
-    "it" should "should allow for NA in by attribute-lists" {
+    @Test
+    fun `it should should allow for NA in by attribute-lists`() {
         //todo it's more eyefriendly if NA merge tuples come last in the result table. Can we do the same
-//        TODO()
+        //        TODO()
     }
-}
 }
 
 

@@ -173,9 +173,37 @@ Support & Documentation
 
 
 References & Related Projects
-----------
+-----------------------------
 
-Related Projects:
+Most relavant
+* https://github.com/jtablesaw/tablesaw which is the supposedly The simplest way to slice data in Java
+
+| Feature                | Krangl | TableSaw |
+|:-----------------------|:-------|:---------|
+| Kotlin API             | Yes    | Yes      |
+| Add column             | df.    |          |
+| Select columns by type |        |          |
+
+
+
+Select columsn by type
+* krangl
+```
+df.select( 
+```
+
+* tablesaw
+```
+val df = Dataframe(df.structure().target.selectWhere(column("Column Type").isEqualTo("INTEGER")))
+```
+
+
+
+
+
+- [X]
+
+Other Related Projects:
 * [Joinery](https://github.com/cardillo/joinery): Data frames for Java
 * [vectorz](https://github.com/mikera/vectorz): Fast and flexible numerical library for Java featuring N-dimensional arrays
 * [golem](https://github.com/kyonifer/golem): A scientific library for Kotlin.
@@ -184,9 +212,12 @@ Related Projects:
 * [Pandas cheat sheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing)
 * [koma](https://kyonifer.github.io/koma/) is a scientific computing library written in Kotlin, designed to allow development of cross-platform numerical applications
 * [termsql](https://github.com/tobimensch/termsql) converts text from a file or from stdin into SQL table and query it instantly. Uses sqlite as backend.
-* https://github.com/jtablesaw/tablesaw which is the supposedly The simplest way to slice data in Java
+
 * https://github.com/netzwerg/paleo which provides immutable Java 8 data frames with typed columns
+
+Data Viz
 * https://github.com/timmolter/XChart is a light weight Java library for plotting data
+* https://github.com/edvin/tornadofx-guide/blob/master/part1/8.%20Charts.md
 
 
 

@@ -6,7 +6,7 @@ import kotlin.jvm.functions.Function2;
 import krangl.ColNames;
 import krangl.DataFrame;
 import krangl.JoinsKt;
-import krangl.TableFormula;
+import krangl.ColumnFormula;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ import static krangl.TableIOKt.fromCSV;
 public class JavaKrangl {
 
     public static void main(String[] args) {
-        DataFrame df = fromCSV(DataFrame.Companion, "/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv");
+        DataFrame df = fromCSV("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv");
 
         DataFrame joinResult = JoinsKt.leftJoin(df, df, "vore", new Pair<String, String>(".x", ".y"));
 
@@ -44,12 +44,12 @@ public class JavaKrangl {
 
 //        df.getNrow()
         joinResult.summarize(
-                new TableFormula("mean_time", new Function2<DataFrame, DataFrame, Object>() {
+                new ColumnFormula("mean_time", new Function2<DataFrame, DataFrame, Object>() {
                     public Object invoke(DataFrame df, DataFrame dataFrame2) {
                         return mean(asDoubles(df.get("time")));
                     }
                 }),
-                new TableFormula("median_time", new Function2<DataFrame, DataFrame, Object>() {
+                new ColumnFormula("median_time", new Function2<DataFrame, DataFrame, Object>() {
                     public Object invoke(DataFrame df, DataFrame dataFrame2) {
                         return mean(asDoubles(df.get("time")));
                     }

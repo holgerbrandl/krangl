@@ -41,7 +41,7 @@ user  system elapsed
 
 fun main2(args: Array<String>) {
     val flights = RunTimes.measure({
-        DataFrame.fromTSV("/Users/brandl/Desktop/nycflights.tsv")
+        fromTSV("/Users/brandl/Desktop/nycflights.tsv")
     }, 3).apply {
         println("data loading time was: $runtimes")
     }.result
@@ -70,7 +70,7 @@ fun main2(args: Array<String>) {
 fun main(args: Array<String>) {
     val flights = RunTimes.measure({
 //        DataFrame.fromCSV("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv")
-        DataFrame.fromCSV(File("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"), format = CSVFormat.TDF)
+        fromCSV(File("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"), format = CSVFormat.TDF)
     }, numRuns = 1).apply {
         println(runtimes)
     }.result

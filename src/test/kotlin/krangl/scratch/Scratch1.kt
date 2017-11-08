@@ -12,7 +12,10 @@ import java.io.FileReader
 fun main(args: Array<String>) {
 
 
-    sleepData.arr
+//    listOf(1,2,3).so
+//    sleepData.sortBy { it{""}}
+
+
     val tt = sleepData.createColumn("user_id") {
         const("id") + rowNumber
     }

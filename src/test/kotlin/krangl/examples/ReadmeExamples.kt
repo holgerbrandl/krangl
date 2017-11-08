@@ -46,9 +46,9 @@ fun main(args: Array<String>) {
 
 
     // Resort with arrange
-    df.sortBy("age")
+    df.sortedBy("age")
     // and add secondary sorting attributes as varargs
-    df.sortBy("age", "weight")
+    df.sortedBy("age", "weight")
 
 
     // Subset columns with select

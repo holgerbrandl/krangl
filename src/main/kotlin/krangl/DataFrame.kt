@@ -42,21 +42,23 @@ interface DataFrame {
     fun filter(predicate: DataFrame.(DataFrame) -> BooleanArray): DataFrame
 
     /** Adds new variables and preserves existing.*/
-    fun createColumn(tf: TableFormula): DataFrame
+    fun createColumn(tf: ColumnFormula): DataFrame
     // todo maybe as would be more readible: df.mutate({ mean(it["foo")} as "mean_foo")
     // todo Also support varargs similar to summarize: var newDf = df.mutate({"new_attr" to  ( it["test"] + it["test"] )})
 
 
     // todo also support mini-lang in arrange(); eg: df.arrange(desc("foo"))
-    /** arrange resorts tables. The first argument defines the primary attribute to sort by. Additional ones are used to
+    /** Returns a sorted data-frame resorts tables. The first argument defines the primary attribute to sort by. Additional ones are used to
      * resolve ties.
      */
-    fun sortBy(vararg by: String): DataFrame
+    // inspired by listOf(1,2,3).sortedBy{ it} and  listOf(1,2,3).sortedByDescending{ it}
+    fun sortedBy(vararg by: String): DataFrame
+    fun sortedByDescending(vararg by: String): DataFrame = TODO()
 
-    /** Creates a summary of a table or a group. The provided formula is expected to evaluate to a scalar value and not into a column.
+    /** Creates a summary of a table or a group. The provided expression is expected to evaluate to a scalar value and not into a column.
      * @throws
      */
-    fun summarize(vararg sumRules: TableFormula): DataFrame
+    fun summarize(vararg sumRules: ColumnFormula): DataFrame
 
 
     // Grouping
