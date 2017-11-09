@@ -65,7 +65,7 @@ fun DataFrame.semiJoin(right: DataFrame, by: Iterable<String> = defaultBy(this, 
             // just keep one instance per group
             .distinct(*by.toList().toTypedArray()) //  slow for bigger data (because grouped here and later again)??
             // remove non-grouping columns to prevent columns suffixing
-            .selectByName(*by.toList().toTypedArray())
+            .select(*by.toList().toTypedArray())
 
     return join(this, rightReduced, by, suffices, INNER)
 }
@@ -161,7 +161,7 @@ fun join(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(lef
     }
 
     // todo use more efficient row-bind implementation here
-    val header = bindCols(leftNull, rightNull.selectByName(-by)).head(0)
+    val header = bindCols(leftNull, rightNull.select(-by)).head(0)
     return mergedGroups.fold(header, { left, right -> listOf(left, right).bindRows() })
 //    return mergedGroups.reduce { left, right -> listOf(left, right).bindRows() }
 }
@@ -208,13 +208,13 @@ private fun prep4Join(by: Iterable<String>, left: DataFrame, right: DataFrame, s
 
     val groupedLeft = (addSuffix(left, toBeSuffixed, suffix = suffices.first)
             // move join columns to the left
-            .run { selectByName(by.toMutableList().apply { addAll(names.minus(by)) }) }
+            .run { select(by.toMutableList().apply { addAll(names.minus(by)) }) }
             .groupBy(*by.toList().toTypedArray()) as GroupedDataFrame).hashSorted()
 
 
     val groupedRight = (addSuffix(right, toBeSuffixed, suffix = suffices.second)
             // move join columns to the left
-            .run { selectByName(by.toMutableList().apply { addAll(names.minus(by)) }) }
+            .run { select(by.toMutableList().apply { addAll(names.minus(by)) }) }
             .groupBy(*by.toList().toTypedArray()) as GroupedDataFrame).hashSorted()
 
     return Pair(groupedLeft, groupedRight)
@@ -229,7 +229,7 @@ private fun defaultBy(left: DataFrame, right: DataFrame) = left.names.intersect(
 
 private fun cartesianProduct(left: DataFrame, right: DataFrame, removeFromRight: List<String>): DataFrame {
     // first remove columns that are present in both from right-df
-    val rightSlim = right.selectByName({ oneOf(*removeFromRight.toTypedArray()).nullAsFalse().map { !it } })
+    val rightSlim = right.select({ oneOf(*removeFromRight.toTypedArray()).nullAsFalse().map { !it } })
 
     // http://thushw.blogspot.de/2015/10/cartesian-product-in-scala.html
     //http://codeaffectionate.blogspot.de/2012/09/fun-with-cartesian-products-cartesian.html

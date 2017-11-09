@@ -16,7 +16,7 @@ fun main(args: Array<String>) {
 //    sleepData.sortBy { it{""}}
 
 
-    val tt = sleepData.createColumn("user_id") {
+    val tt = sleepData.addColumn("user_id") {
         const("id") + rowNumber
     }
 
@@ -73,8 +73,8 @@ fun main2(args: Array<String>) {
     )
 
 
-    df.createColumn("ot" to { it["ll"] })
-    df.createColumn("ot" to { it["ll"] })
+    df.addColumn("ot" to { it["ll"] })
+    df.addColumn("ot" to { it["ll"] })
 
 
     // most wanted
@@ -87,7 +87,7 @@ fun main2(args: Array<String>) {
     //    df.filter { it["vore"]` `  }
 
 
-    df.createColumn("foo") { it["df"].median() }
+    df.addColumn("foo") { it["df"].median() }
 
 
     df["foo"] + 3

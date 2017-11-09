@@ -225,18 +225,21 @@ infix fun List<Boolean>.OR(other: List<Boolean>): List<Boolean> = mapIndexed { i
 infix fun List<Boolean>.XOR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first == other[index] }
 
 // Boolean operators for filter expressions
-infix fun BooleanArray.AND(other: BooleanArray) = mapIndexed { index, first -> first && other[index] }.toList()
+infix fun BooleanArray.AND(other: BooleanArray) = mapIndexed { index, first -> first && other[index] }.toBooleanArray()
 
 infix fun BooleanArray.OR(other: BooleanArray) = mapIndexed { index, first -> first || other[index] }.toBooleanArray()
 
 
-infix fun DataCol.gt(i: Number) = when (this) {
+infix fun DataCol.gt(i: Number) = greaterThan(i)
+
+fun DataCol.greaterThan(i: Number) = when (this) {
     is DoubleCol -> this.values.map { nullsLast<Double>().compare(it, i.toDouble()) > 0 }
     is IntCol -> this.values.map { nullsLast<Double>().compare(it!!.toDouble(), i.toDouble()) > 0 }
     else -> throw UnsupportedOperationException()
 }.toBooleanArray()
 
 infix fun DataCol.lt(i: Int) = gt(i).map { !it }.toBooleanArray()
+infix fun DataCol.lesserThan(i: Int) = gt(i).map { !it }.toBooleanArray()
 
 infix fun DataCol.eq(i: Any): BooleanArray = when (this) {
     is DoubleCol -> this.values().map({ it == i })

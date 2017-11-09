@@ -36,11 +36,11 @@ fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
     })
 
     // make sure that renaming rule does not contain duplicates to allow for better error reporting
-    val renamed = old2NewFilt.fold(this, { df, renRule -> df.createColumn(renRule.asTableFormula()).selectByName(-renRule.oldName) })
+    val renamed = old2NewFilt.fold(this, { df, renRule -> df.addColumn(renRule.asTableFormula()).select(-renRule.oldName) })
 
 
     // restore positions of renamed columns
-    return renamed.selectByName(*namesRestoredPos.toTypedArray())
+    return renamed.select(*namesRestoredPos.toTypedArray())
 }
 
 
@@ -149,9 +149,9 @@ fun DataFrame.sortedBy(vararg tableExpressions: TableExpression): DataFrame {
     val sortBys = tableExpressions.mapIndexed { index, value -> "__sort$index" to value }
     val sortByNames = sortBys.map { it.name }.toTypedArray()
 
-    return createColumns(*sortBys.toTypedArray()).
+    return addColumns(*sortBys.toTypedArray()).
             sortedBy(*sortByNames).
-            selectByName({ -oneOf(*sortByNames) })
+            select({ -oneOf(*sortByNames) })
     //           select({ oneOf(*sortByNames).not() })
 }
 
@@ -175,7 +175,7 @@ fun DataFrame.distinct(vararg selects: String = this.names.toTypedArray()): Data
 
 
 /** Counts observations by group.*/
-fun DataFrame.count(vararg selects: String = this.names.toTypedArray(), countName: String = "n"): DataFrame = selectByName(*selects).groupBy(*selects).summarize(countName, { nrow })
+fun DataFrame.count(vararg selects: String = this.names.toTypedArray(), countName: String = "n"): DataFrame = select(*selects).groupBy(*selects).summarize(countName, { nrow })
 
 
 ////////////////////////////////////////////////

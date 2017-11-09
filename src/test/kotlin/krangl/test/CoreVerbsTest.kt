@@ -15,23 +15,23 @@ class SelectTest : Matchers {
 
     @Test
     fun `it should select with regex`() {
-        sleepData.selectByName { endsWith("wt") }.ncol shouldBe 2
-        sleepData.selectByName { endsWith("wt") }.ncol shouldBe 2
-        sleepData.selectByName { startsWith("sleep") }.ncol shouldBe 3
-        sleepData.selectByName { oneOf("conservation", "foobar", "order") }.ncol shouldBe 2
+        sleepData.select { endsWith("wt") }.ncol shouldBe 2
+        sleepData.select { endsWith("wt") }.ncol shouldBe 2
+        sleepData.select { startsWith("sleep") }.ncol shouldBe 3
+        sleepData.select { oneOf("conservation", "foobar", "order") }.ncol shouldBe 2
 
         sleepData.select<IntCol>()
         sleepData.select<StringCol>()
 
-        sleepData.select { it is IntCol }
-        sleepData.select { it.name.startsWith("foo") }
+        sleepData.select2 { it is IntCol }
+        sleepData.select2 { it.name.startsWith("foo") }
 
     }
 
     @Test
     fun `it should select non-existing column`() {
         try {
-            sleepData.selectByName("foobar")
+            sleepData.select("foobar")
             fail("foobar should not be selectable")
         } catch (t: Throwable) {
             // todo expect more descriptive exception here. eg. ColumnDoesNotExistException
@@ -42,12 +42,12 @@ class SelectTest : Matchers {
     @Test
     fun `it should select no columns`() {
         try {
-            sleepData.selectByName(listOf())
+            sleepData.select(listOf())
             fail("should complain about mismatching selector array dimensionality")
         } catch (t: Throwable) {
         }
 
-        sleepData.selectByName(*arrayOf<String>()).ncol shouldBe 0
+        sleepData.select(*arrayOf<String>()).ncol shouldBe 0
     }
 
 
@@ -56,16 +56,16 @@ class SelectTest : Matchers {
         // double selection is flattend out as in dplyr:  iris %>% select(Species, Species) %>% glimpse
 
         shouldThrow<IllegalArgumentException> {
-            sleepData.selectByName("name", "vore", "name").ncol shouldBe 2
+            sleepData.select("name", "vore", "name").ncol shouldBe 2
         }
 
-        sleepData.selectByName("name", "vore").ncol shouldBe 2
+        sleepData.select("name", "vore").ncol shouldBe 2
     }
 
 
     @Test
     fun `it should do a negative selection`() {
-        sleepData.selectByName(-"name", -"vore").apply {
+        sleepData.select(-"name", -"vore").apply {
             names.contains("name") shouldBe false
             names.contains("vore") shouldBe false
 
@@ -81,7 +81,7 @@ class SelectTest : Matchers {
         // cf.  iris %>% select(ends_with("Length"), - Petal.Length) %>% glimpse()
         // not symmetric:  iris %>% select(- Petal.Length, ends_with("Length")) %>% glimpse()
         //  iris %>% select(-Petal.Length, ends_with("Length")) %>% glimpse()
-        irisData.selectByName({ endsWith("Length") }, -"Petal.Length").apply {
+        irisData.select({ endsWith("Length") }, -"Petal.Length").apply {
             names shouldEqual listOf("Sepal.Length")
         }
     }
@@ -114,12 +114,12 @@ class MutateTest : Matchers {
 
     @Test
     fun `it should  mutate existing columns while keeping their posi`() {
-        irisData.createColumn("Sepal.Length" to { it["Sepal.Length"] + 10 }).names shouldBe irisData.names
+        irisData.addColumn("Sepal.Length" to { it["Sepal.Length"] + 10 }).names shouldBe irisData.names
     }
 
     @Test
     fun `it should  allow to use a new column in the same mutate call`() {
-        sleepData.createColumns(
+        sleepData.addColumns(
                 "vore_new" to { it["vore"] },
                 "vore_first_char" to { it["vore"].asStrings().ignoreNA { this.toList().first().toString() } }
         )
@@ -127,7 +127,7 @@ class MutateTest : Matchers {
 
     @Test
     fun `it should  allow add a rownumber column`() {
-        sleepData.createColumn("user_id") {
+        sleepData.addColumn("user_id") {
             const("id") + rowNumber
         }["user_id"][1] shouldBe "id2"
     }
@@ -135,7 +135,7 @@ class MutateTest : Matchers {
     @Test
     fun `it should gracefully reject incorrect type casts`() {
         shouldThrow<ColumnTypeCastException>{
-            sleepData.createColumn("foo") { it["vore"].asInts() }
+            sleepData.addColumn("foo") { it["vore"].asInts() }
         }
 
     }
@@ -273,10 +273,10 @@ class EmptyTest : Matchers {
             glimpse()
             print()
 
-            selectByName(emptyList()) // will output warning
+            select(emptyList()) // will output warning
             // core verbs
             filter { BooleanArray(0) }
-            createColumn("foo", { "bar" })
+            addColumn("foo", { "bar" })
             summarize("foo" to { "bar" })
             sortedBy()
 
@@ -337,7 +337,7 @@ class GroupedDataTest : Matchers {
         val subFlights = flights
                 .groupBy("year", "month", "day")
                 //                .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
-                .selectByName("arr_delay", "dep_delay", "year")
+                .select("arr_delay", "dep_delay", "year")
 
         subFlights.apply {
             ncol shouldBe 5
@@ -359,7 +359,7 @@ class GroupedDataTest : Matchers {
                 "Horst", "Keanes", 12, 82
         )
 
-        val dfB = dfA.selectByName("age", "last_name", "weight", "first_name")
+        val dfB = dfA.select("age", "last_name", "weight", "first_name")
 
         // by joining with multiple attributes we inherentily group (which is the actual test
         val dummyJoin = dfA.leftJoin(dfB, by = listOf("last_name", "first_name"))

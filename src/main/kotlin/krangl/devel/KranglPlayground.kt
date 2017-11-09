@@ -32,7 +32,7 @@ fun main(args: Array<String>) {
     //    df.mutate("user_id", { "id" + rowNumber() }) // broken since it does not expand to column
 
     // should adding of arrays be supported?
-    val foo = df.createColumn("user_id") { const("id") + nrow }
+    val foo = df.addColumn("user_id") { const("id") + nrow }
 
     //    df.mutate("user_id", { const("id") + (1..10) /**/}) // this should not be valid anyway
 

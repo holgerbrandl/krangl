@@ -26,15 +26,15 @@ fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boo
             .map {
                 val grpDf = it.df
 
-                require(grpDf.selectByName(key).distinct(key).nrow == grpDf.nrow) { "key value mapping is not unique" }
+                require(grpDf.select(key).distinct(key).nrow == grpDf.nrow) { "key value mapping is not unique" }
 
-                val spreadBlock = SimpleDataFrame(handleListErasure(key, newColNames)).leftJoin(grpDf.selectByName(key, value))
+                val spreadBlock = SimpleDataFrame(handleListErasure(key, newColNames)).leftJoin(grpDf.select(key, value))
 
                 val grpSpread = SimpleDataFrame((spreadBlock as SimpleDataFrame).rows.map {
                     AnyCol(it[key].toString(), listOf(it[value]))
                 })
 
-                bindCols(grpDf.selectByName(-key, -value).distinct(), grpSpread)
+                bindCols(grpDf.remove(key, value).distinct(), grpSpread)
             }
 
 //    if(fill!=null){
@@ -47,7 +47,7 @@ fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boo
     // coerce types of strinified coluymns similar to how tidy is doing things
     var typeCoercedSpread = newColNames.map { it.toString() }
             .foldRight(spreadWithGHashes, { spreadCol, df ->
-                df.createColumn(spreadCol to { handleArrayErasure(spreadCol, df[spreadCol].values()) })
+                df.addColumn(spreadCol to { handleArrayErasure(spreadCol, df[spreadCol].values()) })
             })
 
     if (convert) {
@@ -81,7 +81,7 @@ fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boo
 fun DataFrame.gather(key: String, value: String, which: List<String> = this.names, convert: Boolean = false): DataFrame {
     require(which.isNotEmpty()) { "the column selection to be `gather`ed must not be empty" }
 
-    val gatherColumns = selectByName(which)
+    val gatherColumns = select(which)
 
     // 1) convert each gather column into a block
     val distinctCols = gatherColumns.cols.map { it.javaClass }.distinct()
@@ -108,7 +108,7 @@ fun DataFrame.gather(key: String, value: String, which: List<String> = this.name
 
     // 2) row-replicate the non-gathered columns
     //    val rest = select(names.minus(gatherColumns.names))
-    val rest = selectByName({ -oneOf(gatherColumns.names) })
+    val rest = select({ -oneOf(gatherColumns.names) })
 //    val replicationLevel = gatherColumns.ncol
 
     val indexReplication = rest.cols.map { column ->
@@ -134,7 +134,7 @@ internal fun convertType(df: DataFrame, spreadColName: String): DataFrame {
     val spreadCol = df[spreadColName]
     val convColumn: DataCol = convertType(spreadCol)
 
-    return df.createColumn(spreadColName to { convColumn })
+    return df.addColumn(spreadColName to { convColumn })
 }
 
 internal fun convertType(spreadCol: DataCol): DataCol {
@@ -163,12 +163,12 @@ internal fun convertType(spreadCol: DataCol): DataCol {
 fun DataFrame.unite(colName: String, which: List<String>, sep: String = "_", remove: Boolean = true): DataFrame {
     require(which.isNotEmpty()) { "the column selection to be `unite`ed must not be empty" }
 
-    val uniteBlock = selectByName(which)
+    val uniteBlock = select(which)
     val uniteResult = uniteBlock.rows.map { it.values.map { it?.toString().nullAsNA() }.joinToString(sep) }
 
-    val rest = if (remove) selectByName({ -oneOf(uniteBlock.names) }) else this
+    val rest = if (remove) select({ -oneOf(uniteBlock.names) }) else this
 
-    return rest.createColumn(colName to { uniteResult })
+    return rest.addColumn(colName to { uniteResult })
 }
 
 
@@ -207,7 +207,7 @@ fun DataFrame.separate(column: String, into: List<String>, sep: String = "_", re
     }
 
     // column bind rest and separated columns into final result
-    val rest = if (remove) selectByName(-column) else this
+    val rest = if (remove) select(-column) else this
 
     return bindCols(rest, SimpleDataFrame(splitCols))
 }

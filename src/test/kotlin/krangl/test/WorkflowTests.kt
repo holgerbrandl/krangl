@@ -1,7 +1,6 @@
 package krangl.test
 
 import io.kotlintest.matchers.Matchers
-import io.kotlintest.specs.FlatSpec
 import krangl.*
 import org.junit.Test
 
@@ -13,13 +12,13 @@ class CompoundTests : Matchers {
 
         val groupedSleep = sleepData.filter { it["awake"] gt 3 }.
                 apply { glimpse() }.
-                createColumn("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] }).
+                addColumn("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] }).
                 groupBy("vore")
 
 
         val insectiMeanREM = sleepData.filter { it["awake"] gt 3 }.
                 apply { glimpse() }.
-                createColumn("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] }).
+                addColumn("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] }).
                 groupBy("vore").
                 summarize("mean_rem_prop", { it["rem_proportion"].mean(removeNA = true) }).
                 filter { it["vore"] eq "insecti" }.

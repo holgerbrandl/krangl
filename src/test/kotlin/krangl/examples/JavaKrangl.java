@@ -1,16 +1,13 @@
 package krangl.examples;
 
 import kotlin.Pair;
-import kotlin.jvm.functions.Function1;
-import kotlin.jvm.functions.Function2;
-import krangl.*;
-
-import javax.xml.crypto.Data;
-import java.util.ArrayList;
-import java.util.List;
+import krangl.ColumnFormula;
+import krangl.DataFrame;
+import krangl.JoinsKt;
+import krangl.TableIOKt;
 
 import static krangl.ColumnsKt.asDoubles;
-import static krangl.Extensions.*;
+import static krangl.Extensions.print;
 import static krangl.MathHelpersKt.mean;
 import static krangl.SelectKt.startsWith;
 import static krangl.SelectKt.unaryMinus;
@@ -23,13 +20,13 @@ public class JavaKrangl {
 
         DataFrame joinResult = JoinsKt.leftJoin(df, df, "vore", new Pair<>(".x", ".y"));
 
-        df.selectByName(colNames -> startsWith(colNames, "sleep"));
+        df.select(colNames -> startsWith(colNames, "sleep"));
 
-        df.selectByName( unaryMinus("brain_wt"));
+        df.select(unaryMinus("brain_wt"));
 
-        df.selectByName("brain_wt");
+        df.select("brain_wt");
 
-        df.selectByName(colNames -> startsWith(colNames, "sdf"));
+        df.select(colNames -> startsWith(colNames, "sdf"));
 
 
 //        df.getNrow()

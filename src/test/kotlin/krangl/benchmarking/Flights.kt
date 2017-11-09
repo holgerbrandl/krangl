@@ -96,7 +96,7 @@ fun main(args: Array<String>) {
 
         val flightsSummary = flights
                 .groupBy("year", "month", "day")
-                .selectByName({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
+                .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
                 .summarize(
                         "mean_arr_delay" to { it["arr_delay"].mean(removeNA = true) },
                         "mean_dep_delay" to { it["dep_delay"].mean(removeNA = true) }

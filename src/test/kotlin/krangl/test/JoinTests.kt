@@ -1,7 +1,6 @@
 package krangl.test
 
 import io.kotlintest.matchers.Matchers
-import io.kotlintest.specs.FlatSpec
 import krangl.*
 import krangl.UnequalByHelpers.innerJoin
 import org.junit.Test
@@ -52,7 +51,7 @@ class InnerJoinTests : Matchers {
 
     @Test
     fun `it should no-overlap data should still return correct column model`() {
-        sleepData.innerJoin(irisData.createColumn("vore", { "foobar" }), by = "vore").apply {
+        sleepData.innerJoin(irisData.addColumn("vore", { "foobar" }), by = "vore").apply {
             (names.size > 15) shouldBe true
             nrow shouldBe 0
         }

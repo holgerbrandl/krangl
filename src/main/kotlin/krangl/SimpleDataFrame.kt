@@ -58,8 +58,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     //    override val raw = object : Iterable<Map<String, Any?>> {
 
 
-
-    override fun selectByName(vararg columns: String): DataFrame {
+    override fun select(vararg columns: String): DataFrame {
         warning(columns.isNotEmpty()) { "Calling select() will always return an empty data-frame" }
 
         require(names.containsAll(columns.asList())) { "not all selected columns (${columns.joinToString(", ")})are contained in table" }
@@ -182,7 +181,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     //    operator fun component1() = 1
 
     // todo enforce better typed API
-    override fun createColumn(tf: ColumnFormula): DataFrame {
+    override fun addColumn(tf: ColumnFormula): DataFrame {
 
         val mutation = tf.expression(this, this)
         val newCol = anyAsColumn(mutation, tf.name, nrow)
@@ -192,6 +191,17 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         require(newCol.name != TMP_COLUMN) { "missing name in new columns" }
 
         return if (newCol.name in names) replaceColumn(newCol) else addColumn(newCol)
+    }
+
+    // todo should this be public API
+    private fun SimpleDataFrame.replaceColumn(newCol: DataCol): DataFrame {
+        val newColIndex = names.indexOf(newCol.name)
+        require(newColIndex >= 0) { "columns $newCol does not exist in data-frame" }
+
+        return cols.toMutableList().apply {
+            removeAt(newColIndex)
+            add(newColIndex, newCol)
+        }.let { SimpleDataFrame(it) }
     }
 
 
@@ -248,7 +258,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         // todo test if data is already grouped by the given 'by' and skip regrouping if so
 
         //take all grouping columns
-        val groupCols = selectByName(*by) //cols.filter { by.contains(it.name) }
+        val groupCols = select(*by) //cols.filter { by.contains(it.name) }
         require(groupCols.ncol == by.size) { "Could not find all grouping columns" }
 
         val NA_GROUP_HASH = Int.MAX_VALUE - 123
@@ -446,6 +456,7 @@ inline fun <reified T> isListOfType(items: List<Any?>): Boolean {
 // todo this is the same as ColumnNames. Should we use just one type here.
 data class TableHeader(val header: List<String>) {
 
+
     operator fun invoke(vararg tblData: Any?): DataFrame {
         //        if(tblData.first() is Iterable<Any?>) {
         //            tblData = tblData.first() as Iterable<Any?>
@@ -499,15 +510,6 @@ internal fun SimpleDataFrame.addColumn(dataCol: DataCol): SimpleDataFrame =
         SimpleDataFrame(cols.toMutableList().apply { add(dataCol) })
 
 
-private fun SimpleDataFrame.replaceColumn(newCol: DataCol): DataFrame {
-    val newColIndex = names.indexOf(newCol.name)
-    require(newColIndex >= 0) { "columns $newCol does not exist in data-frame" }
-
-    return cols.toMutableList().apply {
-        removeAt(newColIndex)
-        add(newColIndex, newCol)
-    }.let { SimpleDataFrame(it) }
-}
 
 
 fun <T> arrayListOf(size: Int, initFun: (Int) -> T?): ArrayList<T?> {

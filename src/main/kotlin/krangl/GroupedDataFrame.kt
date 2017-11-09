@@ -73,7 +73,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
         // todo conisder to expose the group tuple via public API
         return groups.map { gdf ->
-            val groupTuple = gdf.df.selectByName(*by.toTypedArray()).head(1)
+            val groupTuple = gdf.df.select(*by.toTypedArray()).head(1)
             val groupSummary = gdf.df.summarize(*sumRules)
 
             bindCols(groupTuple, groupSummary)
@@ -81,7 +81,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
     }
 
 
-    override fun selectByName(vararg columns: String): DataFrame {
+    override fun select(vararg columns: String): DataFrame {
         // see https://github.com/hadley/dplyr/issues/1869
 //        require(columns.intersect(by).isEmpty()) { "can not drop grouping columns" }
         warning(by.minus(columns).isEmpty()) {
@@ -90,7 +90,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
 
         val groupsAndWhich = by.toMutableList().apply { addAll(columns.asList().minus(by)) }
-        return GroupedDataFrame(by, groups.map { DataGroup(it.groupHash, it.df.selectByName(groupsAndWhich)) })
+        return GroupedDataFrame(by, groups.map { DataGroup(it.groupHash, it.df.select(groupsAndWhich)) })
     }
 
 
@@ -100,8 +100,8 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
         return groups.map { it.df.filter(predicate) }.bindRows().groupBy(*by.toTypedArray())
     }
 
-    override fun createColumn(tf: ColumnFormula): DataFrame {
-        return groups.map { it.df.createColumn(tf) }.bindRows().groupBy(*by.toTypedArray())
+    override fun addColumn(tf: ColumnFormula): DataFrame {
+        return groups.map { it.df.addColumn(tf) }.bindRows().groupBy(*by.toTypedArray())
     }
 
     override fun sortedBy(vararg by: String): DataFrame {
@@ -117,5 +117,5 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
     override fun toString(): String = "Grouped by: *$by\n" + ungroup().head(5).asString()
 
-    fun groups() = slice(1).ungroup().selectByName(*by.toTypedArray())
+    fun groups() = slice(1).ungroup().select(*by.toTypedArray())
 }

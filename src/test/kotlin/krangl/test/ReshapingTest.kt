@@ -1,7 +1,6 @@
 package krangl.test
 
 import io.kotlintest.matchers.Matchers
-import io.kotlintest.specs.FlatSpec
 import krangl.*
 import org.junit.Test
 
@@ -96,7 +95,7 @@ class GatherTest : Matchers {
         wideDf.gather("property", "value", which = -"person").apply {
             print()
 
-            val annasSalary = filter { ((it["person"] eq "anna") AND (it["property"] eq "salary")).toBooleanArray() }
+            val annasSalary = filter { ((it["person"] eq "anna") AND (it["property"] eq "salary")) }
             annasSalary["value"].values().first() shouldBe "33.5"
         }
     }

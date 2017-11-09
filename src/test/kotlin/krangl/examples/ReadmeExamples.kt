@@ -30,22 +30,22 @@ fun main(args: Array<String>) {
 
     // Add columns with mutate
     // by adding constant values as new column
-    df.createColumn("salary_category") { 3 }
+    df.addColumn("salary_category") { 3 }
 
     // by doing basic column arithmetics
-    df.createColumn("age_3y_later") { it["age"] + 3 }
+    df.addColumn("age_3y_later") { it["age"] + 3 }
 
     // Note: krangl dataframes are immutable so we need to (re)assign results to preserve changes.
-    val newDF = df.createColumn("full_name") { it["first_name"] + " " + it["last_name"] }
+    val newDF = df.addColumn("full_name") { it["first_name"] + " " + it["last_name"] }
 
     // Also feel free to mix types here since krangl overloads  arithmetic operators like + for dataframe-columns
-    df.createColumn("user_id") { it["last_name"] + "_id" + rowNumber }
+    df.addColumn("user_id") { it["last_name"] + "_id" + rowNumber }
 
     // Create new attributes with string operations like matching, splitting or extraction.
-    df.createColumn("with_anz") { it["first_name"].asStrings().map { it!!.contains("anz") } }
+    df.addColumn("with_anz") { it["first_name"].asStrings().map { it!!.contains("anz") } }
 
     // Note: krangl is using 'null' as missing value, and provides convenience methods to process non-NA bits
-    df.createColumn("first_name_initial") { it["first_name"].asStrings().ignoreNA { first().toString() } }
+    df.addColumn("first_name_initial") { it["first_name"].asStrings().ignoreNA { first().toString() } }
 
 
     // Resort with arrange
@@ -57,10 +57,10 @@ fun main(args: Array<String>) {
 
 
     // Subset columns with select
-    df.select { it is IntCol } // functional style column selection
-    df.selectByName("last_name", "weight")    // positive selection
-    df.selectByName(-"weight", -"age")  // negative selection
-    df.selectByName({ endsWith("name") })    // selector mini-language
+    df.select2 { it is IntCol } // functional style column selection
+    df.select("last_name", "weight")    // positive selection
+    df.select(-"weight", -"age")  // negative selection
+    df.select({ endsWith("name") })    // selector mini-language
 
 
     // Subset rows with vectorized filter

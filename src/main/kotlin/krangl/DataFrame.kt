@@ -2,7 +2,9 @@
 
 package krangl
 
-data class ColumnSelection(val colNames: List<String>)
+internal data class ColumnSelection(val colNames: List<String>)
+
+typealias ColumnSelector = ColNames.() -> List<Boolean?>
 
 interface DataFrame {
 
@@ -42,6 +44,8 @@ interface DataFrame {
     val rows: Iterable<Map<String, Any?>>
 
 
+    fun select2(colSelector: (DataCol) -> Boolean) = select(cols.filter(colSelector).map { it.name })
+
     // unify examples by using sample annotations
     // Core Manipulation Verbs
 
@@ -54,47 +58,53 @@ interface DataFrame {
     df.select( "foo", "bar")
     ```
      */
-    fun selectByName(vararg columns: String): DataFrame = selectByName(columns.asList())
+    fun select(vararg columns: String): DataFrame = select(columns.asList())
 
-
-    fun select(colSelector: (DataCol) -> Boolean) = selectByName(cols.filter(colSelector).map { it.name })
-
+    fun remove(vararg columns: String): DataFrame = select(names.minus(columns.asList()))
 
     /** Convenience wrapper around to work with varag <code>krangl.DataFrame.select</code> */
-    fun selectByName(columns: List<String>): DataFrame = selectByName(*columns.toTypedArray())
+    fun select(columns: List<String>): DataFrame = select(*columns.toTypedArray())
+
+    fun remove(columns: List<String>): DataFrame = remove(*columns.toTypedArray())
 
     /** Keeps only the variables that match any of the given expressions. E.g. use `startsWith("foo")` to select for columns staring with 'foo'.*/
-    fun selectByName(which: ColNames.() -> List<Boolean?>): DataFrame = selectByName(*arrayOf(which))
+    fun select(columns: ColumnSelector): DataFrame = select(*arrayOf(columns))
 
-    fun selectByName(vararg which: ColNames.() -> List<Boolean?>): DataFrame {
-        val reducedSelector = reduceColSelectors(which)
+    // `drop` as method name is burnt here since kotlin stdlin contains it for collections.
+    fun remove(columSelect: ColumnSelector): DataFrame = select { without(columSelect) }
+
+
+    fun select(vararg columns: ColumnSelector): DataFrame {
+        val reducedSelector = reduceColSelectors(columns)
 
         return select(reducedSelector)
     }
+
+    fun remove(vararg columSelects: ColumnSelector): DataFrame =
+            select(*columSelects.map { it -> { x: ColNames -> x.without(it) } }.toTypedArray())
 
 
     // todo consider to use List<Boolean> in signature. We can not provide both because of type erasure
     fun filter(predicate: DataFrame.(DataFrame) -> BooleanArray): DataFrame
 
     /** Adds new variables and preserves existing.*/
-    fun createColumn(tf: ColumnFormula): DataFrame
+    fun addColumn(tf: ColumnFormula): DataFrame
     // todo maybe as would be more readible: df.mutate({ mean(it["foo")} as "mean_foo")
     // todo Also support varargs similar to summarize: var newDf = df.mutate({"new_attr" to  ( it["test"] + it["test"] )})
 
 
-    fun createColumn(columnName: String, expression: TableExpression): DataFrame = createColumn(columnName to expression)
+    fun addColumn(columnName: String, expression: TableExpression): DataFrame = addColumn(columnName to expression)
 
-    fun createColumns(vararg columSpecs: ColumnFormula): DataFrame = columSpecs.fold(this, { df, tf -> df.createColumn(tf) })
+    fun addColumns(vararg columSpecs: ColumnFormula): DataFrame = columSpecs.fold(this, { df, tf -> df.addColumn(tf) })
 
     /** Create a new dataframe based ona a list of column-formulas which are evaluated in the context of the this instance. */
-    fun transmute(vararg formula: ColumnFormula) = createColumns(*formula).selectByName(*formula.map { it.name }.toTypedArray())
+    fun transmute(vararg formula: ColumnFormula) = addColumns(*formula).select(*formula.map { it.name }.toTypedArray())
 
 
-    // todo also support mini-lang in arrange(); eg: df.arrange(desc("foo"))
     /** Returns a sorted data-frame resorts tables. The first argument defines the primary attribute to sort by. Additional ones are used to
      * resolve ties.
+     * Works similar as  `listOf(1,2,3).sortedBy{ it }` and  `listOf(1,2,3).sortedByDescending{ it }`
      */
-    // inspired by listOf(1,2,3).sortedBy{ it} and  listOf(1,2,3).sortedByDescending{ it}
     fun sortedBy(vararg by: String): DataFrame
 
     fun sortedByDescending(vararg by: String): DataFrame = TODO()
@@ -116,8 +126,7 @@ interface DataFrame {
     fun ungroup(): DataFrame
 
     // needed for static extensions (see http://stackoverflow.com/questions/28210188/static-extension-methods-in-kotlin)
-    companion object {
-    }
+    companion object {}
 
 
 }

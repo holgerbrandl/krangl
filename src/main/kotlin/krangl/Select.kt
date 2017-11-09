@@ -34,11 +34,9 @@ foo.select{ it.name.startsWith("bar") }
 //}
 
 
-
 //
 // select() support API
 //
-
 
 
 class ColNames(val names: List<String>)
@@ -59,6 +57,8 @@ fun ColNames.matches(regex: Regex) = names.map { it.matches(regex) }.falseAsNull
 fun ColNames.oneOf(vararg someNames: String): List<Boolean?> = names.map { someNames.contains(it) }.falseAsNull()
 fun ColNames.oneOf(someNames: List<String>): List<Boolean?> = names.map { someNames.contains(it) }.falseAsNull()
 
+fun ColNames.without(unselect: ColNames.() -> List<Boolean?>) = unselect(this).not()
+
 
 fun ColNames.range(from: String, to: String): List<Boolean?> {
     val rangeStart = names.indexOf(from)
@@ -70,29 +70,42 @@ fun ColNames.range(from: String, to: String): List<Boolean?> {
 
 
 // since this affects String namespace it might be not a good idea
+@Deprecated("will be removed since this affects String namespace it might be not a good idea")
 operator fun String.unaryMinus() = fun ColNames.(): List<Boolean?> = names.map { it != this@unaryMinus }.trueAsNull()
 
+@Deprecated("bad api design")
 operator fun Iterable<String>.unaryMinus() = fun ColNames.(): List<Boolean> = names.map { !this@unaryMinus.contains(it) }
-operator fun List<Boolean?>.unaryMinus() = map { it?.not() }
+
+@Deprecated("bad api design")
+operator fun List<Boolean?>.unaryMinus() = not()
+
+fun List<Boolean?>.not() = map { it?.not() }
 //operator fun List<Boolean?>.not() = map { it?.not() } // todo needed?
 
 //val another = -"dsf"
 
-internal fun DataFrame.reduceColSelectors(which: Array<out ColNames.() -> List<Boolean?>>): List<Boolean?> {
-    val reducedSelector = which.map { it(ColNames(names)) }.reduce { selA, selB -> selA nullAwareAND selB }
-    return reducedSelector
+internal fun DataFrame.reduceColSelectors(which: Array<out ColNames.() -> List<Boolean?>>): List<Boolean?> =
+        which.map { it(ColNames(names)) }.reduce { selA, selB -> selA nullAwareAND selB }
+
+
+private infix fun List<Boolean?>.nullAwareAND(other: List<Boolean?>): List<Boolean?> = this.zip(other).map {
+    it.run {
+        if (first == null && second == null) {
+            null
+        } else if (first != null && second != null) {
+            20
+            first!! && second!!
+        } else {
+            first ?: second
+        }
+    }
 }
 
 internal fun DataFrame.select(which: List<Boolean?>): DataFrame {
     val colSelection: List<String> = colSelectAsNames(which)
 
-    return selectByName(colSelection)
+    return select(colSelection)
 }
-
-//https://kotlinlang.org/docs/reference/inline-functions.html#reified-type-parameters
-inline fun <reified T : DataCol> DataFrame.select() = selectByName(cols.filter { it is T }.map { it.name })
-//inline fun <reified T : DataCol> DataFrame.select() = select(cols.filter{ it is T }.map{it.name})
-
 
 internal fun DataFrame.colSelectAsNames(which: List<Boolean?>): List<String> {
     require(which.size == ncol) { "selector array has different dimension than data-frame" }
@@ -109,18 +122,6 @@ internal fun DataFrame.colSelectAsNames(which: List<Boolean?>): List<String> {
 }
 
 
-//private infix fun List<Boolean?>.nullOR(other: List<Boolean?>): List<Boolean?> = mapIndexed { index, first ->
-//    if(first==null && other[index] == null) null else (first  ?: false) || (other[index] ?: false)
-//}
-private infix fun List<Boolean?>.nullAwareAND(other: List<Boolean?>): List<Boolean?> = this.zip(other).map {
-    it.run {
-        if (first == null && second == null) {
-            null
-        } else if (first != null && second != null) {
-            20
-            first!! && second!!
-        } else {
-            first ?: second
-        }
-    }
-}
+//https://kotlinlang.org/docs/reference/inline-functions.html#reified-type-parameters
+inline fun <reified T : DataCol> DataFrame.select() = select(cols.filter { it is T }.map { it.name })
+//inline fun <reified T : DataCol> DataFrame.select() = select(cols.filter{ it is T }.map{it.name})
