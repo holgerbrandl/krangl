@@ -1,5 +1,6 @@
 package krangl
 
+import java.lang.UnsupportedOperationException
 import java.util.*
 
 
@@ -30,7 +31,7 @@ abstract class DataCol(val name: String) {
 
     infix operator fun plus(something: String): DataCol = when (this) {
         is StringCol -> values.map { naAwarePlus(it, something) }
-        else -> values().map{ (it?.toString() ?: MISSING_VALUE) + something}
+        else -> values().map { (it?.toString() ?: MISSING_VALUE) + something }
     }.toTypedArray().let { StringCol(TMP_COLUMN, it) }
 
 
@@ -248,10 +249,38 @@ infix fun DataCol.eq(i: Any): BooleanArray = when (this) {
 
 // convenience getters for column data
 
-fun DataCol.asStrings(): Array<String?> = (this as StringCol).values()
-fun DataCol.asInts(): Array<Int?> = (this as IntCol).values()
-fun DataCol.asDoubles(): Array<Double?> = (this as DoubleCol).values()
-fun DataCol.asBooleans(): Array<Boolean?> = (this as BooleanCol).values()
+//fun DataCol.str(): Array<String?> = asStrings()
+//fun DataCol.dbl(): Array<Double?> = asDoubles()
+//fun DataCol.int(): Array<Int?> = asInts()
+//fun DataCol.lgl(): Array<Boolean?> = asBooleans()
+//inline fun <reified T> DataCol.of() = (this as AnyCol).values as Array<T>
+
+
+//fun DataCol.asStrings(): Array<String?> = (this as StringCol).values()
+fun DataCol.asStrings(): Array<String?> = columnCast<StringCol>().values
+fun DataCol.asDoubles(): Array<Double?> = columnCast<DoubleCol>().values
+fun DataCol.asBooleans(): Array<Boolean?> = columnCast<BooleanCol>().values
+fun DataCol.asInts(): Array<Int?> = columnCast<IntCol>().values
+
+
+class ColumnTypeCastException(msg: String) : RuntimeException(msg)
+
+inline fun <reified R> DataCol.columnCast(): R {
+    return try {
+        this as R
+    } catch (e: ClassCastException) {
+        val msg = "Could not cast column '${name}' of type '${this::class.simpleName}' to type '${R::class}'"
+        throw ColumnTypeCastException(msg)
+    }
+}
+
+
+// does not work because internal array is of type object
+//inline fun <reified T> DataCol.asType() = (this as AnyCol).values as Array<T>
+inline fun <reified R> DataCol.asType(): Array<R?> {
+    val data = (this as AnyCol).values
+    return Array(data.size) { index -> data[index] as R }
+}
 
 
 /**

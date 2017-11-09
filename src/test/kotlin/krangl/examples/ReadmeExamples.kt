@@ -7,10 +7,7 @@ fun main(args: Array<String>) {
 
     // Create data-frame in memory
 
-    val fromCSV = DataFrame.fromCSV("foo")
-
-    fromCSV.rows
-
+    val iris = DataFrame.fromCSV("data/iris.txt")
 
 
     val df: DataFrame = dataFrameOf(
@@ -39,7 +36,7 @@ fun main(args: Array<String>) {
     df.createColumn("age_3y_later") { it["age"] + 3 }
 
     // Note: krangl dataframes are immutable so we need to (re)assign results to preserve changes.
-    df.createColumn("full_name") { it["first_name"] + " " + it["last_name"] }
+    val newDF = df.createColumn("full_name") { it["first_name"] + " " + it["last_name"] }
 
     // Also feel free to mix types here since krangl overloads  arithmetic operators like + for dataframe-columns
     df.createColumn("user_id") { it["last_name"] + "_id" + rowNumber }
@@ -55,18 +52,27 @@ fun main(args: Array<String>) {
     df.sortedBy("age")
     // and add secondary sorting attributes as varargs
     df.sortedBy("age", "weight")
+    df.sortedByDescending("age")
+    df.sortedBy { it["weight"].asInts()}
 
 
     // Subset columns with select
+    df.select { it is IntCol } // functional style column selection
     df.selectByName("last_name", "weight")    // positive selection
     df.selectByName(-"weight", -"age")  // negative selection
     df.selectByName({ endsWith("name") })    // selector mini-language
 
 
-    // Subset rows with filter
+    // Subset rows with vectorized filter
     df.filter { it["age"] eq 23 }
     df.filter { it["weight"] gt 50 }
     df.filter({ it["last_name"].asStrings().map { it!!.startsWith("Do") }.toBooleanArray() })
+
+        df.filter({ it["last_name"].asStrings().map { it!!.startsWith("Do") }.toBooleanArray() })
+
+    // Subset rows with per row filter
+    // todo finish this example
+//    df.filterByRow { it["age"] gt 5}
 
 
     // Summarize
@@ -96,8 +102,11 @@ fun main(args: Array<String>) {
     // This will generate and print the following conversion code:
     data class SumDF(val age: Int, val mean_weight: Double, val num_persons: Int)
 
-    val sumDFEntries = sumDF.rows.map { row -> SumDF(row["age"] as Int, row["mean_weight"] as Double, row["num_persons"] as Int) }
+    val records = sumDF.rows.map { row -> SumDF(row["age"] as Int, row["mean_weight"] as Double, row["num_persons"] as Int) }
 
     // Now we can use the krangl result table in a strongly typed way
-    sumDFEntries.first().mean_weight
+    records.first().mean_weight
+
+    // Vice versa we can also convert an existing set of objects into
+    val dfRestored = records.asDataFrame{ mapOf("age" to it.age, "weight" to it.mean_weight) }
 }

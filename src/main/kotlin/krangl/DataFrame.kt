@@ -116,7 +116,8 @@ interface DataFrame {
     fun ungroup(): DataFrame
 
     // needed for static extensions (see http://stackoverflow.com/questions/28210188/static-extension-methods-in-kotlin)
-    companion object {}
+    companion object {
+    }
 
 
 }

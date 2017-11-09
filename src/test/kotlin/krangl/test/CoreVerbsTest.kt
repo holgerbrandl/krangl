@@ -131,6 +131,14 @@ class MutateTest : Matchers {
             const("id") + rowNumber
         }["user_id"][1] shouldBe "id2"
     }
+
+    @Test
+    fun `it should gracefully reject incorrect type casts`() {
+        shouldThrow<ColumnTypeCastException>{
+            sleepData.createColumn("foo") { it["vore"].asInts() }
+        }
+
+    }
 }
 
 

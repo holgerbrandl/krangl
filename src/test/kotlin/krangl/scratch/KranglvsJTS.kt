@@ -1,10 +1,6 @@
 package krangl.scratch
 
-import krangl.DataFrame
-import krangl.fromCSV
-import krangl.glimpse
-import tech.tablesaw.api.Table
-import tech.tablesaw.kapi.Dataframe
+import krangl.*
 import java.io.File
 
 
@@ -29,6 +25,7 @@ fun main(args: Array<String>) {
 
 //    tornadoes.structure();
     tornadoes.glimpse()
+    tornadoes.structure().print()
 //    tornadoes.structure().selectWhere(column("Column Type").isEqualTo("INTEGER"));
 //    tornadoes.first(3);
 //

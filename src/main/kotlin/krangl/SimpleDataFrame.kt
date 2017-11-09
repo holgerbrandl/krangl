@@ -59,12 +59,13 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
 
 
-    override fun selectByName(vararg columnNames: String): DataFrame {
-        warning(columnNames.isNotEmpty()) { "Calling select() without arguments is not sensible" }
-        require(names.containsAll(columnNames.asList())) { "not all selected columns (${columnNames.joinToString(", ")})are contained in table" }
-        require(columnNames.distinct().size == columnNames.size) { "Columns must not be selected more than once" }
+    override fun selectByName(vararg columns: String): DataFrame {
+        warning(columns.isNotEmpty()) { "Calling select() will always return an empty data-frame" }
 
-        return columnNames.fold(SimpleDataFrame(), { df, colName -> df.addColumn(this[colName]) })
+        require(names.containsAll(columns.asList())) { "not all selected columns (${columns.joinToString(", ")})are contained in table" }
+        require(columns.distinct().size == columns.size) { "Columns must not be selected more than once" }
+
+        return columns.fold(SimpleDataFrame(), { df, colName -> df.addColumn(this[colName]) })
     }
 
     // Utility methods
@@ -210,6 +211,9 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
                 is IntCol -> Comparator { left, right -> nullsLast<Int>().compare(dataCol.values[left], dataCol.values[right]) }
                 is BooleanCol -> Comparator { left, right -> nullsLast<Boolean>().compare(dataCol.values[left], dataCol.values[right]) }
                 is StringCol -> Comparator { left, right -> nullsLast<String>().compare(dataCol.values[left], dataCol.values[right]) }
+                is AnyCol -> Comparator { left, right ->
+                    nullsLast<Comparable<Any>>().compare(dataCol.values[left] as Comparable<Any>, dataCol.values[right] as Comparable<Any>)
+                }
                 else -> throw UnsupportedOperationException()
             }
         }
@@ -229,6 +233,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
                 is IntCol -> IntCol(it.name, Array(nrow, { index -> it.values[permutation[index]] }))
                 is BooleanCol -> BooleanCol(it.name, Array(nrow, { index -> it.values[permutation[index]] }))
                 is StringCol -> StringCol(it.name, Array(nrow, { index -> it.values[permutation[index]] }))
+                is AnyCol -> AnyCol(it.name, Array(nrow, { index -> it.values[permutation[index]] }))
                 else -> throw UnsupportedOperationException()
             }
         }.let { SimpleDataFrame(it) }
@@ -389,6 +394,7 @@ internal fun handleArrayErasure(name: String, mutation: Array<*>): DataCol = whe
     isOfType<Double>(mutation) -> DoubleCol(name, Array<Double?>(mutation.size, { mutation[it] as? Double }))
 //    isOfType<Boolean>(mutation) -> BooleanCol(name, mutation as Array<Boolean?>)
     isOfType<Boolean>(mutation) -> BooleanCol(name, Array<Boolean?>(mutation.size, { mutation[it] as? Boolean }))
+    isOfType<Any>(mutation) -> AnyCol(name, mutation)
     mutation.isEmpty() -> AnyCol(name, emptyArray())
     else -> throw UnsupportedOperationException()
 }

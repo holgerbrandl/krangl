@@ -138,9 +138,11 @@ var _rand = Random(3) // use var here to allow users to set seeds in order to do
 ////////////////////////////////////////////////
 
 // allow to rather use selectors
-//TODO report incorrect highlighting to idea
+//TODO report incorrect highlighting to JB
 
 //fun DataFrame.sortedBy(tableExpression: TableExpression): DataFrame = sortedBy(*arrayOf(tableExpression))
+
+fun DataFrame.sortedBy(tableExpression: TableExpression)= sortedBy(*arrayOf(tableExpression))
 
 fun DataFrame.sortedBy(vararg tableExpressions: TableExpression): DataFrame {
     // create derived data frame sort by new columns trash new columns
@@ -246,9 +248,13 @@ fun DataFrame.asString(colNames: Boolean = true, sep: String = "\t", maxRows: In
 
 data class ColSpec(val pos:Int, val name:String, val type:String )
 
-fun List<ColSpec>.print(){
 
+
+internal fun getColType(col: DataCol) = when(col){
+    is AnyCol -> col.values.first()?.javaClass?.simpleName
+    else -> col.javaClass.simpleName.replace("Col", "")
 }
+
 
 
 fun DataFrame.structure(): List<ColSpec> {
@@ -257,15 +263,12 @@ fun DataFrame.structure(): List<ColSpec> {
         TODO()
     }
 
-
-    fun getColType(col: DataCol) = when(col){
-        is AnyCol -> col.values.first()?.javaClass?.simpleName
-        else -> col.javaClass.simpleName.replace("Col", "")
-    }
-
-
     return cols.mapIndexed{ index,col -> ColSpec(index,col.name, getColType(col) ?: "")}
 }
+
+fun List<ColSpec>.asDf() = asDataFrame { mapOf("index" to it.pos, "name" to it.name, "type" to it.type) }
+
+fun List<ColSpec>.print() = asDf().print()
 
 
 
