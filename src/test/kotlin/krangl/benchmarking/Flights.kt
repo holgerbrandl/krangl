@@ -41,7 +41,7 @@ user  system elapsed
 
 fun main2(args: Array<String>) {
     val flights = RunTimes.measure({
-        fromTSV("/Users/brandl/Desktop/nycflights.tsv")
+        DataFrame.fromTSV("/Users/brandl/Desktop/nycflights.tsv")
     }, 3).apply {
         println("data loading time was: $runtimes")
     }.result
@@ -70,7 +70,7 @@ fun main2(args: Array<String>) {
 fun main(args: Array<String>) {
     val flights = RunTimes.measure({
 //        DataFrame.fromCSV("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv")
-        fromCSV(File("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"), format = CSVFormat.TDF)
+        DataFrame.fromCSV(File("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"), format = CSVFormat.TDF)
     }, numRuns = 1).apply {
         println(runtimes)
     }.result
@@ -96,7 +96,7 @@ fun main(args: Array<String>) {
 
         val flightsSummary = flights
                 .groupBy("year", "month", "day")
-                .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
+                .selectByName({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
                 .summarize(
                         "mean_arr_delay" to { it["arr_delay"].mean(removeNA = true) },
                         "mean_dep_delay" to { it["dep_delay"].mean(removeNA = true) }

@@ -2,7 +2,6 @@
 
 package krangl
 
-import tech.tablesaw.api.QueryHelper.not
 import java.util.*
 
 
@@ -10,94 +9,6 @@ import java.util.*
 // select() helpers and API
 ////////////////////////////////////////////////
 
-class ColNames(val names: List<String>)
-
-// select utitlies see http://www.rdocumentation.org/packages/dplyr/functions/select
-fun ColNames.matches(regex: String) = names.map { it.matches(regex.toRegex()) }
-
-// todo add possiblity to negative selection with mini-language. E.g. -startsWith("name")
-
-internal fun List<Boolean>.falseAsNull() = map { if (!it) null else true }
-internal fun List<Boolean>.trueAsNull() = map { if (it) null else false }
-internal fun List<Boolean?>.nullAsFalse(): List<Boolean> = map { it ?: false }
-
-fun ColNames.startsWith(prefix: String) = names.map { it.startsWith(prefix) }
-fun ColNames.endsWith(prefix: String) = names.map { it.endsWith(prefix) }.falseAsNull()
-fun ColNames.everything() = Array(names.size, { true }).toList()
-fun ColNames.matches(regex: Regex) = names.map { it.matches(regex) }.falseAsNull()
-fun ColNames.oneOf(vararg someNames: String): List<Boolean?> = names.map { someNames.contains(it) }.falseAsNull()
-fun ColNames.oneOf(someNames: List<String>): List<Boolean?> = names.map { someNames.contains(it) }.falseAsNull()
-
-
-fun ColNames.range(from: String, to: String): List<Boolean?> {
-    val rangeStart = names.indexOf(from)
-    val rangeEnd = names.indexOf(to)
-
-    val rangeSelection = (rangeStart..rangeEnd).map { names[it] }
-    return names.map { rangeSelection.contains(it) }.falseAsNull()
-}
-
-
-// since this affects String namespace it might be not a good idea
-operator fun String.unaryMinus() = fun ColNames.(): List<Boolean?> = names.map { it != this@unaryMinus }.trueAsNull()
-
-operator fun Iterable<String>.unaryMinus() = fun ColNames.(): List<Boolean> = names.map { !this@unaryMinus.contains(it) }
-operator fun List<Boolean?>.unaryMinus() = map { it?.not() }
-//operator fun List<Boolean?>.not() = map { it?.not() } // todo needed?
-
-//val another = -"dsf"
-
-/** Convenience wrapper around to work with varag <code>krangl.DataFrame.select</code> */
-fun DataFrame.select(vararg columns: String): DataFrame = select(columns.asList())
-
-/** Keeps only the variables that match any of the given expressions. E.g. use `startsWith("foo")` to select for columns staring with 'foo'.*/
-fun DataFrame.select(vararg which: ColNames.() -> List<Boolean?>): DataFrame {
-    val reducedSelector = reduceColSelectors(which)
-
-    return select(reducedSelector)
-}
-
-internal fun DataFrame.reduceColSelectors(which: Array<out ColNames.() -> List<Boolean?>>): List<Boolean?> {
-    val reducedSelector = which.map { it(ColNames(names)) }.reduce { selA, selB -> selA nullAwareAND selB }
-    return reducedSelector
-}
-
-internal fun DataFrame.select(which: List<Boolean?>): DataFrame {
-    val colSelection: List<String> = colSelectAsNames(which)
-
-    return select(colSelection)
-}
-
-internal fun DataFrame.colSelectAsNames(which: List<Boolean?>): List<String> {
-    require(which.size == ncol) { "selector array has different dimension than data-frame" }
-
-    // map boolean array to string selection
-    val isPosSelection = which.count { it == true } > 0
-    val whichComplete = which.map { it ?: !isPosSelection }
-
-    val colSelection: List<String> = names
-            .zip(whichComplete)
-            .filter { it.second }.map { it.first }
-
-    return colSelection
-}
-
-
-//private infix fun List<Boolean?>.nullOR(other: List<Boolean?>): List<Boolean?> = mapIndexed { index, first ->
-//    if(first==null && other[index] == null) null else (first  ?: false) || (other[index] ?: false)
-//}
-private infix fun List<Boolean?>.nullAwareAND(other: List<Boolean?>): List<Boolean?> = this.zip(other).map {
-    it.run {
-        if (first == null && second == null) {
-            null
-        } else if (first != null && second != null) {
-            20
-            first!! && second!!
-        } else {
-            first ?: second
-        }
-    }
-}
 
 
 //
@@ -125,11 +36,11 @@ fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
     })
 
     // make sure that renaming rule does not contain duplicates to allow for better error reporting
-    val renamed = old2NewFilt.fold(this, { df, renRule -> df.createColumn(renRule.asTableFormula()).select(-renRule.oldName) })
+    val renamed = old2NewFilt.fold(this, { df, renRule -> df.createColumn(renRule.asTableFormula()).selectByName(-renRule.oldName) })
 
 
     // restore positions of renamed columns
-    return renamed.select(*namesRestoredPos.toTypedArray())
+    return renamed.selectByName(*namesRestoredPos.toTypedArray())
 }
 
 
@@ -147,17 +58,6 @@ infix fun String.to(that: TableExpression) = ColumnFormula(this, that)
 
 
 data class ColumnFormula(val name: String, val expression: TableExpression)
-
-fun DataFrame.createColumn(columnName: String, expression: TableExpression): DataFrame =
-        createColumn(columnName to expression)
-
-fun DataFrame.createColumns(vararg coiumSpecs: ColumnFormula): DataFrame {
-    return coiumSpecs.fold(this, { df, tf -> df.createColumn(tf) })
-}
-
-/** Mutates a data-frame and discards all non-result columns. */
-fun DataFrame.transmute(vararg formula: ColumnFormula) = createColumns(*formula).select(*formula.map { it.name }.toTypedArray())
-
 
 ////////////////////////////////////////////////
 // filter() convenience
@@ -244,13 +144,13 @@ var _rand = Random(3) // use var here to allow users to set seeds in order to do
 
 fun DataFrame.sortedBy(vararg tableExpressions: TableExpression): DataFrame {
     // create derived data frame sort by new columns trash new columns
-    val sortBys = tableExpressions.mapIndexed{index, value  -> "__sort$index" to value}
+    val sortBys = tableExpressions.mapIndexed { index, value -> "__sort$index" to value }
     val sortByNames = sortBys.map { it.name }.toTypedArray()
 
     return createColumns(*sortBys.toTypedArray()).
-           sortedBy(*sortByNames).
-           select({ -oneOf(*sortByNames) })
-//           select({ oneOf(*sortByNames).not() })
+            sortedBy(*sortByNames).
+            selectByName({ -oneOf(*sortByNames) })
+    //           select({ oneOf(*sortByNames).not() })
 }
 
 ////////////////////////////////////////////////
@@ -273,7 +173,7 @@ fun DataFrame.distinct(vararg selects: String = this.names.toTypedArray()): Data
 
 
 /** Counts observations by group.*/
-fun DataFrame.count(vararg selects: String = this.names.toTypedArray(), countName: String = "n"): DataFrame = select(*selects).groupBy(*selects).summarize(countName, { nrow })
+fun DataFrame.count(vararg selects: String = this.names.toTypedArray(), countName: String = "n"): DataFrame = selectByName(*selects).groupBy(*selects).summarize(countName, { nrow })
 
 
 ////////////////////////////////////////////////
@@ -335,13 +235,39 @@ fun DataFrame.asString(colNames: Boolean = true, sep: String = "\t", maxRows: In
 
     if (colNames) df.cols.map { it.name }.joinToString(sep).apply { sb.appendln(this) }
 
-    rawRows.take(Math.min(nrow, maxRows)).map { row: List<Any?> ->
+    rowData().take(Math.min(nrow, maxRows)).map { row: List<Any?> ->
         // show null as NA when printing data
         row.map { it ?: "<NA>" }.joinToString(sep).apply { sb.appendln(this) }
     }
 
     return sb.toString()
 }
+
+
+data class ColSpec(val pos:Int, val name:String, val type:String )
+
+fun List<ColSpec>.print(){
+
+}
+
+
+fun DataFrame.structure(): List<ColSpec> {
+    // todo add support for grouped data here
+    if (this !is SimpleDataFrame) {
+        TODO()
+    }
+
+
+    fun getColType(col: DataCol) = when(col){
+        is AnyCol -> col.values.first()?.javaClass?.simpleName
+        else -> col.javaClass.simpleName.replace("Col", "")
+    }
+
+
+    return cols.mapIndexed{ index,col -> ColSpec(index,col.name, getColType(col) ?: "")}
+}
+
+
 
 /* Prints the structure of a dataframe to stdout.*/
 fun DataFrame.glimpse(sep: String = "\t") {
@@ -366,7 +292,7 @@ fun DataFrame.glimpse(sep: String = "\t") {
 }
 
 /** Provides a code to convert  a dataframe to a strongly typed list of kotlin data-class instances.*/
-fun DataFrame.toKotlin(dfVarName: String, dataClassName: String = dfVarName.capitalize()) {
+fun DataFrame.printDataClassSchema(varName: String, dataClassName: String = varName.capitalize()) {
     val df = this.ungroup() as SimpleDataFrame
 
     // create type
@@ -378,7 +304,7 @@ fun DataFrame.toKotlin(dfVarName: String, dataClassName: String = dfVarName.capi
 
     val attrMapping = df.cols.map { """ row["${it.name}"] as ${getScalarColType(it)}""" }.joinToString(", ")
 
-    println("val ${dfVarName}Entries = ${dfVarName}.rows.map { row -> ${dataClassName}(${attrMapping}) }")
+    println("val records = ${varName}.rows.map { row -> ${dataClassName}(${attrMapping}) }")
 }
 
 
@@ -443,3 +369,27 @@ internal inline fun warning(value: Boolean, lazyMessage: () -> Any): Unit {
 
 internal fun GroupedDataFrame.transformGroups(trafo: (DataFrame) -> DataFrame): GroupedDataFrame =
         groups.map { DataGroup(it.groupHash, trafo(it.df)) }.let { GroupedDataFrame(by, it) }
+
+
+fun List<DataCol>.asDataFrame(): DataFrame = SimpleDataFrame(this)
+
+
+/** Return an iterator over the rows in data in the receiver. */
+internal fun DataFrame.rowData(): Iterable<List<Any?>> = when (this) {
+
+    is GroupedDataFrame -> throw UnsupportedOperationException()
+    is SimpleDataFrame -> object : Iterable<List<Any?>> {
+
+        override fun iterator() = object : Iterator<List<Any?>> {
+
+            val colIterators = cols.map { it.values().iterator() }.toList()
+
+            override fun hasNext(): Boolean = colIterators.firstOrNull()?.hasNext() ?: false
+
+            override fun next(): List<Any?> = colIterators.map { it.next() }
+        }
+    }
+
+    else -> throw IllegalArgumentException()
+}
+

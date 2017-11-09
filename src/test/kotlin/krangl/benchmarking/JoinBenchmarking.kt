@@ -1,5 +1,6 @@
 package krangl.benchmarking
 
+import krangl.DataFrame
 import krangl.UnequalByHelpers.innerJoin
 import krangl.devel.RunTimes
 import krangl.fromCSV
@@ -9,7 +10,7 @@ import java.io.File
 
 
 fun main(args: Array<String>) {
-    val flights = fromCSV(File("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"), format = CSVFormat.TDF)
+    val flights = DataFrame.fromCSV(File("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"), format = CSVFormat.TDF)
 
 
     RunTimes.measure({

@@ -26,15 +26,15 @@ fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boo
             .map {
                 val grpDf = it.df
 
-                require(grpDf.select(key).distinct(key).nrow == grpDf.nrow) { "key value mapping is not unique" }
+                require(grpDf.selectByName(key).distinct(key).nrow == grpDf.nrow) { "key value mapping is not unique" }
 
-                val spreadBlock = SimpleDataFrame(handleListErasure(key, newColNames)).leftJoin(grpDf.select(key, value))
+                val spreadBlock = SimpleDataFrame(handleListErasure(key, newColNames)).leftJoin(grpDf.selectByName(key, value))
 
                 val grpSpread = SimpleDataFrame((spreadBlock as SimpleDataFrame).rows.map {
                     AnyCol(it[key].toString(), listOf(it[value]))
                 })
 
-                bindCols(grpDf.select(-key, -value).distinct(), grpSpread)
+                bindCols(grpDf.selectByName(-key, -value).distinct(), grpSpread)
             }
 
 //    if(fill!=null){
@@ -81,7 +81,7 @@ fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boo
 fun DataFrame.gather(key: String, value: String, which: List<String> = this.names, convert: Boolean = false): DataFrame {
     require(which.isNotEmpty()) { "the column selection to be `gather`ed must not be empty" }
 
-    val gatherColumns = select(which)
+    val gatherColumns = selectByName(which)
 
     // 1) convert each gather column into a block
     val distinctCols = gatherColumns.cols.map { it.javaClass }.distinct()
@@ -108,7 +108,7 @@ fun DataFrame.gather(key: String, value: String, which: List<String> = this.name
 
     // 2) row-replicate the non-gathered columns
     //    val rest = select(names.minus(gatherColumns.names))
-    val rest = select({ -oneOf(gatherColumns.names) })
+    val rest = selectByName({ -oneOf(gatherColumns.names) })
 //    val replicationLevel = gatherColumns.ncol
 
     val indexReplication = rest.cols.map { column ->
@@ -163,10 +163,10 @@ internal fun convertType(spreadCol: DataCol): DataCol {
 fun DataFrame.unite(colName: String, which: List<String>, sep: String = "_", remove: Boolean = true): DataFrame {
     require(which.isNotEmpty()) { "the column selection to be `unite`ed must not be empty" }
 
-    val uniteBlock = select(which)
+    val uniteBlock = selectByName(which)
     val uniteResult = uniteBlock.rows.map { it.values.map { it?.toString().nullAsNA() }.joinToString(sep) }
 
-    val rest = if (remove) select({ -oneOf(uniteBlock.names) }) else this
+    val rest = if (remove) selectByName({ -oneOf(uniteBlock.names) }) else this
 
     return rest.createColumn(colName to { uniteResult })
 }
@@ -207,7 +207,7 @@ fun DataFrame.separate(column: String, into: List<String>, sep: String = "_", re
     }
 
     // column bind rest and separated columns into final result
-    val rest = if (remove) select(-column) else this
+    val rest = if (remove) selectByName(-column) else this
 
     return bindCols(rest, SimpleDataFrame(splitCols))
 }

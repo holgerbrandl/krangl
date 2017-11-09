@@ -1,3 +1,5 @@
+//@file:Suppress("unused")
+
 package krangl
 
 import org.apache.commons.csv.CSVFormat
@@ -15,14 +17,14 @@ Methods to read and write tables into/from DataFrames
  */
 
 
-fun fromCSV(file: String) = fromCSV(File(file))
+fun DataFrame.Companion.fromCSV(file: String) = fromCSV(File(file))
 
-fun fromTSV(file: String) = fromCSV(File(file), format = CSVFormat.TDF)
+fun DataFrame.Companion.fromTSV(file: String) = fromCSV(File(file), format = CSVFormat.TDF)
 
 // http://stackoverflow.com/questions/9648811/specific-difference-between-bufferedreader-and-filereader
-fun fromCSV(file: File,
-            format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
-            isCompressed: Boolean = file.name.endsWith(".gz")): DataFrame {
+fun DataFrame.Companion.fromCSV(file: File,
+                                format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
+                                isCompressed: Boolean = file.name.endsWith(".gz")): DataFrame {
 
     val bufReader = if (isCompressed) {
         // http://stackoverflow.com/questions/1080381/gzipinputstream-reading-line-by-line
@@ -36,7 +38,7 @@ fun fromCSV(file: File,
 }
 
 //http://stackoverflow.com/questions/5200187/convert-inputstream-to-bufferedreader
-fun fromCSV(inStream: InputStream, format: CSVFormat = CSVFormat.DEFAULT, isCompressed: Boolean = false) =
+fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFormat.DEFAULT, isCompressed: Boolean = false) =
         if (isCompressed) {
             InputStreamReader(GZIPInputStream(inStream))
         } else {
@@ -46,7 +48,7 @@ fun fromCSV(inStream: InputStream, format: CSVFormat = CSVFormat.DEFAULT, isComp
         }
 
 
-internal fun fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT.withHeader()): DataFrame {
+fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT.withHeader()): DataFrame {
     val csvParser = format.parse(reader)
 
     val records = csvParser.records
@@ -55,13 +57,13 @@ internal fun fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT.withH
 
     // todo also support reading files without header --> use generic column names if so
 
-    val columnNames= csvParser.headerMap?.keys ?:
-            (1..csvParser.records[0].count()).mapIndexed { index, _ ->  "X${index}"}
+    val columnNames = csvParser.headerMap?.keys ?:
+            (1..csvParser.records[0].count()).mapIndexed { index, _ -> "X${index}" }
 
 
     // todo make column names unique when reading them + unit test
 
-//    csvParser.headerMap.keys.pmap{colName ->
+    //    csvParser.headerMap.keys.pmap{colName ->
     for (colName in columnNames) {
         val firstElements = peekCol(colName, records)
 
@@ -83,12 +85,12 @@ internal fun fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT.withH
 }
 
 
-val NA = "NA"
+val MISSING_VALUE = "NA"
 
 // NA aware conversions
-internal fun String.naAsNull(): String? = if (this == NA) null else this
+internal fun String.naAsNull(): String? = if (this == MISSING_VALUE) null else this
 
-internal fun String?.nullAsNA(): String = this ?: NA
+internal fun String?.nullAsNA(): String = this ?: MISSING_VALUE
 
 internal fun String?.cellValueAsBoolean(): Boolean? {
     if (this == null) return null
@@ -109,19 +111,19 @@ internal fun String?.cellValueAsBoolean(): Boolean? {
 
 internal fun isDoubleCol(firstElements: List<String?>): Boolean = try {
     firstElements.map { it?.toDouble() }; true
-} catch(e: NumberFormatException) {
+} catch (e: NumberFormatException) {
     false
 }
 
 internal fun isIntCol(firstElements: List<String?>): Boolean = try {
     firstElements.map { it?.toInt() }; true
-} catch(e: NumberFormatException) {
+} catch (e: NumberFormatException) {
     false
 }
 
 internal fun isBoolCol(firstElements: List<String?>): Boolean = try {
     firstElements.map { it?.cellValueAsBoolean() }; true
-} catch(e: NumberFormatException) {
+} catch (e: NumberFormatException) {
     false
 }
 
@@ -145,7 +147,7 @@ fun DataFrame.writeCSV(file: File, format: CSVFormat = CSVFormat.DEFAULT, colNam
     if (colNames) csvFilePrinter.printRecord(names)
 
     // write records
-    for (record in rawRows) {
+    for (record in rowData()) {
         csvFilePrinter.printRecord(record)
     }
 
@@ -173,4 +175,7 @@ Additional variables order, conservation status and vore were added from wikiped
 - brainwt. brain weight in kilograms
 - bodywt. body weight in kilograms
  */
-val sleepData by lazy { fromCSV(DataFrame::class.java.getResourceAsStream("data/msleep.csv"), CSVFormat.DEFAULT.withHeader()) }
+val sleepData by lazy { DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/msleep.csv"), CSVFormat.DEFAULT.withHeader()) }
+
+
+// todo support Read and write data using Tablesaw’s “.saw” format

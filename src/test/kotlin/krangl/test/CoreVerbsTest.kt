@@ -7,24 +7,31 @@ import org.apache.commons.csv.CSVFormat
 import org.junit.Test
 
 
-val irisData = fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())
-val flights = fromCSV(DataFrame::class.java.getResourceAsStream("data/nycflights.tsv.gz"), format = CSVFormat.TDF.withHeader(), isCompressed = true)
+val irisData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())
+val flights = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/nycflights.tsv.gz"), format = CSVFormat.TDF.withHeader(), isCompressed = true)
 
 
 class SelectTest : Matchers {
 
     @Test
     fun `it should select with regex`() {
-        sleepData.select({ endsWith("wt") }).ncol shouldBe 2
-        sleepData.select({ endsWith("wt") }).ncol shouldBe 2
-        sleepData.select({ startsWith("sleep") }).ncol shouldBe 3
-        sleepData.select({ oneOf("conservation", "foobar", "order") }).ncol shouldBe 2
+        sleepData.selectByName { endsWith("wt") }.ncol shouldBe 2
+        sleepData.selectByName { endsWith("wt") }.ncol shouldBe 2
+        sleepData.selectByName { startsWith("sleep") }.ncol shouldBe 3
+        sleepData.selectByName { oneOf("conservation", "foobar", "order") }.ncol shouldBe 2
+
+        sleepData.select<IntCol>()
+        sleepData.select<StringCol>()
+
+        sleepData.select { it is IntCol }
+        sleepData.select { it.name.startsWith("foo") }
+
     }
 
     @Test
     fun `it should select non-existing column`() {
         try {
-            sleepData.select("foobar")
+            sleepData.selectByName("foobar")
             fail("foobar should not be selectable")
         } catch (t: Throwable) {
             // todo expect more descriptive exception here. eg. ColumnDoesNotExistException
@@ -35,12 +42,12 @@ class SelectTest : Matchers {
     @Test
     fun `it should select no columns`() {
         try {
-            sleepData.select(listOf())
+            sleepData.selectByName(listOf())
             fail("should complain about mismatching selector array dimensionality")
         } catch (t: Throwable) {
         }
 
-        sleepData.select(*arrayOf<String>()).ncol shouldBe 0
+        sleepData.selectByName(*arrayOf<String>()).ncol shouldBe 0
     }
 
 
@@ -49,16 +56,16 @@ class SelectTest : Matchers {
         // double selection is flattend out as in dplyr:  iris %>% select(Species, Species) %>% glimpse
 
         shouldThrow<IllegalArgumentException> {
-            sleepData.select("name", "vore", "name").ncol shouldBe 2
+            sleepData.selectByName("name", "vore", "name").ncol shouldBe 2
         }
 
-        sleepData.select("name", "vore").ncol shouldBe 2
+        sleepData.selectByName("name", "vore").ncol shouldBe 2
     }
 
 
     @Test
     fun `it should do a negative selection`() {
-        sleepData.select(-"name", -"vore").apply {
+        sleepData.selectByName(-"name", -"vore").apply {
             names.contains("name") shouldBe false
             names.contains("vore") shouldBe false
 
@@ -74,7 +81,7 @@ class SelectTest : Matchers {
         // cf.  iris %>% select(ends_with("Length"), - Petal.Length) %>% glimpse()
         // not symmetric:  iris %>% select(- Petal.Length, ends_with("Length")) %>% glimpse()
         //  iris %>% select(-Petal.Length, ends_with("Length")) %>% glimpse()
-        irisData.select({ endsWith("Length") }, -"Petal.Length").apply {
+        irisData.selectByName({ endsWith("Length") }, -"Petal.Length").apply {
             names shouldEqual listOf("Sepal.Length")
         }
     }
@@ -258,7 +265,7 @@ class EmptyTest : Matchers {
             glimpse()
             print()
 
-            select(emptyList()) // will output warning
+            selectByName(emptyList()) // will output warning
             // core verbs
             filter { BooleanArray(0) }
             createColumn("foo", { "bar" })
@@ -322,7 +329,7 @@ class GroupedDataTest : Matchers {
         val subFlights = flights
                 .groupBy("year", "month", "day")
                 //                .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
-                .select("arr_delay", "dep_delay", "year")
+                .selectByName("arr_delay", "dep_delay", "year")
 
         subFlights.apply {
             ncol shouldBe 5
@@ -344,7 +351,7 @@ class GroupedDataTest : Matchers {
                 "Horst", "Keanes", 12, 82
         )
 
-        val dfB = dfA.select("age", "last_name", "weight", "first_name")
+        val dfB = dfA.selectByName("age", "last_name", "weight", "first_name")
 
         // by joining with multiple attributes we inherentily group (which is the actual test
         val dummyJoin = dfA.leftJoin(dfB, by = listOf("last_name", "first_name"))

@@ -172,32 +172,6 @@ Support & Documentation
 * TBD `krangl` Cheat Sheet
 
 
-References & Related Projects
------------------------------
-
-Most relavant
-* https://github.com/jtablesaw/tablesaw which is the supposedly The simplest way to slice data in Java
-
-| Feature                | Krangl | TableSaw |
-|:-----------------------|:-------|:---------|
-| Kotlin API             | Yes    | Yes      |
-| Add column             | df.    |          |
-| Select columns by type |        |          |
-
-
-
-Select columsn by type
-* krangl
-```
-df.select( 
-```
-
-* tablesaw
-```
-val df = Dataframe(df.structure().target.selectWhere(column("Column Type").isEqualTo("INTEGER")))
-```
-
-
 
 
 

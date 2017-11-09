@@ -7,6 +7,12 @@ fun main(args: Array<String>) {
 
     // Create data-frame in memory
 
+    val fromCSV = DataFrame.fromCSV("foo")
+
+    fromCSV.rows
+
+
+
     val df: DataFrame = dataFrameOf(
             "first_name", "last_name", "age", "weight")(
             "Max", "Doe", 23, 55,
@@ -52,9 +58,9 @@ fun main(args: Array<String>) {
 
 
     // Subset columns with select
-    df.select("last_name", "weight")    // positive selection
-    df.select(-"weight", -"age")  // negative selection
-    df.select({ endsWith("name") })    // selector mini-language
+    df.selectByName("last_name", "weight")    // positive selection
+    df.selectByName(-"weight", -"age")  // negative selection
+    df.selectByName({ endsWith("name") })    // selector mini-language
 
 
     // Subset rows with filter
@@ -85,7 +91,8 @@ fun main(args: Array<String>) {
 
     // generate object bindings for kotlin.
     // Unfortunately the syntax is a bit odd since we can not access the variable name by reflection
-    sumDF.toKotlin("sumDF")
+    sumDF.printDataClassSchema("sumDF")
+
     // This will generate and print the following conversion code:
     data class SumDF(val age: Int, val mean_weight: Double, val num_persons: Int)
 

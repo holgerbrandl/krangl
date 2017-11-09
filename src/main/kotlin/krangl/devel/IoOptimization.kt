@@ -123,7 +123,7 @@ internal fun main(args: Array<String>) {
 //        }.result//.glimpse()
 
         RunTimes.measure({
-            fromCSV(getFlightsReader(), CSVFormat.TDF)
+            DataFrame.fromCSV(getFlightsReader(), CSVFormat.TDF)
         }, 8).apply {
             println("fromCSV: $this")
         }.result//.glimpse()

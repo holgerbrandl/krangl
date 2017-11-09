@@ -30,7 +30,7 @@ abstract class DataCol(val name: String) {
 
     infix operator fun plus(something: String): DataCol = when (this) {
         is StringCol -> values.map { naAwarePlus(it, something) }
-        else -> values().map{ (it?.toString() ?: NA) + something}
+        else -> values().map{ (it?.toString() ?: MISSING_VALUE) + something}
     }.toTypedArray().let { StringCol(TMP_COLUMN, it) }
 
 

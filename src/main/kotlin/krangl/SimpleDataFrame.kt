@@ -46,7 +46,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
         override fun iterator() = object : Iterator<Map<String, Any?>> {
 
-            val colIterators = rawRows.iterator()
+            val colIterators = rowData().iterator()
 
             override fun hasNext(): Boolean = colIterators.hasNext()
 
@@ -54,29 +54,17 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         }
     }
 
-    override val rawRows = object : Iterable<List<Any?>> {
-
-        override fun iterator() = object : Iterator<List<Any?>> {
-
-            val colIterators = cols.map { it.values().iterator() }.toList()
-
-            override fun hasNext(): Boolean = colIterators.firstOrNull()?.hasNext() ?: false
-
-            override fun next(): List<Any?> = colIterators.map { it.next() }
-        }
-    }
 
     //    override val raw = object : Iterable<Map<String, Any?>> {
 
 
-    // todo this needs to be reimplemented to become a proper select that can also change positions. A list of booleans is only one way to to it
 
-    override fun select(which: List<String>): DataFrame {
-        warning(which.isNotEmpty()) { "Calling select() without arguments is not sensible" }
-        require(names.containsAll(which)) { "not all selected columns (${which.joinToString(", ")})are contained in table" }
-        require(which.distinct().size == which.size) { "Columns must not be selected more than once" }
+    override fun selectByName(vararg columnNames: String): DataFrame {
+        warning(columnNames.isNotEmpty()) { "Calling select() without arguments is not sensible" }
+        require(names.containsAll(columnNames.asList())) { "not all selected columns (${columnNames.joinToString(", ")})are contained in table" }
+        require(columnNames.distinct().size == columnNames.size) { "Columns must not be selected more than once" }
 
-        return which.fold(SimpleDataFrame(), { df, colName -> df.addColumn(this[colName]) })
+        return columnNames.fold(SimpleDataFrame(), { df, colName -> df.addColumn(this[colName]) })
     }
 
     // Utility methods
@@ -255,7 +243,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         // todo test if data is already grouped by the given 'by' and skip regrouping if so
 
         //take all grouping columns
-        val groupCols = select(*by) //cols.filter { by.contains(it.name) }
+        val groupCols = selectByName(*by) //cols.filter { by.contains(it.name) }
         require(groupCols.ncol == by.size) { "Could not find all grouping columns" }
 
         val NA_GROUP_HASH = Int.MAX_VALUE - 123
@@ -278,7 +266,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         val rowHashes: List<Int> = if (by.isEmpty()) {
             IntArray(nrow, { EMPTY_BY_HASH }).toList()
         } else {
-            groupCols.rawRows.map { row: List<Any?> ->
+            groupCols.rowData().map { row: List<Any?> ->
                 //                by.map { row[it]?.hashCode() ?: NA_GROUP_HASH }.hashCode()
                 // we make the assumption here that group columns are as in `by`
                 row.map { it?.hashCode() ?: NA_GROUP_HASH }.hashCode()

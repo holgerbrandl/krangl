@@ -7,7 +7,7 @@ import krangl.*
 
 fun main(args: Array<String>) {
 
-    val msleep = fromCSV("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv")
+    val msleep = DataFrame.fromCSV("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv")
     msleep.glimpse()
     msleep.print()
 

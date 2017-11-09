@@ -1,5 +1,6 @@
 package krangl.test
 
+import krangl.DataFrame
 import krangl.fromCSV
 import org.junit.Test
 import java.io.File
@@ -14,7 +15,7 @@ class IOTests {
     fun testTornados() {
         val tornandoCsv = File("/Users/brandl/projects/kotlin/misc/tablesaw/data/1950-2014_torn.csv")
 
-        val fromCSV = fromCSV(tornandoCsv)
+        val fromCSV = DataFrame.fromCSV(tornandoCsv)
 
     }
 }

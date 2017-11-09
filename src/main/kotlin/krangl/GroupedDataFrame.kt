@@ -14,8 +14,6 @@ internal class DataGroup(val groupHash: Int, val df: DataFrame) {
 
 internal class GroupedDataFrame(val by: List<String>, internal val groups: List<DataGroup>) : DataFrame {
 
-    override val rawRows: Iterable<List<Any?>>
-        get() = throw UnsupportedOperationException()
 
     // todo simple aggregate group-row-iterators into compound iterator to prevent indexed access
     override val rows: Iterable<Map<String, Any?>> = object : Iterable<Map<String, Any?>> {
@@ -75,7 +73,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
         // todo conisder to expose the group tuple via public API
         return groups.map { gdf ->
-            val groupTuple = gdf.df.select(*by.toTypedArray()).head(1)
+            val groupTuple = gdf.df.selectByName(*by.toTypedArray()).head(1)
             val groupSummary = gdf.df.summarize(*sumRules)
 
             bindCols(groupTuple, groupSummary)
@@ -83,16 +81,16 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
     }
 
 
-    override fun select(which: List<String>): DataFrame {
+    override fun selectByName(vararg columns: String): DataFrame {
         // see https://github.com/hadley/dplyr/issues/1869
-//        require(which.intersect(by).isEmpty()) { "can not drop grouping columns" }
-        warning(by.minus(which).isEmpty()) {
-            "Adding missing grouping variables: ${by.minus(which).joinToString(",")}"
+//        require(columns.intersect(by).isEmpty()) { "can not drop grouping columns" }
+        warning(by.minus(columns).isEmpty()) {
+            "Adding missing grouping variables: ${by.minus(columns).joinToString(",")}"
         }
 
 
-        val groupsAndWhich = by.toMutableList().apply { addAll(which.minus(by)) }
-        return GroupedDataFrame(by, groups.map { DataGroup(it.groupHash, it.df.select(groupsAndWhich)) })
+        val groupsAndWhich = by.toMutableList().apply { addAll(columns.asList().minus(by)) }
+        return GroupedDataFrame(by, groups.map { DataGroup(it.groupHash, it.df.selectByName(groupsAndWhich)) })
     }
 
 
@@ -119,5 +117,5 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
     override fun toString(): String = "Grouped by: *$by\n" + ungroup().head(5).asString()
 
-    fun groups() = slice(1).ungroup().select(*by.toTypedArray())
+    fun groups() = slice(1).ungroup().selectByName(*by.toTypedArray())
 }
