@@ -5,11 +5,11 @@ import krangl.*
 
 fun main(args: Array<String>) {
 
-    // Create data-frame in memory
-
+    // Read data-frame from disk
     val iris = DataFrame.fromCSV("data/iris.txt")
 
 
+    // Create data-frame in memory
     val df: DataFrame = dataFrameOf(
             "first_name", "last_name", "age", "weight")(
             "Max", "Doe", 23, 55,
