@@ -16,46 +16,46 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
     // deprecated indexed row access
     @Deprecated("use news zip-iterator instead")
-    private val rowsIndexded = object : Iterable<Map<String, Any?>> {
+    private val rowsIndexded = object : Iterable<DataFrameRow> {
 
-        override fun iterator() = object : Iterator<Map<String, Any?>> {
+        override fun iterator() = object : Iterator<DataFrameRow> {
             var curRow = 0
 
             override fun hasNext(): Boolean = curRow < nrow
 
-            override fun next(): Map<String, Any?> = row(curRow++)
+            override fun next(): DataFrameRow = row(curRow++)
         }
     }
 
 
     private data class ColIterator(val name: String, val iterator: Iterator<Any?>)
 
-    //    override val rows = object : Iterable<Map<String, Any?>> {
+    //    override val rows = object : Iterable<DataFrameRow> {
     //
-    //        override fun iterator() = object : Iterator<Map<String, Any?>> {
+    //        override fun iterator() = object : Iterator<DataFrameRow> {
     //
     //            val colIterators = cols.map { it.values().iterator() }.zip(names).map { ColIterator(it.second, it.first) }
     //
     //            override fun hasNext(): Boolean = colIterators.first().iterator.hasNext()
     //
-    //            override fun next(): Map<String, Any?> = colIterators.map { it.name to it.iterator.next() }.toMap()
+    //            override fun next(): DataFrameRow = colIterators.map { it.name to it.iterator.next() }.toMap()
     //        }
     //    }
 
-    override val rows = object : Iterable<Map<String, Any?>> {
+    override val rows = object : Iterable<DataFrameRow> {
 
-        override fun iterator() = object : Iterator<Map<String, Any?>> {
+        override fun iterator() = object : Iterator<DataFrameRow> {
 
             val colIterators = rowData().iterator()
 
             override fun hasNext(): Boolean = colIterators.hasNext()
 
-            override fun next(): Map<String, Any?> = names.zip(colIterators.next()).toMap()
+            override fun next(): DataFrameRow = names.zip(colIterators.next()).toMap()
         }
     }
 
 
-    //    override val raw = object : Iterable<Map<String, Any?>> {
+    //    override val raw = object : Iterable<DataFrameRow> {
 
 
     override fun select(vararg columns: String): DataFrame {
@@ -69,7 +69,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
     // Utility methods
 
-    override fun row(rowIndex: Int): Map<String, Any?> =
+    override fun row(rowIndex: Int): DataFrameRow =
             cols.map {
                 it.name to when (it) {
                     is DoubleCol -> it.values[rowIndex]
@@ -325,7 +325,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     override fun ungroup(): DataFrame = this // for ungrouped data ungrouping won't do anything
 
     // todo mimic dplyr.print better here (num observations, hide too many columns, etc.)
-    override fun toString(): String = head(5).asString()
+    override fun toString(): String = take(5).asString()
 
 
     override fun equals(other: Any?): Boolean {

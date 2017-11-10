@@ -29,7 +29,7 @@ class InnerJoinTests : Matchers {
         // make sure that by columns don't show up twice
         sleepWithInfo.ncol shouldBe (sleepData.ncol + 1)
 
-        sleepWithInfo.head().print()
+        sleepWithInfo.take().print()
         //        sleepWithInfo.names should contain "" // todo reenable
     }
 

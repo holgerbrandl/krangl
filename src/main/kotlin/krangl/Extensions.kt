@@ -10,7 +10,6 @@ import java.util.*
 ////////////////////////////////////////////////
 
 
-
 //
 // Data Reshaping  
 //
@@ -142,7 +141,7 @@ var _rand = Random(3)
 
 //fun DataFrame.sortedBy(tableExpression: TableExpression): DataFrame = sortedBy(*arrayOf(tableExpression))
 
-fun DataFrame.sortedBy(tableExpression: TableExpression)= sortedBy(*arrayOf(tableExpression))
+fun DataFrame.sortedBy(tableExpression: TableExpression) = sortedBy(*arrayOf(tableExpression))
 
 fun DataFrame.sortedBy(vararg tableExpressions: TableExpression): DataFrame {
     // create derived data frame sort by new columns trash new columns
@@ -188,11 +187,16 @@ fun DataFrame.count(vararg selects: String = this.names.toTypedArray(), countNam
 //fun DataFrame.rowNumber() = IntCol(TMP_COLUMN, (1..nrow).asSequence().toList())
 //fun DataFrame.rowNumber() = IntCol("row_number", (1..nrow).toList() )
 
-fun DataFrame.head(numRows: Int = 5) = filter {
+fun DataFrame.take(numRows: Int = 5) = filter {
     rowNumber.map { it <= numRows }.toBooleanArray()
 }
 
-fun DataFrame.tail(numRows: Int = 5) = filter { rowNumber.map { it > (nrow - numRows) }.toBooleanArray() }
+fun DataFrame.takeLast(numRows: Int) = filter { rowNumber.map { it > (nrow - numRows) }.toBooleanArray() }
+
+// r-like convenience wrappers
+fun DataFrame.head(numRows: Int = 5) = take(numRows)
+fun DataFrame.tail(numRows: Int = 5) = takeLast(numRows)
+
 
 
 /** Creates a grouped data-frame where each group consists of exactly one line. Thereby the row-number is used a group-hash. */
@@ -216,10 +220,10 @@ fun DataFrame.slice(vararg slices: Int) = filter { rowNumber.map { slices.contai
 
 /* Prints a dataframe to stdout. df.toString() will also work but has no options .*/
 @JvmOverloads
-fun DataFrame.print(colNames: Boolean = true, sep: String = "\t") = println(asString(colNames, sep))
+fun DataFrame.print(colNames: Boolean = true, maxRows: Int = 20) = println(asString(colNames, maxRows))
 
 
-fun DataFrame.asString(colNames: Boolean = true, sep: String = "\t", maxRows: Int = 100): String {
+fun DataFrame.asString(colNames: Boolean = true, maxRows: Int = 20): String {
 
     var df = this
 
@@ -232,29 +236,40 @@ fun DataFrame.asString(colNames: Boolean = true, sep: String = "\t", maxRows: In
         throw UnsupportedOperationException()
     }
 
+    val printData = take(Math.max(nrow, maxRows))
+
+    // calculate indents
+    val colWidths = printData.cols.map { it.values().map { (it ?: "<NA>").toString().length }.max() ?: 20 }
+    val headerWidths = printData.names.map { it.length }
+    val padding = colWidths.zip(headerWidths).map { (col, head) -> listOf(col, head).max()!! + 3 }
+
 
     val sb = StringBuilder()
 
-    if (colNames) df.cols.map { it.name }.joinToString(sep).apply { sb.appendln(this) }
+    if (colNames) df.cols.mapIndexed { index, col ->
+        col.name.padStart(padding[index])
+    }.joinToString("").apply {
+        sb.appendln(this)
+    }
 
-    rowData().take(Math.min(nrow, maxRows)).map { row: List<Any?> ->
+    printData.rows.map { it.values }.map { rowData ->
         // show null as NA when printing data
-        row.map { it ?: "<NA>" }.joinToString(sep).apply { sb.appendln(this) }
+        rowData.mapIndexed { index, value ->
+            (value?.toString() ?: "<NA>").padStart(padding[index])
+        }.joinToString("").apply { sb.appendln(this) }
     }
 
     return sb.toString()
 }
 
 
-data class ColSpec(val pos:Int, val name:String, val type:String )
+data class ColSpec(val pos: Int, val name: String, val type: String)
 
 
-
-internal fun getColType(col: DataCol) = when(col){
+internal fun getColType(col: DataCol) = when (col) {
     is AnyCol -> col.values.first()?.javaClass?.simpleName
     else -> col.javaClass.simpleName.replace("Col", "")
 }
-
 
 
 fun DataFrame.structure(): List<ColSpec> {
@@ -263,13 +278,12 @@ fun DataFrame.structure(): List<ColSpec> {
         TODO()
     }
 
-    return cols.mapIndexed{ index,col -> ColSpec(index,col.name, getColType(col) ?: "")}
+    return cols.mapIndexed { index, col -> ColSpec(index, col.name, getColType(col) ?: "") }
 }
 
 fun List<ColSpec>.asDf() = asDataFrame { mapOf("index" to it.pos, "name" to it.name, "type" to it.type) }
 
 fun List<ColSpec>.print() = asDf().print()
-
 
 
 /* Prints the structure of a dataframe to stdout.*/
@@ -279,7 +293,7 @@ fun DataFrame.glimpse(sep: String = "\t") {
         return
     }
 
-    val topN = head(8) as SimpleDataFrame
+    val topN = take(8) as SimpleDataFrame
     println("DataFrame with ${nrow} observations")
 
     for (col in topN.cols) {

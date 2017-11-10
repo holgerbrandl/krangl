@@ -1,8 +1,5 @@
-//@file:Suppress("unused")
-
 package krangl
 
-//internal data class ColumnSelection(val colNames: List<String>)
 
 
 typealias DataFrameRow = Map<String, Any?>

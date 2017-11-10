@@ -161,7 +161,7 @@ fun join(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(lef
     }
 
     // todo use more efficient row-bind implementation here
-    val header = bindCols(leftNull, rightNull.remove(by.toList())).head(0)
+    val header = bindCols(leftNull, rightNull.remove(by.toList())).take(0)
     return mergedGroups.fold(header, { left, right -> listOf(left, right).bindRows() })
 //    return mergedGroups.reduce { left, right -> listOf(left, right).bindRows() }
 }

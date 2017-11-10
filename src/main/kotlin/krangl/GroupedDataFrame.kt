@@ -16,13 +16,13 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
 
     // todo simple aggregate group-row-iterators into compound iterator to prevent indexed access
-    override val rows: Iterable<Map<String, Any?>> = object : Iterable<Map<String, Any?>> {
-        override fun iterator() = object : Iterator<Map<String, Any?>> {
+    override val rows: Iterable<DataFrameRow> = object : Iterable<DataFrameRow> {
+        override fun iterator() = object : Iterator<DataFrameRow> {
             var curRow = 0
 
             override fun hasNext(): Boolean = curRow < nrow
 
-            override fun next(): Map<String, Any?> = row(curRow++)
+            override fun next(): DataFrameRow = row(curRow++)
         }
     }
 
@@ -51,7 +51,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
         (listOf(0) + groupSizes.dropLast(1)).cumSum().toList().map { it.toInt() }
     }
 
-    override fun row(rowIndex: Int): Map<String, Any?> {
+    override fun row(rowIndex: Int): DataFrameRow {
         val grpIndex = groupOffsets.filter { it <= rowIndex }.size - 1
         val rowOffset = groupOffsets.filter { it <= rowIndex }.last()
 
@@ -73,7 +73,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
         // todo conisder to expose the group tuple via public API
         return groups.map { gdf ->
-            val groupTuple = gdf.df.select(*by.toTypedArray()).head(1)
+            val groupTuple = gdf.df.select(*by.toTypedArray()).take(1)
             val groupSummary = gdf.df.summarize(*sumRules)
 
             bindCols(groupTuple, groupSummary)
@@ -115,7 +115,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
     override fun ungroup(): DataFrame = groups.map { it.df }.bindRows()
 
-    override fun toString(): String = "Grouped by: *$by\n" + ungroup().head(5).asString()
+    override fun toString(): String = "Grouped by: *$by\n" + ungroup().take(5).asString()
 
     fun groups() = slice(1).ungroup().select(*by.toTypedArray())
 }

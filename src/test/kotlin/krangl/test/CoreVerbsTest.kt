@@ -5,7 +5,6 @@ import io.kotlintest.matchers.have
 import krangl.*
 import org.apache.commons.csv.CSVFormat
 import org.junit.Test
-import java.time.LocalDateTime
 
 
 val irisData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())
@@ -187,8 +186,8 @@ class FilterTest : Matchers {
     @Test
     fun `it should head tail and slic should extract data as expextd`() {
         // todo test that the right portions were extracted and not just size
-        sleepData.head().nrow shouldBe 5
-        sleepData.tail().nrow shouldBe 5
+        sleepData.take().nrow shouldBe 5
+        sleepData.takeLast().nrow shouldBe 5
         sleepData.slice(1, 3, 5).nrow shouldBe 3
     }
 

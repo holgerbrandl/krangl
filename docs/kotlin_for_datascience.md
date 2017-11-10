@@ -78,6 +78,8 @@ nbconvert executed_notebook.ipynb markdown again
 conda install jupyter
 
 https://stackoverflow.com/questions/13916820/how-to-install-a-specific-version-of-a-package-with-pip
+
+conda update --all
 ```
 
 

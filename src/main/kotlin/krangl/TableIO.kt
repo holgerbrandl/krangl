@@ -85,10 +85,10 @@ fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DE
 }
 
 /** Create a data-frame from a list of objects */
-fun <T> List<T>.asDataFrame(mapping: (T) -> Map<String, Any?>) = DataFrame.of(this, mapping)
+fun <T> List<T>.asDataFrame(mapping: (T) -> DataFrameRow) = DataFrame.of(this, mapping)
 
 /** Create a data-frame from a list of objects */
-fun <T> DataFrame.Companion.of(records: List<T>, mapping: (T) -> Map<String, Any?>): DataFrame {
+fun <T> DataFrame.Companion.of(records: List<T>, mapping: (T) -> DataFrameRow): DataFrame {
     val rowData = records.map { mapping(it) }
     val columnNames = mapping(records.first()).keys
 
