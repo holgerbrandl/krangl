@@ -169,7 +169,13 @@ class MutateTest : Matchers {
         sleepData.addColumn("user_id") {
             const("id") + rowNumber
         }["user_id"][1] shouldBe "id2"
+
+        // again but with explicit type convertion
+        sleepData.addColumn("user_id") {
+            const("id").asType<String>().zip(rowNumber).map{ (l, r) -> l!! + r }
+        }["user_id"][1] shouldBe "id2"
     }
+
 
     @Test
     fun `it should gracefully reject incorrect type casts`() {
@@ -187,7 +193,7 @@ class FilterTest : Matchers {
     fun `it should head tail and slic should extract data as expextd`() {
         // todo test that the right portions were extracted and not just size
         sleepData.take().nrow shouldBe 5
-        sleepData.takeLast().nrow shouldBe 5
+        sleepData.takeLast(5).nrow shouldBe 5
         sleepData.slice(1, 3, 5).nrow shouldBe 3
     }
 
