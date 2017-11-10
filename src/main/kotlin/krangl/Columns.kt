@@ -1,6 +1,5 @@
 package krangl
 
-import com.sun.org.apache.xpath.internal.operations.Bool
 import java.lang.UnsupportedOperationException
 import java.util.*
 
@@ -224,15 +223,15 @@ class BooleanCol(name: String, val values: Array<Boolean?>) : DataCol(name) {
 //infix fun List<Boolean>.AND(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first && other[index] }
 //infix fun List<Boolean>.OR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first || other[index] }
 //infix fun List<Boolean>.XOR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first == other[index] }
-infix fun List<Boolean?>.AND(other: List<Boolean?>): List<Boolean?> = mapIndexed { index, first -> nullAwareAnd(first ,other[index]) }
-infix fun List<Boolean?>.OR(other: List<Boolean?>): List<Boolean?> = mapIndexed { index, first -> nullAwareOr(first ,other[index])}
+infix fun List<Boolean?>.AND(other: List<Boolean?>): List<Boolean?> = mapIndexed { index, first -> nullAwareAnd(first, other[index]) }
+
+infix fun List<Boolean?>.OR(other: List<Boolean?>): List<Boolean?> = mapIndexed { index, first -> nullAwareOr(first, other[index]) }
 infix fun List<Boolean?>.XOR(other: List<Boolean?>): List<Boolean> = mapIndexed { index, first -> first == other[index] }
 
 // Boolean operators for filter expressions
 infix fun BooleanArray.AND(other: BooleanArray) = mapIndexed { index, first -> first && other[index] }.toBooleanArray()
 
 infix fun BooleanArray.OR(other: BooleanArray) = mapIndexed { index, first -> first || other[index] }.toBooleanArray()
-
 
 
 infix fun DataCol.gt(i: Number) = greaterThan(i)
@@ -242,7 +241,6 @@ fun DataCol.greaterThan(i: Number) = when (this) {
     is IntCol -> this.values.map { nullsLast<Double>().compare(it!!.toDouble(), i.toDouble()) > 0 }
     else -> throw UnsupportedOperationException()
 }.toBooleanArray()
-
 
 
 infix fun DataCol.lt(i: Int) = gt(i).map { !it }.toBooleanArray()
@@ -259,40 +257,55 @@ infix fun DataCol.eq(i: Any): BooleanArray = when (this) {
 
 // convenience getters for column data
 //fun DataCol.asStrings(): Array<String?> = (this as StringCol).values()
-fun DataCol.asStrings(): Array<String?> = asType<String>()
-fun DataCol.asInts(): Array<Int?> = asType<Int>()
-fun DataCol.asDoubles(): Array<Double?> = asType<Double>()
-fun DataCol.asBooleans(): Array<Boolean?> = asType<Boolean>()
+//fun DataCol.asStrings(): Array<String?> = asType<String>()
+//fun DataCol.asInts(): Array<Int?> = asType<Int>()
+//fun DataCol.asDoubles(): Array<Double?> = asType<Double>()
+//fun DataCol.asBooleans(): Array<Boolean?> = asType<Boolean>()
+fun DataCol.asStrings(): Array<String?> = columnCast<StringCol>().values
+
+fun DataCol.asDoubles(): Array<Double?> = columnCast<DoubleCol>().values
+fun DataCol.asBooleans(): Array<Boolean?> = columnCast<BooleanCol>().values
+fun DataCol.asInts(): Array<Int?> = columnCast<IntCol>().values
+
+
 
 
 class ColumnTypeCastException(msg: String) : RuntimeException(msg)
 
 
 // no longer needed but kept as a reified example
-//internal inline fun <reified R> DataCol.columnCast(): R {
-//    return try {
-//        this as R
-//    } catch (e: ClassCastException) {
-//        val msg = "Could not cast column '${name}' of type '${this::class.simpleName}' to type '${R::class}'"
-//        throw ColumnTypeCastException(msg)
-//    }
-//}
+internal inline fun <reified R> DataCol.columnCast(): R {
+    return try {
+        this as R
+    } catch (e: ClassCastException) {
+        val msg = "Could not cast column '${name}' of type '${this::class.simpleName}' to type '${R::class}'"
+        throw ColumnTypeCastException(msg)
+    }
+}
 
 
 // does not work because internal array is of type object
 //inline fun <reified T> DataCol.asType() = (this as AnyCol).values as Array<T>
 inline fun <reified R> DataCol.asType(): Array<R?> {
-//    val data = (this as AnyCol).values
-//    return Array(data.size) { index -> data[index] as R }
+    //        val data = (this as AnyCol).values
+    //        return Array(data.size) { index -> data[index] as R }
 
-    // much faster since it avoid copying the array
-    return when{
-         this is StringCol -> values as Array<R?>
-         this is DoubleCol -> values as Array<R?>
-         this is BooleanCol -> values as Array<R?>
-         this is IntCol -> values as Array<R?>
-         this is AnyCol && values.firstOrNull() is R  -> values as Array<R?>
-        else -> throw RuntimeException()
+
+    //     much faster since it avoid copying the array
+    return try {
+        when {
+            this is StringCol -> {
+                this.values as Array<R?>
+            }
+            this is DoubleCol -> values as Array<R?>
+            this is BooleanCol -> values as Array<R?>
+            this is IntCol -> values as Array<R?>
+            this is AnyCol && values.firstOrNull() is R -> Array(values.size) { index -> values[index] as R }
+            else -> throw RuntimeException()
+        }
+    } catch (e: ClassCastException) {
+        val msg = "Could not cast column '${name}' of type '${this::class.simpleName}' to type '${R::class}'"
+        throw ColumnTypeCastException(msg)
     }
 }
 
