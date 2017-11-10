@@ -37,9 +37,9 @@ fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boo
                 bindCols(grpDf.remove(key, value).distinct(), grpSpread)
             }
 
-//    if(fill!=null){
-//        spreadBlock =  spreadBlock.
-//    }
+    //    if(fill!=null){
+    //        spreadBlock =  spreadBlock.
+    //    }
 
     val spreadWithGHashes = spreadGroups.bindRows()
 
@@ -74,14 +74,14 @@ fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boo
  *
  * @param key Name of the key column to create in output.
  * @param value Name of the value column to create in output.
- * @param which The colums to gather. The same selectar syntax as for `krangl::select` is supported here
+ * @param columns The colums to gather. The same selectar syntax as for `krangl::select` is supported here
  * @param convert If TRUE will automatically run `convertType` on the key column. This is useful if the
  *                column names are actually numeric, integer, or logical.
  */
-fun DataFrame.gather(key: String, value: String, which: List<String> = this.names, convert: Boolean = false): DataFrame {
-    require(which.isNotEmpty()) { "the column selection to be `gather`ed must not be empty" }
+fun DataFrame.gather(key: String, value: String, columns: List<String> = this.names, convert: Boolean = false): DataFrame {
+    require(columns.isNotEmpty()) { "the column selection to be `gather`ed must not be empty" }
 
-    val gatherColumns = select(which)
+    val gatherColumns = select(columns)
 
     // 1) convert each gather column into a block
     val distinctCols = gatherColumns.cols.map { it.javaClass }.distinct()
@@ -121,8 +121,10 @@ fun DataFrame.gather(key: String, value: String, which: List<String> = this.name
 }
 
 
-fun DataFrame.gather(key: String, value: String, columns: ColumnSelector, convert: Boolean = false): DataFrame =
-        gather(key, value, colSelectAsNames(reduceColSelectors(arrayOf(columns))), convert)
+fun DataFrame.gather(key: String, value: String,
+                     columns: ColumnSelector, // no default here to avoid signature clash = { all() },
+                     convert: Boolean = false
+): DataFrame = gather(key, value, colSelectAsNames(reduceColSelectors(arrayOf(columns))), convert)
 
 
 /**

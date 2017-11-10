@@ -5,6 +5,7 @@ import io.kotlintest.matchers.have
 import krangl.*
 import org.apache.commons.csv.CSVFormat
 import org.junit.Test
+import java.time.LocalDateTime
 
 
 val irisData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())
@@ -26,6 +27,30 @@ class SelectTest : Matchers {
         sleepData.select2 { it is IntCol }
         sleepData.select2 { it.name.startsWith("foo") }
 
+        val df = dataFrameOf("foo", "list_col", "date")(
+            1, listOf(1,2,3), LocalDateTime.now()
+        )
+
+        df.select<LocalDateTime>()
+    }
+
+
+    @Test
+    fun `it should allow to remove columns`() {
+        // name,genus,vore,order,conservation,sleep_total,sleep_rem,sleep_cycle,awake,brainwt,bodywt
+
+        sleepData.remove { endsWith("wt") }.ncol shouldBe 9
+        sleepData.remove { startsWith("sleep") }.ncol shouldBe 9
+        sleepData.remove { oneOf("conservation", "foobar", "order") }.ncol shouldBe 11
+
+        sleepData.remove<IntCol>().ncol shouldBe 3
+        irisData.remove<StringCol>().ncol shouldBe 4
+
+        irisData.remove2 { it is StringCol }.ncol shouldBe 4
+        irisData.remove2 { it.name.startsWith("Sepal") }.ncol shouldBe 3
+
+        // also allow for negative selection (like in the context of gather)
+        irisData.select { except { startsWith("Sepal") } }.ncol shouldBe 3
     }
 
     @Test
@@ -40,7 +65,7 @@ class SelectTest : Matchers {
 
 
     @Test
-    fun `it should select no columns`() {
+    fun `it should allow select no columns`() {
         try {
             sleepData.select(listOf())
             fail("should complain about mismatching selector array dimensionality")
@@ -73,17 +98,24 @@ class SelectTest : Matchers {
             sleepData.names.minus(arrayOf("name", "vore")) shouldEqual names
         }
 
+        irisData.select { !startsWith("Sepal") }.names shouldBe listOf("Petal.Length", "Petal.Width", "Species")
     }
 
     // krangl should prevent that negative and positive selections are combined in a single select() statement
     @Test
-    fun `it should not do combined negative and positive selection`() {
+    fun `it should not allow a mixed negative and positive selection`() {
         // cf.  iris %>% select(ends_with("Length"), - Petal.Length) %>% glimpse()
         // not symmetric:  iris %>% select(- Petal.Length, ends_with("Length")) %>% glimpse()
         //  iris %>% select(-Petal.Length, ends_with("Length")) %>% glimpse()
-        irisData.select({ endsWith("Length") }, { except("Petal.Length") }).apply {
-            names shouldEqual listOf("Sepal.Length")
+        //        irisData.select({ endsWith("Length") }, { except("Petal.Length") }).apply {
+        //            names shouldEqual listOf("Sepal.Length")
+        //        }
+
+        shouldThrow<InvalidColumnSelectException> {
+            irisData.select { except("Species") AND startsWith("Sepal") }.structure().print()
         }
+
+        //        irisData.select { except{startsWith("Sepal")} }.structure().print()
     }
 }
 
@@ -367,7 +399,5 @@ class GroupedDataTest : Matchers {
             nrow shouldBe 3
         }
     }
-
-
 }
 

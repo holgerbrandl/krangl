@@ -5,10 +5,12 @@ v0.6
 ----
 
 * more idiomatic API
-* more kotlinesque naming of methods
+* added `DataFrame.remove` to drop columns from data-frames
+* added `DataFrame.addColumn` to add column from data-frames
 * added `DataFrame.sortBy(TableFormula)`
 * Changed column expression API from Any to a constrained set of support types
 * Fixed issues when combining columns of different types (e.g. DoubleCol + IntCol
+* dropped most unary operators
 
 v0.5
 ----

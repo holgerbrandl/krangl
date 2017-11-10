@@ -220,9 +220,13 @@ class BooleanCol(name: String, val values: Array<Boolean?>) : DataCol(name) {
 // Vectorized boolean operators for DataColumn
 //
 
-infix fun List<Boolean>.AND(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first && other[index] }
-infix fun List<Boolean>.OR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first || other[index] }
-infix fun List<Boolean>.XOR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first == other[index] }
+// todo do we need/want nullable support here?
+//infix fun List<Boolean>.AND(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first && other[index] }
+//infix fun List<Boolean>.OR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first || other[index] }
+//infix fun List<Boolean>.XOR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first == other[index] }
+infix fun List<Boolean?>.AND(other: List<Boolean?>): List<Boolean?> = mapIndexed { index, first -> nullAwareAnd(first ,other[index]) }
+infix fun List<Boolean?>.OR(other: List<Boolean?>): List<Boolean?> = mapIndexed { index, first -> nullAwareOr(first ,other[index])}
+infix fun List<Boolean?>.XOR(other: List<Boolean?>): List<Boolean> = mapIndexed { index, first -> first == other[index] }
 
 // Boolean operators for filter expressions
 infix fun BooleanArray.AND(other: BooleanArray) = mapIndexed { index, first -> first && other[index] }.toBooleanArray()
@@ -267,6 +271,7 @@ fun DataCol.asInts(): Array<Int?> = columnCast<IntCol>().values
 
 
 class ColumnTypeCastException(msg: String) : RuntimeException(msg)
+
 
 inline fun <reified R> DataCol.columnCast(): R {
     return try {

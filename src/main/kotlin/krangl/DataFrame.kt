@@ -2,9 +2,8 @@
 
 package krangl
 
-internal data class ColumnSelection(val colNames: List<String>)
+//internal data class ColumnSelection(val colNames: List<String>)
 
-typealias ColumnSelector = ColNames.() -> List<Boolean?>
 
 interface DataFrame {
 
@@ -43,8 +42,20 @@ interface DataFrame {
      */
     val rows: Iterable<Map<String, Any?>>
 
+    /** Select or remove columns by predicate.
 
+    Example:
+
+    ```
+    foo.select2{ it is IntCol }
+    foo.select2{ it.name.startsWith("bar") }
+
+    foo.remove{ it.name.startsWith("bar") }
+    ```
+     */
     fun select2(colSelector: (DataCol) -> Boolean) = select(cols.filter(colSelector).map { it.name })
+
+    fun remove2(colSelector: (DataCol) -> Boolean) = select(cols.filterNot(colSelector).map { it.name })
 
     // unify examples by using sample annotations
     // Core Manipulation Verbs
