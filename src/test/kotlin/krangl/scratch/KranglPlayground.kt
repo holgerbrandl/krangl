@@ -1,6 +1,6 @@
 @file:Suppress("CanBeVal")
 
-package krangl.devel
+package krangl.scratch
 
 import krangl.*
 

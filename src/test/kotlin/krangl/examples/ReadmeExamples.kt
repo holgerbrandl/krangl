@@ -53,7 +53,7 @@ fun main(args: Array<String>) {
     // and add secondary sorting attributes as varargs
     df.sortedBy("age", "weight")
     df.sortedByDescending("age")
-    df.sortedBy { it["weight"].asInts()}
+    df.sortedBy { it["weight"].asInts() }
 
 
     // Subset columns with select
@@ -68,11 +68,10 @@ fun main(args: Array<String>) {
     df.filter { it["weight"] gt 50 }
     df.filter({ it["last_name"].asStrings().map { it!!.startsWith("Do") }.toBooleanArray() })
 
-        df.filter({ it["last_name"].asStrings().map { it!!.startsWith("Do") }.toBooleanArray() })
+    df.filter({ it["last_name"].asStrings().map { it!!.startsWith("Do") }.toBooleanArray() })
 
-    // Subset rows with per row filter
-    // todo finish this example
-//    df.filterByRow { it["age"] gt 5}
+    // In case vectorized operations are not possible we can also filter tables by row which allows for scalar operators
+    df.filterByRow { it["age"] as Int > 5 }
 
 
     // Summarize
@@ -108,5 +107,5 @@ fun main(args: Array<String>) {
     records.first().mean_weight
 
     // Vice versa we can also convert an existing set of objects into
-    val dfRestored = records.asDataFrame{ mapOf("age" to it.age, "weight" to it.mean_weight) }
+    val dfRestored = records.asDataFrame { mapOf("age" to it.age, "weight" to it.mean_weight) }
 }

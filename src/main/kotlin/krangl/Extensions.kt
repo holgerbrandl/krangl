@@ -129,8 +129,8 @@ fun DataFrame.sampleN(n: Int, replace: Boolean = false): DataFrame {
 fun DataFrame.shuffle(): DataFrame = sampleN(nrow)
 
 
-/** Random number generator used to row sampling. Reassign to set seed for deterministic sampling. */
-var _rand = Random(3) // use var here to allow users to set seeds in order to do deterministic sampling
+/** Random number generator used to row sampling. Reassignable to set seed for deterministic sampling. */
+var _rand = Random(3)
 
 
 ////////////////////////////////////////////////

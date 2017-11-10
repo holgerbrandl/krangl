@@ -2,7 +2,6 @@ package krangl.benchmarking
 
 import krangl.DataFrame
 import krangl.UnequalByHelpers.innerJoin
-import krangl.devel.RunTimes
 import krangl.fromCSV
 import krangl.head
 import org.apache.commons.csv.CSVFormat

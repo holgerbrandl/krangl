@@ -19,19 +19,24 @@ class SelectTest : Matchers {
         sleepData.select { endsWith("wt") }.ncol shouldBe 2
         sleepData.select { endsWith("wt") }.ncol shouldBe 2
         sleepData.select { startsWith("sleep") }.ncol shouldBe 3
-        sleepData.select { oneOf("conservation", "foobar", "order") }.ncol shouldBe 2
+        sleepData.select { listOf("conservation", "foobar", "order") }.ncol shouldBe 2
 
         sleepData.select<IntCol>()
-        sleepData.select<StringCol>()
 
         sleepData.select2 { it is IntCol }
         sleepData.select2 { it.name.startsWith("foo") }
 
-        val df = dataFrameOf("foo", "list_col", "date")(
-            1, listOf(1,2,3), LocalDateTime.now()
-        )
 
-        df.select<LocalDateTime>()
+
+        // type based select
+        irisData.select<StringCol>().names shouldBe listOf("Species")
+
+
+        // can we also filter by type in object columns
+//        val df = dataFrameOf("foo", "list_col", "date")(
+//                1, listOf(1,2,3), LocalDateTime.now()
+//        )
+//        df.select<LocalDateTime>().names shouldBe listOf("date")
     }
 
 
@@ -40,11 +45,15 @@ class SelectTest : Matchers {
         // name,genus,vore,order,conservation,sleep_total,sleep_rem,sleep_cycle,awake,brainwt,bodywt
 
         sleepData.remove { endsWith("wt") }.ncol shouldBe 9
-        sleepData.remove { startsWith("sleep") }.ncol shouldBe 9
-        sleepData.remove { oneOf("conservation", "foobar", "order") }.ncol shouldBe 11
+        sleepData.remove { startsWith("sleep") }.ncol shouldBe 8
+        sleepData.remove { listOf("conservation", "foobar", "order") }.ncol shouldBe 9
 
-        sleepData.remove<IntCol>().ncol shouldBe 3
+        dataFrameOf("foo", "bar")(1, "huhu").remove<IntCol>().names shouldBe listOf("bar")
         irisData.remove<StringCol>().ncol shouldBe 4
+
+        // disabled we wanted to constrain T to DataCol in remove/select<T>
+        // dataFrameOf("foo", "bar")(1, LocalDateTime.now()).remove<LocalDateTime>().names shouldBe listOf("bar")
+
 
         irisData.remove2 { it is StringCol }.ncol shouldBe 4
         irisData.remove2 { it.name.startsWith("Sepal") }.ncol shouldBe 3

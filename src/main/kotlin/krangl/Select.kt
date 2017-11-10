@@ -12,34 +12,21 @@ package krangl
 //
 
 
-
-//https://kotlinlang.org/docs/reference/inline-functions.html#reified-type-parameters
-/** Select columns by column type */
-inline fun <reified T : DataCol> DataFrame.select() = select(cols.filter { it is T }.map { it.name })
-
-/** Remove columns by column type */
-inline fun <reified T : DataCol> DataFrame.remove() = select(cols.filter { !(it is T) }.map { it.name })
-//inline fun <reified T : DataCol> DataFrame.select() = select(cols.filter{ it is T }.map{it.name})
-
-
 class InvalidColumnSelectException(msg: String) : RuntimeException(msg)
 
 class ColNames(val names: List<String>)
 
 typealias ColumnSelector = ColNames.() -> List<Boolean?>
 
-//
-// select utilities inspired by see http://www.rdocumentation.org/packages/dplyr/functions/select
-//
-
-fun ColNames.matches(regex: String) = names.map { it.matches(regex.toRegex()) }
+fun ColNames.matches(regex: String) = matches(regex.toRegex())
+fun ColNames.matches(regex: Regex) = names.map { it.matches(regex) }.falseAsNull()
 
 fun ColNames.startsWith(prefix: String) = names.map { it.startsWith(prefix) }.falseAsNull()
 fun ColNames.endsWith(prefix: String) = names.map { it.endsWith(prefix) }.falseAsNull()
-fun ColNames.matches(regex: Regex) = names.map { it.matches(regex) }.falseAsNull()
 
-fun ColNames.oneOf(vararg someNames: String): List<Boolean?> = names.map { someNames.contains(it) }.falseAsNull()
-fun ColNames.oneOf(someNames: List<String>): List<Boolean?> = names.map { someNames.contains(it) }.falseAsNull()
+fun ColNames.listOf(vararg someNames: String): List<Boolean?> = names.map { someNames.contains(it) }.falseAsNull()
+fun ColNames.listOf(someNames: List<String>): List<Boolean?> = names.map { someNames.contains(it) }.falseAsNull()
+
 fun ColNames.all() = Array(names.size, { true }).toList() // unclear purpose
 
 fun ColNames.range(from: String, to: String): List<Boolean?> {
@@ -51,15 +38,28 @@ fun ColNames.range(from: String, to: String): List<Boolean?> {
 }
 
 
-fun ColumnSelector.unaryNot(): ColumnSelector = fun ColNames.(): List<Boolean?> = this.this@unaryNot().map{ it?.not() }
-
-
 // normally, there should be no need for them. We just do positive selection and either use renmove or select
 // BUT: verbs like gather still need to support negative selection
 fun ColNames.except(vararg columns: String) = names.map { !columns.contains(it) }.trueAsNull()
+
 fun ColNames.except(columnSelector: ColumnSelector) = columnSelector(this).not()
 
+operator fun List<Boolean?>.not() = map { it?.not() }
 
+//https://kotlinlang.org/docs/reference/inline-functions.html#reified-type-parameters
+/** Select columns by column type */
+inline fun <reified T : DataCol> DataFrame.select() = select(cols.filter { it is T }.map { it.name })
+
+// more generic users might not get the intention if T is not contrained to TableCol
+//inline fun <reified T> DataFrame.select() = select(cols.filter {
+//    when {
+//        it is AnyCol -> it.values.firstOrNull() is T
+//        else -> it is T
+//    }
+//}.map { it.name })
+
+/** Remove columns by column type */
+inline fun <reified T: DataCol> DataFrame.remove() = select(names.minus(select<T>().names))
 
 
 // commented out because it's not clear how to use it
@@ -69,13 +69,15 @@ fun ColNames.except(columnSelector: ColumnSelector) = columnSelector(this).not()
 //    return this.this@AND().zip(this.other()).map { nullAwareAnd(it.first, it.second) }
 //}
 
+// commented out because it's not clear how to use it
+//fun ColumnSelector.unaryNot(): ColumnSelector = fun ColNames.(): List<Boolean?> = this.this@unaryNot().map { it?.not() }
+
 
 //@Deprecated("will be removed since this affects String namespace it might be not a good idea")
 //operator fun String.unaryMinus() = fun ColNames.(): List<Boolean?> = names.map { it != this@unaryMinus }.trueAsNull()
 //operator fun Iterable<String>.unaryMinus() = fun ColNames.(): List<Boolean> = names.map { !this@unaryMinus.contains(it) }
 //operator fun List<Boolean?>.unaryMinus() = not()
 
-operator fun List<Boolean?>.not() = map { it?.not() }
 
 
 //
@@ -95,7 +97,6 @@ internal infix fun List<Boolean?>.nullAwareAND(other: List<Boolean?>): List<Bool
 internal fun List<Boolean>.falseAsNull() = map { if (!it) null else true }
 internal fun List<Boolean>.trueAsNull() = map { if (it) null else false }
 internal fun List<Boolean?>.nullAsFalse(): List<Boolean> = map { it ?: false }
-
 
 
 // todo the collapse logic does not seem right: why would would null && true be true?

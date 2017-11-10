@@ -1,4 +1,4 @@
-package krangl.devel
+package krangl.benchmarking
 
 import krangl.*
 import org.apache.commons.csv.CSVFormat

@@ -38,7 +38,7 @@ fun main(args: Array<String>) {
     tornadoes.addColumn("month") { it["Date"].asType<LocalDate>().map { it?.month } };
     //
     //    tornadoes.target.removeColumn("State No");
-    tornadoes.remove { oneOf("State No") }
+    tornadoes.remove { listOf("State No") }
     tornadoes.select { startsWith("St") }
     //
     //

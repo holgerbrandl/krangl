@@ -132,14 +132,14 @@ class SpreadUniteTest : Matchers {
             this["test"].values().size shouldEqual nrow
         }
 
-        sleepData.unite("test", { oneOf("name", "order") }).apply {
+        sleepData.unite("test", { listOf("name", "order") }).apply {
             head().print()
 
             names.contains("name") shouldBe false
             this["test"].values().size shouldEqual nrow
         }
 
-        val united = sleepData.unite("test", { oneOf("name", "sleep_rem") })
+        val united = sleepData.unite("test", { listOf("name", "sleep_rem") })
 
         united.separate("test", listOf("new_name", "new_sleep_rem"), convert = true).apply {
             head().print()

@@ -4,18 +4,20 @@ Krangl Release History
 v0.6
 ----
 
-* more idiomatic API
-* added `DataFrame.remove` to drop columns from data-frames
-* added `DataFrame.addColumn` to add column from data-frames
-* added `DataFrame.sortBy(TableFormula)`
+* More idiomatic API mimicking kotlin stdlib where possible
+* Added `DataFrame.remove` to drop columns from data-frames
+* Added `DataFrame.addColumn` to add column from data-frames
+* Added `DataFrame.sortBy(TableFormula)`
+* Added `DataFrame.filterByRow`
+* Reworked column selector API
 * Changed column expression API from Any to a constrained set of support types
 * Fixed issues when combining columns of different types (e.g. DoubleCol + IntCol
-* dropped most unary operators
+* Dropped most unary operators
 
 v0.5
 ----
 
-* fixed: Add arbitrary typed columns with `mutate` [#15](https://github.com/holgerbrandl/krangl/issues/15)
+Skipped.
 
 v0.4
 ----

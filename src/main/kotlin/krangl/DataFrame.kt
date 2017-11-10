@@ -5,6 +5,8 @@ package krangl
 //internal data class ColumnSelection(val colNames: List<String>)
 
 
+typealias DataFrameRow = Map<String, Any?>
+
 interface DataFrame {
 
     // Accessor functions
@@ -30,7 +32,14 @@ interface DataFrame {
 
 
     // todo use invoke() style operator here (see https://kotlinlang.org/docs/reference/operator-overloading.html)
-    fun row(rowIndex: Int): Map<String, Any?>
+    fun row(rowIndex: Int): DataFrameRow
+
+
+    fun filterByRow(rowFilter: DataFrameRow.(DataFrameRow) -> Boolean) : DataFrame {
+        val filterIndex = this.rows.map{ it.rowFilter(it)}
+        return filter {  filterIndex.toBooleanArray() }
+    }
+
 
     /** @return An iterator over all rows. Per row data is represented as a named map.
 
@@ -40,7 +49,7 @@ interface DataFrame {
     df.rows.map { row -> SumDF(row["age"] as Int, row["mean_weight"] as Double, row["num_persons"] as Int) }
     ```
      */
-    val rows: Iterable<Map<String, Any?>>
+    val rows: Iterable<DataFrameRow>
 
     /** Select or remove columns by predicate.
 
@@ -74,9 +83,9 @@ interface DataFrame {
     fun remove(vararg columns: String): DataFrame = select(names.minus(columns.asList()))
 
     /** Convenience wrapper around to work with varag <code>krangl.DataFrame.select</code> */
-    fun select(columns: List<String>): DataFrame = select(*columns.toTypedArray())
+    fun select(columns: Iterable<String>): DataFrame = select(*columns.toList().toTypedArray())
 
-    fun remove(columns: List<String>): DataFrame = remove(*columns.toTypedArray())
+    fun remove(columns: Iterable<String>): DataFrame = remove(*columns.toList().toTypedArray())
 
     /** Keeps only the variables that match any of the given expressions. E.g. use `startsWith("foo")` to select for columns staring with 'foo'.*/
     fun select(columns: ColumnSelector): DataFrame = select(*arrayOf(columns))
@@ -138,8 +147,6 @@ interface DataFrame {
 
     // needed for static extensions (see http://stackoverflow.com/questions/28210188/static-extension-methods-in-kotlin)
     companion object {}
-
-
 }
 
 
