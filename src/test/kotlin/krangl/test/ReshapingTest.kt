@@ -92,7 +92,9 @@ class GatherTest : Matchers {
 
     @Test
     fun `it should allow to exclude key columns from gathering`() {
-        wideDf.gather("property", "value", which = -"person").apply {
+        wideDf.gather("property", "value", columns = { except("person") AND except("person") })
+
+        wideDf.gather("property", "value", columns = -"person").apply {
             print()
 
             val annasSalary = filter { ((it["person"] eq "anna") AND (it["property"] eq "salary")) }

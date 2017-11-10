@@ -59,7 +59,7 @@ fun main(args: Array<String>) {
     // Subset columns with select
     df.select2 { it is IntCol } // functional style column selection
     df.select("last_name", "weight")    // positive selection
-    df.select(-"weight", -"age")  // negative selection
+    df.remove("weight", "age")  // negative selection
     df.select({ endsWith("name") })    // selector mini-language
 
 

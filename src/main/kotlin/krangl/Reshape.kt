@@ -108,8 +108,8 @@ fun DataFrame.gather(key: String, value: String, which: List<String> = this.name
 
     // 2) row-replicate the non-gathered columns
     //    val rest = select(names.minus(gatherColumns.names))
-    val rest = select({ -oneOf(gatherColumns.names) })
-//    val replicationLevel = gatherColumns.ncol
+    val rest = remove(gatherColumns.names)
+    //    val replicationLevel = gatherColumns.ncol
 
     val indexReplication = rest.cols.map { column ->
         handleArrayErasure(column.name, Array(gatherBlock.nrow, { index -> column.values()[index.mod(column.length)] }))
@@ -121,8 +121,8 @@ fun DataFrame.gather(key: String, value: String, which: List<String> = this.name
 }
 
 
-fun DataFrame.gather(key: String, value: String, vararg which: ColNames.() -> List<Boolean?>, convert: Boolean = false): DataFrame =
-        gather(key, value, colSelectAsNames(reduceColSelectors(which)), convert)
+fun DataFrame.gather(key: String, value: String, columns: ColumnSelector, convert: Boolean = false): DataFrame =
+        gather(key, value, colSelectAsNames(reduceColSelectors(arrayOf(columns))), convert)
 
 
 /**
@@ -166,7 +166,7 @@ fun DataFrame.unite(colName: String, which: List<String>, sep: String = "_", rem
     val uniteBlock = select(which)
     val uniteResult = uniteBlock.rows.map { it.values.map { it?.toString().nullAsNA() }.joinToString(sep) }
 
-    val rest = if (remove) select({ -oneOf(uniteBlock.names) }) else this
+    val rest = if (remove) remove(uniteBlock.names) else this
 
     return rest.addColumn(colName to { uniteResult })
 }
@@ -207,7 +207,7 @@ fun DataFrame.separate(column: String, into: List<String>, sep: String = "_", re
     }
 
     // column bind rest and separated columns into final result
-    val rest = if (remove) select(-column) else this
+    val rest = if (remove) remove(column) else this
 
     return bindCols(rest, SimpleDataFrame(splitCols))
 }

@@ -71,7 +71,7 @@ interface DataFrame {
     fun select(columns: ColumnSelector): DataFrame = select(*arrayOf(columns))
 
     // `drop` as method name is burnt here since kotlin stdlin contains it for collections.
-    fun remove(columSelect: ColumnSelector): DataFrame = select { without(columSelect) }
+    fun remove(columnSelect: ColumnSelector): DataFrame = select { except(columnSelect) }
 
 
     fun select(vararg columns: ColumnSelector): DataFrame {
@@ -81,7 +81,7 @@ interface DataFrame {
     }
 
     fun remove(vararg columSelects: ColumnSelector): DataFrame =
-            select(*columSelects.map { it -> { x: ColNames -> x.without(it) } }.toTypedArray())
+            select(*columSelects.map { it -> { x: ColNames -> x.except(it) } }.toTypedArray())
 
 
     // todo consider to use List<Boolean> in signature. We can not provide both because of type erasure

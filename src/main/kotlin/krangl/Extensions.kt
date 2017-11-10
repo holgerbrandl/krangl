@@ -36,7 +36,7 @@ fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
     })
 
     // make sure that renaming rule does not contain duplicates to allow for better error reporting
-    val renamed = old2NewFilt.fold(this, { df, renRule -> df.addColumn(renRule.asTableFormula()).select(-renRule.oldName) })
+    val renamed = old2NewFilt.fold(this, { df, renRule -> df.addColumn(renRule.asTableFormula()).remove(renRule.oldName) })
 
 
     // restore positions of renamed columns
@@ -151,7 +151,7 @@ fun DataFrame.sortedBy(vararg tableExpressions: TableExpression): DataFrame {
 
     return addColumns(*sortBys.toTypedArray()).
             sortedBy(*sortByNames).
-            select({ -oneOf(*sortByNames) })
+            remove(sortByNames.asList())
     //           select({ oneOf(*sortByNames).not() })
 }
 

@@ -10,7 +10,6 @@ import static krangl.ColumnsKt.asDoubles;
 import static krangl.Extensions.print;
 import static krangl.MathHelpersKt.mean;
 import static krangl.SelectKt.startsWith;
-import static krangl.SelectKt.unaryMinus;
 
 
 public class JavaKrangl {
@@ -22,7 +21,7 @@ public class JavaKrangl {
 
         df.select(colNames -> startsWith(colNames, "sleep"));
 
-        df.select(unaryMinus("brain_wt"));
+        df.remove("brain_wt");
 
         df.select("brain_wt");
 

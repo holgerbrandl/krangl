@@ -65,7 +65,7 @@ class SelectTest : Matchers {
 
     @Test
     fun `it should do a negative selection`() {
-        sleepData.select(-"name", -"vore").apply {
+        sleepData.remove("name", "vore").apply {
             names.contains("name") shouldBe false
             names.contains("vore") shouldBe false
 
@@ -77,11 +77,11 @@ class SelectTest : Matchers {
 
     // krangl should prevent that negative and positive selections are combined in a single select() statement
     @Test
-    fun `it should do combined negative and positive selection`() {
+    fun `it should not do combined negative and positive selection`() {
         // cf.  iris %>% select(ends_with("Length"), - Petal.Length) %>% glimpse()
         // not symmetric:  iris %>% select(- Petal.Length, ends_with("Length")) %>% glimpse()
         //  iris %>% select(-Petal.Length, ends_with("Length")) %>% glimpse()
-        irisData.select({ endsWith("Length") }, -"Petal.Length").apply {
+        irisData.select({ endsWith("Length") }, { except("Petal.Length") }).apply {
             names shouldEqual listOf("Sepal.Length")
         }
     }
@@ -103,7 +103,6 @@ class MutateTest : Matchers {
             // renaming should not affect column or row counts
             nrow == sleepData.nrow
             ncol == sleepData.ncol
-
         }
     }
 
@@ -134,7 +133,7 @@ class MutateTest : Matchers {
 
     @Test
     fun `it should gracefully reject incorrect type casts`() {
-        shouldThrow<ColumnTypeCastException>{
+        shouldThrow<ColumnTypeCastException> {
             sleepData.addColumn("foo") { it["vore"].asInts() }
         }
 

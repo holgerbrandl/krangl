@@ -51,13 +51,18 @@ internal fun List<Boolean>.trueAsNull() = map { if (it) null else false }
 internal fun List<Boolean?>.nullAsFalse(): List<Boolean> = map { it ?: false }
 
 fun ColNames.startsWith(prefix: String) = names.map { it.startsWith(prefix) }
-fun ColNames.endsWith(prefix: String) = names.map { it.endsWith(prefix) }.falseAsNull()
-fun ColNames.everything() = Array(names.size, { true }).toList()
-fun ColNames.matches(regex: Regex) = names.map { it.matches(regex) }.falseAsNull()
-fun ColNames.oneOf(vararg someNames: String): List<Boolean?> = names.map { someNames.contains(it) }.falseAsNull()
-fun ColNames.oneOf(someNames: List<String>): List<Boolean?> = names.map { someNames.contains(it) }.falseAsNull()
+fun ColNames.endsWith(prefix: String) = names.map { it.endsWith(prefix) } //.falseAsNull()
+//fun ColNames.everything() = Array(names.size, { true }).toList() // unclear purpose
+fun ColNames.matches(regex: Regex) = names.map { it.matches(regex) } //.falseAsNull()
 
-fun ColNames.without(unselect: ColNames.() -> List<Boolean?>) = unselect(this).not()
+fun ColNames.oneOf(vararg someNames: String): List<Boolean?> = names.map { someNames.contains(it) } //.falseAsNull()
+fun ColNames.oneOf(someNames: List<String>): List<Boolean?> = names.map { someNames.contains(it) } //.falseAsNull()
+
+// normallthere should be no need for them. We just do positive selection and either use renmove or select
+// BUT: verbs like gather still need to support negative selection
+internal fun ColNames.except(vararg columns: String) = names.map { !columns.contains(it) } //.falseAsNull()
+
+internal fun ColNames.except(columnSelector: ColumnSelector) = columnSelector(this).not()
 
 
 fun ColNames.range(from: String, to: String): List<Boolean?> {
@@ -72,19 +77,15 @@ fun ColNames.range(from: String, to: String): List<Boolean?> {
 // since this affects String namespace it might be not a good idea
 @Deprecated("will be removed since this affects String namespace it might be not a good idea")
 operator fun String.unaryMinus() = fun ColNames.(): List<Boolean?> = names.map { it != this@unaryMinus }.trueAsNull()
-
-@Deprecated("bad api design")
-operator fun Iterable<String>.unaryMinus() = fun ColNames.(): List<Boolean> = names.map { !this@unaryMinus.contains(it) }
-
-@Deprecated("bad api design")
-operator fun List<Boolean?>.unaryMinus() = not()
+//operator fun Iterable<String>.unaryMinus() = fun ColNames.(): List<Boolean> = names.map { !this@unaryMinus.contains(it) }
+//operator fun List<Boolean?>.unaryMinus() = not()
 
 fun List<Boolean?>.not() = map { it?.not() }
 //operator fun List<Boolean?>.not() = map { it?.not() } // todo needed?
 
 //val another = -"dsf"
 
-internal fun DataFrame.reduceColSelectors(which: Array<out ColNames.() -> List<Boolean?>>): List<Boolean?> =
+internal fun DataFrame.reduceColSelectors(which: Array<out ColumnSelector>): List<Boolean?> =
         which.map { it(ColNames(names)) }.reduce { selA, selB -> selA nullAwareAND selB }
 
 
