@@ -19,7 +19,7 @@ fun main(args: Array<String>) {
     )
 
     // Or from csv
-    // val otherDF = fromCSV("path/to/file")
+    // val otherDF = DataFrame.fromCSV("path/to/file")
 
     // Print rows
     df                              // with implict string conversion using default options

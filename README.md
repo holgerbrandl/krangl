@@ -59,7 +59,7 @@ val df: DataFrame = dataFrameOf(
 )
 
 // Or from csv
-// val otherDF = fromCSV("path/to/file")
+// val otherDF = DataFrame.fromCSV("path/to/file")
 
 // Print rows
 df                              // with default printing options

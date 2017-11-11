@@ -17,12 +17,14 @@ fun main(args: Array<String>) {
     // val DB_URL = "jdbc:derby:CoffeeDB;create=true"
 
     Class.forName("org.h2.Driver")
-    val conn = DriverManager.getConnection("jdbc:h2:~/test", "", "")
+
+//    val conn = DriverManager.getConnection("jdbc:h2:~/test", "", "")
+    val conn = DriverManager.getConnection("jdbc:h2:mem:test", "", "")
 
     val stmt: Statement = conn.createStatement();
 
 
-    stmt.execute("drop table user");
+//    stmt.execute("drop table user");
     stmt.execute("create table user(id int primary key, name varchar(100))");
     stmt.execute("insert into user values(1, 'hello')");
     stmt.execute("insert into user values(2, 'world')");
