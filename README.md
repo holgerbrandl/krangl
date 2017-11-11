@@ -152,38 +152,6 @@ val dfRestored = records.asDataFrame { mapOf("age" to it.age, "weight" to it.mea
 
 ```
 
-krangl vs. dplyr
---------------
-
-As said above, `krangl` is mimicking the API of `dplyr`. Here's an example using airline on-time data for all [flights departing NYC in 2013](https://cran.r-project.org/web/packages/nycflights13/index.html).
-
-`dplyr`:
-```{r}
-flights %>%
-    group_by(year, month, day) %>%
-    select(year:day, arr_delay, dep_delay) %>%
-    summarise(
-        mean_arr_delay = mean(arr_delay, na.rm = TRUE),
-        mean_dep_delay = mean(dep_delay, na.rm = TRUE)
-    ) %>%
-    filter(mean_arr_delay > 30 | mean_dep_delay > 30)
-```
-
-And the same rewritten using `krangl`
-```{kotlin}
-flights
-    .groupBy("year", "month", "day")
-    .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
-    .summarize(
-            "mean_arr_delay" to { it["arr_delay"].mean(removeNA = true) },
-            "mean_dep_delay" to { it["dep_delay"].mean(removeNA = true) }
-    )
-    .filter { (it["mean_arr_delay"] gt  30)  OR  (it["mean_dep_delay"] gt  30) }
-```
-The biggest different are the comparison operators, which Kotlin does not allow to [be overridden](https://kotlinlang.org/docs/reference/operator-overloading.html) in a vectorized way.
-
-For sure `dplyr` goes way beyond over what is possible with `krangl` at the moment (e.g. database access, 10x better performance). Also other R packages crucial for data science are not yet available in Kotlin. We aim to provide at least few of them as detailed out in our roadmap.
-
 Support & Documentation
 ----------------------
 
@@ -192,12 +160,11 @@ Support & Documentation
 
 * [Krangl Introduction](http://holgerbrandl.github.io/krangl/krangl_intro/krangl_intro.html) A presentation from June 2016 ([sources](./docs/bier_slides_june2016/krangl_intro.md))
 * [Krangl User Guide](./docs/user_guide.md) for detailed information about the API and usage examples.
+* [API Docs](./docs/user_guide.md) for detailed information about the API and usage examples.
 * [Developer Information](./docs/devel.md) with details about to build, test, release and improve `krangl`
 * [Roadmap](./docs/roadmap.md) complementing the tracker with where the project is heading
 
 * TBD `krangl` Cheat Sheet
-
-
 
 
 

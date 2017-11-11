@@ -42,7 +42,7 @@ Create a new data frame in place.
 
 @sample krangl.samples.DokkaSamplesKt.buildDataFrameof
  */
-fun DataFrame.Companion.of(vararg header: String) = krangl.dataFrameOf(*header)
+fun DataFrame.Companion.builder(vararg header: String) = krangl.dataFrameOf(*header)
 
 
 // tbd should we expose this as public API?

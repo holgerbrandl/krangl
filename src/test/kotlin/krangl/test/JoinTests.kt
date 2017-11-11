@@ -10,13 +10,13 @@ class JointUtilsTest: Matchers{
 
     @Test
     fun `test constrained cartesian products`() {
-        val a = DataFrame.of("name", "project_id")(
+        val a = DataFrame.builder("name", "project_id")(
                 "Max", "P1",
                 "Max", "P2",
                 "Tom", "P3"
         )
 
-        val b = DataFrame.of("title", "project_id")(
+        val b = DataFrame.builder("title", "project_id")(
                 "foo", "P1",
                 "some_title", "P2",
                 "alt_title", "P2"
