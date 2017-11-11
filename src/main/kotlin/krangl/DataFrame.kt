@@ -123,7 +123,7 @@ interface DataFrame {
 
     fun addColumn(columnName: String, expression: TableExpression): DataFrame = addColumn(columnName to expression)
 
-    fun addColumns(vararg columSpecs: ColumnFormula): DataFrame = columSpecs.fold(this, { df, tf -> df.addColumn(tf) })
+    fun addColumns(vararg columnFormulas: ColumnFormula): DataFrame = columnFormulas.fold(this, { df, tf -> df.addColumn(tf) })
 
     /** Create a new dataframe based ona a list of column-formulas which are evaluated in the context of the this instance. */
     fun transmute(vararg formula: ColumnFormula) = addColumns(*formula).select(*formula.map { it.name }.toTypedArray())
