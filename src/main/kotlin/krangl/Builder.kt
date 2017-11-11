@@ -1,5 +1,9 @@
 package krangl
 
+import java.sql.ResultSet
+import java.time.LocalDate
+import java.time.LocalTime
+
 
 // todo javadoc example needed
 /** Create a data-frame from a list of objects */
@@ -46,7 +50,6 @@ internal fun SimpleDataFrame.addColumn(dataCol: DataCol): SimpleDataFrame =
         SimpleDataFrame(cols.toMutableList().apply { add(dataCol) })
 
 
-
 class InplaceDataFrameBuilder(private val header: List<String>) {
 
 
@@ -81,5 +84,52 @@ class InplaceDataFrameBuilder(private val header: List<String>) {
     //    operator fun invoke(values: List<Any?>): DataFrame {
     //        return invoke(values.toTypedArray())
     //    }
+
+}
+
+
+fun DataFrame.Companion.fromResultSet(rs: ResultSet): DataFrame {
+
+    val numColumns = rs.metaData.columnCount
+    val colNames = (1..numColumns).map { rs.metaData.getColumnName(it) }
+
+    // see http://www.h2database.com/html/datatypes.html
+    val colData = listOf<MutableList<Any?>>().toMutableList()
+
+    val colTypes = (1..numColumns).map { rs.metaData.getColumnTypeName(it) }
+
+    //    http://www.cs.toronto.edu/~nn/csc309/guide/pointbase/docs/html/htmlfiles/dev_datatypesandconversionsFIN.html
+    colTypes.map {
+        when (it) {
+            "INTEGER", "INT", "SMALLINT" -> listOf<Int>()
+            "REAL", "FLOAT", "NUMERIC", "DECIMAL" -> listOf<Double?>()
+            "BOOLEAN" -> listOf<Boolean?>()
+            "DATE" -> listOf<LocalDate?>()
+            "TIME" -> listOf<LocalTime?>()
+            "CHAR", "CHARACTER", "VARCHAR" -> listOf<String>()
+            else -> throw IllegalArgumentException("Column type ${it} is not yet supported by {krangl}." +
+                    " Please file a ticket under https://github.com/holgerbrandl/krangl/issues")
+        }.toMutableList().let { colData.add(it) }
+    }
+
+    // see https://stackoverflow.com/questions/21956042/mapping-a-jdbc-resultset-to-an-object
+    while (rs.next()) {
+//        val row = mapOf<String, Any?>().toMutableMap()
+
+        for (colIndex in 1..numColumns) {
+            val any:Any? = when (colTypes[colIndex-1]) {
+                "INTEGER", "INT", "SMALLINT" -> rs.getInt(colIndex)
+                "REAL", "FLOAT", "NUMERIC", "DECIMAL" -> rs.getDouble(colIndex)
+                "BOOLEAN" -> rs.getBoolean(colIndex)
+                "DATE" -> rs.getDate(colIndex).toLocalDate()
+                "TIME" -> rs.getTime(colIndex).toLocalTime()
+                "CHAR", "CHARACTER", "VARCHAR" -> rs.getString(colIndex)
+                else -> throw IllegalArgumentException("Column type ${colTypes[colIndex-1]} is not yet supported by {krangl}." +
+                        " Please file a ticket under https://github.com/holgerbrandl/krangl/issues")
+            }
+            colData[colIndex-1].add(any)
+        }
+    }
+    return SimpleDataFrame(colNames.zip(colData).map { (name, data) -> handleListErasure(name, data) })
 
 }
