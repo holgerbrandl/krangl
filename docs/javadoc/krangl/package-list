@@ -1,0 +1,21 @@
+$dokka.format:html
+$dokka.linkExtension:html
+$dokka.location:krangl$AND(kotlin.BooleanArray, kotlin.BooleanArray)krangl/kotlin.-boolean-array/-a-n-d.html
+$dokka.location:krangl$AND(kotlin.collections.List((kotlin.Boolean)), kotlin.collections.List((kotlin.Boolean)))krangl/kotlin.collections.-list/-a-n-d.html
+$dokka.location:krangl$OR(kotlin.BooleanArray, kotlin.BooleanArray)krangl/kotlin.-boolean-array/-o-r.html
+$dokka.location:krangl$OR(kotlin.collections.List((kotlin.Boolean)), kotlin.collections.List((kotlin.Boolean)))krangl/kotlin.collections.-list/-o-r.html
+$dokka.location:krangl$XOR(kotlin.collections.List((kotlin.Boolean)), kotlin.collections.List((kotlin.Boolean)))krangl/kotlin.collections.-list/-x-o-r.html
+$dokka.location:krangl$asDataFrame(kotlin.collections.List((krangl.DataCol)))krangl/kotlin.collections.-list/as-data-frame.html
+$dokka.location:krangl$asDataFrame(kotlin.collections.List((krangl.asDataFrame.T)), kotlin.Function1((krangl.asDataFrame.T, kotlin.collections.Map((kotlin.String, kotlin.Any)))))krangl/kotlin.collections.-list/as-data-frame.html
+$dokka.location:krangl$asDf(kotlin.collections.List((krangl.ColSpec)))krangl/kotlin.collections.-list/as-df.html
+$dokka.location:krangl$bindRows(kotlin.collections.List((krangl.DataFrame)))krangl/kotlin.collections.-list/bind-rows.html
+$dokka.location:krangl$cumSum(kotlin.collections.List((krangl.cumSum.T)), kotlin.Boolean)krangl/kotlin.collections.-list/cum-sum.html
+$dokka.location:krangl$ignoreNA(kotlin.Array((krangl.ignoreNA.T)), kotlin.Function1((krangl.ignoreNA.T, krangl.ignoreNA.R)))krangl/kotlin.-array/ignore-n-a.html
+$dokka.location:krangl$mean(kotlin.Array((kotlin.Double)))krangl/kotlin.-array/mean.html
+$dokka.location:krangl$mean(kotlin.collections.List((kotlin.Double)))krangl/kotlin.collections.-list/mean.html
+$dokka.location:krangl$median(kotlin.Array((kotlin.Double)))krangl/kotlin.-array/median.html
+$dokka.location:krangl$print(kotlin.collections.List((krangl.ColSpec)))krangl/kotlin.collections.-list/print.html
+$dokka.location:krangl$sd(kotlin.Array((kotlin.Double)))krangl/kotlin.-array/sd.html
+$dokka.location:krangl$to(kotlin.String, kotlin.Function2((krangl.ExpressionContext, , kotlin.Any)))krangl/kotlin.-string/to.html
+krangl
+krangl.samples

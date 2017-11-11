@@ -1,0 +1,21 @@
+<HTML>
+<HEAD>
+<meta charset="UTF-8">
+<title>DataFrame.select2 - krangl</title>
+<link rel="stylesheet" href="../../../style.css">
+</HEAD>
+<BODY>
+<a href="../../index.html">krangl</a>&nbsp;/&nbsp;<a href="../index.html">krangl</a>&nbsp;/&nbsp;<a href="index.html">DataFrame</a>&nbsp;/&nbsp;<a href=".">select2</a><br/>
+<br/>
+<h1>select2</h1>
+<a name="krangl.DataFrame$select2(kotlin.Function1((krangl.DataCol, kotlin.Boolean)))"></a>
+<code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">select2</span><span class="symbol">(</span><span class="identifier" id="krangl.DataFrame$select2(kotlin.Function1((krangl.DataCol, kotlin.Boolean)))/colSelector">colSelector</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><a href="../-data-col/index.html"><span class="identifier">DataCol</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="index.html"><span class="identifier">DataFrame</span></a></code>
+<p>Select or remove columns by predicate.</p>
+<p>Example:</p>
+<pre><code>foo.select2{ it is IntCol }
+foo.select2{ it.name.startsWith("bar") }
+
+foo.remove{ it.name.startsWith("bar") }
+</code></pre>
+</BODY>
+</HTML>
