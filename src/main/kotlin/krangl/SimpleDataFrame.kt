@@ -209,7 +209,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
     override fun sortedBy(vararg by: String): DataFrame {
         if (by.isEmpty()) {
-            System.err.println("Calling arrange without arguments is not sensible")
+            System.err.println("Calling sortedBy without arguments lacks meaningful semantics")
             return this
         }
 

@@ -47,7 +47,7 @@ fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boo
     // coerce types of strinified coluymns similar to how tidy is doing things
     var typeCoercedSpread = newColNames.map { it.toString() }
             .foldRight(spreadWithGHashes, { spreadCol, df ->
-                df.addColumn(spreadCol to { handleArrayErasure(spreadCol, df[spreadCol].values()) })
+                df.addColumn(spreadCol) { handleArrayErasure(spreadCol, df[spreadCol].values()) }
             })
 
     if (convert) {
@@ -137,7 +137,7 @@ internal fun convertType(df: DataFrame, spreadColName: String): DataFrame {
     val spreadCol = df[spreadColName]
     val convColumn: DataCol = convertType(spreadCol)
 
-    return df.addColumn(spreadColName to { convColumn })
+    return df.addColumn(spreadColName) { convColumn }
 }
 
 internal fun convertType(spreadCol: DataCol): DataCol {
@@ -171,7 +171,7 @@ fun DataFrame.unite(colName: String, which: List<String>, sep: String = "_", rem
 
     val rest = if (remove) remove(uniteBlock.names) else this
 
-    return rest.addColumn(colName to { uniteResult })
+    return rest.addColumn(colName) { uniteResult }
 }
 
 

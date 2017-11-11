@@ -29,17 +29,20 @@ Features
 --------
 
 * Filter, transform, aggregate and reshape tabular data
-* User-friendly and easy-to-learn a data-science API
-* Functional API inspired by [dplyr](http://dplyr.tidyverse.org/), [pandas](http://pandas.pydata.org/), and Kotlin [stdlib](https://kotlinlang.org/api/latest/jvm/stdlib/index.html)
-* Can read from plain and compressed tsv, csv, or any delimited format with/without header
+* Modern, user-friendly and easy-to-learn a data-science API
+* Can read from plain and compressed tsv, csv, or any delimited format with or without header from local or remote
 * Supports grouped operations
 * JDBC support
-* Mix atomic columns (int, double, boolean) with object columns
+* Tables can contain atomic columns (int, double, boolean) as well as object columns
 * Reshape tables
 * Table joins (left, right, semi, inner, outer)
+* Cross tabulation
+* Descriptive statistics (mean, min, max, median,...)
+* Functional API inspired by [dplyr](http://dplyr.tidyverse.org/), [pandas](http://pandas.pydata.org/), and Kotlin [stdlib](https://kotlinlang.org/api/latest/jvm/stdlib/index.html)
+
 * many more...
 
-
+`krangl` is _just_ about data wrangling. For data visualization we recommend [`kravis`](https://github.com/holgerbrandl/kravis) which seamlessly integrates with krangl and implements a grammar to build a wide variety of plots.
 
 
 Examples
@@ -167,14 +170,25 @@ Support & Documentation
 * TBD `krangl` Cheat Sheet
 
 
+FAQ
+===
 
-- [X]
+### How can i do the most SQL bits such as `select this, that from there where that >5`?
+
+```kotlin
+df.select("this", "that").filter{ it["this"] gt 5 }
+```
+
+# References
+
+
 
 Other Related Projects:
 * [Joinery](https://github.com/cardillo/joinery): Data frames for Java
 * [vectorz](https://github.com/mikera/vectorz): Fast and flexible numerical library for Java featuring N-dimensional arrays
 * [golem](https://github.com/kyonifer/golem): A scientific library for Kotlin.
 * [Scala DataTable](https://github.com/martincooper/scala-datatable): a lightweight, in-memory table structure written in Scala
+* https://github.com/jtablesaw/tablesaw which is according to authors the  _The simplest way to slice data in Java_
 * [agate](https://github.com/wireservice/agate): A Python data analysis library that is optimized for humans instead of machines
 * [Pandas cheat sheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing)
 * [koma](https://kyonifer.github.io/koma/) is a scientific computing library written in Kotlin, designed to allow development of cross-platform numerical applications

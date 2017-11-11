@@ -49,7 +49,7 @@ fun main(args: Array<String>) {
     df.addColumn("first_name_initial") { it["first_name"].asStrings().ignoreNA { first().toString() } }
 
 
-    // Resort with arrange
+    // Sort your data with sortedBy
     df.sortedBy("age")
     // and add secondary sorting attributes as varargs
     df.sortedBy("age", "weight")

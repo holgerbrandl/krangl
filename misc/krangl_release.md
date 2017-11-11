@@ -2,7 +2,8 @@
 
 1. Increment version in `krangl`
 2. Make sure that support api version is up to date and available from jcenter
-3. Push and wait for travis CI results
+3. Update the API docs
+4. Push and wait for travis CI results
 
 ```bash
 export KRANGL_HOME="/Users/brandl/projects/kotlin/krangl";

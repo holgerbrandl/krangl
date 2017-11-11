@@ -74,8 +74,8 @@ fun main2(args: Array<String>) {
     )
 
 
-    df.addColumn("ot" to { it["ll"] })
-    df.addColumn("ot" to { it["ll"] })
+    df.addColumn("ot") { it["ll"] }
+    df.addColumn("ot") { it["ll"] }
 
 
     // most wanted

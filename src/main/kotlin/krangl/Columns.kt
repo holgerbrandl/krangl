@@ -253,6 +253,8 @@ fun DataCol.greaterEqualsThan(i: Number) = when (this) {
 infix fun DataCol.lt(i: Int) = gt(i).map { !it }.toBooleanArray()
 fun DataCol.lesserThan(i: Int) = gt(i).map { !it }.toBooleanArray()
 
+infix fun DataCol.isEqualTo(i: Any): BooleanArray = eq(i)
+
 infix fun DataCol.eq(i: Any): BooleanArray = when (this) {
     is DoubleCol -> this.values().map({ it == i })
     is IntCol -> this.values.map({ it == i })
