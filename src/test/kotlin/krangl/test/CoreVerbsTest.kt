@@ -26,16 +26,15 @@ class SelectTest : Matchers {
         sleepData.select2 { it.name.startsWith("foo") }
 
 
-
         // type based select
         irisData.select<StringCol>().names shouldBe listOf("Species")
 
 
         // can we also filter by type in object columns
-//        val df = dataFrameOf("foo", "list_col", "date")(
-//                1, listOf(1,2,3), LocalDateTime.now()
-//        )
-//        df.select<LocalDateTime>().names shouldBe listOf("date")
+        //        val df = dataFrameOf("foo", "list_col", "date")(
+        //                1, listOf(1,2,3), LocalDateTime.now()
+        //        )
+        //        df.select<LocalDateTime>().names shouldBe listOf("date")
     }
 
 
@@ -119,6 +118,12 @@ class SelectTest : Matchers {
         //            names shouldEqual listOf("Sepal.Length")
         //        }
 
+
+        // note: typically the user would perform a positive selection but in context like gahter he needs a negative selection api as well
+        irisData.select { except("Species") AND !startsWith("Sepal") }.structure().print()
+        irisData.select { except("Species") AND except { startsWith("Sepal") } }.structure().print()
+
+        // but she must never mix positive and negative selection
         shouldThrow<InvalidColumnSelectException> {
             irisData.select { except("Species") AND startsWith("Sepal") }.structure().print()
         }
@@ -172,7 +177,7 @@ class MutateTest : Matchers {
 
         // again but with explicit type convertion
         sleepData.addColumn("user_id") {
-            const("id").asType<String>().zip(rowNumber).map{ (l, r) -> l!! + r }
+            const("id").asType<String>().zip(rowNumber).map { (l, r) -> l!! + r }
         }["user_id"][1] shouldBe "id2"
     }
 

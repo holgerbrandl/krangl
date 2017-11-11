@@ -94,6 +94,10 @@ interface DataFrame {
     fun select(vararg columns: ColumnSelector): DataFrame {
         val reducedSelector = reduceColSelectors(columns)
 
+        if(reducedSelector.toList().filterNotNull().distinct().size >1){
+           throw InvalidColumnSelectException(names,reducedSelector)
+        }
+
         return select(reducedSelector)
     }
 

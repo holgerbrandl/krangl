@@ -12,7 +12,22 @@ package krangl
 //
 
 
-class InvalidColumnSelectException(msg: String) : RuntimeException(msg)
+class InvalidColumnSelectException(val colNames: List<String>, val selection: List<Boolean?>) : RuntimeException() {
+    override val message: String?
+        get() {
+            val collapsed = colNames.zip(selection).toMap().map { (name, selected) ->
+                    when (selected) {
+                        true -> "+" + name
+                        false -> "-" + name
+                        else -> "<null>"
+                    }
+                }.joinToString(",")
+
+            return "Mixing positive and negative selection does not have meaningful semantics and is not supported:\n" + collapsed
+        }
+
+ }
+
 
 class ColNames(val names: List<String>)
 
@@ -42,9 +57,10 @@ fun ColNames.range(from: String, to: String): List<Boolean?> {
 // BUT: verbs like gather still need to support negative selection
 fun ColNames.except(vararg columns: String) = names.map { !columns.contains(it) }.trueAsNull()
 
-fun ColNames.except(columnSelector: ColumnSelector) = columnSelector(this).not()
+fun ColNames.except(columnSelector: ColumnSelector) = !columnSelector(this)
+//fun ColNames.not(columnSelector: ColumnSelector) = columnSelector(this).not()
 
-operator fun List<Boolean?>.not() = map { it?.not() }
+internal operator fun List<Boolean?>.not() = map { it?.not() }
 
 //https://kotlinlang.org/docs/reference/inline-functions.html#reified-type-parameters
 /** Select columns by column type */
@@ -59,7 +75,7 @@ inline fun <reified T : DataCol> DataFrame.select() = select(cols.filter { it is
 //}.map { it.name })
 
 /** Remove columns by column type */
-inline fun <reified T: DataCol> DataFrame.remove() = select(names.minus(select<T>().names))
+inline fun <reified T : DataCol> DataFrame.remove() = select(names.minus(select<T>().names))
 
 
 // commented out because it's not clear how to use it
@@ -77,7 +93,6 @@ inline fun <reified T: DataCol> DataFrame.remove() = select(names.minus(select<T
 //operator fun String.unaryMinus() = fun ColNames.(): List<Boolean?> = names.map { it != this@unaryMinus }.trueAsNull()
 //operator fun Iterable<String>.unaryMinus() = fun ColNames.(): List<Boolean> = names.map { !this@unaryMinus.contains(it) }
 //operator fun List<Boolean?>.unaryMinus() = not()
-
 
 
 //
