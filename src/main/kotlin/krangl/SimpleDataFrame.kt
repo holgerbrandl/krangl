@@ -165,9 +165,9 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
                 is String -> StringCol(key, arrayOf(sumValue as String?))
 
             // prevent non-scalar summaries. See krangl/test/CoreVerbsTest.kt:165
-                is DataCol -> throw NonScalarValueException(key to sumRule, sumValue)
-                is IntArray, is BooleanArray, is DoubleArray, is FloatArray -> throw NonScalarValueException(key to sumRule, "Array")
-                is Iterable<*> -> throw NonScalarValueException(key to sumRule, "List")
+                is DataCol -> throw NonScalarValueException(ColumnFormula(key, sumRule), sumValue)
+                is IntArray, is BooleanArray, is DoubleArray, is FloatArray -> throw NonScalarValueException(ColumnFormula(key, sumRule), "Array")
+                is Iterable<*> -> throw NonScalarValueException(ColumnFormula(key, sumRule), "List")
 
             // todo does null-handling makes sense at all? Might be not-null in other groups for grouped operations // todo add unit-test
             //                null -> AnyCol(key, listOf(null)) // covered by else as well
