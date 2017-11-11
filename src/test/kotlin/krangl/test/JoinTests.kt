@@ -5,6 +5,37 @@ import krangl.*
 import krangl.UnequalByHelpers.innerJoin
 import org.junit.Test
 
+
+class JointUtilsTest: Matchers{
+
+    @Test
+    fun `test constrained cartesian products`() {
+        val a = DataFrame.of("name", "project_id")(
+                "Max", "P1",
+                "Max", "P2",
+                "Tom", "P3"
+        )
+
+        val b = DataFrame.of("title", "project_id")(
+                "foo", "P1",
+                "some_title", "P2",
+                "alt_title", "P2"
+        )
+
+        val cp = cartesianProduct(a, b, listOf("project_id"))
+        cp.print()
+
+        cp.nrow shouldBe 9
+        cp["name"][0] shouldBe "Max"
+        cp["name"][1] shouldBe "Max"
+        cp["name"][2] shouldBe "Tom"
+
+        cp["title"][0] shouldBe "foo"
+        cp["title"][1] shouldBe "foo"
+        cp["title"][2] shouldBe "foo"
+    }
+}
+
 /**
 require(dplyr)
 iris[1, "Species"] <- NA
@@ -60,7 +91,7 @@ class InnerJoinTests : Matchers {
 
     @Test
     fun `it should add suffices if join column names have duplicates`() {
-        // allow user to specify suffix
+        // allojezow user to specify suffix
         val df = (dataFrameOf("foo", "bar"))(
                 "a", 2,
                 "b", 3,

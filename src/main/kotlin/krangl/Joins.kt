@@ -237,8 +237,8 @@ internal fun cartesianProduct(left: DataFrame, right: DataFrame, byColumns: List
     //http://codeaffectionate.blogspot.de/2012/09/fun-with-cartesian-products-cartesian.html
 
 //    val leftIndexReplication = IntArray(left.nrow*right.nrow, { index -> }
-    val leftIndexReplication = (0..(right.nrow - 1)).flatMap { leftIt: Int -> IntArray(left.nrow, { it }).toList() }
-    val rightIndexReplication = (0..(right.nrow - 1)).flatMap { leftIt: Int -> IntArray(left.nrow, { leftIt }).toList() }
+    val leftIndexReplication = (0..(right.nrow - 1)).flatMap { IntArray(left.nrow, { it }).toList() }
+    val rightIndexReplication = (0..(right.nrow - 1)).flatMap { leftIt -> IntArray(left.nrow, { leftIt }).toList() }
 
     // replicate data
     val leftCartesian: DataFrame = replicateByIndex(left, leftIndexReplication)

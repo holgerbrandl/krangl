@@ -1,9 +1,10 @@
 package krangl
 
 
-
+// todo javadoc example needed
 /** Create a data-frame from a list of objects */
 fun <T> List<T>.asDataFrame(mapping: (T) -> DataFrameRow) = DataFrame.fromRecords(this, mapping)
+
 
 /** Create a data-frame from a list of objects */
 fun <T> DataFrame.Companion.fromRecords(records: List<T>, mapping: (T) -> DataFrameRow): DataFrame {
@@ -19,6 +20,8 @@ fun <T> DataFrame.Companion.fromRecords(records: List<T>, mapping: (T) -> DataFr
     return columnData.map { (name, data) -> handleListErasure(name, data) }.asDataFrame()
 }
 
+// todo javadoc example needed
+
 
 /**
 Create a new data frame in place.
@@ -29,8 +32,16 @@ fun dataFrameOf(vararg header: String) = InplaceDataFrameBuilder(header.toList()
 
 // added to give consistent api entrypoint
 
+
+/**
+Create a new data frame in place.
+
+@sample krangl.samples.DokkaSamplesKt.buildDataFrameof
+ */
 fun DataFrame.Companion.of(vararg header: String) = krangl.dataFrameOf(*header)
 
+
+// tbd should we expose this as public API?
 internal fun SimpleDataFrame.addColumn(dataCol: DataCol): SimpleDataFrame =
         SimpleDataFrame(cols.toMutableList().apply { add(dataCol) })
 
