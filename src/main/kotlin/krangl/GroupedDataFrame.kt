@@ -80,7 +80,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
     override fun select(vararg columns: String): DataFrame {
         // see https://github.com/hadley/dplyr/issues/1869
 //        require(columns.intersect(by).isEmpty()) { "can not drop grouping columns" }
-        warning(by.minus(columns).isEmpty()) {
+        warnIf(by.minus(columns).isEmpty()) {
             "Adding missing grouping variables: ${by.minus(columns).joinToString(",")}"
         }
 

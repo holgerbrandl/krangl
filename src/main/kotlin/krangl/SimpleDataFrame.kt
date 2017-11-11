@@ -59,7 +59,12 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
 
     override fun select(vararg columns: String): DataFrame {
-        warning(columns.isNotEmpty()) { "Calling select() will always return an empty data-frame" }
+        warnIf(columns.isEmpty() &&
+            // it may happen that internally we do an empty selection. e.g when joining a df on all columns with itself.
+            // to prevent misleading logging we check for that by detecting the context of this call
+            !Thread.currentThread().getStackTrace().map{ it.methodName}.contains("join")) {
+            "Calling select() will always return an empty data-frame"
+        }
 
         require(names.containsAll(columns.asList())) { "not all selected columns (${columns.joinToString(", ")})are contained in table" }
         require(columns.distinct().size == columns.size) { "Columns must not be selected more than once" }

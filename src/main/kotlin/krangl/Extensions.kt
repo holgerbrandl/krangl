@@ -394,8 +394,8 @@ fun ExpressionContext.const(someThing: Any) = anyAsColumn(someThing, TMP_COLUMN,
 
 internal fun warning(msg: String, breakLine: Boolean = true) = if (breakLine) System.err.println(msg) else System.err.print(msg)
 
-internal inline fun warning(value: Boolean, lazyMessage: () -> Any): Unit {
-    if (!value) System.err.println(lazyMessage())
+internal inline fun warnIf(value: Boolean, lazyMessage: () -> Any): Unit {
+    if (value) System.err.println(lazyMessage())
 }
 
 internal fun GroupedDataFrame.transformGroups(trafo: (DataFrame) -> DataFrame): GroupedDataFrame =
