@@ -86,23 +86,6 @@ fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DE
     return SimpleDataFrame(cols)
 }
 
-/** Create a data-frame from a list of objects */
-fun <T> List<T>.asDataFrame(mapping: (T) -> DataFrameRow) = DataFrame.of(this, mapping)
-
-/** Create a data-frame from a list of objects */
-fun <T> DataFrame.Companion.of(records: List<T>, mapping: (T) -> DataFrameRow): DataFrame {
-    val rowData = records.map { mapping(it) }
-    val columnNames = mapping(records.first()).keys
-
-    val columnData = columnNames.map { it to emptyList<Any?>().toMutableList() }.toMap()
-
-    for (record in rowData) {
-        columnData.forEach { colName, colData -> colData.add(record[colName]) }
-    }
-
-    return columnData.map { (name, data) -> handleListErasure(name, data) }.asDataFrame()
-}
-
 
 val MISSING_VALUE = "NA"
 
@@ -148,7 +131,7 @@ internal fun isBoolCol(firstElements: List<String?>): Boolean = try {
 
 
 // todo keep peeking until we hit the first/N non NA value
-internal fun peekCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5) = records.take(peekSize).mapIndexed { rowIndex, csvRecord -> records[rowIndex][colName].naAsNull() }
+internal fun peekCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5) = records.take(peekSize).mapIndexed { rowIndex, _ -> records[rowIndex][colName].naAsNull() }
 
 
 //TODO add support for compressed writing

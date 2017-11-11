@@ -162,7 +162,7 @@ fun join(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(lef
 
     // todo use more efficient row-bind implementation here
     val header = bindCols(leftNull, rightNull.remove(by.toList())).take(0)
-    return mergedGroups.fold(header, { left, right -> listOf(left, right).bindRows() })
+    return mergedGroups.fold(header, { leftArg, rightArg -> listOf(leftArg, rightArg).bindRows() })
 //    return mergedGroups.reduce { left, right -> listOf(left, right).bindRows() }
 }
 
@@ -227,9 +227,11 @@ private fun defaultBy(left: DataFrame, right: DataFrame) = left.names.intersect(
 }
 
 
-private fun cartesianProduct(left: DataFrame, right: DataFrame, removeFromRight: List<String>): DataFrame {
+// in a strict sense this is not a cartesian product, but they way we call it (for each tuples of `by`,
+// so the by columns are essentially constant here), it should be
+internal fun cartesianProduct(left: DataFrame, right: DataFrame, byColumns: List<String>): DataFrame {
     // first remove columns that are present in both from right-df
-    val rightSlim = right.remove(removeFromRight)
+    val rightSlim = right.remove(byColumns)
 
     // http://thushw.blogspot.de/2015/10/cartesian-product-in-scala.html
     //http://codeaffectionate.blogspot.de/2012/09/fun-with-cartesian-products-cartesian.html

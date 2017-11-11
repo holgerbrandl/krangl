@@ -38,14 +38,14 @@ user  system elapsed
  */
 
 
-fun main2(args: Array<String>) {
+fun evalFlights() {
     val flights = RunTimes.measure({
         DataFrame.fromTSV("/Users/brandl/Desktop/nycflights.tsv")
     }, 3).apply {
         println("data loading time was: $runtimes")
     }.result
 
-    println ("done reading starting glimpsing")
+    println("done reading starting glimpsing")
 
     flights.names
 
@@ -68,7 +68,7 @@ fun main2(args: Array<String>) {
 
 fun main(args: Array<String>) {
     val flights = RunTimes.measure({
-//        DataFrame.fromCSV("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv")
+        //        DataFrame.fromCSV("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv")
         DataFrame.fromCSV(File("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"), format = CSVFormat.TDF)
     }, numRuns = 1).apply {
         println(runtimes)
@@ -100,10 +100,10 @@ fun main(args: Array<String>) {
                         "mean_arr_delay" to { it["arr_delay"].mean(removeNA = true) },
                         "mean_dep_delay" to { it["dep_delay"].mean(removeNA = true) }
                 )
-                .filter { (it["mean_arr_delay"] gt  30)  OR  (it["mean_dep_delay"] gt  30) }
+                .filter { (it["mean_arr_delay"] gt 30) OR (it["mean_dep_delay"] gt 30) }
 
-//        flightsSummary.glimpse()
-//        flightsSummary.print()
+        flightsSummary.glimpse()
+        flightsSummary.print()
 
     }, numRuns = 10, warmUp = 0).apply {
         runtimes

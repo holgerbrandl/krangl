@@ -293,6 +293,7 @@ internal inline fun <reified R> DataCol.columnCast(): R {
 
 // does not work because internal array is of type object
 //inline fun <reified T> DataCol.asType() = (this as AnyCol).values as Array<T>
+@Suppress("UNCHECKED_CAST")
 inline fun <reified R> DataCol.asType(): Array<R?> {
     //        val data = (this as AnyCol).values
     //        return Array(data.size) { index -> data[index] as R }
@@ -301,9 +302,7 @@ inline fun <reified R> DataCol.asType(): Array<R?> {
     //     much faster since it avoid copying the array
     return try {
         when {
-            this is StringCol -> {
-                this.values as Array<R?>
-            }
+            this is StringCol -> this.values as Array<R?>
             this is DoubleCol -> values as Array<R?>
             this is BooleanCol -> values as Array<R?>
             this is IntCol -> values as Array<R?>

@@ -129,8 +129,8 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         return cols.map {
             // subset a colum by the predicate array
             when (it) {
-                is DoubleCol -> DoubleCol(it.name, it.values.filterIndexed { index, value -> indexFilter[index] }.toTypedArray())
-                is IntCol -> IntCol(it.name, it.values.filterIndexed { index, value -> indexFilter[index] }.toTypedArray())
+                is DoubleCol -> DoubleCol(it.name, it.values.filterIndexed { index, _ -> indexFilter[index] }.toTypedArray())
+                is IntCol -> IntCol(it.name, it.values.filterIndexed { index, _ -> indexFilter[index] }.toTypedArray())
                 is StringCol -> StringCol(it.name, it.values.filterIndexed { index, _ -> indexFilter[index] }.toList().toTypedArray())
                 is BooleanCol -> BooleanCol(it.name, it.values.filterIndexed { index, _ -> indexFilter[index] }.toList().toTypedArray())
                 is AnyCol -> AnyCol(it.name, it.values.filterIndexed { index, _ -> indexFilter[index] }.toList().toTypedArray())
@@ -219,6 +219,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
                 is BooleanCol -> Comparator { left, right -> nullsLast<Boolean>().compare(dataCol.values[left], dataCol.values[right]) }
                 is StringCol -> Comparator { left, right -> nullsLast<String>().compare(dataCol.values[left], dataCol.values[right]) }
                 is AnyCol -> Comparator { left, right ->
+                    @Suppress("UNCHECKED_CAST")
                     nullsLast<Comparable<Any>>().compare(dataCol.values[left] as Comparable<Any>, dataCol.values[right] as Comparable<Any>)
                 }
                 else -> throw UnsupportedOperationException()
@@ -453,64 +454,7 @@ inline fun <reified T> isListOfType(items: List<Any?>): Boolean {
 //}
 
 
-// todo this is the same as ColumnNames. Should we use just one type here.
-data class TableHeader(val header: List<String>) {
-
-
-    operator fun invoke(vararg tblData: Any?): DataFrame {
-        //        if(tblData.first() is Iterable<Any?>) {
-        //            tblData = tblData.first() as Iterable<Any?>
-        //        }
-
-
-        // 1) break into columns
-        val rawColumns: List<List<Any?>> = tblData.toList()
-                .mapIndexed { i, any -> i.mod(header.size) to any }
-                .groupBy { it.first }.values.map {
-            it.map { it.second }
-        }
-
-
-        // 2) infer column type by peeking into column data
-        val tableColumns = header.zip(rawColumns).map {
-            handleListErasure(it.first, it.second)
-        }
-
-        require(tableColumns.map { it.length }.distinct().size == 1) {
-            "Provided data does not coerce to tablular shape"
-        }
-
-        // 3) bind into data-frame
-        return SimpleDataFrame(tableColumns)
-    }
-
-
-    //    operator fun invoke(values: List<Any?>): DataFrame {
-    //        return invoke(values.toTypedArray())
-    //    }
-
-}
-
-/**
-Create a new data frame in place.
-
-Example:
-```
-val df = dataFrameOf(
-"foo", "bar") (
-"ll",   2, 3,
-"sdfd", 4, 5,
-"sdf",  5, 8
-)
-```
- */
-fun dataFrameOf(vararg header: String) = TableHeader(header.toList())
-
-internal fun SimpleDataFrame.addColumn(dataCol: DataCol): SimpleDataFrame =
-        SimpleDataFrame(cols.toMutableList().apply { add(dataCol) })
-
-
-fun <T> arrayListOf(size: Int, initFun: (Int) -> T?): ArrayList<T?> {
+internal fun <T> arrayListOf(size: Int, initFun: (Int) -> T?): ArrayList<T?> {
     val arrayList = ArrayList<T?>(size)
 
     for (i in 0..(size - 1)) {

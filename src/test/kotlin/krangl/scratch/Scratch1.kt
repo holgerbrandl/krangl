@@ -5,7 +5,8 @@ import java.io.BufferedReader
 import java.io.FileReader
 
 
-/**
+@Suppress("UNUSED_VARIABLE")
+        /**
  * Created by brandl on 6/7/16.
  */
 

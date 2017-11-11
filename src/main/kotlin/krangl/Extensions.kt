@@ -299,7 +299,7 @@ fun List<ColSpec>.print() = asDf().print()
 
 
 /* Prints the structure of a dataframe to stdout.*/
-fun DataFrame.glimpse(sep: String = "\t") {
+fun DataFrame.glimpse() {
     // todo add support for grouped data here
     if (this !is SimpleDataFrame) {
         return
@@ -344,7 +344,7 @@ fun List<DataFrame>.bindRows(): DataFrame { // add options about NA-fill over no
 
     val bindCols = mutableListOf<DataCol>()
 
-    val totalRows = map { it.nrow }.sum()
+//    val totalRows = map { it.nrow }.sum()
 
     for (colName in this.firstOrNull()?.names ?: emptyList()) {
         val colDataCombined: Array<*> = bindColData(colName)

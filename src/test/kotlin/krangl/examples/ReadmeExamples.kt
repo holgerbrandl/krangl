@@ -3,6 +3,7 @@ package krangl.examples
 import krangl.*
 
 
+@Suppress("UNUSED_EXPRESSION", "UNUSED_VARIABLE")
 fun main(args: Array<String>) {
 
     // Read data-frame from disk
@@ -21,8 +22,8 @@ fun main(args: Array<String>) {
     // val otherDF = fromCSV("path/to/file")
 
     // Print rows
-    df                              // with default printing options
-    df.print(colNames = false)      // with custom  printing options
+    df                              // with implict string conversion using default options
+    df.print(colNames = false)      // with custom printing options
 
     // Print structure
     df.glimpse()
@@ -108,4 +109,5 @@ fun main(args: Array<String>) {
 
     // Vice versa we can also convert an existing set of objects into
     val dfRestored = records.asDataFrame { mapOf("age" to it.age, "weight" to it.mean_weight) }
+    dfRestored.print()
 }

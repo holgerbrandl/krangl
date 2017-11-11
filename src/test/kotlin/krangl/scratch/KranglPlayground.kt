@@ -5,6 +5,7 @@ package krangl.scratch
 import krangl.*
 
 
+@Suppress("UNUSED_VARIABLE")
 fun main(args: Array<String>) {
 
     flightsData.print()

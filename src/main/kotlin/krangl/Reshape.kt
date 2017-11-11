@@ -87,7 +87,8 @@ fun DataFrame.gather(key: String, value: String, columns: List<String> = this.na
     val distinctCols = gatherColumns.cols.map { it.javaClass }.distinct()
 
 
-    // todo why cant we use handleArrayErasure() here?
+    @Suppress("UNCHECKED_CAST")
+            // todo why cant we use handleArrayErasure() here?
     fun makeValueCol(name: String, data: Array<*>): DataCol = when {
         distinctCols == IntCol::class.java -> IntCol(name, data as List<Int?>)
         distinctCols == DoubleCol::class.java -> DoubleCol(name, data as List<Double?>)
@@ -112,7 +113,7 @@ fun DataFrame.gather(key: String, value: String, columns: List<String> = this.na
     //    val replicationLevel = gatherColumns.ncol
 
     val indexReplication = rest.cols.map { column ->
-        handleArrayErasure(column.name, Array(gatherBlock.nrow, { index -> column.values()[index.mod(column.length)] }))
+        handleArrayErasure(column.name, Array(gatherBlock.nrow, { index -> column.values()[index.rem(column.length)] }))
     }.run { SimpleDataFrame(this) }
 
 
