@@ -30,10 +30,6 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
     override val nrow: Int
         get() = groups.map { it.df.nrow }.sum()
 
-    override val rowNumber: Iterable<Int>
-        get() = 1..nrow
-
-
 
     override val ncol: Int
         get() = groups.first().df.ncol
@@ -96,7 +92,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
     // fixme get rid of rbind.groupby anti-pattern in most core-verbs
 
-    override fun filter(predicate: DataFrame.(DataFrame) -> BooleanArray): DataFrame {
+    override fun filter(predicate: VectorizedRowPredicate): DataFrame {
         return groups.map { it.df.filter(predicate) }.bindRows().groupBy(*by.toTypedArray())
     }
 

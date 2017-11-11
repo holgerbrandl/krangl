@@ -47,8 +47,20 @@ fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
 // mutate() convenience
 //
 
+/** A proxy on the `df` that exposes just parts of the DataFrame api that are relevant for table expressions
+ * @param df A [krangl.DataFrame] instance
+ */
+class ExpressionContext(val df: DataFrame) {
+    operator fun get(name: String): DataCol = df[name]
 
-typealias TableExpression = DataFrame.(DataFrame) -> Any?
+    // from slack: in general, yes: use lazy mostly for calculating expensive values that might never be needed.
+    val rowNumber: List<Int> get() = (1..df.nrow).toList()
+    //     val rowNumber: Iterable<Int>  by lazy { (1..nrow) }
+
+    val nrow = df.nrow
+
+}
+
 
 // as would also prevent us from overwriting to
 //infix fun String.to(that: TableExpression) = Pair<String, DataFrame.(DataFrame) -> Any?>(this, that)
@@ -64,7 +76,7 @@ data class ColumnFormula(val name: String, val expression: TableExpression)
 
 /** Filter the rows of a table with a single predicate.*/
 
-fun DataFrame.filter(predicate: DataFrame.(DataFrame) -> List<Boolean>): DataFrame = filter({ predicate(this).toBooleanArray() })
+fun DataFrame.filter(predicate: DataFrame.(DataFrame) -> List<Boolean>): DataFrame = filter({ predicate(this.df).toBooleanArray() })
 
 /** AND-filter a table with different filters.*/
 fun DataFrame.filter(vararg predicates: DataFrame.(DataFrame) -> List<Boolean>): DataFrame =
@@ -195,8 +207,8 @@ fun DataFrame.takeLast(numRows: Int) = filter { rowNumber.map { it > (nrow - num
 
 // r-like convenience wrappers
 fun DataFrame.head(numRows: Int = 5) = take(numRows)
-fun DataFrame.tail(numRows: Int = 5) = takeLast(numRows)
 
+fun DataFrame.tail(numRows: Int = 5) = takeLast(numRows)
 
 
 /** Creates a grouped data-frame where each group consists of exactly one line. Thereby the row-number is used a group-hash. */
@@ -236,7 +248,7 @@ fun DataFrame.asString(colNames: Boolean = true, maxRows: Int = 20): String {
         throw UnsupportedOperationException()
     }
 
-    val printData = take(Math.max(nrow, maxRows))
+    val printData = take(Math.min(nrow, maxRows))
 
     // calculate indents
     val colWidths = printData.cols.map { it.values().map { (it ?: "<NA>").toString().length }.max() ?: 20 }
@@ -378,7 +390,9 @@ private fun List<DataFrame>.bindColData(colName: String): Array<*> {
 
 // Any.+ overloading does not work and is maybe neight a good idea since it's affecting global operator conventions
 //infix operator fun Any.plus(rightCol:DataCol) = anyAsColumn(this, TMP_COLUMN, rightCol.values().size) + rightCol
-fun DataFrame.const(someThing: Any) = anyAsColumn(someThing, TMP_COLUMN, nrow)
+fun ExpressionContext.const(someThing: Any) = anyAsColumn(someThing, TMP_COLUMN, nrow)
+
+internal fun warning(msg: String, breakLine: Boolean = true) = if (breakLine) System.err.println(msg) else System.err.print(msg)
 
 internal inline fun warning(value: Boolean, lazyMessage: () -> Any): Unit {
     if (!value) System.err.println(lazyMessage())

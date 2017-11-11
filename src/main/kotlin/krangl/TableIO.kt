@@ -6,6 +6,7 @@ import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import org.apache.commons.csv.CSVRecord
 import java.io.*
+import java.net.URL
 import java.util.zip.GZIPInputStream
 
 /**
@@ -18,8 +19,9 @@ Methods to read and write tables into/from DataFrames
 
 
 fun DataFrame.Companion.fromCSV(file: String) = fromCSV(File(file))
+fun DataFrame.Companion.fromTSV(file: String) = fromTSV(File(file))
 
-fun DataFrame.Companion.fromTSV(file: String) = fromCSV(File(file), format = CSVFormat.TDF)
+fun DataFrame.Companion.fromTSV(file: File) = fromCSV(file, format = CSVFormat.TDF.withHeader())
 
 // http://stackoverflow.com/questions/9648811/specific-difference-between-bufferedreader-and-filereader
 fun DataFrame.Companion.fromCSV(file: File,
@@ -38,7 +40,7 @@ fun DataFrame.Companion.fromCSV(file: File,
 }
 
 //http://stackoverflow.com/questions/5200187/convert-inputstream-to-bufferedreader
-fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFormat.DEFAULT, isCompressed: Boolean = false) =
+fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFormat.DEFAULT.withHeader(), isCompressed: Boolean = false) =
         if (isCompressed) {
             InputStreamReader(GZIPInputStream(inStream))
         } else {
@@ -194,5 +196,30 @@ Additional variables order, conservation status and vore were added from wikiped
  */
 val sleepData by lazy { DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/msleep.csv"), CSVFormat.DEFAULT.withHeader()) }
 
+/**
+On-time data for all 336776 flights that departed NYC (i.e. JFK, LGA or EWR) in 2013.
+
+Adopted from r, see `nycflights13::flights`
+ */
+internal val flightsCacheFile = File(System.getProperty("user.home"), ".flights_data.tsv.gz")
+
+val flightsData by lazy{
+
+    if(!flightsCacheFile.isFile) {
+        warning("[krangl] Downloading flights data into local cache...", false)
+        val flightsURL = URL("https://github.com/holgerbrandl/krangl/blob/v0.4/src/test/resources/krangl/data/nycflights.tsv.gz?raw=true")
+        warning("Done!")
+
+
+        //    for progress monitoring use
+        //    https@ //stackoverflow.com/questions/12800588/how-to-calculate-a-file-size-from-url-in-java
+        flightsCacheFile.writeBytes(flightsURL.readBytes())
+    }
+
+
+    DataFrame.fromTSV(flightsCacheFile)
+
+    // consider to use progress bar here
+}
 
 // todo support Read and write data using Tablesaw’s “.saw” format

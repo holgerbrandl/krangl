@@ -4,6 +4,11 @@ package krangl
 
 typealias DataFrameRow = Map<String, Any?>
 
+typealias VectorizedRowPredicate = ExpressionContext.(ExpressionContext) -> BooleanArray
+
+typealias TableExpression = ExpressionContext.(ExpressionContext) -> Any?
+
+
 interface DataFrame {
 
     // Accessor functions
@@ -22,7 +27,9 @@ interface DataFrame {
     val cols: List<DataCol>
 
     /** An iterator over the row numbers in the data-frame. */
-    val rowNumber: Iterable<Int>
+//    val rowNumber: Iterable<Int>
+
+
 
 
     operator fun get(name: String): DataCol
@@ -106,7 +113,7 @@ interface DataFrame {
 
 
     // todo consider to use List<Boolean> in signature. We can not provide both because of type erasure
-    fun filter(predicate: DataFrame.(DataFrame) -> BooleanArray): DataFrame
+    fun filter(predicate: VectorizedRowPredicate): DataFrame
 
     /** Adds new variables and preserves existing.*/
     fun addColumn(tf: ColumnFormula): DataFrame

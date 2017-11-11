@@ -84,9 +84,6 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     override val ncol = cols.size
 
 
-    override val rowNumber: Iterable<Int>  by lazy { (1..nrow) }
-
-
     override val nrow by lazy {
         val firstCol: DataCol? = cols.firstOrNull()
         when (firstCol) {
@@ -124,8 +121,8 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
     // Core Verbs
 
-    override fun filter(predicate: DataFrame.(DataFrame) -> BooleanArray): DataFrame {
-        val indexFilter = predicate(this)
+    override fun filter(predicate: VectorizedRowPredicate): DataFrame {
+        val indexFilter = predicate(this.ec, this.ec)
 
         require(indexFilter.size == nrow) { "filter index has incompatible length" }
 
@@ -155,7 +152,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
         val sumCols = mutableListOf<DataCol>()
         for ((key, sumRule) in sumRules) {
-            val sumValue = sumRule(this)
+            val sumValue = sumRule(this.ec, this.ec)
             when (sumValue) {
                 is Int -> IntCol(key, arrayOf(sumValue as Int?))
                 is Double -> DoubleCol(key, arrayOf(sumValue as Double?))
@@ -183,7 +180,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     // todo enforce better typed API
     override fun addColumn(tf: ColumnFormula): DataFrame {
 
-        val mutation = tf.expression(this, this)
+        val mutation = tf.expression(this.ec, this.ec)
         val newCol = anyAsColumn(mutation, tf.name, nrow)
 
 
@@ -345,6 +342,9 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
 
 }
+
+internal val DataFrame.ec: ExpressionContext
+    get() = ExpressionContext(this)
 
 
 internal fun anyAsColumn(mutation: Any?, name: String, nrow: Int): DataCol {
@@ -508,8 +508,6 @@ fun dataFrameOf(vararg header: String) = TableHeader(header.toList())
 
 internal fun SimpleDataFrame.addColumn(dataCol: DataCol): SimpleDataFrame =
         SimpleDataFrame(cols.toMutableList().apply { add(dataCol) })
-
-
 
 
 fun <T> arrayListOf(size: Int, initFun: (Int) -> T?): ArrayList<T?> {

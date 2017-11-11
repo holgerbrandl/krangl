@@ -20,6 +20,11 @@ class IOTests : Matchers {
         // todo continue test here
     }
 
+    @Test fun useCachedFiles(){
+        flightsCacheFile.delete()
+        (flightsData.nrow > 0) shouldBe true
+    }
+
     enum class Engine { Otto, Other }
     data class Car(val name: String, val numCyl: Int?, val engine: Engine)
 

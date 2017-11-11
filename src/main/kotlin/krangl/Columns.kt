@@ -235,10 +235,17 @@ infix fun BooleanArray.OR(other: BooleanArray) = mapIndexed { index, first -> fi
 
 
 infix fun DataCol.gt(i: Number) = greaterThan(i)
+infix fun DataCol.ge(i: Number) = greaterEqualsThan(i)
 
 fun DataCol.greaterThan(i: Number) = when (this) {
     is DoubleCol -> this.values.map { nullsLast<Double>().compare(it, i.toDouble()) > 0 }
     is IntCol -> this.values.map { nullsLast<Double>().compare(it!!.toDouble(), i.toDouble()) > 0 }
+    else -> throw UnsupportedOperationException()
+}.toBooleanArray()
+
+fun DataCol.greaterEqualsThan(i: Number) = when (this) {
+    is DoubleCol -> this.values.map { nullsLast<Double>().compare(it, i.toDouble()) >= 0 }
+    is IntCol -> this.values.map { nullsLast<Double>().compare(it!!.toDouble(), i.toDouble()) >= 0 }
     else -> throw UnsupportedOperationException()
 }.toBooleanArray()
 

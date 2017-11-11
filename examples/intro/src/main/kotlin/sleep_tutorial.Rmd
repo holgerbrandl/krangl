@@ -1,0 +1,374 @@
+---
+title       : Data Manipulation Tutorial with R
+---
+[comment]: #(output      : ioslides_presentation)
+
+[comment]: http://stackoverflow.com/questions/15385696/how-to-adjust-the-output-width-of-rstudio-markdown-output-to-html
+
+<style type="text/css">
+body .main-container {
+    max-width: 1000px;
+}
+</style>
+
+
+```{r options, echo=FALSE, warning=F, message=F}
+devtools::source_url("https://raw.githubusercontent.com/holgerbrandl/datautils/v1.22/R/core_commons.R")
+
+
+#library(knitr)
+#opts_chunk$set(fig.path=paste0("figure/", sub("(.*).Rmd","\\1",basename(knitr:::knit_concord$get('infile'))), "-"))
+
+## adjust print rendering
+options(
+  width = 120,
+  dplyr.width = 110,
+  dplyr.print_max = 20)
+```
+
+## Recap: What is `dplyr``?
+
+dplyr is a powerful R-package to transform and summarize tabular data with rows and columns.
+
+Core `dplyr`` verbs to remember
+
+* `select()` - select columns
+* `filter()` - filter rows
+* `arrange()` - re-order or arrange rows
+* `mutate()` - create new columns
+* `summarise()` - summarise values
+* `group_by()` - allows for group operations in the "split-apply-combine" concept
+
+
+## Why is it useful?
+
+The package contains a set of functions (or "verbs") that perform common data manipulation operations such as filtering
+for rows, selecting specific columns, re-ordering rows, adding new columns and summarizing data.
+
+In addition, dplyr contains a useful function to perform another common task which is the "split-apply-combine" concept.
+We will discuss that in a little bit.
+
+
+## How do I get `dplyr``?
+
+To install dplyr:
+
+```{r, eval=FALSE}
+install.packages("dplyr")
+```
+
+To load dplyr:
+
+```{r, message=FALSE}
+library(dplyr)
+```
+
+## Data: Mammals Sleep
+
+The msleep (mammals sleep) data set contains the sleep times and weights for a set of mammals. This data set contains 83 rows and 11 variables.
+
+Download the msleep data set in CSV format from [here](https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/msleep_ggplot2.csv), and then load into R:
+
+> QA: What's wrong if `read_tsv` can not be found?
+> QA: Why using msleep = ... ? Variable assignment
+
+```{r}
+## set working directory
+
+## load required packages
+require(readr)
+
+## WRONG: read the data without variable assignment
+# read_csv("msleep.csv")
+
+## CORRECT: read table and assign to variable
+msleep = read_csv("msleep.csv")
+
+## peak into the data
+
+## .. horizontally ..
+msleep
+
+## .. vertically
+glimpse(msleep)
+```
+
+
+## Selecting columns using `select()`
+
+
+Cherry-pick a set of columns: the `name` and the `sleep_total` columns.
+
+Look up select on the cheatsheet and/or R help!
+
+> Which dplyr verb is appropriate here?
+
+```{r}
+## select columns of interest 
+select(msleep, name, sleep_total)
+
+## to reuse later, assign to variable
+slimSleep <- select(msleep, name, sleep_total)
+```
+
+This is **long** format: Each row is an observation.
+
+
+To select all the columns *except* a specific column, use the "-" (subtraction) operator (also known as negative indexing):
+
+```{r}
+## negative selection
+select(msleep, -conservation)
+```
+
+To select a range of columns by name, use the ":" (colon) operator:
+
+```{r}
+## do a range selection
+select(msleep, name:order)
+```
+Note: order ~ taxonomic rank used to classify animals, ie a rank between class and family
+
+
+#### Mini Exercise
+
+> Select all columns that start with the character string "sl" along with the `name` column, use the function `starts_with()`:
+
+```{r}
+# MiniEx: Select all (a) columns that start with the character string 
+##        "sl" and (b) then "name" column
+select(msleep, starts_with("sl"), name)
+```
+
+Some additional options to select columns based on a specific criteria include:
+
+1. `ends_with()` = Select columns that end with a character string
+2. `contains()` = Select columns that contain a character string
+3. `matches()` = Select columns that match a regular expression
+4. `one_of()` = Select column names that are from a group of names
+
+
+
+## Selecting rows using `filter()`
+
+Filter the rows for mammals that sleep a total of more than 16 hours.
+
+Look up `filter` on the cheatsheet and/or R help!
+
+
+```{r}
+## Find those animals that sleep more than 16h hour
+filter(msleep, sleep_total >= 16)
+```
+
+Filter the rows for mammals that sleep a total of more than 16 hours *and* have a body weight of greater than 1 kilogram.
+
+```{r}
+## Filter for 16h and at 1kg)
+filter(msleep, sleep_total >= 16, bodywt >= 1)
+```
+
+Filter the rows for mammals in the Perissodactyla and Primates taxonomic order
+
+Note: [Perissodactyla](https://en.wikipedia.org/wiki/Odd-toed_ungulate) are grazing animals with an odd number of toes
+
+```{r}
+## Filter for just the primates
+filter(msleep, order=="Primates")
+
+## Filter for just the primates or Perissodactyla
+#QAwhat happens if we use comma here?
+filter(msleep, order=="Primates" | order=="Perissodactyla")
+filter(msleep, order %in% c("Perissodactyla", "Primates"))
+```
+
+Optional: You can use the boolean operators (e.g. >, <, >=, <=, !=, %in%) to create the logical tests.
+
+
+## Pipe operator: %>%
+
+Before we go any further, let's introduce the pipe operator: %>%. dplyr imports this operator from another package (magrittr).This operator allows you to pipe the output from one function to the input of another function. Instead of nesting functions (reading from the inside to the outside), the idea of piping is to read the functions from left to right.
+
+Here's an example you have seen:
+
+```{r}
+## BAD STYLE!!!
+filter(select(msleep, name, sleep_total), sleep_total >= 16)
+```
+
+Now in this case, we will pipe the msleep data frame to the function that will select two columns (name and sleep\_total) and then pipe the new data frame to the function `head()`, which will return the head of the new data frame.
+
+```{r}
+msleep %>%
+    select(name, sleep_total) %>%
+    filter(sleep_total >= 16)
+```
+
+You will soon see how useful the pipe operator is when we start to combine many functions.
+
+
+## Arrange or re-order rows using `arrange()`
+
+Look up `arrange` on the cheatsheet and/or R help!
+
+
+To arrange (or re-order) rows by a particular column, such as the taxonomic order, list the name of the column you want to arrange the rows by:
+
+```{r}
+msleep %>% arrange(bodywt)
+```
+
+Hard to read, so select three columns from msleep, arrange the rows by bodywt:
+
+```{r}
+msleep %>%
+    select(name, bodywt, sleep_total) %>%
+    arrange(bodywt, sleep_total)
+```
+
+Rather sort by decreasing weight to show most heavy animals first
+```{r}
+msleep %>%
+    select(name, bodywt, sleep_total) %>%
+    arrange(desc(bodywt))
+```
+
+Same as above, except here we also filter the rows for mammals that sleep for 16 or more hours:
+
+```{r}
+msleep %>%
+    select(name, bodywt, sleep_total) %>%
+    arrange(desc(bodywt), sleep_total) %>%
+    filter(sleep_total >= 16)
+```
+
+QA: Rearraning just changes order, but not really the data. In what cases could be important? Time-series. rowpair-comparisons
+
+
+## Create new columns using `mutate()`
+
+Look up `mutate` on the cheatsheet and/or R help!
+
+The `mutate()` function will add new columns to the data frame. Create a new column called rem_proportion, which is the ratio of rem sleep to total amount of sleep.
+
+
+```{r}
+## create new columns with mutate
+msleep %>%
+    mutate(rem_proportion = sleep_rem / sleep_total)
+```
+
+You can many new columns using mutate (separated by commas). Here we add a second column called bodywt_grams which is the bodywt column in grams.
+
+```{r}
+msleep %>%
+    mutate(rem_proportion = sleep_rem / sleep_total,
+           bodywt_grams = bodywt * 1000)
+```
+
+Reassign `msleep` to actually persist the column to the data structure
+```{r}
+msleep = msleep %>% mutate(rem_proportion = sleep_rem / sleep_total,
+           bodywt_grams = bodywt * 1000)
+```
+
+#### Mini Exercise: 
+
+> Calculate the brain to body mass ratio of each species and sort with descending order to reveal the species with the highest brain proportion
+
+See https://en.wikipedia.org/wiki/Brain-to-body_mass_ratio
+
+```{r}
+## MiniEx: 
+## (a) Calculate the brain to body mass ratio of each species and 
+## (b) sort the new attribute by decending order 
+msleep %>%
+  ## Calculate the brain to body mass ratio of each species and 
+  mutate(brainwt_proportion=brainwt/bodywt) %>%
+  ## sort the new attribute by decending order 
+  arrange(desc(brainwt_proportion))
+```
+
+
+## Create summaries of the data frame using `summarise()`
+
+Look up `summarise` on the cheatsheet and/or R help!
+
+The `summarise()` function will create summary statistics for a given column in the data frame such as finding the mean. 
+
+For example, to compute the average number of hours of sleep, apply the `mean()` function to the column `sleep_total` and call the summary value `avg_sleep`.
+
+```{r}
+msleep %>% summarise(avg_sleep = mean(sleep_total))
+```
+
+There are many other summary statistics you could consider such `sd()`, `min()`, `max()`, `median()`, `sum()`, `n()` (returns the length of vector), `first()` (returns first value in vector), `last()` (returns last value in vector) and `n_distinct()` (number of distinct values in vector).
+
+```{r}
+msleep %>% summarise(
+    avg_sleep = mean(sleep_total),
+    min_sleep = min(sleep_total),
+    max_sleep = max(sleep_total),
+    total = n()
+)
+```
+
+
+## Group operations using `group_by()`
+
+The `group_by()` verb is an important function in dplyr. As we mentioned before it's related to concept of "split-apply-combine". We literally want to split the data frame by some variable (e.g. taxonomic order), apply a function to the individual data frames and then combine the output.
+
+Let's do that: split the msleep data frame by the taxonomic order, then ask for the same summary statistics as above. We expect a set of summary statistics for each taxonomic order.
+
+```{r}
+msleep %>%
+    group_by(order) %>%
+    summarise(avg_sleep = mean(sleep_total),
+              min_sleep = min(sleep_total),
+              max_sleep = max(sleep_total),
+              total = n())
+```
+
+**Challenge here**
+
+
+#### Mini Exercise: 
+
+> Find the taxonomic order with the highest mean rem-proportion
+
+```{r}
+# MiniEx: Find the taxonomic order with the highest mean REM proportion?
+
+# Which animals dream the most?
+
+msleep %>%
+    group_by(order) %>%
+    summarize(mean_rem_prop=mean(rem_proportion, na.rm=T)) %>% 
+    ## Option 1: resort
+    #arrange(desc(mean_rem_prep)) %>% View()
+    ## Option 2: filter
+    filter(mean_rem_prop==max(mean_rem_prop, na.rm=T))
+```
+
+For NA debugging check original values
+```{r}
+msleep %>% filter(order=="Primates") %>% select(name, rem_proportion)
+```
+
+And the dreamy winner is https://en.wikipedia.org/wiki/Opossum
+
+## Reference
+
+Materials adopted from [PH525x series - Biomedical Data Science](http://genomicsclass.github.io/book/) which contains other very nice R tutorials as well covering topics as
+
+* Statistics
+* Exploratory Data Analysis
+* Matrix Algebra
+* Linear Models
+* Machine Learning
+* Bioinformatics
+
+
+## What's Next?
+
+_Exercise : Fun with Flowers_
