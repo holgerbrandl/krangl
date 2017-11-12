@@ -95,7 +95,7 @@ fun main(args: Array<String>) {
         "max_age" to { it["age"].max() }
     )
 
-    // for sake of r and python adoptability you also use `=` here
+    // for sake of r and python adoptability you can also use `=` here
     df.summarize(
         "min_age" `=` { it["age"].min() },
         "max_age" `=` { it["age"].max() }
