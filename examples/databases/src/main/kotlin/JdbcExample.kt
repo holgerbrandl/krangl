@@ -11,6 +11,9 @@ import java.sql.Statement
 // http://makble.com/h2-database-example-in-gradle
 // https://jtablesaw.wordpress.com/2016/06/19/new-load-data-from-any-rdbms/
 
+
+// todo consider to use https://github.com/seratch/kotliquery here or provide example for it
+
 fun main(args: Array<String>) {
 
     // todo consider using coffee db as in

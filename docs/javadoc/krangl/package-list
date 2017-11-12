@@ -20,4 +20,3 @@ $dokka.location:krangl$print(kotlin.collections.List((krangl.ColSpec)))krangl/k
 $dokka.location:krangl$sd(kotlin.Array((kotlin.Double)))krangl/kotlin.-array/sd.html
 $dokka.location:krangl$to(kotlin.String, kotlin.Function2((krangl.ExpressionContext, , kotlin.Any)))krangl/kotlin.-string/to.html
 krangl
-krangl.samples

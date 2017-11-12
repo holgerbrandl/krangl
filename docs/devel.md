@@ -20,32 +20,8 @@ kotlinc  -classpath '/Users/brandl/.m2/repository/de/mpicbg/scicomp/krangl/0.4-S
 
 
 
-# How to release a new version
+## Useful libraries
 
-
-
-1) Increment version in build.gradle
-2) Update version in README.md and CHANGS.md
-2) Push and and create version on github
-3) Build assembly jar, build tar.gz with:
-
-```
-gradle install
-
-cd ~/.m2/repository/de/mpicbg/scicomp/
-
-## locate jar, sources.jar and pom for new version in
-open ~/.m2/repository/de/mpicbg/scicomp/krangl
-
-# Upload path
-de/mpicbg/scicomp/krangl/0.X
-```
-
-(todo use https://github.com/softprops/bintray-sbt)
-
-
-5) Create new version on [jcenter](https://bintray.com/holgerbrandl/mpicbg-scicomp/krangl/view`
-
-6) Post-release
-
-* Increment version to 1.x-SNAPSHOT in build.gradle
+* https://github.com/mplatvoet/progress
+* https://github.com/SalomonBrys/Kodein cool dependency injection
+* https://github.com/hotchemi/khronos date extension

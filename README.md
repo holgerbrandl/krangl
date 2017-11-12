@@ -209,6 +209,9 @@ Other Related Projects:
 * [Pandas cheat sheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing)
 * [koma](https://kyonifer.github.io/koma/) is a scientific computing library written in Kotlin, designed to allow development of cross-platform numerical applications
 * [termsql](https://github.com/tobimensch/termsql) converts text from a file or from stdin into SQL table and query it instantly. Uses sqlite as backend.
+* [kotliquery](https://github.com/seratch/kotliquery) is a handy database access library
+
+
 
 * https://github.com/netzwerg/paleo which provides immutable Java 8 data frames with typed columns
 

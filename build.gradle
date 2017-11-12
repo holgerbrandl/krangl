@@ -46,6 +46,15 @@ dokka {
     outputFormat = 'html'
 //    outputDirectory = "$buildDir/javadoc"
     outputDirectory = "docs/javadoc"
+
+//    sourceDirs = files('src/test/kotlin')
+    samples = ['src/test/kotlin/krangl/samples']
+
+    // Emit warnings about not documented members. Applies globally, also can be overridden by packageOptions
+    reportNotDocumented = false
+
+//    http://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation
+    includes = ['misc/packages_info.md']
 }
 
 // http://stackoverflow.com/questions/11474729/how-to-build-sources-jar-with-gradle

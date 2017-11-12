@@ -29,7 +29,7 @@ And the same rewritten using `krangl`
 ```{kotlin}
 flights
     .groupBy("year", "month", "day")
-    .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
+    .select({ range("year", "day") }, { listOf("arr_delay", "dep_delay") })
     .summarize(
             "mean_arr_delay" to { it["arr_delay"].mean(removeNA = true) },
             "mean_dep_delay" to { it["dep_delay"].mean(removeNA = true) }

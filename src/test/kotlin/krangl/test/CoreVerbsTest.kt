@@ -386,7 +386,7 @@ class GroupedDataTest : Matchers {
         //        flights.glimpse()
         val subFlights = flights
                 .groupBy("year", "month", "day")
-                //                .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
+                //                .select({ range("year", "day") }, { listOf("arr_delay", "dep_delay") })
                 .select("arr_delay", "dep_delay", "year")
 
         subFlights.apply {

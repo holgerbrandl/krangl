@@ -171,7 +171,7 @@ fun DataFrame.sortedBy(vararg tableExpressions: TableExpression): DataFrame {
     return addColumns(*sortBys.toTypedArray()).
         sortedBy(*sortByNames).
         remove(sortByNames.asList())
-    //           select({ oneOf(*sortByNames).not() })
+    //           select({ listOf(*sortByNames).not() })
 }
 
 ////////////////////////////////////////////////

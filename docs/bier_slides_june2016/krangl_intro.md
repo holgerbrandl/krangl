@@ -217,7 +217,7 @@ storms.select("storm", "pressure")
 * It provides a powerful selector syntax.
 
 ```{kotlin}
-flights.select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
+flights.select({ range("year", "day") }, { listOf("arr_delay", "dep_delay") })
 ```
 
 * It allows for negative selection, ie it can also drop unwanted columns from our data
@@ -341,7 +341,7 @@ flights
     // group by date
     .groupBy("year", "month", "day")
     // cherry pick columns of interest
-    .select({ range("year", "day") }, { oneOf("arr_delay", "dep_delay") })
+    .select({ range("year", "day") }, { listOf("arr_delay", "dep_delay") })
     // calcualte mean arrival and departure delay
     .summarize(
             "mean_arr_delay" to { it["arr_delay"].mean(removeNA = true) },
