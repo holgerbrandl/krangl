@@ -1,8 +1,6 @@
 ## Release Checklist
 
-1. Increment version in `krangl`
-2. Make sure that support api version is up to date and available from jcenter
-3. Update the API docs
+1. Increment version in `krangl` (readme, gradle, example-poms)
 4. Push and wait for travis CI results
 
 ```bash
@@ -59,3 +57,9 @@ gradle install
 # careful with this one!
 #gradle bintrayUpload
 ```
+
+
+3. Update the API docs
+
+4. Increment version to *-SNAPSHOT for next release cyclle
+
