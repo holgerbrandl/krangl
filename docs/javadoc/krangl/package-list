@@ -1,5 +1,6 @@
 $dokka.format:html
 $dokka.linkExtension:html
+$dokka.location:krangl$=(kotlin.String, kotlin.Function2((krangl.ExpressionContext, , kotlin.Any)))krangl/kotlin.-string/=.html
 $dokka.location:krangl$AND(kotlin.BooleanArray, kotlin.BooleanArray)krangl/kotlin.-boolean-array/-a-n-d.html
 $dokka.location:krangl$AND(kotlin.collections.List((kotlin.Boolean)), kotlin.collections.List((kotlin.Boolean)))krangl/kotlin.collections.-list/-a-n-d.html
 $dokka.location:krangl$OR(kotlin.BooleanArray, kotlin.BooleanArray)krangl/kotlin.-boolean-array/-o-r.html
@@ -10,7 +11,8 @@ $dokka.location:krangl$asDataFrame(kotlin.collections.List((krangl.asDataFrame.T
 $dokka.location:krangl$asDf(kotlin.collections.List((krangl.ColSpec)))krangl/kotlin.collections.-list/as-df.html
 $dokka.location:krangl$bindRows(kotlin.collections.List((krangl.DataFrame)))krangl/kotlin.collections.-list/bind-rows.html
 $dokka.location:krangl$cumSum(kotlin.collections.List((krangl.cumSum.T)), kotlin.Boolean)krangl/kotlin.collections.-list/cum-sum.html
-$dokka.location:krangl$ignoreNA(kotlin.Array((krangl.ignoreNA.T)), kotlin.Function1((krangl.ignoreNA.T, krangl.ignoreNA.R)))krangl/kotlin.-array/ignore-n-a.html
+$dokka.location:krangl$ignoreNA(kotlin.Array((krangl.ignoreNA.T)), kotlin.Function1((krangl.ignoreNA.T, kotlin.Any)))krangl/kotlin.-array/ignore-n-a.html
+$dokka.location:krangl$mapNonNull(kotlin.Array((krangl.mapNonNull.T)), kotlin.Function1((krangl.mapNonNull.T, krangl.mapNonNull.R)))krangl/kotlin.-array/map-non-null.html
 $dokka.location:krangl$mean(kotlin.Array((kotlin.Double)))krangl/kotlin.-array/mean.html
 $dokka.location:krangl$mean(kotlin.collections.List((kotlin.Double)))krangl/kotlin.collections.-list/mean.html
 $dokka.location:krangl$median(kotlin.Array((kotlin.Double)))krangl/kotlin.-array/median.html

@@ -202,26 +202,6 @@
 </tr>
 <tr>
 <td>
-<p><a href="../data.html">data</a></p>
-</td>
-<td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <a href="../-data-col/index.html"><span class="identifier">DataCol</span></a><span class="symbol">.</span><span class="identifier">data</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">?</span><span class="symbol">&gt;</span></code>
-<p>Non-null helper here for vectorized column operations. Allows to work with non-NA values but keeps them in resulting vector
-Helpful for non standard column types.</p>
-</td>
-</tr>
-<tr>
-<td>
-<p><a href="../data-n-a.html">dataNA</a></p>
-</td>
-<td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <a href="../-data-col/index.html"><span class="identifier">DataCol</span></a><span class="symbol">.</span><span class="identifier">dataNA</span><span class="symbol">(</span><span class="identifier" id="krangl$dataNA(krangl.DataCol, kotlin.Function1((krangl.dataNA.T, kotlin.Any)))/expr">expr</span><span class="symbol">:</span>&nbsp;<span class="identifier">T</span><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span><span class="symbol">&gt;</span></code>
-<p>Allows to transform column data into list of same length ignoring missing values, which are kept but processing
-can be done in a non-null manner.</p>
-</td>
-</tr>
-<tr>
-<td>
 <p><a href="../eq.html">eq</a></p>
 </td>
 <td>
@@ -257,10 +237,19 @@ can be done in a non-null manner.</p>
 </tr>
 <tr>
 <td>
+<p><a href="../is-equal-to.html">isEqualTo</a></p>
+</td>
+<td>
+<code><span class="keyword">infix</span> <span class="keyword">fun </span><a href="../-data-col/index.html"><span class="identifier">DataCol</span></a><span class="symbol">.</span><span class="identifier">isEqualTo</span><span class="symbol">(</span><span class="identifier" id="krangl$isEqualTo(krangl.DataCol, kotlin.Any)/i">i</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean-array/index.html"><span class="identifier">BooleanArray</span></a></code></td>
+</tr>
+<tr>
+<td>
 <p><a href="../is-n-a.html">isNA</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><a href="../-data-col/index.html"><span class="identifier">DataCol</span></a><span class="symbol">.</span><span class="identifier">isNA</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean-array/index.html"><span class="identifier">BooleanArray</span></a></code></td>
+<code><span class="keyword">fun </span><a href="../-data-col/index.html"><span class="identifier">DataCol</span></a><span class="symbol">.</span><span class="identifier">isNA</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean-array/index.html"><span class="identifier">BooleanArray</span></a></code>
+<p>Maps a column to true for the NA values and <code>false</code> otherwise.</p>
+</td>
 </tr>
 <tr>
 <td>
@@ -275,6 +264,16 @@ can be done in a non-null manner.</p>
 </td>
 <td>
 <code><span class="keyword">infix</span> <span class="keyword">fun </span><a href="../-data-col/index.html"><span class="identifier">DataCol</span></a><span class="symbol">.</span><span class="identifier">lt</span><span class="symbol">(</span><span class="identifier" id="krangl$lt(krangl.DataCol, kotlin.Int)/i">i</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean-array/index.html"><span class="identifier">BooleanArray</span></a></code></td>
+</tr>
+<tr>
+<td>
+<p><a href="../map.html">map</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <a href="../-data-col/index.html"><span class="identifier">DataCol</span></a><span class="symbol">.</span><span class="identifier">map</span><span class="symbol">(</span><span class="identifier" id="krangl$map(krangl.DataCol, kotlin.Function1((krangl.map.T, kotlin.Any)))/expr">expr</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">T</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html"><span class="identifier">Any</span></a><span class="symbol">?</span><span class="symbol">&gt;</span></code>
+<p>Allows to transform column data into list of same length ignoring missing values, which are kept but processing
+can be done in a non-null manner.</p>
+</td>
 </tr>
 <tr>
 <td>
