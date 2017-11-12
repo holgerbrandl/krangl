@@ -80,7 +80,7 @@ publishing {
 
             // just needed because artifact name differs from projet name
             version = project.version
-            artifactId = 'kscript'
+            artifactId = 'krangl'
             groupId = project.group
         }
     }

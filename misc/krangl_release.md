@@ -43,7 +43,7 @@ github-release release \
     --repo krangl \
     --tag "v${krangl_version}" \
     --name "v${krangl_version}" \
-    --description "See [NEWS.md](https://github.com/holgerbrandl/krangl/blob/master/Changes.md) for changes." 
+    --description "See [CHANGES.md](https://github.com/holgerbrandl/krangl/blob/master/CHANGES.md) for changes." 
 #    --pre-release
 
 ```
@@ -58,8 +58,11 @@ gradle install
 #gradle bintrayUpload
 ```
 
+check here
+* https://bintray.com/holgerbrandl/mpicbg-scicomp/krangl
+* https://jcenter.bintray.com/de/mpicbg/scicomp/krangl/
 
 3. Update the API docs
 
-4. Increment version to *-SNAPSHOT for next release cyclle
+4. Increment version to *-SNAPSHOT for next release cycle
 
