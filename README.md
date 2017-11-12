@@ -189,7 +189,7 @@ Support & Documentation
 FAQ
 ===
 
-### How can i do the most SQL bits such as `select this, that from there where that >5`?
+### How to rewrite `select this, that from there where that >5` with krangl?
 
 ```kotlin
 df.select("this", "that").filter{ it["this"] gt 5 }
