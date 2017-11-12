@@ -13,7 +13,7 @@ class IOTests : Matchers {
 
     @Test
     fun testTornados() {
-        val tornandoCsv = File("/Users/brandl/projects/kotlin/misc/tablesaw/data/1950-2014_torn.csv")
+        val tornandoCsv = File("src/test/resources/krangl/data/1950-2014_torn.csv")
 
         val fromCSV = DataFrame.fromCSV(tornandoCsv)
 
