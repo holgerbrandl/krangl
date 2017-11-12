@@ -63,7 +63,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 //group = 'de.mpicbg.scicomp'
 //group = 'com.github.holgerbrandl'
 group 'de.mpicbg.scicomp'
-version '0.6'
+version '0.7-SNAPSHOT'
 //version '0.6'
 
 
