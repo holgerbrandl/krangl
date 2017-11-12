@@ -21,7 +21,7 @@ data class RenameRule(val oldName: String, val newName: String) {
 
 // todo dplyr consistency here or "old" to "new" readbility, what's more important (see docs/user_guide.md)
 fun DataFrame.rename(vararg old2new: Pair<String, String>) =
-        this.rename(*old2new.map { RenameRule(it.first, it.second) }.toTypedArray())
+    this.rename(*old2new.map { RenameRule(it.first, it.second) }.toTypedArray())
 
 
 /** Rename one or several columns. Positions should be preserved */
@@ -66,6 +66,14 @@ class ExpressionContext(val df: DataFrame) {
 //infix fun String.to(that: TableExpression) = Pair<String, DataFrame.(DataFrame) -> Any?>(this, that)
 
 infix fun String.to(that: TableExpression) = ColumnFormula(this, that)
+// or using backticked =
+infix fun String.`=`(that: TableExpression) = ColumnFormula(this, that)
+// should we ditch one?
+//* to familiar to kotlin users
+//* `=` familar to r and python users
+
+// looks odd summarize ("max_age"{ it["age"].max() })
+//operator fun String.invoke(that: TableExpression) = ColumnFormula(this, that)
 
 
 data class ColumnFormula(val name: String, val expression: TableExpression)
@@ -80,7 +88,7 @@ fun DataFrame.filter(predicate: DataFrame.(DataFrame) -> List<Boolean>): DataFra
 
 /** AND-filter a table with different filters.*/
 fun DataFrame.filter(vararg predicates: DataFrame.(DataFrame) -> List<Boolean>): DataFrame =
-        predicates.fold(this, { df, p -> df.filter(p) })
+    predicates.fold(this, { df, p -> df.filter(p) })
 
 // // todo does not work why?
 // df.filter({ it["last_name"].asStrings().map { it!!.startsWith("Do") } })
@@ -161,8 +169,8 @@ fun DataFrame.sortedBy(vararg tableExpressions: TableExpression): DataFrame {
     val sortByNames = sortBys.map { it.name }.toTypedArray()
 
     return addColumns(*sortBys.toTypedArray()).
-            sortedBy(*sortByNames).
-            remove(sortByNames.asList())
+        sortedBy(*sortByNames).
+        remove(sortByNames.asList())
     //           select({ oneOf(*sortByNames).not() })
 }
 
@@ -182,7 +190,7 @@ fun DataFrame.summarize(name: String, tableExpression: TableExpression): DataFra
  */
 // todo provide more efficient implementation
 fun DataFrame.distinct(vararg selects: String = this.names.toTypedArray()): DataFrame =
-        groupBy(*selects).slice(1).ungroup()
+    groupBy(*selects).slice(1).ungroup()
 
 
 /** Counts observations by group.*/
@@ -344,7 +352,7 @@ fun List<DataFrame>.bindRows(): DataFrame { // add options about NA-fill over no
 
     val bindCols = mutableListOf<DataCol>()
 
-//    val totalRows = map { it.nrow }.sum()
+    //    val totalRows = map { it.nrow }.sum()
 
     for (colName in this.firstOrNull()?.names ?: emptyList()) {
         val colDataCombined: Array<*> = bindColData(colName)
@@ -399,7 +407,7 @@ internal inline fun warnIf(value: Boolean, lazyMessage: () -> Any): Unit {
 }
 
 internal fun GroupedDataFrame.transformGroups(trafo: (DataFrame) -> DataFrame): GroupedDataFrame =
-        groups.map { DataGroup(it.groupHash, trafo(it.df)) }.let { GroupedDataFrame(by, it) }
+    groups.map { DataGroup(it.groupHash, trafo(it.df)) }.let { GroupedDataFrame(by, it) }
 
 
 fun List<DataCol>.asDataFrame(): DataFrame = SimpleDataFrame(this)

@@ -106,7 +106,7 @@ class DoubleCol(name: String, val values: Array<Double?>) : DataCol(name) {
 
     private fun arithOp(something: Any, op: (Double, Double) -> Double): DataCol = when (something) {
         is DoubleCol -> Array(values.size, { values[it] })
-                .apply { mapIndexed { index, rowVal -> naAwareOp(rowVal, something.values[index], op) } }
+            .apply { mapIndexed { index, rowVal -> naAwareOp(rowVal, something.values[index], op) } }
 
         is Number -> Array(values.size, { naAwareOp(values[it], something.toDouble(), op) })
         else -> throw UnsupportedOperationException()
@@ -276,7 +276,10 @@ fun DataCol.asDoubles(): Array<Double?> = columnCast<DoubleCol>().values
 fun DataCol.asBooleans(): Array<Boolean?> = columnCast<BooleanCol>().values
 fun DataCol.asInts(): Array<Int?> = columnCast<IntCol>().values
 
-
+//fun DataCol.s(): Array<String?> = asStrings()
+//fun DataCol.d(): Array<Double?> = asDoubles()
+//fun DataCol.b(): Array<Boolean?> = asBooleans()
+//fun DataCol.i(): Array<Int?> = asInts()
 
 
 class ColumnTypeCastException(msg: String) : RuntimeException(msg)
@@ -318,22 +321,46 @@ inline fun <reified R> DataCol.asType(): Array<R?> {
 }
 
 
+/** Allows to transform column data into list of same length ignoring missing values, which are kept but processing
+ * can be done in a non-null manner.
+ */
+inline fun <reified T> DataCol.map(noinline expr: (T) -> Any?): List<Any?> {
+    val recast = asType<T?>()
+
+    return recast.map { if (it != null) expr(it) else null }.toList()
+}
+
+fun <T> Array<T?>.ignoreNA(expr: T.() -> Any?): List<Any?> = map { if (it != null) expr(it) else null }
+
+
+
+
+// should this be dropeed entirely?
+//internal inline fun <reified T, R> DataCol.map2(noinline expr: (T) -> R?): List<R?> {
+//    val recast = asType<T?>()
+//
+//    return recast.mapNonNull (expr)
+//}
+
+
 /**
  * Non-null helper here for vectorized column operations. Allows to work with non-NA values but keeps them in resulting vector
  * Helpful for non standard column types.
  */
-fun <T> DataCol.data(): List<T?> = this.values() as List<T>
+//fun <T> DataCol.data(): List<T?> = this.values() as List<T>
 
+/** Maps a column to true for the NA values and `false` otherwise. */
 fun DataCol.isNA(): BooleanArray = this.values().map { it == null }.toBooleanArray()
 
 
-/** Allows to transform column data into list of same length ignoring missing values, which are kept but processing
- * can be done in a non-null manner.
- */
-fun <T> DataCol.dataNA(expr: T.() -> Any?): List<Any?> = (this.values() as List<T>).map { if (it != null) expr(it) else null }.toList()
-
 /** Allows to process a list of null-containing elements with an expression. NA will be kept where they were in the resulting table.*/
-fun <T, R> Array<T?>.ignoreNA(expr: T.() -> R?): List<R?> = map { if (it != null) expr(it) else null }.toList()
+fun <T, R> Array<T?>.mapNonNull(expr: T.() -> R?): List<R?> {
+    return map { if (it != null) expr(it) else null }.toList()
+}
+
+//inline fun <T, reified R> Array<T>.mapNonNullArr(expr: T.() -> R?): Array<R?> {
+//    return Array<R?>(size, { expr(this[it])})
+//}
 
 
 //
@@ -433,7 +460,7 @@ class InvalidColumnOperationException(msg: String) : RuntimeException(msg) {
 }
 
 class NonScalarValueException(tf: ColumnFormula, result: Any) :
-        RuntimeException("summarize() expression for '${tf.name}' did not evaluate into a scalar value but into a '${result}'")
+    RuntimeException("summarize() expression for '${tf.name}' did not evaluate into a scalar value but into a '${result}'")
 //
 // Category/String helper extensions
 //

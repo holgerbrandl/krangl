@@ -165,7 +165,7 @@ class MutateTest : Matchers {
     fun `it should  allow to use a new column in the same mutate call`() {
         sleepData.addColumns(
                 "vore_new" to { it["vore"] },
-                "vore_first_char" to { it["vore"].asStrings().ignoreNA { this.toList().first().toString() } }
+                "vore_first_char" to { it["vore"].asStrings().mapNonNull { this.toList().first().toString() } }
         )
     }
 

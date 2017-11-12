@@ -12,10 +12,10 @@ fun main(args: Array<String>) {
 
     // Create data-frame in memory
     val df: DataFrame = dataFrameOf(
-            "first_name", "last_name", "age", "weight")(
-            "Max", "Doe", 23, 55,
-            "Franz", "Smith", 23, 88,
-            "Horst", "Keanes", 12, 82
+        "first_name", "last_name", "age", "weight")(
+        "Max", "Doe", 23, 55,
+        "Franz", "Smith", 23, 88,
+        "Horst", "Keanes", 12, 82
     )
 
     // Or from csv
@@ -46,7 +46,13 @@ fun main(args: Array<String>) {
     df.addColumn("with_anz") { it["first_name"].asStrings().map { it!!.contains("anz") } }
 
     // Note: krangl is using 'null' as missing value, and provides convenience methods to process non-NA bits
-    df.addColumn("first_name_initial") { it["first_name"].asStrings().ignoreNA { first().toString() } }
+    df.addColumn("first_name_initial") { it["first_name"].asStrings().mapNonNull { first().toString() } }
+
+    // or add multiple columns at once
+    df.addColumns(
+        "age_plus3" to { it["age"] + 3 },
+        "initials" to { it["first_name"].map<String> { it.first() } + it["last_name"].map<String> { it.first() } }
+    )
 
 
     // Sort your data with sortedBy
@@ -76,20 +82,30 @@ fun main(args: Array<String>) {
 
 
     // Summarize
-    // ... single summary statistic
+
+    // do simple cross tabulations
+    df.count("age", "last_name")
+
+    // ... or calculate single summary statistic
     df.summarize("mean_age" to { it["age"].mean(true) })
-    // ... multiple summary statistics
+
+    // ... or multiple summary statistics
     df.summarize(
-            "min_age" to { it["age"].min() },
-            "max_age" to { it["age"].max() }
+        "min_age" to { it["age"].min() },
+        "max_age" to { it["age"].max() }
     )
 
+    // for sake of r and python adoptability you also use `=` here
+    df.summarize(
+        "min_age" `=` { it["age"].min() },
+        "max_age" `=` { it["age"].max() }
+    )
 
     // Grouped operations
     val groupedDf: DataFrame = df.groupBy("age") // or provide multiple grouping attributes with varargs
     val sumDF = groupedDf.summarize(
-            "mean_weight" to { it["weight"].mean(removeNA = true) },
-            "num_persons" to { nrow }
+        "mean_weight" to { it["weight"].mean(removeNA = true) },
+        "num_persons" to { nrow }
     )
 
     // Optionally ungroup the data
@@ -111,3 +127,5 @@ fun main(args: Array<String>) {
     val dfRestored = records.asDataFrame { mapOf("age" to it.age, "weight" to it.mean_weight) }
     dfRestored.print()
 }
+
+

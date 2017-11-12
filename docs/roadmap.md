@@ -92,3 +92,10 @@ https://github.com/lemire/JavaFastPFOR
 http://fastutil.di.unimi.it/
 
 http://nd4j.org/
+
+
+## Design
+
+https://stackoverflow.com/questions/45090808/intarray-vs-arrayint-in-kotlin
+
+Array<*> can be null
