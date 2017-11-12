@@ -7,7 +7,7 @@
 export KRANGL_HOME="/Users/brandl/projects/kotlin/krangl";
 
 trim() { while read -r line; do echo "$line"; done; }
-krangl_version=$(grep '^version' ${KRANGL_HOME}/build.gradle | cut -f2 -d'=' | tr -d "'" | trim)
+krangl_version=$(grep '^version' ${KRANGL_HOME}/build.gradle | cut -f4 -d'=' | tr -d "'" | trim)
 
 echo "new version is $krangl_version"
 ```
