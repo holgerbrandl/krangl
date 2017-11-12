@@ -7,7 +7,7 @@
 export KRANGL_HOME="/Users/brandl/projects/kotlin/krangl";
 
 trim() { while read -r line; do echo "$line"; done; }
-krangl_version=$(grep '^version' ${KRANGL_HOME}/build.gradle | cut -f4 -d'=' | tr -d "'" | trim)
+krangl_version=$(grep '^version' ${KRANGL_HOME}/build.gradle | cut -f2 -d' ' | tr -d "'" | trim)
 
 echo "new version is $krangl_version"
 ```
@@ -29,7 +29,7 @@ export GITHUB_TOKEN=${GH_TOKEN}
 cd ${KRANGL_HOME}
 
 #git tag v${krangl_version} && git push --tags
-(git diff --exit-code && git tag v${krangl_version})  || echo "could not tag current branch"
+(git diff --exit-code && git tag "v${krangl_version}")  || echo "could not tag current branch"
 
 git push --tags
 
