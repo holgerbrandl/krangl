@@ -207,8 +207,6 @@ Similar APIs (not just Kotlin)
 * [paleo](https://github.com/netzwerg/paleo) which provides immutable Java 8 data frames with typed columns
 * [agate](https://github.com/wireservice/agate): A Python data analysis library that is optimized for humans instead of machines
 * [pandas](http://pandas.pydata.org/) provides high-performance, easy-to-use data structures and data analysis tools for python ([cheatsheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing))
-
-
 * [dplyr](https://cran.r-project.org/web/packages/dplyr/index.html) which is a grammar of data manipulation (R-lang)
 
 
