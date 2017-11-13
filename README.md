@@ -202,11 +202,13 @@ df.select("this", "that").filter{ it["that"] gt 5 }
 
 Similar APIs (not just Kotlin)
 * [Scala DataTable](https://github.com/martincooper/scala-datatable): a lightweight, in-memory table structure written in Scala
-* [Joinery](https://github.com/cardillo/joinery): Data frames for Java
-* [Tablesaw](https://github.com/jtablesaw/tablesaw) which is according to authors the  _The simplest way to slice data in Java_
+* [joinery](https://github.com/cardillo/joinery): Data frames for Java
+* [tablesaw](https://github.com/jtablesaw/tablesaw) which is (according to authors) the  _The simplest way to slice data in Java_
 * [paleo](https://github.com/netzwerg/paleo) which provides immutable Java 8 data frames with typed columns
 * [agate](https://github.com/wireservice/agate): A Python data analysis library that is optimized for humans instead of machines
-* [Pandas cheat sheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing) (python_
+* [pandas](http://pandas.pydata.org/) provides high-performance, easy-to-use data structures and data analysis tools for python ([cheatsheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing))
+
+
 * [dplyr](https://cran.r-project.org/web/packages/dplyr/index.html) which is a grammar of data manipulation (R-lang)
 
 
