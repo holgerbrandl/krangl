@@ -4,18 +4,14 @@ Krangl Release History
 v0.7 (in progress)
 ---
 
-todo:
-* `toDouble()` should work for int columns as well (same vv)
-* [Select](src/main/kotlin/krangl/Select.kt#L68) should accept basic type as argument instead of more internal column type
-* more defined behavior/tests needed for grouped dfs that become empty after filtering
-
-done
 * added `groupedBy` to provide distinct set of grouping tuples as data-frame
 * bundled `irisData`
+* enhanced: `DataCol.toDouble()` should work for int columns as well (same vv)
 
 
 v0.6
 ----
+Released: 2017-11-11
 
 * More idiomatic API mimicking kotlin stdlib where possible
 * Added `DataFrame.remove` to drop columns from data-frames

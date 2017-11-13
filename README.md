@@ -189,9 +189,9 @@ Support & Documentation
 FAQ
 ===
 
-### How to rewrite common SQL bits?
+### How to rewrite common SQL bits with krangl?
 
-1. `select this, that from there where that >5` with krangl
+1. `select this, that from there where that >5`
 
 ```kotlin
 df.select("this", "that").filter{ it["that"] gt 5 }
@@ -200,23 +200,25 @@ df.select("this", "that").filter{ it["that"] gt 5 }
 
 # References
 
-Other Related Projects:
-* [Joinery](https://github.com/cardillo/joinery): Data frames for Java
-* [vectorz](https://github.com/mikera/vectorz): Fast and flexible numerical library for Java featuring N-dimensional arrays
-* [golem](https://github.com/kyonifer/golem): A scientific library for Kotlin.
+Similar APIs (not just Kotlin)
 * [Scala DataTable](https://github.com/martincooper/scala-datatable): a lightweight, in-memory table structure written in Scala
+* [Joinery](https://github.com/cardillo/joinery): Data frames for Java
 * [Tablesaw](https://github.com/jtablesaw/tablesaw) which is according to authors the  _The simplest way to slice data in Java_
+* [paleo](https://github.com/netzwerg/paleo) which provides immutable Java 8 data frames with typed columns
 * [agate](https://github.com/wireservice/agate): A Python data analysis library that is optimized for humans instead of machines
-* [Pandas cheat sheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing)
+* [Pandas cheat sheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing) (python_
+* [dplyr](https://cran.r-project.org/web/packages/dplyr/index.html) which is a grammar of data manipulation (R-lang)
+
+
+Other data-science projects:
+* [vectorz](https://github.com/mikera/vectorz): Fast and flexible numerical library for Java featuring N-dimensional arrays
 * [koma](https://kyonifer.github.io/koma/) is a scientific computing library written in Kotlin, designed to allow development of cross-platform numerical applications
 * [termsql](https://github.com/tobimensch/termsql) converts text from a file or from stdin into SQL table and query it instantly. Uses sqlite as backend.
 * [kotliquery](https://github.com/seratch/kotliquery) is a handy database access library
-* [Paleo](https://github.com/netzwerg/paleo) which provides immutable Java 8 data frames with typed columns
+* [Dex : The Data Explorer](https://github.com/PatMartin/Dex) A data visualization tool written capable of powerful ETL and publishing web visualizations
 
-Data Viz
+Data Visualization
+* [kravis](https://github.com/holgerbrandl/kravis) which implements a Kotlin DSL for scientific data visualization
 * [XChart](https://github.com/timmolter/XChart) is a light weight Java library for plotting data
-* https://github.com/edvin/tornadofx-guide/blob/master/part1/8.%20Charts.md
+* [Charts in TornadoFX](https://github.com/edvin/tornadofx-guide/blob/master/part1/8.%20Charts.md)
 
-`dplyr` references
-* [dplyr at CRAN](https://cran.r-project.org/web/packages/dplyr/index.html): Official dplyr website
-* [dplyr API docs](http://www.rdocumentation.org/packages/dplyr/functions/dplyr): Online dplyr API docs
