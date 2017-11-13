@@ -200,32 +200,22 @@ df.select("this", "that").filter{ it["that"] gt 5 }
 
 # References
 
-
-
 Other Related Projects:
 * [Joinery](https://github.com/cardillo/joinery): Data frames for Java
 * [vectorz](https://github.com/mikera/vectorz): Fast and flexible numerical library for Java featuring N-dimensional arrays
 * [golem](https://github.com/kyonifer/golem): A scientific library for Kotlin.
 * [Scala DataTable](https://github.com/martincooper/scala-datatable): a lightweight, in-memory table structure written in Scala
-* https://github.com/jtablesaw/tablesaw which is according to authors the  _The simplest way to slice data in Java_
+* [Tablesaw](https://github.com/jtablesaw/tablesaw) which is according to authors the  _The simplest way to slice data in Java_
 * [agate](https://github.com/wireservice/agate): A Python data analysis library that is optimized for humans instead of machines
 * [Pandas cheat sheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing)
 * [koma](https://kyonifer.github.io/koma/) is a scientific computing library written in Kotlin, designed to allow development of cross-platform numerical applications
 * [termsql](https://github.com/tobimensch/termsql) converts text from a file or from stdin into SQL table and query it instantly. Uses sqlite as backend.
 * [kotliquery](https://github.com/seratch/kotliquery) is a handy database access library
-
-
-
-* https://github.com/netzwerg/paleo which provides immutable Java 8 data frames with typed columns
+* [Paleo](https://github.com/netzwerg/paleo) which provides immutable Java 8 data frames with typed columns
 
 Data Viz
-* https://github.com/timmolter/XChart is a light weight Java library for plotting data
+* [XChart](https://github.com/timmolter/XChart) is a light weight Java library for plotting data
 * https://github.com/edvin/tornadofx-guide/blob/master/part1/8.%20Charts.md
-
-
-
-
-
 
 `dplyr` references
 * [dplyr at CRAN](https://cran.r-project.org/web/packages/dplyr/index.html): Official dplyr website
