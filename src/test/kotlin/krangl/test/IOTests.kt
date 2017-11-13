@@ -46,7 +46,7 @@ class IOTests : Matchers {
         carsDF.names shouldBe listOf("model", "motor", "cylinders")
 
         // use enum order for sorting
-        carsDF.structure().print()
+        carsDF.columnTypes().print()
 
         carsDF.sortedBy { it["motor"].asType<Engine>() }
     }

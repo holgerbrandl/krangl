@@ -15,7 +15,7 @@ class SelectTest : Matchers {
     @Test
     fun `allow for empty data frame`(){
         emptyDataFrame().print()
-        emptyDataFrame().structure()
+        emptyDataFrame().columnTypes()
         emptyDataFrame().head()
         emptyDataFrame().tail()
         emptyDataFrame().select<IntCol>()
@@ -129,12 +129,12 @@ class SelectTest : Matchers {
 
 
         // note: typically the user would perform a positive selection but in context like gahter he needs a negative selection api as well
-        irisData.select { except("Species") AND !startsWith("Sepal") }.structure().print()
-        irisData.select { except("Species") AND except { startsWith("Sepal") } }.structure().print()
+        irisData.select { except("Species") AND !startsWith("Sepal") }.columnTypes().print()
+        irisData.select { except("Species") AND except { startsWith("Sepal") } }.columnTypes().print()
 
         // but she must never mix positive and negative selection
         shouldThrow<InvalidColumnSelectException> {
-            irisData.select { except("Species") AND startsWith("Sepal") }.structure().print()
+            irisData.select { except("Species") AND startsWith("Sepal") }.columnTypes().print()
         }
 
         //        irisData.select { except{startsWith("Sepal")} }.structure().print()

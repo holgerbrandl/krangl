@@ -115,6 +115,7 @@ class DoubleCol(name: String, val values: Array<Double?>) : DataCol(name) {
 }
 
 
+// todo what do we actually gain from having this type. It seems to be never used
 abstract class NumberCol(name: String) : DataCol(name) {
 }
 

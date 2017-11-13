@@ -26,7 +26,7 @@ fun main(args: Array<String>) {
 
     //    tornadoes.structure();
     tornadoes.glimpse()
-    tornadoes.structure().print()
+    tornadoes.columnTypes().print()
     //    tornadoes.structure().selectWhere(column("Column Type").isEqualTo("INTEGER"));
     //    tornadoes.first(3);
     //

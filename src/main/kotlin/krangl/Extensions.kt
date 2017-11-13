@@ -293,7 +293,8 @@ internal fun getColType(col: DataCol) = when (col) {
 }
 
 
-fun DataFrame.structure(): List<ColSpec> {
+//todo should this be part of the public api? It's not needed in most cases
+fun DataFrame.columnTypes(): List<ColSpec> {
     // todo add support for grouped data here
     if (this !is SimpleDataFrame) {
         TODO()
@@ -307,7 +308,13 @@ fun List<ColSpec>.asDf() = asDataFrame { mapOf("index" to it.pos, "name" to it.n
 fun List<ColSpec>.print() = asDf().print()
 
 
+
+// todo should it be called structure of glimpse. there should not be any name aliases
+/* Prints the structure of a dataframe to stdout. Alias for `df.glimpse()`*/
+fun DataFrame.structure()  = glimpse()
+
 /* Prints the structure of a dataframe to stdout.*/
+//@Deprecated("use printSchema() instead")
 fun DataFrame.glimpse() {
     // todo add support for grouped data here
     if (this !is SimpleDataFrame) {
