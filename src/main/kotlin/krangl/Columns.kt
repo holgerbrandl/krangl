@@ -39,7 +39,7 @@ abstract class DataCol(val name: String) {
 
     open operator fun not(): DataCol = throw UnsupportedOperationException()
 
-    internal abstract fun values(): Array<*>
+    abstract fun values(): Array<*>
 
     abstract val length: Int
 
@@ -351,6 +351,7 @@ fun <T> Array<T?>.ignoreNA(expr: T.() -> Any?): List<Any?> = map { if (it != nul
 
 /** Maps a column to true for the NA values and `false` otherwise. */
 fun DataCol.isNA(): BooleanArray = this.values().map { it == null }.toBooleanArray()
+fun DataCol.isNotNA(): BooleanArray = this.values().map { it != null }.toBooleanArray()
 
 
 /** Allows to process a list of null-containing elements with an expression. NA will be kept where they were in the resulting table.*/

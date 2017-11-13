@@ -7,11 +7,20 @@ import org.apache.commons.csv.CSVFormat
 import org.junit.Test
 
 
-val irisData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())
 val flights = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/nycflights.tsv.gz"), format = CSVFormat.TDF.withHeader(), isCompressed = true)
 
 
 class SelectTest : Matchers {
+
+    @Test
+    fun `allow for empty data frame`(){
+        emptyDataFrame().print()
+        emptyDataFrame().structure()
+        emptyDataFrame().head()
+        emptyDataFrame().tail()
+        emptyDataFrame().select<IntCol>()
+
+    }
 
     @Test
     fun `it should select with regex`() {
@@ -331,7 +340,7 @@ class EmptyTest : Matchers {
             sortedBy()
 
             // grouping
-            (groupBy() as GroupedDataFrame).groups()
+            (groupBy() as GroupedDataFrame).groupedBy()
         }
     }
 }
@@ -356,7 +365,7 @@ class GroupedDataTest : Matchers {
     fun `it should allow for NA as a group value`() {
 
         // 1) test single attribute grouping with NA
-        (sleepData.groupBy("vore") as GroupedDataFrame).groups().nrow shouldBe 5
+        (sleepData.groupBy("vore") as GroupedDataFrame).groupedBy().nrow shouldBe 5
 
         // 2) test multi-attribute grouping with NA in one or all attributes
         //        (sleepData.groupBy("vore") as GroupedDataFrame).groups().nrow shouldBe 6

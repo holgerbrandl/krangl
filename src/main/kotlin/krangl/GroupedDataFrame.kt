@@ -113,5 +113,8 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
     override fun toString(): String = "Grouped by: *$by\n" + ungroup().take(5).asString()
 
-    fun groups() = slice(1).ungroup().select(*by.toTypedArray())
+    override fun groupedBy() = slice(1).ungroup().select(*by.toTypedArray())
+
+    // todo add nest() support
+    override fun groups() :List<DataFrame> = groups.map{it.df}
 }

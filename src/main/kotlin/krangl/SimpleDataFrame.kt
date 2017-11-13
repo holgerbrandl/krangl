@@ -325,6 +325,12 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     }
 
 
+    override fun groupedBy(): DataFrame = emptyDataFrame()
+
+
+    override fun groups(): List<DataFrame>  = listOf(this)
+
+
     override fun ungroup(): DataFrame = this // for ungrouped data ungrouping won't do anything
 
     // todo mimic dplyr.print better here (num observations, hide too many columns, etc.)
@@ -348,6 +354,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
 
 }
+
 
 internal val DataFrame.ec: ExpressionContext
     get() = ExpressionContext(this)

@@ -1,7 +1,6 @@
 package krangl
 
 
-
 typealias DataFrameRow = Map<String, Any?>
 
 typealias VectorizedRowPredicate = ExpressionContext.(ExpressionContext) -> BooleanArray
@@ -27,9 +26,7 @@ interface DataFrame {
     val cols: List<DataCol>
 
     /** An iterator over the row numbers in the data-frame. */
-//    val rowNumber: Iterable<Int>
-
-
+    //    val rowNumber: Iterable<Int>
 
 
     operator fun get(name: String): DataCol
@@ -39,9 +36,9 @@ interface DataFrame {
     fun row(rowIndex: Int): DataFrameRow
 
 
-    fun filterByRow(rowFilter: DataFrameRow.(DataFrameRow) -> Boolean) : DataFrame {
-        val filterIndex = this.rows.map{ it.rowFilter(it)}
-        return filter {  filterIndex.toBooleanArray() }
+    fun filterByRow(rowFilter: DataFrameRow.(DataFrameRow) -> Boolean): DataFrame {
+        val filterIndex = this.rows.map { it.rowFilter(it) }
+        return filter { filterIndex.toBooleanArray() }
     }
 
 
@@ -101,15 +98,15 @@ interface DataFrame {
     fun select(vararg columns: ColumnSelector): DataFrame {
         val reducedSelector = reduceColSelectors(columns)
 
-        if(reducedSelector.toList().filterNotNull().distinct().size >1){
-           throw InvalidColumnSelectException(names,reducedSelector)
+        if (reducedSelector.toList().filterNotNull().distinct().size > 1) {
+            throw InvalidColumnSelectException(names, reducedSelector)
         }
 
         return select(reducedSelector)
     }
 
     fun remove(vararg columSelects: ColumnSelector): DataFrame =
-            select(*columSelects.map { it -> { x: ColNames -> x.except(it) } }.toTypedArray())
+        select(*columSelects.map { it -> { x: ColNames -> x.except(it) } }.toTypedArray())
 
 
     // todo consider to use List<Boolean> in signature. We can not provide both because of type erasure
@@ -153,8 +150,16 @@ interface DataFrame {
     /** Removes the grouping (if present from a data frame. */
     fun ungroup(): DataFrame
 
+
+
     // needed for static extensions (see http://stackoverflow.com/questions/28210188/static-extension-methods-in-kotlin)
     companion object {}
+
+    /** Returns a data-frame of distinct grouping variable tuples for a grouped data-frame. An empty data-frame for ungrouped data.*/
+    fun groupedBy(): DataFrame
+
+    /** Returns the groups of a grouped data frame or just a reference to this object if not.*/
+    fun groups(): List<DataFrame>
 }
 
 

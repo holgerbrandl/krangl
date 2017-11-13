@@ -179,6 +179,9 @@ Additional variables order, conservation status and vore were added from wikiped
  */
 val sleepData by lazy { DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/msleep.csv"), CSVFormat.DEFAULT.withHeader()) }
 
+val irisData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())
+
+
 /**
 On-time data for all 336776 flights that departed NYC (i.e. JFK, LGA or EWR) in 2013.
 

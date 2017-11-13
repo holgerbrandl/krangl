@@ -412,6 +412,8 @@ internal fun GroupedDataFrame.transformGroups(trafo: (DataFrame) -> DataFrame): 
 
 fun List<DataCol>.asDataFrame(): DataFrame = SimpleDataFrame(this)
 
+fun emptyDataFrame(): DataFrame  =  SimpleDataFrame()
+
 
 /** Return an iterator over the rows in data in the receiver. */
 internal fun DataFrame.rowData(): Iterable<List<Any?>> = when (this) {
