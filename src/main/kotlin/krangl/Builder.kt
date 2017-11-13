@@ -1,5 +1,6 @@
 package krangl
 
+import krangl.ArrayUtils.handleListErasure
 import java.sql.ResultSet
 import java.time.LocalDate
 import java.time.LocalTime

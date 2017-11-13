@@ -189,11 +189,14 @@ Support & Documentation
 FAQ
 ===
 
-### How to rewrite `select this, that from there where that >5` with krangl?
+### How to rewrite common SQL bits?
+
+1. `select this, that from there where that >5` with krangl
 
 ```kotlin
-df.select("this", "that").filter{ it["this"] gt 5 }
+df.select("this", "that").filter{ it["that"] gt 5 }
 ```
+
 
 # References
 

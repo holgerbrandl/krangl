@@ -1,5 +1,7 @@
 package krangl
 
+import krangl.ArrayUtils.handleArrayErasure
+import krangl.ArrayUtils.handleListErasure
 import java.util.*
 
 
@@ -62,7 +64,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         warnIf(columns.isEmpty() &&
             // it may happen that internally we do an empty selection. e.g when joining a df on all columns with itself.
             // to prevent misleading logging we check for that by detecting the context of this call
-            !Thread.currentThread().getStackTrace().map{ it.methodName}.contains("join")) {
+            !Thread.currentThread().getStackTrace().map { it.methodName }.contains("join")) {
             "Calling select() will always return an empty data-frame"
         }
 
@@ -75,16 +77,16 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     // Utility methods
 
     override fun row(rowIndex: Int): DataFrameRow =
-            cols.map {
-                it.name to when (it) {
-                    is DoubleCol -> it.values[rowIndex]
-                    is IntCol -> it.values[rowIndex]
-                    is BooleanCol -> it.values[rowIndex]
-                    is StringCol -> it.values[rowIndex]
-                    is AnyCol -> it.values[rowIndex]
-                    else -> throw UnsupportedOperationException()
-                }
-            }.toMap()
+        cols.map {
+            it.name to when (it) {
+                is DoubleCol -> it.values[rowIndex]
+                is IntCol -> it.values[rowIndex]
+                is BooleanCol -> it.values[rowIndex]
+                is StringCol -> it.values[rowIndex]
+                is AnyCol -> it.values[rowIndex]
+                else -> throw UnsupportedOperationException()
+            }
+        }.toMap()
 
     override val ncol = cols.size
 
@@ -293,12 +295,12 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
         // and  split up original dataframe columns by selector index
         val groupIndices = rowHashes.
-                mapIndexed { index, group -> Pair(group, index) }.
-                groupBy { it.first }.
-                map {
-                    val groupRowIndices = it.value.map { it.second }.toIntArray()
-                    GroupIndex(it.key, groupRowIndices)
-                }
+            mapIndexed { index, group -> Pair(group, index) }.
+            groupBy { it.first }.
+            map {
+                val groupRowIndices = it.value.map { it.second }.toIntArray()
+                GroupIndex(it.key, groupRowIndices)
+            }
 
 
         //        Array<String>(3, { it.toString()}).toList()
@@ -328,7 +330,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     override fun groupedBy(): DataFrame = emptyDataFrame()
 
 
-    override fun groups(): List<DataFrame>  = listOf(this)
+    override fun groups(): List<DataFrame> = listOf(this)
 
 
     override fun ungroup(): DataFrame = this // for ungrouped data ungrouping won't do anything
@@ -397,31 +399,6 @@ internal fun anyAsColumn(mutation: Any?, name: String, nrow: Int): DataCol {
     return newCol
 }
 
-@Suppress("UNCHECKED_CAST")
-internal fun handleArrayErasure(otherCol: DataCol, name: String, mutation: Array<*>): DataCol = when (otherCol) {
-//    isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, mutation as Array<Int?>)
-    is IntCol -> IntCol(name, Array<Int?>(mutation.size, { mutation[it] as? Int }))
-    is StringCol -> StringCol(name, Array<String?>(mutation.size, { mutation[it] as? String }))
-    is DoubleCol -> DoubleCol(name, Array<Double?>(mutation.size, { mutation[it] as? Double }))
-    is BooleanCol -> BooleanCol(name, Array<Boolean?>(mutation.size, { mutation[it] as? Boolean }))
-    else -> AnyCol(name, mutation as Array<Any?>)
-}
-
-@Suppress("UNCHECKED_CAST")
-internal fun handleArrayErasure(name: String, mutation: Array<*>): DataCol = when {
-//    isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, mutation as Array<Int?>)
-    isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, Array<Int?>(mutation.size, { mutation[it] as? Int }))
-//    isOfType<String>(mutation) -> StringCol(name, mutation as Array<String?>)
-    isOfType<String>(mutation) -> StringCol(name, Array<String?>(mutation.size, { mutation[it] as? String }))
-//    isOfType<Double>(mutation) -> DoubleCol(name, mutation as Array<Double?>)
-    isOfType<Double>(mutation) -> DoubleCol(name, Array<Double?>(mutation.size, { mutation[it] as? Double }))
-//    isOfType<Boolean>(mutation) -> BooleanCol(name, mutation as Array<Boolean?>)
-    isOfType<Boolean>(mutation) -> BooleanCol(name, Array<Boolean?>(mutation.size, { mutation[it] as? Boolean }))
-    isOfType<Any>(mutation) -> AnyCol(name, mutation)
-    mutation.isEmpty() -> AnyCol(name, emptyArray())
-    else -> throw UnsupportedOperationException()
-}
-
 
 /**Test if for first non-null elemeent in list if it has specific type bu peeking into it from the top. */
 inline fun <reified T> isOfType(items: Array<Any?>): Boolean {
@@ -434,17 +411,47 @@ inline fun <reified T> isOfType(items: Array<Any?>): Boolean {
     return false
 }
 
-@Suppress("UNCHECKED_CAST")
-internal fun handleListErasure(name: String, mutation: List<*>): DataCol = when {
-    isListOfType<Int>(mutation) -> IntCol(name, mutation as List<Int>)
-    isListOfType<String>(mutation) -> StringCol(name, mutation as List<String>)
-    isListOfType<Double>(mutation) -> DoubleCol(name, mutation as List<Double>)
-    isListOfType<Boolean>(mutation) -> BooleanCol(name, mutation as List<Boolean>)
-    mutation.isEmpty() -> AnyCol(name, emptyArray())
-    else -> AnyCol(name, mutation)
-//    else -> throw UnsupportedOperationException()
-}
 
+// wrapped so that we can expose them without polluting the krangl namespace
+object ArrayUtils {
+
+    @Suppress("UNCHECKED_CAST")
+    internal fun handleArrayErasure(otherCol: DataCol, name: String, mutation: Array<*>): DataCol = when (otherCol) {
+    //    isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, mutation as Array<Int?>)
+        is IntCol -> IntCol(name, Array<Int?>(mutation.size, { mutation[it] as? Int }))
+        is StringCol -> StringCol(name, Array<String?>(mutation.size, { mutation[it] as? String }))
+        is DoubleCol -> DoubleCol(name, Array<Double?>(mutation.size, { mutation[it] as? Double }))
+        is BooleanCol -> BooleanCol(name, Array<Boolean?>(mutation.size, { mutation[it] as? Boolean }))
+        else -> AnyCol(name, mutation as Array<Any?>)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    internal fun handleArrayErasure(name: String, mutation: Array<*>): DataCol = when {
+    //    isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, mutation as Array<Int?>)
+        isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, Array<Int?>(mutation.size, { mutation[it] as? Int }))
+    //    isOfType<String>(mutation) -> StringCol(name, mutation as Array<String?>)
+        isOfType<String>(mutation) -> StringCol(name, Array<String?>(mutation.size, { mutation[it] as? String }))
+    //    isOfType<Double>(mutation) -> DoubleCol(name, mutation as Array<Double?>)
+        isOfType<Double>(mutation) -> DoubleCol(name, Array<Double?>(mutation.size, { mutation[it] as? Double }))
+    //    isOfType<Boolean>(mutation) -> BooleanCol(name, mutation as Array<Boolean?>)
+        isOfType<Boolean>(mutation) -> BooleanCol(name, Array<Boolean?>(mutation.size, { mutation[it] as? Boolean }))
+        isOfType<Any>(mutation) -> AnyCol(name, mutation)
+        mutation.isEmpty() -> AnyCol(name, emptyArray())
+        else -> throw UnsupportedOperationException()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun handleListErasure(name: String, mutation: List<*>): DataCol = when {
+        isListOfType<Int>(mutation) -> IntCol(name, mutation as List<Int>)
+        isListOfType<String>(mutation) -> StringCol(name, mutation as List<String>)
+        isListOfType<Double>(mutation) -> DoubleCol(name, mutation as List<Double>)
+        isListOfType<Boolean>(mutation) -> BooleanCol(name, mutation as List<Boolean>)
+        mutation.isEmpty() -> AnyCol(name, emptyArray())
+        else -> AnyCol(name, mutation)
+    //    else -> throw UnsupportedOperationException()
+    }
+
+}
 
 inline fun <reified T> isListOfType(items: List<Any?>): Boolean {
     val it = items.iterator()

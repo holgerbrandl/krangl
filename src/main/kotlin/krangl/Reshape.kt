@@ -1,5 +1,8 @@
 package krangl
 
+import krangl.ArrayUtils.handleArrayErasure
+import krangl.ArrayUtils.handleListErasure
+
 /**
  * Spread a key-value pair across multiple columns.
  *

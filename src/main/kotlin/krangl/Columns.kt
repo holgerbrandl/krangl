@@ -1,5 +1,6 @@
 package krangl
 
+import krangl.ArrayUtils.handleArrayErasure
 import java.lang.UnsupportedOperationException
 import java.util.*
 
@@ -272,7 +273,13 @@ infix fun DataCol.eq(i: Any): BooleanArray = when (this) {
 //fun DataCol.asBooleans(): Array<Boolean?> = asType<Boolean>()
 fun DataCol.asStrings(): Array<String?> = columnCast<StringCol>().values
 
-fun DataCol.asDoubles(): Array<Double?> = columnCast<DoubleCol>().values
+fun DataCol.asDoubles(): Array<Double?> {
+    return when {
+        this is IntCol -> Array(values.size, { (this[it] as Int?)?.toDouble() })
+        else -> columnCast<DoubleCol>().values
+    }
+}
+
 fun DataCol.asBooleans(): Array<Boolean?> = columnCast<BooleanCol>().values
 fun DataCol.asInts(): Array<Int?> = columnCast<IntCol>().values
 
@@ -333,8 +340,6 @@ inline fun <reified T> DataCol.map(noinline expr: (T) -> Any?): List<Any?> {
 fun <T> Array<T?>.ignoreNA(expr: T.() -> Any?): List<Any?> = map { if (it != null) expr(it) else null }
 
 
-
-
 // should this be dropeed entirely?
 //internal inline fun <reified T, R> DataCol.map2(noinline expr: (T) -> R?): List<R?> {
 //    val recast = asType<T?>()
@@ -351,6 +356,7 @@ fun <T> Array<T?>.ignoreNA(expr: T.() -> Any?): List<Any?> = map { if (it != nul
 
 /** Maps a column to true for the NA values and `false` otherwise. */
 fun DataCol.isNA(): BooleanArray = this.values().map { it == null }.toBooleanArray()
+
 fun DataCol.isNotNA(): BooleanArray = this.values().map { it != null }.toBooleanArray()
 
 
