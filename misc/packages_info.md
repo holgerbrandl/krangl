@@ -1,6 +1,6 @@
 # Module krangl
 
-`krangl` is a {K}otlin library for data w{rangl}ing. By implementing a grammar of data manipulation using a modern functional-style API, it allows to filter, transform aggregate and reshape tabular data.
+`krangl` is a {K}otlin library for data w{rangl}ing. By implementing a grammar of data manipulation using a modern functional-style API, it allows to filter, transform, aggregate and reshape tabular data.
 
 For details see [https://github.com/holgerbrandl/krangl](https://github.com/holgerbrandl/krangl)
 

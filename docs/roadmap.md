@@ -4,21 +4,46 @@ Krangl Roadmap
 For completed items see [change-log](../CHANGES.md).
 
 v0.7
+
+### Meta
+
+* todo-cleanup
+* run readme examples as unit-test
+
 ----
-
-
+### Core
+* bug: csv reader does not handle incorrect type guesses [#10](https://github.com/holgerbrandl/krangl/issues/10)
+* bug: incorrect indentation in `stucture()`
+* bug: incorrect printing of structure/glimpse in Idea repl: **{ide bug}**
+![](.roadmap_images/27681fbd.png)
 * more defined behavior/tests needed for grouped dfs that become empty after filtering
+* Continue peeking until we hit the first/N non-NA values for column type detection [#8](https://github.com/holgerbrandl/krangl/issues/8)
+* ensure sure that `df.count()` returns `nrow` as a 1-row table. What about grouped data (dplyr)?
+```
+> iris %>% group_by(Species) %>% count
+# A tibble: 3 x 2
+# Groups:   Species [3]
+     Species     n
+      <fctr> <int>
+1     setosa    50
+2 versicolor    50
+3  virginica    50
+```
+--> unit test this!
+
 
 ---
-API improvemnts
+### API improvements
 
 
 * [Select](src/main/kotlin/krangl/Select.kt#L68) should accept basic type as argument instead of more internal column type
 * write and save parquet files https://stackoverflow.com/questions/39728854/create-parquet-files-in-java
+* Add generic NA aware mapper for filter expressions [#21](https://github.com/holgerbrandl/krangl/issues/21)
+* Provide more elegant object bindings [#22](https://github.com/holgerbrandl/krangl/issues/22)
 
 ---
 
-Improve jvm compatibility and add examples (see roadmap)
+### Improve JVM compatibility
 
 
 * Use JvmName to allow for more strongly typed (see  http://stackoverflow.com/questions/29268526/how-to-overcome-same-jvm-signature-error-when-implementing-a-java-interface)
@@ -32,11 +57,12 @@ fun DataFrame.mutate(name: String, formula: (DataFrame) -> List<String>): DataFr
 }
 
 ```
+* Provide readme-examples as java-code
+
 ---
-Performance
+### Performance
 
 * misc consider to use kotlin.collections.ArrayAsCollection
-
 * Setup up benchmarking suite
 
 List copy optimization
@@ -45,7 +71,7 @@ List copy optimization
 * [ ] `krangl.SimpleDataFrame.addColumn` should avoid `toMutatbleList`
 * [ ] More consistent use of List vs using arrays as column datastore (see [array vs list](http://stackoverflow.com/questions/716597/array-or-list-in-java-which-is-faster)). This would avoid array conversion which are omnipresent in the API at the moment.
 * [ ] `get rid of other `toMutableList` and use view instead
-
+* Analyze benchmark results with with kravis/krangl :-)
 
 
 Backlog
@@ -115,8 +141,3 @@ newTable.src.x
 --
 
 Make use of kotlin.Number to simplify API --> Done by adding `NumberCol` but unclear how to actually benefit from it
-
-
-## Design
-
-https://stackoverflow.com/questions/45090808/intarray-vs-arrayint-in-kotlin --> bottom line: Array<*> can be null

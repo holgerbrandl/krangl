@@ -54,8 +54,20 @@ df.createColumn("user_id") { const("id") + nrow }
 
 ## Joins
 
-
 https://blog.jooq.org/2016/07/05/say-no-to-venn-diagrams-when-explaining-joins/
+
+
+# Examples, examples,  and more examples
+
+1. Add a suffix to some column names
+```kotlin
+// first select column names to be altered
+irisData.names.filter { it.startsWith("Sepal") }.map {
+    // second, apply renaming
+    oldName -> irisData.rename(oldName to ("My" + oldName)) 
+}
+```
+
 
 ## Known differences to `dplyr` package in R
 

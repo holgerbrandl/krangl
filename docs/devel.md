@@ -26,3 +26,9 @@ kotlinc  -classpath '/Users/brandl/.m2/repository/de/mpicbg/scicomp/krangl/0.4-S
 * https://github.com/SalomonBrys/Kodein cool dependency injection
 * https://github.com/hotchemi/khronos date extension
 * https://github.com/zeroturnaround/zt-exec cool process builder api
+
+
+
+## Design
+
+https://stackoverflow.com/questions/45090808/intarray-vs-arrayint-in-kotlin --> bottom line: Array<*> can be null

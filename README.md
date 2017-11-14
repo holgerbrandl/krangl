@@ -2,7 +2,7 @@
 
 [ ![Download](https://api.bintray.com/packages/holgerbrandl/mpicbg-scicomp/krangl/images/download.svg) ](https://bintray.com/holgerbrandl/mpicbg-scicomp/krangl/_latestVersion)  [![Build Status](https://travis-ci.org/holgerbrandl/krangl.svg?branch=master)](https://travis-ci.org/holgerbrandl/krangl) [![Gitter](https://badges.gitter.im/holgerbrandl/krangl.svg)](https://gitter.im/holgerbrandl/krangl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-`krangl` is a {K}otlin library for data w{rangl}ing. By implementing a grammar of data manipulation using a modern functional-style API, it allows to filter, transform aggregate and reshape tabular data.
+`krangl` is a {K}otlin library for data w{rangl}ing. By implementing a grammar of data manipulation using a modern functional-style API, it allows to filter, transform, aggregate and reshape tabular data.
 
 `krangl` is heavily inspired by the amazing [`dplyr`](https://github.com/hadley/dplyr) for [R](https://www.r-project.org/). `krangl` is written in [Kotlin](https://kotlinlang.org/), excels in Kotlin, but emphasizes as well on good java-interop. It is mimicking the API of `dplyr`, while carefully adding more typed constructs where possible.
 
@@ -194,7 +194,7 @@ FAQ
 1. `select this, that from there where that >5`
 
 ```kotlin
-df.select("this", "that").filter{ it["that"] gt 5 }
+there.select("this", "that").filter{ it["that"] gt 5 }
 ```
 
 
@@ -202,23 +202,23 @@ df.select("this", "that").filter{ it["that"] gt 5 }
 
 Similar APIs (not just Kotlin)
 * [Scala DataTable](https://github.com/martincooper/scala-datatable): a lightweight, in-memory table structure written in Scala
-* [joinery](https://github.com/cardillo/joinery): Data frames for Java
-* [tablesaw](https://github.com/jtablesaw/tablesaw) which is (according to authors) the  _The simplest way to slice data in Java_
+* [joinery](https://github.com/cardillo/joinery) implements data frames for Java
+* [tablesaw](https://github.com/jtablesaw/tablesaw) which is (according to its authors) the _The simplest way to slice data in Java_
 * [paleo](https://github.com/netzwerg/paleo) which provides immutable Java 8 data frames with typed columns
-* [agate](https://github.com/wireservice/agate): A Python data analysis library that is optimized for humans instead of machines
+* [agate](https://github.com/wireservice/agate) isa  Python data analysis library that is optimized for humans instead of machines
 * [pandas](http://pandas.pydata.org/) provides high-performance, easy-to-use data structures and data analysis tools for python ([cheatsheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing))
 * [dplyr](https://cran.r-project.org/web/packages/dplyr/index.html) which is a grammar of data manipulation (R-lang)
 
 
 Other data-science projects:
-* [vectorz](https://github.com/mikera/vectorz): Fast and flexible numerical library for Java featuring N-dimensional arrays
+* [vectorz](https://github.com/mikera/vectorz) is a fast and flexible numerical library for Java featuring N-dimensional arrays
 * [koma](https://kyonifer.github.io/koma/) is a scientific computing library written in Kotlin, designed to allow development of cross-platform numerical applications
 * [termsql](https://github.com/tobimensch/termsql) converts text from a file or from stdin into SQL table and query it instantly. Uses sqlite as backend.
 * [kotliquery](https://github.com/seratch/kotliquery) is a handy database access library
-* [Dex : The Data Explorer](https://github.com/PatMartin/Dex) A data visualization tool written capable of powerful ETL and publishing web visualizations
+* [Dex : The Data Explorer](https://github.com/PatMartin/Dex) is a data visualization tool written capable of powerful ETL and publishing web visualizations
 
 Data Visualization
 * [kravis](https://github.com/holgerbrandl/kravis) which implements a Kotlin DSL for scientific data visualization
 * [XChart](https://github.com/timmolter/XChart) is a light weight Java library for plotting data
-* [Charts in TornadoFX](https://github.com/edvin/tornadofx-guide/blob/master/part1/8.%20Charts.md)
+* [Charts in TornadoFX](https://github.com/edvin/tornadofx-guide/blob/master/part1/8.%20Charts.md) provide visualzation examples using javaFX
 
