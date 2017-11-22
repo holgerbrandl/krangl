@@ -8,6 +8,7 @@ fun main(args: Array<String>) {
 
     // Read data-frame from disk
     val iris = DataFrame.fromCSV("data/iris.txt")
+    // val iris = DataFrame.fromCSV("/Users/brandl/projects/kotlin/krangl/src/main/resources/krangl/data/iris.txt")
 
 
     // Create data-frame in memory
@@ -46,7 +47,8 @@ fun main(args: Array<String>) {
     df.addColumn("with_anz") { it["first_name"].asStrings().map { it!!.contains("anz") } }
 
     // Note: krangl is using 'null' as missing value, and provides convenience methods to process non-NA bits
-    df.addColumn("first_name_initial") { it["first_name"].asStrings().mapNonNull { first().toString() } }
+//    df.addColumn("first_name_initial") { it["first_name"].asStrings().mapNonNull { first().toString() } }
+    df.addColumn("first_name_initial") { it["first_name"].map<String>{ it.first() } }
 
     // or add multiple columns at once
     df.addColumns(
