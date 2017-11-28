@@ -69,7 +69,7 @@ fun evalFlights() {
 fun main(args: Array<String>) {
     val flights = RunTimes.measure({
         //        DataFrame.fromCSV("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv")
-        DataFrame.fromCSV(File("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"), format = CSVFormat.TDF)
+        DataFrame.fromTSV(File("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"))
     }, numRuns = 1).apply {
         println(runtimes)
     }.result

@@ -66,6 +66,7 @@ fun DataFrame.mutate(name: String, formula: (DataFrame) -> List<String>): DataFr
 * Setup up benchmarking suite
 
 List copy optimization
+* use iterable where possible
 * misc consider to use kotlin.collections.ArrayAsCollection --> get rid of toList which always does a full copy internally.
 * [ ] 30% flights HOTSPOT: `krangl/Extensions.kt:275` can we get rid fo the array creation?
 * [ ] `krangl.SimpleDataFrame.addColumn` should avoid `toMutatbleList`

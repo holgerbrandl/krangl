@@ -50,4 +50,11 @@ class IOTests : Matchers {
 
         carsDF.sortedBy { it["motor"].asType<Engine>() }
     }
+
+    @Test
+    fun `it should read a url`(){
+        val fromCSV = DataFrame.fromCSV("https://raw.githubusercontent.com/holgerbrandl/krangl/master/src/test/resources/krangl/data/1950-2014_torn.csv")
+        assert(fromCSV.nrow > 2)
+    }
+
 }

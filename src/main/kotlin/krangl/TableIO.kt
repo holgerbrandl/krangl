@@ -6,6 +6,7 @@ import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import org.apache.commons.csv.CSVRecord
 import java.io.*
+import java.net.URI
 import java.net.URL
 import java.util.zip.GZIPInputStream
 
@@ -18,36 +19,49 @@ Methods to read and write tables into/from DataFrames
  */
 
 
-fun DataFrame.Companion.fromCSV(file: String) = fromCSV(File(file))
-fun DataFrame.Companion.fromTSV(file: String) = fromTSV(File(file))
+private fun asStream(fileOrUrl: String) = (if (isURL(fileOrUrl)) {
+    URL(fileOrUrl).toURI()
+} else {
+    File(fileOrUrl).toURI()
+}).toURL().openStream()
 
-fun DataFrame.Companion.fromTSV(file: File) = fromCSV(file, format = CSVFormat.TDF.withHeader())
+private fun isURL(fileOrUrl: String): Boolean = listOf("http:", "https:", "ftp:").any { fileOrUrl.startsWith(it) }
+
+
+fun DataFrame.Companion.fromCSV(fileOrUrl: String) = asStream(fileOrUrl).run { fromCSV(this) }
+
+fun DataFrame.Companion.fromTSV(fileOrUrl: String) = asStream(fileOrUrl).run { fromCSV(this, format = CSVFormat.TDF.withHeader()) }
+
+fun DataFrame.Companion.fromCSV(file: File) = fromCSV(FileInputStream(file), format = CSVFormat.DEFAULT.withHeader())
+fun DataFrame.Companion.fromTSV(file: File) = fromCSV(FileInputStream(file), format = CSVFormat.TDF.withHeader())
 
 // http://stackoverflow.com/questions/9648811/specific-difference-between-bufferedreader-and-filereader
-fun DataFrame.Companion.fromCSV(file: File,
+fun DataFrame.Companion.fromCSV(uri: URI,
+//                                hasHeader:Boolean =true,
                                 format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
-                                isCompressed: Boolean = file.name.endsWith(".gz")): DataFrame {
+                                isCompressed: Boolean = uri.toURL().toString().endsWith(".gz")): DataFrame {
 
-    val bufReader = if (isCompressed) {
+    val inputStream = uri.toURL().openStream()
+    val streamReader = if (isCompressed) {
         // http://stackoverflow.com/questions/1080381/gzipinputstream-reading-line-by-line
-        val gzip = GZIPInputStream(FileInputStream(file));
-        BufferedReader(InputStreamReader(gzip));
+        val gzip = GZIPInputStream(inputStream);
+        InputStreamReader(gzip);
     } else {
-        BufferedReader(FileReader(file))
+        InputStreamReader(inputStream)
     }
 
-    return fromCSV(bufReader, format)
+    return fromCSV(BufferedReader(streamReader), format)
 }
 
 //http://stackoverflow.com/questions/5200187/convert-inputstream-to-bufferedreader
 fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFormat.DEFAULT.withHeader(), isCompressed: Boolean = false) =
-        if (isCompressed) {
-            InputStreamReader(GZIPInputStream(inStream))
-        } else {
-            BufferedReader(InputStreamReader(inStream, "UTF-8"))
-        }.run {
-            fromCSV(this, format)
-        }
+    if (isCompressed) {
+        InputStreamReader(GZIPInputStream(inStream))
+    } else {
+        BufferedReader(InputStreamReader(inStream, "UTF-8"))
+    }.run {
+        fromCSV(this, format)
+    }
 
 
 fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT.withHeader()): DataFrame {
@@ -60,7 +74,7 @@ fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DE
     // todo also support reading files without header --> use generic column names if so
 
     val columnNames = csvParser.headerMap?.keys ?:
-            (1..csvParser.records[0].count()).mapIndexed { index, _ -> "X${index}" }
+        (1..csvParser.records[0].count()).mapIndexed { index, _ -> "X${index}" }
 
 
     // todo make column names unique when reading them + unit test
@@ -189,9 +203,9 @@ Adopted from r, see `nycflights13::flights`
  */
 internal val flightsCacheFile = File(System.getProperty("user.home"), ".flights_data.tsv.gz")
 
-val flightsData by lazy{
+val flightsData by lazy {
 
-    if(!flightsCacheFile.isFile) {
+    if (!flightsCacheFile.isFile) {
         warning("[krangl] Downloading flights data into local cache...", false)
         val flightsURL = URL("https://github.com/holgerbrandl/krangl/blob/v0.4/src/test/resources/krangl/data/nycflights.tsv.gz?raw=true")
         warning("Done!")
