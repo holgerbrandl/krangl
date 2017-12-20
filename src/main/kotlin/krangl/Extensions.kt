@@ -341,7 +341,7 @@ fun DataFrame.printDataClassSchema(varName: String, dataClassName: String = varN
     val df = this.ungroup() as SimpleDataFrame
 
     // create type
-    val dataSpec = df.cols.map { "val ${it.name}: ${getScalarColType(it)}" }.joinToString(", ")
+    val dataSpec = df.cols.map { "val ${wrappedNameIfNecessary(it)}: ${getScalarColType(it)}" }.joinToString(", ")
     println("data class ${dataClassName}(${dataSpec})")
 
     // map dataframe to
