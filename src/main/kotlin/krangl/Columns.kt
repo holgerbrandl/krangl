@@ -85,6 +85,14 @@ internal fun getScalarColType(it: DataCol): String = it.javaClass.simpleName.rem
 //    else -> throw  UnsupportedOperationException()
 //}
 
+internal fun wrappedNameIfNecessary(it: DataCol): String = it.name.run {
+    if(this.contains(kotlin.text.Regex("\\s"))) {
+        "`$this`"
+    } else {
+        this
+    }
+}
+
 internal val TMP_COLUMN = "___tmp"
 
 
@@ -116,8 +124,7 @@ class DoubleCol(name: String, val values: Array<Double?>) : DataCol(name) {
 
 
 // todo what do we actually gain from having this type. It seems to be never used
-abstract class NumberCol(name: String) : DataCol(name) {
-}
+abstract class NumberCol(name: String) : DataCol(name)
 
 
 class IntCol(name: String, val values: Array<Int?>) : NumberCol(name) {

@@ -3,10 +3,7 @@ package krangl.test
 import io.kotlintest.TestBase
 import io.kotlintest.TestFailedException
 import io.kotlintest.matchers.Matchers
-import krangl.AnyCol
-import krangl.BooleanCol
-import krangl.DoubleCol
-import krangl.IntCol
+import krangl.*
 import org.junit.Test
 
 /**
@@ -38,6 +35,15 @@ class ColumnTests : Matchers {
         shouldThrow<UnsupportedOperationException> { (!AnyCol("foo", listOf(1))) }
         shouldThrow<UnsupportedOperationException> { (-AnyCol("foo", listOf(1))) }
 
+    }
+
+    @Test
+    fun `wrap column name with backticks if necessary`() {
+        val regularColumn = BooleanCol("simple_column", listOf(true, false))
+        val spaceColumn = BooleanCol("space column", listOf(true, false))
+
+        wrappedNameIfNecessary(regularColumn) shouldBe "simple_column"
+        wrappedNameIfNecessary(spaceColumn) shouldBe "`space column`"
     }
 }
 
