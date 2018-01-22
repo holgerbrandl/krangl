@@ -1,0 +1,8 @@
+a,b,c,d,e
+a,1,1,10,TRUE
+b,2,2,9,FALSE
+c,3,3,8,true
+d,4,4,7,false
+e,5,5,6,T
+f,6,6,5,F
+g,x,3.141,4,T

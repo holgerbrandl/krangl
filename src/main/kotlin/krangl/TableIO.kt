@@ -19,6 +19,10 @@ Methods to read and write tables into/from DataFrames
  */
 
 
+enum class ColType {
+    Int, Double, Boolean, String, Guess
+}
+
 private fun asStream(fileOrUrl: String) = (if (isURL(fileOrUrl)) {
     URL(fileOrUrl).toURI()
 } else {
@@ -28,43 +32,44 @@ private fun asStream(fileOrUrl: String) = (if (isURL(fileOrUrl)) {
 private fun isURL(fileOrUrl: String): Boolean = listOf("http:", "https:", "ftp:").any { fileOrUrl.startsWith(it) }
 
 
-fun DataFrame.Companion.fromCSV(fileOrUrl: String) = asStream(fileOrUrl).run { fromCSV(this) }
+fun DataFrame.Companion.fromCSV(fileOrUrl: String, colTypes: Map<String,ColType> = mapOf()) = asStream(fileOrUrl).run { fromCSV(this, colTypes = colTypes) }
 
 fun DataFrame.Companion.fromTSV(fileOrUrl: String) = asStream(fileOrUrl).run { fromCSV(this, format = CSVFormat.TDF.withHeader()) }
 
-fun DataFrame.Companion.fromCSV(file: File) = fromCSV(FileInputStream(file), format = CSVFormat.DEFAULT.withHeader())
-fun DataFrame.Companion.fromTSV(file: File) = fromCSV(FileInputStream(file), format = CSVFormat.TDF.withHeader())
+fun DataFrame.Companion.fromCSV(file: File, colTypes: Map<String,ColType> = mapOf()) = fromCSV(FileInputStream(file), format = CSVFormat.DEFAULT.withHeader(), colTypes = colTypes)
+fun DataFrame.Companion.fromTSV(file: File, colTypes: Map<String,ColType> = mapOf()) = fromCSV(FileInputStream(file), format = CSVFormat.TDF.withHeader(), colTypes = colTypes)
 
 // http://stackoverflow.com/questions/9648811/specific-difference-between-bufferedreader-and-filereader
 fun DataFrame.Companion.fromCSV(uri: URI,
 //                                hasHeader:Boolean =true,
                                 format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
-                                isCompressed: Boolean = uri.toURL().toString().endsWith(".gz")): DataFrame {
+                                isCompressed: Boolean = uri.toURL().toString().endsWith(".gz"),
+                                colTypes: Map<String, ColType> = mapOf()): DataFrame {
 
     val inputStream = uri.toURL().openStream()
     val streamReader = if (isCompressed) {
         // http://stackoverflow.com/questions/1080381/gzipinputstream-reading-line-by-line
-        val gzip = GZIPInputStream(inputStream);
-        InputStreamReader(gzip);
+        val gzip = GZIPInputStream(inputStream)
+        InputStreamReader(gzip)
     } else {
         InputStreamReader(inputStream)
     }
 
-    return fromCSV(BufferedReader(streamReader), format)
+    return fromCSV(BufferedReader(streamReader), format, colTypes = colTypes)
 }
 
 //http://stackoverflow.com/questions/5200187/convert-inputstream-to-bufferedreader
-fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFormat.DEFAULT.withHeader(), isCompressed: Boolean = false) =
-    if (isCompressed) {
-        InputStreamReader(GZIPInputStream(inStream))
-    } else {
-        BufferedReader(InputStreamReader(inStream, "UTF-8"))
-    }.run {
-        fromCSV(this, format)
-    }
+fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFormat.DEFAULT.withHeader(), isCompressed: Boolean = false, colTypes: Map<String, ColType> = mapOf()) =
+        if (isCompressed) {
+            InputStreamReader(GZIPInputStream(inStream))
+        } else {
+            BufferedReader(InputStreamReader(inStream, "UTF-8"))
+        }.run {
+            fromCSV(this, format, colTypes = colTypes)
+        }
 
 
-fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT.withHeader()): DataFrame {
+fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT.withHeader(), colTypes: Map<String, ColType> = mapOf()): DataFrame {
     val csvParser = format.parse(reader)
 
     val records = csvParser.records
@@ -74,29 +79,21 @@ fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DE
     // todo also support reading files without header --> use generic column names if so
 
     val columnNames = csvParser.headerMap?.keys ?:
-        (1..csvParser.records[0].count()).mapIndexed { index, _ -> "X${index}" }
+    (1..csvParser.records[0].count()).mapIndexed { index, _ -> "X${index}" }
 
 
     // todo make column names unique when reading them + unit test
 
     //    csvParser.headerMap.keys.pmap{colName ->
     for (colName in columnNames) {
-        val firstElements = peekCol(colName, records)
+        val defaultColType = colTypes[".default"] ?: ColType.Guess
 
-        when {
-        // see https://github.com/holgerbrandl/krangl/issues/10
-            isIntCol(firstElements) -> try {
-                IntCol(colName, records.map { it[colName].naAsNull()?.toInt() })
-            } catch (e: NumberFormatException) {
-                StringCol(colName, records.map { it[colName].naAsNull() })
-            }
-            isDoubleCol(firstElements) -> DoubleCol(colName, records.map { it[colName].naAsNull()?.toDouble() })
-            isBoolCol(firstElements) -> BooleanCol(colName, records.map { it[colName].naAsNull()?.cellValueAsBoolean() })
-            else -> StringCol(colName, records.map { it[colName].naAsNull() })
-        }.let { cols.add(it) }
+        val colType = colTypes[colName] ?: defaultColType
 
+        val column = dataColFactory(colName, colType, records)
+
+        cols.add(column)
     }
-
     return SimpleDataFrame(cols)
 }
 
@@ -121,6 +118,34 @@ internal fun String?.cellValueAsBoolean(): Boolean? {
 
     return cellValue?.toBoolean()
 }
+
+internal fun guessColType(firstElements: List<String?>): ColType =
+        when {
+            isBoolCol(firstElements) -> ColType.Boolean
+            isIntCol(firstElements) -> ColType.Int
+            isDoubleCol(firstElements) -> ColType.Double
+            else -> ColType.String
+        }
+
+
+internal fun dataColFactory(colName: String, colType: ColType, records: MutableList<CSVRecord>): DataCol =
+        when (colType) {
+        // see https://github.com/holgerbrandl/krangl/issues/10
+            ColType.Int -> try {
+                IntCol(colName, records.map { it[colName].naAsNull()?.toInt() })
+            } catch (e: NumberFormatException) {
+                StringCol(colName, records.map { it[colName].naAsNull() })
+            }
+
+            ColType.Double -> DoubleCol(colName, records.map { it[colName].naAsNull()?.toDouble() })
+
+            ColType.Boolean -> BooleanCol(colName, records.map { it[colName].naAsNull()?.cellValueAsBoolean() })
+
+            ColType.String -> StringCol(colName, records.map { it[colName].naAsNull() })
+
+            ColType.Guess -> dataColFactory(colName, guessColType(peekCol(colName,records)), records)
+
+        }
 
 
 // TODO add missing value support with user defined string (e.g. NA here) here
@@ -193,7 +218,7 @@ Additional variables order, conservation status and vore were added from wikiped
  */
 val sleepData by lazy { DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/msleep.csv"), CSVFormat.DEFAULT.withHeader()) }
 
-val irisData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())
+val irisData by lazy { DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())}
 
 
 /**

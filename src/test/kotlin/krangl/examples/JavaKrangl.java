@@ -6,6 +6,8 @@ import krangl.DataFrame;
 import krangl.JoinsKt;
 import krangl.TableIOKt;
 
+import java.util.HashMap;
+
 import static krangl.ColumnsKt.asDoubles;
 import static krangl.Extensions.print;
 import static krangl.MathHelpersKt.mean;
@@ -15,7 +17,7 @@ import static krangl.SelectKt.startsWith;
 public class JavaKrangl {
 
     public static void main(String[] args) {
-        DataFrame df = TableIOKt.fromCSV(DataFrame.Companion,"/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv");
+        DataFrame df = TableIOKt.fromCSV(DataFrame.Companion,"/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv", new HashMap<>());
 
         DataFrame joinResult = JoinsKt.leftJoin(df, df, "vore", new Pair<>(".x", ".y"));
 
