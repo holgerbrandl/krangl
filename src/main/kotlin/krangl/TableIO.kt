@@ -34,7 +34,7 @@ private fun isURL(fileOrUrl: String): Boolean = listOf("http:", "https:", "ftp:"
 
 fun DataFrame.Companion.fromCSV(fileOrUrl: String, colTypes: Map<String,ColType> = mapOf()) = asStream(fileOrUrl).run { fromCSV(this, colTypes = colTypes) }
 
-fun DataFrame.Companion.fromTSV(fileOrUrl: String) = asStream(fileOrUrl).run { fromCSV(this, format = CSVFormat.TDF.withHeader()) }
+fun DataFrame.Companion.fromTSV(fileOrUrl: String, colTypes: Map<String,ColType> = mapOf()) = asStream(fileOrUrl).run { fromCSV(this, format = CSVFormat.TDF.withHeader(), colTypes = colTypes) }
 
 fun DataFrame.Companion.fromCSV(file: File, colTypes: Map<String,ColType> = mapOf()) = fromCSV(FileInputStream(file), format = CSVFormat.DEFAULT.withHeader(), colTypes = colTypes)
 fun DataFrame.Companion.fromTSV(file: File, colTypes: Map<String,ColType> = mapOf()) = fromCSV(FileInputStream(file), format = CSVFormat.TDF.withHeader(), colTypes = colTypes)
@@ -78,8 +78,8 @@ fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DE
 
     // todo also support reading files without header --> use generic column names if so
 
-    val columnNames = csvParser.headerMap?.keys ?:
-    (1..csvParser.records[0].count()).mapIndexed { index, _ -> "X${index}" }
+    val columnNames = csvParser.headerMap?.keys
+            ?: (1..csvParser.records[0].count()).mapIndexed { index, _ -> "X${index}" }
 
 
     // todo make column names unique when reading them + unit test
