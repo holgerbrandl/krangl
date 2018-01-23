@@ -71,7 +71,6 @@ class IOTests : Matchers {
 
         val dataFrame = DataFrame.fromCSV("src/test/resources/krangl/data/test_header_types.csv", colTypes = columnTypes)
         val cols = dataFrame.cols
-        println(dataFrame)
         assert(cols[0] is StringCol)
         assert(cols[1] is StringCol)
         assert(cols[2] is DoubleCol)

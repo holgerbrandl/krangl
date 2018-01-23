@@ -111,10 +111,10 @@ internal fun String?.cellValueAsBoolean(): Boolean? {
     var cellValue: String? = toUpperCase()
 
     cellValue = if (cellValue == "NA") null else cellValue
-    cellValue = if (cellValue == "F") "false" else cellValue
-    cellValue = if (cellValue == "T") "true" else cellValue
+    cellValue = if (cellValue == "F") "FALSE" else cellValue
+    cellValue = if (cellValue == "T") "TRUE" else cellValue
 
-    if (!listOf("true", "false", null).contains(cellValue)) throw NumberFormatException("invalid boolean cell value")
+    if (!listOf("TRUE", "FALSE", null).contains(cellValue)) throw NumberFormatException("invalid boolean cell value")
 
     return cellValue?.toBoolean()
 }
