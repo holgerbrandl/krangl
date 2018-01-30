@@ -57,4 +57,24 @@ class IOTests : Matchers {
         assert(fromCSV.nrow > 2)
     }
 
+    @Test
+    fun `it should have the correct column types`() {
+
+        val columnTypes = mapOf(
+                "a" to ColType.String,
+                "b" to ColType.String,
+                "c" to ColType.Double,
+                "e" to ColType.Boolean,
+                ".default" to ColType.Int
+
+        )
+
+        val dataFrame = DataFrame.fromCSV("src/test/resources/krangl/data/test_header_types.csv", colTypes = columnTypes)
+        val cols = dataFrame.cols
+        assert(cols[0] is StringCol)
+        assert(cols[1] is StringCol)
+        assert(cols[2] is DoubleCol)
+        assert(cols[3] is IntCol)
+    }
+
 }
