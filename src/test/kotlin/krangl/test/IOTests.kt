@@ -21,7 +21,7 @@ class IOTests : Matchers {
     }
 
     @Test fun useCachedFiles(){
-        flightsCacheFile.delete()
+        if (flightsCacheFile.exists()) flightsCacheFile.delete()
         (flightsData.nrow > 0) shouldBe true
     }
 
