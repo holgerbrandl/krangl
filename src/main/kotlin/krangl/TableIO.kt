@@ -29,7 +29,7 @@ private fun asStream(fileOrUrl: String) = (if (isURL(fileOrUrl)) {
     File(fileOrUrl).toURI()
 }).toURL().openStream()
 
-private fun isURL(fileOrUrl: String): Boolean = listOf("http:", "https:", "ftp:").any { fileOrUrl.startsWith(it) }
+internal fun isURL(fileOrUrl: String): Boolean = listOf("http:", "https:", "ftp:").any { fileOrUrl.startsWith(it) }
 
 
 fun DataFrame.Companion.fromCSV(fileOrUrl: String, colTypes: Map<String,ColType> = mapOf()) = asStream(fileOrUrl).run { fromCSV(this, colTypes = colTypes) }
@@ -74,26 +74,22 @@ fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DE
 
     val records = csvParser.records
 
-    val cols = mutableListOf<DataCol>()
-
     // todo also support reading files without header --> use generic column names if so
 
     val columnNames = csvParser.headerMap?.keys
             ?: (1..csvParser.records[0].count()).mapIndexed { index, _ -> "X${index}" }
 
-
     // todo make column names unique when reading them + unit test
 
     //    csvParser.headerMap.keys.pmap{colName ->
-    for (colName in columnNames) {
+    val cols = columnNames.map { colName ->
         val defaultColType = colTypes[".default"] ?: ColType.Guess
 
         val colType = colTypes[colName] ?: defaultColType
 
-        val column = dataColFactory(colName, colType, records)
-
-        cols.add(column)
+        dataColFactory(colName, colType, records)
     }
+
     return SimpleDataFrame(cols)
 }
 
@@ -218,7 +214,42 @@ Additional variables order, conservation status and vore were added from wikiped
  */
 val sleepData by lazy { DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/msleep.csv"), CSVFormat.DEFAULT.withHeader()) }
 
-val irisData by lazy { DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())}
+
+/* Data class required to parse sleep Data records. */
+data class SleepPattern(
+    val name: String,
+    val genus: String,
+    val vore: String?,
+    val order: String,
+    val conservation: String?,
+    val sleep_total: Double,
+    val sleep_rem: Double?,
+    val sleep_cycle: Double?,
+    val awake: Double,
+    val brainwt: Double?,
+    val bodywt: Double
+)
+
+val sleepPatterns by lazy {
+    sleepData.rows.map { row ->
+        SleepPattern(
+            row["name"] as String,
+            row["genus"] as String,
+            row["vore"] as String?,
+            row["order"] as String,
+            row["conservation"] as String?,
+            row["sleep_total"] as Double,
+            row["sleep_rem"] as Double?,
+            row["sleep_cycle"] as Double?,
+            row["awake"] as Double,
+            row["brainwt"] as Double?,
+            row["bodywt"] as Double
+        )
+    }
+}
+
+
+val irisData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())
 
 
 /**

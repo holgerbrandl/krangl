@@ -30,7 +30,7 @@ Features
 
 * Filter, transform, aggregate and reshape tabular data
 * Modern, user-friendly and easy-to-learn data-science API
-* Reads from plain and compressed tsv, csv, or any delimited format with or without header from local or remote
+* Reads from plain and compressed tsv, csv, json, or any delimited format with or without header from local or remote
 * Supports grouped operations
 * Ships with JDBC support
 * Tables can contain atomic columns (int, double, boolean) as well as object columns
