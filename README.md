@@ -50,7 +50,7 @@ Examples
 
 ```kotlin
 // Read data-frame from disk
-val iris = DataFrame.fromCSV("data/iris.txt")
+val iris = DataFrame.readCSV("data/iris.txt")
 
 
 // Create data-frame in memory

@@ -15,7 +15,7 @@ fun main(args: Array<String>) {
     sleepData.print()
 
     // but for sake of learning the API we load it from file here
-    val sleepData  = DataFrame.fromCSV("/Users/brandl/projects/kotlin/krangl/src/main/resources/krangl/data/msleep.csv")
+    val sleepData = DataFrame.readCSV("/Users/brandl/projects/kotlin/krangl/src/main/resources/krangl/data/msleep.csv")
 
     // select columns of interest
     val slimSleep = sleepData.select("msleep", "name", "sleep_total")

@@ -15,7 +15,7 @@ class IOTests : Matchers {
     fun testTornados() {
         val tornandoCsv = File("src/test/resources/krangl/data/1950-2014_torn.csv")
 
-        val fromCSV = DataFrame.readCSV(tornandoCsv)
+        val df = DataFrame.readCSV(tornandoCsv)
 
         // todo continue test here
     }
@@ -54,8 +54,8 @@ class IOTests : Matchers {
 
     @Test
     fun `it should read a url`(){
-        val fromCSV = DataFrame.readCSV("https://raw.githubusercontent.com/holgerbrandl/krangl/master/src/test/resources/krangl/data/1950-2014_torn.csv")
-        assert(fromCSV.nrow > 2)
+        val df = DataFrame.readCSV("https://raw.githubusercontent.com/holgerbrandl/krangl/master/src/test/resources/krangl/data/1950-2014_torn.csv")
+        assert(df.nrow > 2)
     }
 
     @Test

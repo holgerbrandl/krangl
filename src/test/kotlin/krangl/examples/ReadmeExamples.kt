@@ -8,8 +8,6 @@ fun main(args: Array<String>) {
 
     // Read data-frame from disk
     val iris = DataFrame.readCSV("data/iris.txt")
-    // val iris = DataFrame.fromCSV("/Users/brandl/projects/kotlin/krangl/src/main/resources/krangl/data/iris.txt")
-
 
     // Create data-frame in memory
     val df: DataFrame = dataFrameOf(
@@ -20,7 +18,7 @@ fun main(args: Array<String>) {
     )
 
     // Or from csv
-    // val otherDF = DataFrame.fromCSV("path/to/file")
+    // val otherDF = DataFrame.readCSV("path/to/file")
 
     // Print rows
     df                              // with implict string conversion using default options

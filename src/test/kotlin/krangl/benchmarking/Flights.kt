@@ -59,7 +59,7 @@ fun evalFlights() {
 
     println("summarizing carriers took " + measureTimeMillis {
         groupedFlights.summarize(
-                "mean_arr_delay" to { it["arr_delay"].mean() }
+            "mean_arr_delay" to { it["arr_delay"].mean() }
         ).print()
     })
 }
@@ -67,7 +67,6 @@ fun evalFlights() {
 
 fun main(args: Array<String>) {
     val flights = RunTimes.measure({
-        //        DataFrame.fromCSV("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv")
         DataFrame.readTSV(File("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"))
     }, numRuns = 1).apply {
         println(runtimes)
@@ -75,6 +74,8 @@ fun main(args: Array<String>) {
 
 
     flights.glimpse()
+
+    val f = flights["foo"].asInts()
 
 
     /*
@@ -93,13 +94,13 @@ fun main(args: Array<String>) {
     RunTimes.measure({
 
         val flightsSummary = flights
-                .groupBy("year", "month", "day")
-                .select({ range("year", "day") }, { listOf("arr_delay", "dep_delay") })
-                .summarize(
-                        "mean_arr_delay" to { it["arr_delay"].mean(removeNA = true) },
-                        "mean_dep_delay" to { it["dep_delay"].mean(removeNA = true) }
-                )
-                .filter { (it["mean_arr_delay"] gt 30) OR (it["mean_dep_delay"] gt 30) }
+            .groupBy("year", "month", "day")
+            .select({ range("year", "day") }, { listOf("arr_delay", "dep_delay") })
+            .summarize(
+                "mean_arr_delay" to { it["arr_delay"].mean(removeNA = true) },
+                "mean_dep_delay" to { it["dep_delay"].mean(removeNA = true) }
+            )
+            .filter { (it["mean_arr_delay"] gt 30) OR (it["mean_dep_delay"] gt 30) }
 
         flightsSummary.glimpse()
         flightsSummary.print()
