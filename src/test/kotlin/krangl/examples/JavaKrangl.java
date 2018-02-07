@@ -17,7 +17,7 @@ import static krangl.SelectKt.startsWith;
 public class JavaKrangl {
 
     public static void main(String[] args) {
-        DataFrame df = TableIOKt.fromCSV(DataFrame.Companion,"/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv", new HashMap<>());
+        DataFrame df = TableIOKt.readCSV(DataFrame.Companion, "/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv", new HashMap<>());
 
         DataFrame joinResult = JoinsKt.leftJoin(df, df, "vore", new Pair<>(".x", ".y"));
 

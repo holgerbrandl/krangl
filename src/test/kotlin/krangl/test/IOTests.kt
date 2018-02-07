@@ -15,12 +15,13 @@ class IOTests : Matchers {
     fun testTornados() {
         val tornandoCsv = File("src/test/resources/krangl/data/1950-2014_torn.csv")
 
-        val fromCSV = DataFrame.fromCSV(tornandoCsv)
+        val fromCSV = DataFrame.readCSV(tornandoCsv)
 
         // todo continue test here
     }
 
-    @Test fun useCachedFiles(){
+    @Test
+    fun `it should download and cache flights data locally`() {
         if (flightsCacheFile.exists()) flightsCacheFile.delete()
         (flightsData.nrow > 0) shouldBe true
     }
@@ -53,7 +54,7 @@ class IOTests : Matchers {
 
     @Test
     fun `it should read a url`(){
-        val fromCSV = DataFrame.fromCSV("https://raw.githubusercontent.com/holgerbrandl/krangl/master/src/test/resources/krangl/data/1950-2014_torn.csv")
+        val fromCSV = DataFrame.readCSV("https://raw.githubusercontent.com/holgerbrandl/krangl/master/src/test/resources/krangl/data/1950-2014_torn.csv")
         assert(fromCSV.nrow > 2)
     }
 
@@ -69,7 +70,7 @@ class IOTests : Matchers {
 
         )
 
-        val dataFrame = DataFrame.fromCSV("src/test/resources/krangl/data/test_header_types.csv", colTypes = columnTypes)
+        val dataFrame = DataFrame.readCSV("src/test/resources/krangl/data/test_header_types.csv", colTypes = columnTypes)
         val cols = dataFrame.cols
         assert(cols[0] is StringCol)
         assert(cols[1] is StringCol)

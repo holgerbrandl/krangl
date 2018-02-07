@@ -1,7 +1,6 @@
 package krangl.benchmarking
 
 import krangl.*
-import org.apache.commons.csv.CSVFormat
 import java.io.File
 import kotlin.system.measureTimeMillis
 
@@ -40,7 +39,7 @@ user  system elapsed
 
 fun evalFlights() {
     val flights = RunTimes.measure({
-        DataFrame.fromTSV("/Users/brandl/Desktop/nycflights.tsv")
+        DataFrame.readTSV("/Users/brandl/Desktop/nycflights.tsv")
     }, 3).apply {
         println("data loading time was: $runtimes")
     }.result
@@ -69,7 +68,7 @@ fun evalFlights() {
 fun main(args: Array<String>) {
     val flights = RunTimes.measure({
         //        DataFrame.fromCSV("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv")
-        DataFrame.fromTSV(File("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"))
+        DataFrame.readTSV(File("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"))
     }, numRuns = 1).apply {
         println(runtimes)
     }.result

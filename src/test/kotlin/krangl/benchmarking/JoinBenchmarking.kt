@@ -2,15 +2,13 @@ package krangl.benchmarking
 
 import krangl.DataFrame
 import krangl.UnequalByHelpers.innerJoin
-import krangl.fromCSV
-import krangl.fromTSV
+import krangl.readTSV
 import krangl.take
-import org.apache.commons.csv.CSVFormat
 import java.io.File
 
 
 fun main(args: Array<String>) {
-    val flights = DataFrame.fromTSV(File("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"))
+    val flights = DataFrame.readTSV(File("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/nycflights.tsv.gz"))
 
 
     RunTimes.measure({

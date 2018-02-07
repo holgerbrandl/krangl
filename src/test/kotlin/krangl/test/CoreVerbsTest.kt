@@ -7,7 +7,7 @@ import org.apache.commons.csv.CSVFormat
 import org.junit.Test
 
 
-val flights = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/nycflights.tsv.gz"), format = CSVFormat.TDF.withHeader(), isCompressed = true)
+val flights = DataFrame.readDelim(DataFrame::class.java.getResourceAsStream("data/nycflights.tsv.gz"), format = CSVFormat.TDF.withHeader(), isCompressed = true)
 
 
 class SelectTest : Matchers {

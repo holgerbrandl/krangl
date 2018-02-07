@@ -8,10 +8,10 @@ import krangl.*
 @Suppress("UNUSED_VARIABLE")
 fun main(args: Array<String>) {
 
-    val someIris = DataFrame.fromCSV("/Users/brandl/Library/Preferences/IntelliJIdea2017.2/scratches/scratch_52.txt")
+    val someIris = DataFrame.readCSV("/Users/brandl/Library/Preferences/IntelliJIdea2017.2/scratches/scratch_52.txt")
 
     flightsData.print()
-    val msleep = DataFrame.fromCSV("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv")
+    val msleep = DataFrame.readCSV("/Users/brandl/projects/kotlin/krangl/src/test/resources/krangl/data/msleep.csv")
     msleep.glimpse()
     msleep.print()
 

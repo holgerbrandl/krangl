@@ -32,19 +32,52 @@ private fun asStream(fileOrUrl: String) = (if (isURL(fileOrUrl)) {
 internal fun isURL(fileOrUrl: String): Boolean = listOf("http:", "https:", "ftp:").any { fileOrUrl.startsWith(it) }
 
 
-fun DataFrame.Companion.fromCSV(fileOrUrl: String, colTypes: Map<String,ColType> = mapOf()) = asStream(fileOrUrl).run { fromCSV(this, colTypes = colTypes) }
+fun DataFrame.Companion.readCSV(
+    fileOrUrl: String,
+    colTypes: Map<String, ColType> = mapOf()
+) = readDelim(
+    asStream(fileOrUrl),
+    colTypes = colTypes,
+    isCompressed = listOf("gz", "zip").contains(fileOrUrl.split(".").last())
+)
 
-fun DataFrame.Companion.fromTSV(fileOrUrl: String, colTypes: Map<String,ColType> = mapOf()) = asStream(fileOrUrl).run { fromCSV(this, format = CSVFormat.TDF.withHeader(), colTypes = colTypes) }
 
-fun DataFrame.Companion.fromCSV(file: File, colTypes: Map<String,ColType> = mapOf()) = fromCSV(FileInputStream(file), format = CSVFormat.DEFAULT.withHeader(), colTypes = colTypes)
-fun DataFrame.Companion.fromTSV(file: File, colTypes: Map<String,ColType> = mapOf()) = fromCSV(FileInputStream(file), format = CSVFormat.TDF.withHeader(), colTypes = colTypes)
+fun DataFrame.Companion.readTSV(
+    fileOrUrl: String,
+    colTypes: Map<String, ColType> = mapOf()
+) = readDelim(
+    asStream(fileOrUrl),
+    format = CSVFormat.TDF.withHeader(),
+    colTypes = colTypes,
+    isCompressed = listOf("gz", "zip").contains(fileOrUrl.split(".").last())
+)
+
+
+fun DataFrame.Companion.readCSV(file: File, colTypes: Map<String, ColType> = mapOf()) = readDelim(
+    FileInputStream(file),
+    format = CSVFormat.DEFAULT.withHeader(),
+    colTypes = colTypes,
+    isCompressed = listOf("gz", "zip").contains(file.extension)
+)
+
+
+fun DataFrame.Companion.readTSV(
+    file: File,
+    colTypes: Map<String, ColType> = mapOf()
+) = readDelim(FileInputStream(file), format = CSVFormat.TDF.withHeader(), colTypes = colTypes, isCompressed = guessCompressed(file))
+
+
+private fun guessCompressed(file: File) = listOf("gz", "zip").contains(file.extension)
+
 
 // http://stackoverflow.com/questions/9648811/specific-difference-between-bufferedreader-and-filereader
-fun DataFrame.Companion.fromCSV(uri: URI,
-//                                hasHeader:Boolean =true,
-                                format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
-                                isCompressed: Boolean = uri.toURL().toString().endsWith(".gz"),
-                                colTypes: Map<String, ColType> = mapOf()): DataFrame {
+fun DataFrame.Companion.readDelim(
+    uri: URI,
+    //                                hasHeader:Boolean =true,
+    format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
+    isCompressed: Boolean = uri.toURL().toString().endsWith(".gz"),
+    colTypes: Map<String, ColType> = mapOf()
+): DataFrame {
 
     val inputStream = uri.toURL().openStream()
     val streamReader = if (isCompressed) {
@@ -55,21 +88,26 @@ fun DataFrame.Companion.fromCSV(uri: URI,
         InputStreamReader(inputStream)
     }
 
-    return fromCSV(BufferedReader(streamReader), format, colTypes = colTypes)
+    return readDelim(BufferedReader(streamReader), format, colTypes = colTypes)
 }
 
 //http://stackoverflow.com/questions/5200187/convert-inputstream-to-bufferedreader
-fun DataFrame.Companion.fromCSV(inStream: InputStream, format: CSVFormat = CSVFormat.DEFAULT.withHeader(), isCompressed: Boolean = false, colTypes: Map<String, ColType> = mapOf()) =
-        if (isCompressed) {
-            InputStreamReader(GZIPInputStream(inStream))
-        } else {
-            BufferedReader(InputStreamReader(inStream, "UTF-8"))
-        }.run {
-            fromCSV(this, format, colTypes = colTypes)
-        }
+fun DataFrame.Companion.readDelim(
+    inStream: InputStream,
+    format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
+    isCompressed: Boolean = false,
+    colTypes: Map<String, ColType> = mapOf()
+) =
+    if (isCompressed) {
+        InputStreamReader(GZIPInputStream(inStream))
+    } else {
+        BufferedReader(InputStreamReader(inStream, "UTF-8"))
+    }.run {
+        readDelim(this, format, colTypes = colTypes)
+    }
 
 
-fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT.withHeader(), colTypes: Map<String, ColType> = mapOf()): DataFrame {
+fun DataFrame.Companion.readDelim(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT.withHeader(), colTypes: Map<String, ColType> = mapOf()): DataFrame {
     val csvParser = format.parse(reader)
 
     val records = csvParser.records
@@ -77,7 +115,7 @@ fun DataFrame.Companion.fromCSV(reader: Reader, format: CSVFormat = CSVFormat.DE
     // todo also support reading files without header --> use generic column names if so
 
     val columnNames = csvParser.headerMap?.keys
-            ?: (1..csvParser.records[0].count()).mapIndexed { index, _ -> "X${index}" }
+        ?: (1..csvParser.records[0].count()).mapIndexed { index, _ -> "X${index}" }
 
     // todo make column names unique when reading them + unit test
 
@@ -116,32 +154,32 @@ internal fun String?.cellValueAsBoolean(): Boolean? {
 }
 
 internal fun guessColType(firstElements: List<String?>): ColType =
-        when {
-            isBoolCol(firstElements) -> ColType.Boolean
-            isIntCol(firstElements) -> ColType.Int
-            isDoubleCol(firstElements) -> ColType.Double
-            else -> ColType.String
-        }
+    when {
+        isBoolCol(firstElements) -> ColType.Boolean
+        isIntCol(firstElements) -> ColType.Int
+        isDoubleCol(firstElements) -> ColType.Double
+        else -> ColType.String
+    }
 
 
 internal fun dataColFactory(colName: String, colType: ColType, records: MutableList<CSVRecord>): DataCol =
-        when (colType) {
-        // see https://github.com/holgerbrandl/krangl/issues/10
-            ColType.Int -> try {
-                IntCol(colName, records.map { it[colName].naAsNull()?.toInt() })
-            } catch (e: NumberFormatException) {
-                StringCol(colName, records.map { it[colName].naAsNull() })
-            }
-
-            ColType.Double -> DoubleCol(colName, records.map { it[colName].naAsNull()?.toDouble() })
-
-            ColType.Boolean -> BooleanCol(colName, records.map { it[colName].naAsNull()?.cellValueAsBoolean() })
-
-            ColType.String -> StringCol(colName, records.map { it[colName].naAsNull() })
-
-            ColType.Guess -> dataColFactory(colName, guessColType(peekCol(colName,records)), records)
-
+    when (colType) {
+    // see https://github.com/holgerbrandl/krangl/issues/10
+        ColType.Int -> try {
+            IntCol(colName, records.map { it[colName].naAsNull()?.toInt() })
+        } catch (e: NumberFormatException) {
+            StringCol(colName, records.map { it[colName].naAsNull() })
         }
+
+        ColType.Double -> DoubleCol(colName, records.map { it[colName].naAsNull()?.toDouble() })
+
+        ColType.Boolean -> BooleanCol(colName, records.map { it[colName].naAsNull()?.cellValueAsBoolean() })
+
+        ColType.String -> StringCol(colName, records.map { it[colName].naAsNull() })
+
+        ColType.Guess -> dataColFactory(colName, guessColType(peekCol(colName, records)), records)
+
+    }
 
 
 // TODO add missing value support with user defined string (e.g. NA here) here
@@ -212,7 +250,7 @@ Additional variables order, conservation status and vore were added from wikiped
 - brainwt. brain weight in kilograms
 - bodywt. body weight in kilograms
  */
-val sleepData by lazy { DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/msleep.csv"), CSVFormat.DEFAULT.withHeader()) }
+val sleepData by lazy { DataFrame.readDelim(DataFrame::class.java.getResourceAsStream("data/msleep.csv"), CSVFormat.DEFAULT.withHeader()) }
 
 
 /* Data class required to parse sleep Data records. */
@@ -249,7 +287,7 @@ val sleepPatterns by lazy {
 }
 
 
-val irisData = DataFrame.fromCSV(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())
+val irisData = DataFrame.readDelim(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())
 
 
 /**
@@ -257,7 +295,14 @@ On-time data for all 336776 flights that departed NYC (i.e. JFK, LGA or EWR) in 
 
 Adopted from r, see `nycflights13::flights`
  */
-internal val flightsCacheFile = File(System.getProperty("user.home"), ".flights_data.tsv.gz")
+
+
+internal val cacheDataDir by lazy {
+    File(System.getProperty("user.home"), ".krangl_example_data").apply { if (!isDirectory()) mkdir() }
+}
+
+internal val flightsCacheFile = File(cacheDataDir, ".flights_data.tsv.gz")
+
 
 val flightsData by lazy {
 
@@ -269,11 +314,12 @@ val flightsData by lazy {
 
         //    for progress monitoring use
         //    https@ //stackoverflow.com/questions/12800588/how-to-calculate-a-file-size-from-url-in-java
+
         flightsCacheFile.writeBytes(flightsURL.readBytes())
     }
 
 
-    DataFrame.fromTSV(flightsCacheFile)
+    DataFrame.readTSV(flightsCacheFile)
 
     // consider to use progress bar here
 }

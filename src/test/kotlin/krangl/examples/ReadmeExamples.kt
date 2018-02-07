@@ -7,7 +7,7 @@ import krangl.*
 fun main(args: Array<String>) {
 
     // Read data-frame from disk
-    val iris = DataFrame.fromCSV("data/iris.txt")
+    val iris = DataFrame.readCSV("data/iris.txt")
     // val iris = DataFrame.fromCSV("/Users/brandl/projects/kotlin/krangl/src/main/resources/krangl/data/iris.txt")
 
 

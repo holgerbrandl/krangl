@@ -16,7 +16,7 @@ fun main(args: Array<String>) {
     val inputFile = File("/Users/brandl/projects/kotlin/misc/tablesaw/data/1950-2014_torn.csv")
 
     //    val tornadoes = Dataframe(Table.read().csv(tornandoCsv))
-    val tornadoes = DataFrame.fromCSV(inputFile)
+    val tornadoes = DataFrame.readCSV(inputFile)
 
     //    tornadoes.columnNames();
     tornadoes.names
