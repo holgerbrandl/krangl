@@ -368,8 +368,9 @@ fun DataCol.isNA(): BooleanArray = this.values().map { it == null }.toBooleanArr
 fun DataCol.isNotNA(): BooleanArray = this.values().map { it != null }.toBooleanArray()
 
 
+
 /** Allows to process a list of null-containing elements with an expression. NA will be kept where they were in the resulting table.*/
-fun <T, R> Array<T?>.mapNonNull(expr: T.() -> R?): List<R?> {
+fun <T, R> Array<T?>.mapNonNull(expr: (T) -> R?): List<R?> {
     return map { if (it != null) expr(it) else null }.toList()
 }
 
