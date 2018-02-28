@@ -8,11 +8,11 @@ import java.time.LocalTime
 
 // todo javadoc example needed
 /** Create a data-frame from a list of objects */
-fun <T> List<T>.asDataFrame(mapping: (T) -> DataFrameRow) = DataFrame.fromRecords(this, mapping)
+fun <T> Iterable<T>.asDataFrame(mapping: (T) -> DataFrameRow) = DataFrame.fromRecords(this, mapping)
 
 
 /** Create a data-frame from a list of objects */
-fun <T> DataFrame.Companion.fromRecords(records: List<T>, mapping: (T) -> DataFrameRow): DataFrame {
+fun <T> DataFrame.Companion.fromRecords(records: Iterable<T>, mapping: (T) -> DataFrameRow): DataFrame {
     val rowData = records.map { mapping(it) }
     val columnNames = mapping(records.first()).keys
 
