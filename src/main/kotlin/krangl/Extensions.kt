@@ -169,9 +169,7 @@ fun DataFrame.sortedBy(vararg tableExpressions: TableExpression): DataFrame {
     val sortBys = tableExpressions.mapIndexed { index, value -> "__sort$index" to value }
     val sortByNames = sortBys.map { it.name }.toTypedArray()
 
-    return addColumns(*sortBys.toTypedArray()).
-        sortedBy(*sortByNames).
-        remove(sortByNames.asList())
+    return addColumns(*sortBys.toTypedArray()).sortedBy(*sortByNames).remove(sortByNames.asList())
     //           select({ listOf(*sortByNames).not() })
 }
 
@@ -308,10 +306,9 @@ fun List<ColSpec>.asDf() = asDataFrame { mapOf("index" to it.pos, "name" to it.n
 fun List<ColSpec>.print() = asDf().print()
 
 
-
 // todo should it be called structure of glimpse. there should not be any name aliases
 /* Prints the structure of a dataframe to stdout. Alias for `df.glimpse()`*/
-fun DataFrame.structure()  = glimpse()
+fun DataFrame.structure() = glimpse()
 
 /* Prints the structure of a dataframe to stdout.*/
 //@Deprecated("use printSchema() instead")
@@ -420,7 +417,7 @@ internal fun GroupedDataFrame.transformGroups(trafo: (DataFrame) -> DataFrame): 
 
 fun List<DataCol>.asDataFrame(): DataFrame = SimpleDataFrame(this)
 
-fun emptyDataFrame(): DataFrame  =  SimpleDataFrame()
+fun emptyDataFrame(): DataFrame = SimpleDataFrame()
 
 
 /** Return an iterator over the rows in data in the receiver. */

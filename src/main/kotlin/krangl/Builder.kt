@@ -4,6 +4,8 @@ import krangl.ArrayUtils.handleListErasure
 import java.sql.ResultSet
 import java.time.LocalDate
 import java.time.LocalTime
+import kotlin.reflect.KProperty
+import kotlin.reflect.full.declaredMembers
 
 
 // todo javadoc example needed
@@ -25,7 +27,26 @@ fun <T> DataFrame.Companion.fromRecords(records: Iterable<T>, mapping: (T) -> Da
     return columnData.map { (name, data) -> handleListErasure(name, data) }.asDataFrame()
 }
 
-// todo javadoc example needed
+
+/**
+ * Turn a list of objects into a data-frame using reflection. Currently just properties without any nesting are supported.
+ */
+inline fun <reified T> Iterable<T>.asObjectsDataFrame(): DataFrame {
+    val declaredMembers = T::class.declaredMembers
+    //    declaredMembers.first().call(this[0])
+
+    val properties = T::class.declaredMembers
+        .filter { it.parameters.toList().size == 1 }
+        .filter { it is KProperty }
+
+    val results = properties.map {
+        it.name to this.map { el -> it.call(el) }
+    }
+
+    val columns = results.map { handleListErasure(it.first, it.second) }
+
+    return columns.asDataFrame()
+}
 
 
 /**
