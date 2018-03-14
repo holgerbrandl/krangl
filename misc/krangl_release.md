@@ -1,8 +1,9 @@
 ## Release Checklist
 
 1. Increment version in readme, gradle, example-poms
-2. Push and wait for travis CI results
-3. Do the release
+2. Update [CHANGES.md](../CHANGES.md)
+3. Push and wait for travis CI results
+4. Do the release
 
 ```bash
 export KRANGL_HOME="/Users/brandl/projects/kotlin/krangl";

@@ -6,15 +6,6 @@ import krangl.*
 import org.junit.Test
 
 
-fun main(args: Array<String>) {
-    val foo = sleepData
-        //        .filter { it["awake"] gt 3 }
-        //        .addColumn("rem_proportion", { it["sleep_rem"] / it["sleep_total"] })
-        .filter { it["vore"] eq "insecti" }
-
-    foo.glimpse()
-    print(foo)
-}
 
 class CompoundTests {
 

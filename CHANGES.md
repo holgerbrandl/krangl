@@ -1,12 +1,33 @@
 Krangl Release History
 ======================
 
-v0.7 (in progress)
+v0.7
 ---
 
-* added `groupedBy` to provide distinct set of grouping tuples as data-frame
-* bundled `irisData`
-* enhanced: `DataCol.toDouble()` should work for int columns as well (same vv)
+Released 2018-03-14
+
+Major Enhancements
+* Allow specifying column types [#28](https://github.com/holgerbrandl/krangl/pull/28). Thanks to [LeanderG](https://github.com/LeanderG) for providing the PR.
+* Added `groupedBy` to provide distinct set of grouping tuples as data-frame
+* Read support for URLs (Example `DataFrame.readCSV("https://git.io/vxks7").glimpse()`)
+* Added basic read/write support for JSON data
+* Added generic collection conversion `Iterable<Any>.asDataFrame()` via reflection (fixes [#24](https://github.com/holgerbrandl/krangl/issues/24))
+
+
+Incompatible API changes
+* Renamed `structure` to `columnTypes`
+* Renamed all table read function from `.from*` to `.read*`
+* Fixed [#29](https://github.com/holgerbrandl/krangl/issues/29): `mapNonNull` should use parameter and not receiver
+
+
+
+Minor Enhancements
+* Namespace cleanup to hide internal helpers
+* Bundled `irisData`
+* Enhanced: `DataCol.toDouble()` should work for int columns as well (same vv)
+* fixed #24: Impl `Iterable<Any>.asDataFrame()` via reflection
+* Added MIT License
+* Use iterable instead of list of object conversions
 
 
 v0.6

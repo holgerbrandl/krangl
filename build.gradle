@@ -77,7 +77,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 
 //http://stackoverflow.com/questions/34377367/why-is-gradle-install-replacing-my-version-with-unspecified
 group 'de.mpicbg.scicomp'
-version '0.7'
+version '0.8-SNAPSHOT'
 
 
 artifacts {
