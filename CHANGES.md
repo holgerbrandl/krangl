@@ -7,7 +7,7 @@ v0.7
 Released 2018-03-14
 
 Major Enhancements
-* Allow specifying column types [#28](https://github.com/holgerbrandl/krangl/pull/28). Thanks to [LeanderG](https://github.com/LeanderG) for providing the PR.
+* Allow specifying column types when reading csv data (Thanks to [LeanderG](https://github.com/LeanderG) for providing the [PR](https://github.com/holgerbrandl/krangl/pull/28))
 * Added `groupedBy` to provide distinct set of grouping tuples as data-frame
 * Read support for URLs (Example `DataFrame.readCSV("https://git.io/vxks7").glimpse()`)
 * Added basic read/write support for JSON data
@@ -20,14 +20,12 @@ Incompatible API changes
 * Fixed [#29](https://github.com/holgerbrandl/krangl/issues/29): `mapNonNull` should use parameter and not receiver
 
 
-
 Minor Enhancements
 * Namespace cleanup to hide internal helpers
 * Bundled `irisData`
 * Enhanced: `DataCol.toDouble()` should work for int columns as well (same vv)
-* fixed #24: Impl `Iterable<Any>.asDataFrame()` via reflection
 * Added MIT License
-* Use iterable instead of list of object conversions
+* Use iterable instead of list for object conversions
 
 
 v0.6
