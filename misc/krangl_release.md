@@ -1,7 +1,8 @@
 ## Release Checklist
 
-1. Increment version in `krangl` (readme, gradle, example-poms)
-4. Push and wait for travis CI results
+1. Increment version in readme, gradle, example-poms
+2. Push and wait for travis CI results
+3. Do the release
 
 ```bash
 export KRANGL_HOME="/Users/brandl/projects/kotlin/krangl";
@@ -10,14 +11,10 @@ trim() { while read -r line; do echo "$line"; done; }
 krangl_version=$(grep '^version' ${KRANGL_HOME}/build.gradle | cut -f2 -d' ' | tr -d "'" | trim)
 
 echo "new version is $krangl_version"
-```
-
 
 ### Do the github release
+## see https://github.com/aktau/github-release
 
-see https://github.com/aktau/github-release
-
-```bash
 ## create tag on github 
 #github-release --help
 
@@ -46,23 +43,22 @@ github-release release \
     --description "See [CHANGES.md](https://github.com/holgerbrandl/krangl/blob/master/CHANGES.md) for changes." 
 #    --pre-release
 
-```
+
+########################################################################
 ### Build and publish the binary release to jcenter
 
-
-```bash
-cd ${KRANGL_HOME}
-
 gradle install
+
 # careful with this one!
-#gradle bintrayUpload
+gradle bintrayUpload
 ```
 
-check here
-* https://bintray.com/holgerbrandl/mpicbg-scicomp/krangl
-* https://jcenter.bintray.com/de/mpicbg/scicomp/krangl/
+For released versions check:
 
-3. Update the API docs
+- https://bintray.com/holgerbrandl/mpicbg-scicomp/krangl
+- https://jcenter.bintray.com/de/mpicbg/scicomp/krangl/
+
+--
 
 4. Increment version to *-SNAPSHOT for next release cycle
 

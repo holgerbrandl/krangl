@@ -1,29 +1,51 @@
 package krangl.test
 
+import io.kotlintest.matchers.plusOrMinus
 import io.kotlintest.matchers.shouldBe
 import krangl.*
 import org.junit.Test
 
+
+fun main(args: Array<String>) {
+    val foo = sleepData
+        //        .filter { it["awake"] gt 3 }
+        //        .addColumn("rem_proportion", { it["sleep_rem"] / it["sleep_total"] })
+        .filter { it["vore"] eq "insecti" }
+
+    foo.glimpse()
+    print(foo)
+}
 
 class CompoundTests {
 
     @Test
     fun `it should summarize sleep data`() {
 
-        val groupedSleep = sleepData.filter { it["awake"] gt 3 }.apply { glimpse() }.addColumn("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] }).groupBy("vore")
+        val groupedSleep = sleepData
+            .filter { it["awake"] gt 3 }
+            .apply { glimpse() }
+            .addColumn("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] })
+            .groupBy("vore")
 
 
-        val insectiMeanREM = sleepData.filter { it["awake"] gt 3 }.apply { glimpse() }.addColumn("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] }).groupBy("vore").summarize("mean_rem_prop", { it["rem_proportion"].mean(removeNA = true) }).filter { it["vore"] eq "insecti" }.row(0)["mean_rem_prop"] as Double
+        val meanRemPropInsecti = sleepData
+            .filter { it["awake"] gt 3 }
+            //            .apply { glimpse() }
+            .addColumn("rem_proportion", { it["sleep_rem"] / it["sleep_total"] })
+            .filter { it["vore"] eq "insecti" }
+            .groupBy("vore")
+            .summarize("mean_rem_prop", { it["rem_proportion"].mean(removeNA = true) })
+            .filter { it["vore"] eq "insecti" }.row(0)["mean_rem_prop"] as Double
 
 
-        ((insectiMeanREM - 3.525) < 1E-5) shouldBe true
+        meanRemPropInsecti shouldBe (0.221 plusOrMinus 3.2)
     }
 
     @Test
     fun `it should allow to create dataframe in place`() {
         // @formatter:off
         val df = (krangl.dataFrameOf(
-                "foo", "bar")) (
+            "foo", "bar")) (
             "ll",   2,
             "sdfd", 4,
             "sdf",  5)
