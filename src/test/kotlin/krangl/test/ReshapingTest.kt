@@ -1,6 +1,7 @@
 package krangl.test
 
-import io.kotlintest.matchers.Matchers
+import io.kotlintest.matchers.shouldBe
+import io.kotlintest.matchers.shouldEqual
 import krangl.*
 import org.junit.Test
 
@@ -11,18 +12,18 @@ head(iris)
 group_by(iris, Species)
 group_by(iris, Species) %>% summarize(mean_length=mean(Sepal.Width))
  */
-class SpreadTest : Matchers {
+class SpreadTest {
 
     @Test
     fun `it should reshape from long to wide`() {
         val longDf = dataFrameOf("person", "year", "weight", "sex")(
-                "max", 2014, 33.1, "M",
-                "max", 2015, 32.3, "M",
-                "max", 2016, null, "M",
-                "anna", 2013, 33.5, "F",
-                "anna", 2014, 37.3, "F",
-                "anna", 2015, 39.2, "F",
-                "anna", 2016, 39.9, "F"
+            "max", 2014, 33.1, "M",
+            "max", 2015, 32.3, "M",
+            "max", 2016, null, "M",
+            "anna", 2013, 33.5, "F",
+            "anna", 2014, 37.3, "F",
+            "anna", 2015, 39.2, "F",
+            "anna", 2016, 39.9, "F"
         )
 
         longDf.spread("year", "weight").apply {
@@ -39,10 +40,10 @@ class SpreadTest : Matchers {
     @Test
     fun `it should type convert stringified values from long to wide`() {
         val longDf = dataFrameOf("person", "property", "value", "sex")(
-                "max", "salary", "33.1", "M",
-                "max", "city", "London", "M",
-                "anna", "salary", "33.5", "F",
-                "anna", "city", "Berlin", "F"
+            "max", "salary", "33.1", "M",
+            "max", "city", "London", "M",
+            "anna", "salary", "33.5", "F",
+            "anna", "city", "Berlin", "F"
         )
 
         longDf.spread("property", "value", convert = true).apply {
@@ -56,7 +57,7 @@ class SpreadTest : Matchers {
     }
 }
 
-class GatherTest : Matchers {
+class GatherTest {
 
     @Test
     fun `it should reshape from wide to long`() {
@@ -81,10 +82,10 @@ class GatherTest : Matchers {
     }
 
     val longDf = dataFrameOf("person", "property", "value", "sex")(
-            "max", "salary", "33.1", "M",
-            "max", "city", "London", "M",
-            "anna", "salary", "33.5", "F",
-            "anna", "city", "Berlin", "F"
+        "max", "salary", "33.1", "M",
+        "max", "city", "London", "M",
+        "anna", "salary", "33.5", "F",
+        "anna", "city", "Berlin", "F"
     )
 
     val wideDf = longDf.spread("property", "value")
@@ -95,11 +96,11 @@ class GatherTest : Matchers {
         // todo that's illegal because it's mixing positive and negative selection
         wideDf.gather("property", "value", columns = { except("person") AND startsWith("person") })
 
-        wideDf.gather("property", "value", columns = { except("person") } )
+        wideDf.gather("property", "value", columns = { except("person") })
 
-        wideDf.gather("property", "value", columns = listOf("person") )
+        wideDf.gather("property", "value", columns = listOf("person"))
 
-        wideDf.gather("property", "value", columns = { except("person")}).apply {
+        wideDf.gather("property", "value", columns = { except("person") }).apply {
             print()
 
             val annasSalary = filter { (it["person"] eq "anna") AND (it["property"] eq "salary") }
@@ -121,7 +122,7 @@ class GatherTest : Matchers {
 }
 
 
-class SpreadUniteTest : Matchers {
+class SpreadUniteTest {
 
     @Test
     fun `it should spread and unit columns`() {

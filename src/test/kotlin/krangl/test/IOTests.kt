@@ -1,6 +1,6 @@
 package krangl.test
 
-import io.kotlintest.matchers.Matchers
+import io.kotlintest.matchers.shouldBe
 import krangl.*
 import org.junit.Test
 import java.io.File
@@ -9,7 +9,7 @@ import java.io.File
  * @author Holger Brandl
  */
 
-class IOTests : Matchers {
+class IOTests {
 
     @Test
     fun testTornados() {
@@ -33,11 +33,12 @@ class IOTests : Matchers {
     fun `it should convert objects into data-frames`() {
 
         val myCars = listOf(
-                Car("Ford Mustang", null, Engine.Otto),
-                Car("BMW Mustang", 3, Engine.Otto)
+            Car("Ford Mustang", null, Engine.Otto),
+            Car("BMW Mustang", 3, Engine.Otto)
         )
 
-        val carsDF = myCars.asDataFrame { mapOf(
+        val carsDF = myCars.asDataFrame {
+            mapOf(
                 "model" to it.name,
                 "motor" to it.engine,
                 "cylinders" to it.numCyl)
@@ -53,7 +54,7 @@ class IOTests : Matchers {
     }
 
     @Test
-    fun `it should read a url`(){
+    fun `it should read a url`() {
         val df = DataFrame.readCSV("https://raw.githubusercontent.com/holgerbrandl/krangl/master/src/test/resources/krangl/data/1950-2014_torn.csv")
         assert(df.nrow > 2)
     }
@@ -62,11 +63,11 @@ class IOTests : Matchers {
     fun `it should have the correct column types`() {
 
         val columnTypes = mapOf(
-                "a" to ColType.String,
-                "b" to ColType.String,
-                "c" to ColType.Double,
-                "e" to ColType.Boolean,
-                ".default" to ColType.Int
+            "a" to ColType.String,
+            "b" to ColType.String,
+            "c" to ColType.Double,
+            "e" to ColType.Boolean,
+            ".default" to ColType.Int
 
         )
 
@@ -78,4 +79,10 @@ class IOTests : Matchers {
         assert(cols[3] is IntCol)
     }
 
+
+    @Test
+    fun `it should convert data-classes to dataframes`() {
+
+
+    }
 }

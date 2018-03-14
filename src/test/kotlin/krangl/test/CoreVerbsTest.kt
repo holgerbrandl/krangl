@@ -1,7 +1,6 @@
 package krangl.test
 
-import io.kotlintest.matchers.Matchers
-import io.kotlintest.matchers.have
+import io.kotlintest.matchers.*
 import krangl.*
 import org.apache.commons.csv.CSVFormat
 import org.junit.Test
@@ -10,10 +9,10 @@ import org.junit.Test
 val flights = DataFrame.readDelim(DataFrame::class.java.getResourceAsStream("data/nycflights.tsv.gz"), format = CSVFormat.TDF.withHeader(), isCompressed = true)
 
 
-class SelectTest : Matchers {
+class SelectTest {
 
     @Test
-    fun `allow for empty data frame`(){
+    fun `allow for empty data frame`() {
         emptyDataFrame().print()
         emptyDataFrame().columnTypes()
         emptyDataFrame().head()
@@ -142,7 +141,7 @@ class SelectTest : Matchers {
 }
 
 
-class MutateTest : Matchers {
+class MutateTest {
 
     @Test
     fun `rename columns and preserve their positions`() {
@@ -166,14 +165,14 @@ class MutateTest : Matchers {
     }
 
     @Test
-    fun `it should  mutate existing columns while keeping their posi`() {
+    fun `it should  mutate existing columns while keeping their position`() {
         irisData.addColumn("Sepal.Length" to { it["Sepal.Length"] + 10 }).names shouldBe irisData.names
     }
 
     @Test
     fun `it should  allow to use a new column in the same mutate call`() {
         sleepData.addColumns(
-                "vore_new" to { it["vore"] },
+            "vore_new" to { it["vore"] },
             "vore_first_char" to { it["vore"].asStrings().mapNonNull { it.toList().first().toString() } }
         )
     }
@@ -198,10 +197,26 @@ class MutateTest : Matchers {
         }
 
     }
+
+    @Test
+    fun `it should perform correct column arithmetics`() {
+        val data = dataFrameOf("product", "weight", "price", "num_items", "inflammable")(
+            "handy", 2.0, 1.0, 33, true,
+            "tablet", 1.5, 6.0, 22, true,
+            "macbook", 12.5, 20.0, 4, false
+        )
+
+        //        data.addColumn("price_per_kg") { it["price"] / it["weight"] }["price_per_kg"].asDoubles() shouldBe
+        //            arrayOf<Double?>(0.5, 4.0, 1.6)
+
+
+        val asDoubles = data.addColumn("value") { it["num_items"] * it["price"] }["value"].asDoubles()
+        asDoubles shouldBe arrayOf(33.0, 132.0, 80.0)
+    }
 }
 
 
-class FilterTest : Matchers {
+class FilterTest {
 
     @Test
     fun `it should head tail and slic should extract data as expextd`() {
@@ -214,9 +229,9 @@ class FilterTest : Matchers {
     @Test
     fun `it should filter in empty table`() {
         sleepData
-                .filter { it["name"] eq "foo" }
-                // refilter on empty one
-                .filter { it["name"] eq "bar" }
+            .filter { it["name"] eq "foo" }
+            // refilter on empty one
+            .filter { it["name"] eq "bar" }
     }
 
     @Test
@@ -265,26 +280,26 @@ class FilterTest : Matchers {
 
         //  fractional sampling of grouped data should be done per group
         sleepData
-                .groupBy("vore")
-                .sampleFrac(0.5)
-                .count("vore")
-                .filter({ it["vore"] eq "omni" })
-                .apply {
-                    this["n"].asInts().first() shouldBe 10
-                }
+            .groupBy("vore")
+            .sampleFrac(0.5)
+            .count("vore")
+            .filter({ it["vore"] eq "omni" })
+            .apply {
+                this["n"].asInts().first() shouldBe 10
+            }
     }
 
 }
 
 
-class SortTest() : Matchers {
+class SortTest() {
 
     @Test
     fun `use selector api for reverse sorting`() {
         val data = dataFrameOf("user_id")(
-                2,
-                3,
-                4
+            2,
+            3,
+            4
         )
 
         data.sortedBy({ -it["user_id"] })["user_id"][0] shouldBe 4
@@ -292,7 +307,7 @@ class SortTest() : Matchers {
 }
 
 
-class SummarizeTest : Matchers {
+class SummarizeTest {
 
     @Test
     fun `it should fail if summaries are not scalar values`() {
@@ -317,7 +332,7 @@ class SummarizeTest : Matchers {
 }
 
 
-class EmptyTest : Matchers {
+class EmptyTest {
 
     @Test
     fun `it should handle empty (row and column-empty) data-frames in all operations`() {
@@ -325,8 +340,8 @@ class EmptyTest : Matchers {
             // structure
             ncol shouldBe 0
             nrow shouldBe 0
-            rows.toList() should have size 0
-            cols.toList() should have size 0
+            rows.toList() should haveSize(0)
+            cols.toList() should haveSize(0)
 
             // rendering
             glimpse()
@@ -346,7 +361,7 @@ class EmptyTest : Matchers {
 }
 
 
-class GroupedDataTest : Matchers {
+class GroupedDataTest {
 
     /** dplyr considers NA as a group and krangl should do the same
 
@@ -394,9 +409,9 @@ class GroupedDataTest : Matchers {
     fun `it should should auto-select grouping attributes from a grouped dataframe`() {
         //        flights.glimpse()
         val subFlights = flights
-                .groupBy("year", "month", "day")
-                //                .select({ range("year", "day") }, { listOf("arr_delay", "dep_delay") })
-                .select("arr_delay", "dep_delay", "year")
+            .groupBy("year", "month", "day")
+            //                .select({ range("year", "day") }, { listOf("arr_delay", "dep_delay") })
+            .select("arr_delay", "dep_delay", "year")
 
         subFlights.apply {
             ncol shouldBe 5
@@ -412,10 +427,10 @@ class GroupedDataTest : Matchers {
         //        flights.glimpse()
 
         var dfA: DataFrame = dataFrameOf(
-                "first_name", "last_name", "age", "weight")(
-                "Max", "Doe", 23, 55,
-                "Franz", "Smith", 23, 88,
-                "Horst", "Keanes", 12, 82
+            "first_name", "last_name", "age", "weight")(
+            "Max", "Doe", 23, 55,
+            "Franz", "Smith", 23, 88,
+            "Horst", "Keanes", 12, 82
         )
 
         val dfB = dfA.select("age", "last_name", "weight", "first_name")

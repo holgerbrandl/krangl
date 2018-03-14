@@ -1,28 +1,19 @@
 package krangl.test
 
-import io.kotlintest.matchers.Matchers
+import io.kotlintest.matchers.shouldBe
 import krangl.*
 import org.junit.Test
 
 
-class CompoundTests : Matchers {
+class CompoundTests {
 
     @Test
     fun `it should summarize sleep data`() {
 
-        val groupedSleep = sleepData.filter { it["awake"] gt 3 }.
-                apply { glimpse() }.
-                addColumn("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] }).
-                groupBy("vore")
+        val groupedSleep = sleepData.filter { it["awake"] gt 3 }.apply { glimpse() }.addColumn("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] }).groupBy("vore")
 
 
-        val insectiMeanREM = sleepData.filter { it["awake"] gt 3 }.
-                apply { glimpse() }.
-                addColumn("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] }).
-                groupBy("vore").
-                summarize("mean_rem_prop", { it["rem_proportion"].mean(removeNA = true) }).
-                filter { it["vore"] eq "insecti" }.
-                row(0)["mean_rem_prop"] as Double
+        val insectiMeanREM = sleepData.filter { it["awake"] gt 3 }.apply { glimpse() }.addColumn("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] }).groupBy("vore").summarize("mean_rem_prop", { it["rem_proportion"].mean(removeNA = true) }).filter { it["vore"] eq "insecti" }.row(0)["mean_rem_prop"] as Double
 
 
         ((insectiMeanREM - 3.525) < 1E-5) shouldBe true
@@ -43,10 +34,10 @@ class CompoundTests : Matchers {
         df.names shouldBe listOf("foo", "bar")
 
         val naDF = dataFrameOf(
-                "foo", "bar")(
-                null, null,
-                "sdfd", null,
-                "sdf", 5)
+            "foo", "bar")(
+            null, null,
+            "sdfd", null,
+            "sdf", 5)
 
         (naDF["foo"] is StringCol) shouldBe true
         (naDF["bar"] is IntCol) shouldBe true

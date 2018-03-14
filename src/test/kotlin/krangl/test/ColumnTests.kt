@@ -1,15 +1,14 @@
 package krangl.test
 
-import io.kotlintest.TestBase
-import io.kotlintest.TestFailedException
-import io.kotlintest.matchers.Matchers
+import io.kotlintest.matchers.fail
+import io.kotlintest.matchers.shouldBe
 import krangl.*
 import org.junit.Test
 
 /**
  * @author Holger Brandl
  */
-class ColumnTests : Matchers {
+class ColumnTests {
 
     @Test
     fun `it should do correct column arithmetics`() {
@@ -31,7 +30,7 @@ class ColumnTests : Matchers {
 
         shouldThrow<UnsupportedOperationException> { (-BooleanCol("foo", listOf(true))) }
         shouldThrow<UnsupportedOperationException> { (!IntCol("foo", listOf(1))) }
-//
+        //
         shouldThrow<UnsupportedOperationException> { (!AnyCol("foo", listOf(1))) }
         shouldThrow<UnsupportedOperationException> { (-AnyCol("foo", listOf(1))) }
 
@@ -57,9 +56,9 @@ internal inline fun <reified T> shouldThrow(thunk: () -> Any): T {
     }
 
     if (e == null)
-        throw TestFailedException("Expected exception ${T::class.qualifiedName} but no exception was thrown")
+        fail("Expected exception ${T::class.qualifiedName} but no exception was thrown")
     else if (e.javaClass.name != T::class.qualifiedName)
-        throw TestFailedException("Expected exception ${T::class.qualifiedName} but ${e.javaClass.name} was thrown")
+        fail("Expected exception ${T::class.qualifiedName} but ${e.javaClass.name} was thrown")
     else
         return e as T
 }
