@@ -206,12 +206,16 @@ class MutateTest {
             "macbook", 12.5, 20.0, 4, false
         )
 
-        //        data.addColumn("price_per_kg") { it["price"] / it["weight"] }["price_per_kg"].asDoubles() shouldBe
-        //            arrayOf<Double?>(0.5, 4.0, 1.6)
+        data.addColumn("price_per_kg") { it["price"] / it["weight"] }["price_per_kg"].asDoubles() shouldBe
+            arrayOf<Double?>(0.5, 4.0, 1.6)
+
+        data.addColumn("value") { it["num_items"] * it["price"] }["value"].asDoubles() shouldBe
+            arrayOf<Double?>(33.0, 132.0, 80.0)
 
 
-        val asDoubles = data.addColumn("value") { it["num_items"] * it["price"] }["value"].asDoubles()
-        asDoubles shouldBe arrayOf(33.0, 132.0, 80.0)
+        // same but with reversed arguments
+        data.addColumn("value") { it["price"] * it["num_items"] }["value"].asDoubles() shouldBe
+            arrayOf<Double?>(33.0, 132.0, 80.0)
     }
 }
 

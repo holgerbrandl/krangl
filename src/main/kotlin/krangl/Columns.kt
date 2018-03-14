@@ -114,9 +114,8 @@ class DoubleCol(name: String, val values: Array<Double?>) : DataCol(name) {
 
 
     private fun arithOp(something: Any, op: (Double, Double) -> Double): DataCol = when (something) {
-        is DoubleCol -> Array(values.size, { values[it] })
-            .apply { mapIndexed { index, rowVal -> naAwareOp(rowVal, something.values[index], op) } }
-
+        is DoubleCol -> Array(values.size) { it -> naAwareOp(this.values[it], something.values[it], op) }
+        is IntCol -> Array(values.size) { it -> naAwareOp(this.values[it], something.values[it]?.toDouble(), op) }
         is Number -> Array(values.size, { naAwareOp(values[it], something.toDouble(), op) })
         else -> throw UnsupportedOperationException()
     }.let { DoubleCol(TMP_COLUMN, it) }
@@ -160,9 +159,7 @@ class IntCol(name: String, val values: Array<Int?>) : NumberCol(name) {
 
 
     private fun doubleOp(something: Any, op: (Double, Double) -> Double): DataCol = when (something) {
-
-        is DoubleCol -> Array(values.size, { values[it] }).apply { mapIndexed { index, rowVal -> naAwareOp(rowVal?.toDouble(), something.values[index], op) } }
-
+        is DoubleCol -> Array(values.size) { it -> naAwareOp(this.values[it]?.toDouble(), something.values[it], op) }
         is Double -> Array(values.size, { naAwareOp(values[it]?.toDouble(), something, op) })
 
         else -> throw UnsupportedOperationException()
@@ -170,9 +167,7 @@ class IntCol(name: String, val values: Array<Int?>) : NumberCol(name) {
 
 
     private fun intOp(something: Any, op: (Int, Int) -> Int): DataCol = when (something) {
-
-        is IntCol -> Array(values.size, { values[it] }).apply { mapIndexed { index, rowVal -> naAwareOp(rowVal, something.values[index], op) } }
-
+        is IntCol -> Array(values.size) { it -> naAwareOp(this.values[it], something.values[it], op) }
         is Int -> Array(values.size, { naAwareOp(values[it], something, op) })
 
         else -> throw UnsupportedOperationException()
