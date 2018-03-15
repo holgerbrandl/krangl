@@ -115,6 +115,10 @@ class InplaceDataFrameBuilder(private val header: List<String>) {
         //            tblData = tblData.first() as Iterable<Any?>
         //        }
 
+        // is the data vector compatible with the header dimension?
+        require(header.size > 0 && tblData.size.rem(header.size) == 0) {
+            "data dimension ${header.size} is not compatible with length of data vector ${tblData.size}"
+        }
 
         // 1) break into columns
         val rawColumns: List<List<Any?>> = tblData.toList()

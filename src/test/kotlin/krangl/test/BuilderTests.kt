@@ -10,7 +10,7 @@ import java.io.File
  * @author Holger Brandl
  */
 
-class IOTests {
+class BuilderTests {
 
     @Test
     fun testTornados() {
@@ -93,11 +93,24 @@ class IOTests {
         assert(cols[2] is DoubleCol)
         assert(cols[3] is IntCol)
     }
-}
 
-class BuilderTests {
     @Test
     fun `it should enforce complete data when building inplace data-frames`() {
-        dataFrameOf("user", "salary")(1)
+
+        // none
+        shouldThrow<IllegalArgumentException> {
+            dataFrameOf("user", "salary")()
+        }
+
+        // too few
+        shouldThrow<IllegalArgumentException> {
+            dataFrameOf("user", "salary")(1)
+        }
+
+        // too many
+        shouldThrow<IllegalArgumentException> {
+            dataFrameOf("user", "salary")(1, 2, 3)
+        }
+
     }
 }
