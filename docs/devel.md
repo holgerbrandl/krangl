@@ -32,3 +32,15 @@ kotlinc  -classpath '/Users/brandl/.m2/repository/de/mpicbg/scicomp/krangl/0.4-S
 ## Design
 
 https://stackoverflow.com/questions/45090808/intarray-vs-arrayint-in-kotlin --> bottom line: Array<*> can be null
+
+
+## gradle
+
+create fresh gradle wrapper with:
+
+`gradle wrapper --gradle-version 4.2.1`
+
+From https://github.com/twosigma/beakerx/issues/5135: Split repos?
+> It is a bad idea. Many different repos are hard to maintain. And you do not need this. Gradle allows to publish separate artifacts without splitting repository.  
+you can use `gradle :kernel:base:<whatever>` instead of `cd`.
+

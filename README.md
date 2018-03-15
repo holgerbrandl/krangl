@@ -25,6 +25,12 @@ dependencies {
 }
 ```
 
+To build it locally and install it into your local maven cache simply run
+```bash
+./gradlew install
+```
+
+
 Features
 --------
 
