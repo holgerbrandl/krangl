@@ -17,7 +17,9 @@ hs_err_pid*
 
 ### Gradle template
 .gradle
-build/
+build
+.idea
+*.iml
 
 # Ignore Gradle GUI config
 gradle-app.setting
