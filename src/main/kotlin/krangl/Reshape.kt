@@ -196,7 +196,7 @@ fun DataFrame.separate(column: String, into: List<String>, sep: String = "_", re
     val sepCol = this[column]
 
     // split colum  by given delimter and keep NAs
-    val splitData = sepCol.asStrings().map { it?.split(delimiters = sep)?.map { it.naAsNull() } }
+    val splitData = sepCol.asStrings().map { it?.split(delimiters = sep) }
     val splitWidths = splitData.map { it?.size }.filterNotNull().distinct()
     val numSplits = splitWidths.first()
 

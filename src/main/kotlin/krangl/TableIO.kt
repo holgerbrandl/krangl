@@ -33,17 +33,19 @@ private fun asStream(fileOrUrl: String) = (if (isURL(fileOrUrl)) {
 internal fun isURL(fileOrUrl: String): Boolean = listOf("http:", "https:", "ftp:").any { fileOrUrl.startsWith(it) }
 
 
-fun DataFrame.Companion.readCSV(
+@JvmOverloads fun DataFrame.Companion.readCSV(
     fileOrUrl: String,
+    format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
     colTypes: Map<String, ColType> = mapOf()
 ) = readDelim(
     asStream(fileOrUrl),
+    format = format,
     colTypes = colTypes,
     isCompressed = listOf("gz", "zip").contains(fileOrUrl.split(".").last())
 )
 
 
-fun DataFrame.Companion.readTSV(
+@JvmOverloads fun DataFrame.Companion.readTSV(
     fileOrUrl: String,
     format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
     colTypes: Map<String, ColType> = mapOf()
@@ -54,19 +56,19 @@ fun DataFrame.Companion.readTSV(
     isCompressed = listOf("gz", "zip").contains(fileOrUrl.split(".").last())
 )
 
-fun DataFrame.Companion.readTSV(
+@JvmOverloads fun DataFrame.Companion.readTSV(
     file: File,
-    format: CSVFormat = CSVFormat.DEFAULT,
+    format: CSVFormat = CSVFormat.TDF.withHeader(),
     colTypes: Map<String, ColType> = mapOf()
 ) = readDelim(
     FileInputStream(file),
-    format = CSVFormat.TDF.withHeader(),
+    format = format,
     colTypes = colTypes,
     isCompressed = guessCompressed(file)
 )
 
 
-fun DataFrame.Companion.readCSV(
+@JvmOverloads fun DataFrame.Companion.readCSV(
     file: File,
     format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
     colTypes: Map<String, ColType> = mapOf()
@@ -128,7 +130,13 @@ fun DataFrame.Companion.readDelim(
     colTypes: Map<String, ColType> = mapOf()
 ): DataFrame {
 
-    val csvParser = format.parse(reader)
+    val formatWithNullString = if(format.isNullStringSet) {
+        format
+    } else {
+        format.withNullString(MISSING_VALUE)
+    }
+
+    val csvParser = formatWithNullString.parse(reader)
     val records = csvParser.records
 
     val columnNames = csvParser.headerMap?.keys
@@ -162,9 +170,6 @@ fun DataFrame.Companion.readDelim(
 
 val MISSING_VALUE = "NA"
 
-// NA aware conversions
-internal fun String.naAsNull(): String? = if (this == MISSING_VALUE) null else this
-
 internal fun String?.nullAsNA(): String = this ?: MISSING_VALUE
 
 internal fun String?.cellValueAsBoolean(): Boolean? {
@@ -172,7 +177,6 @@ internal fun String?.cellValueAsBoolean(): Boolean? {
 
     var cellValue: String? = toUpperCase()
 
-    cellValue = if (cellValue == "NA") null else cellValue
     cellValue = if (cellValue == "F") "FALSE" else cellValue
     cellValue = if (cellValue == "T") "TRUE" else cellValue
 
@@ -194,16 +198,16 @@ internal fun dataColFactory(colName: String, colType: ColType, records: MutableL
     when (colType) {
     // see https://github.com/holgerbrandl/krangl/issues/10
         ColType.Int -> try {
-            IntCol(colName, records.map { it[colName].naAsNull()?.toInt() })
+            IntCol(colName, records.map { it[colName]?.toInt() })
         } catch (e: NumberFormatException) {
-            StringCol(colName, records.map { it[colName].naAsNull() })
+            StringCol(colName, records.map { it[colName] })
         }
 
-        ColType.Double -> DoubleCol(colName, records.map { it[colName].naAsNull()?.toDouble() })
+        ColType.Double -> DoubleCol(colName, records.map { it[colName]?.toDouble() })
 
-        ColType.Boolean -> BooleanCol(colName, records.map { it[colName].naAsNull()?.cellValueAsBoolean() })
+        ColType.Boolean -> BooleanCol(colName, records.map { it[colName]?.cellValueAsBoolean() })
 
-        ColType.String -> StringCol(colName, records.map { it[colName].naAsNull() })
+        ColType.String -> StringCol(colName, records.map { it[colName] })
 
         ColType.Guess -> dataColFactory(colName, guessColType(peekCol(colName, records)), records)
 
@@ -231,8 +235,14 @@ internal fun isBoolCol(firstElements: List<String?>): Boolean = try {
 }
 
 
-// todo keep peeking until we hit the first/N non NA value
-internal fun peekCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5) = records.take(peekSize).mapIndexed { rowIndex, _ -> records[rowIndex][colName].naAsNull() }
+internal fun peekCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5): List<String?> {
+    val result = mutableListOf<String>()
+    for(element in records) {
+        if(result.size == peekSize) return result
+        if(element[colName] != null) result.add(element[colName])
+    }
+    return result
+}
 
 
 fun DataFrame.writeCSV(
