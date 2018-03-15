@@ -38,7 +38,7 @@ class IOTests {
             Car("BMW Mustang", 3, Engine.Otto)
         )
 
-        val carsDF = myCars.asDataFrame {
+        val carsDF = myCars.bindToDataFrame {
             mapOf(
                 "model" to it.name,
                 "motor" to it.engine,
@@ -93,20 +93,11 @@ class IOTests {
         assert(cols[2] is DoubleCol)
         assert(cols[3] is IntCol)
     }
+}
 
-
+class BuilderTests {
     @Test
-    fun `it should convert data-classes to dataframes`() {
-        data class Person(val name: String, val age: Int, val weight: Double)
-
-        val users = listOf(
-            Person("Anne", 23, 55.4),
-            Person("Tina", 40, 60.4)
-        )
-
-        val df = users.asObjectsDataFrame()
-
-        df.names shouldBe listOf("age", "name", "weight")
-        df["age"][0] shouldBe 23
+    fun `it should enforce complete data when building inplace data-frames`() {
+        dataFrameOf("user", "salary")(1)
     }
 }

@@ -310,7 +310,7 @@ fun DataFrame.columnTypes(): List<ColSpec> {
     return cols.mapIndexed { index, col -> ColSpec(index, col.name, getColType(col) ?: "") }
 }
 
-fun List<ColSpec>.asDf() = asDataFrame { mapOf("index" to it.pos, "name" to it.name, "type" to it.type) }
+fun List<ColSpec>.asDf() = bindToDataFrame { mapOf("index" to it.pos, "name" to it.name, "type" to it.type) }
 
 fun List<ColSpec>.print() = asDf().print()
 
@@ -343,19 +343,21 @@ fun DataFrame.glimpse() {
 }
 
 /** Provides a code to convert  a dataframe to a strongly typed list of kotlin data-class instances.*/
-fun DataFrame.printDataClassSchema(varName: String, dataClassName: String = varName.capitalize()) {
+fun DataFrame.printDataClassSchema(receiverVarName: String, dataClassName: String = receiverVarName.capitalize().replace("ies$", "y")) {
     val df = this.ungroup() as SimpleDataFrame
 
     // create type
-    val dataSpec = df.cols.map { "val ${wrappedNameIfNecessary(it)}: ${getScalarColType(it)}" }.joinToString(", ")
+    booleanArrayOf(true, false, false).any()
+    fun getNullableFlag(it: DataCol) = if (it.isNA().contains(true)) "?" else ""
+    val dataSpec = df.cols.map { """val ${wrappedNameIfNecessary(it)}: ${getScalarColType(it)}${getNullableFlag(it)}""" }.joinToString(", ")
     println("data class ${dataClassName}(${dataSpec})")
 
     // map dataframe to
     // example: val dfEntries = df.rows.map {row ->  Df(row.get("first_name") as String ) }
 
-    val attrMapping = df.cols.map { """ row["${it.name}"] as ${getScalarColType(it)}""" }.joinToString(", ")
+    val attrMapping = df.cols.map { """ row["${it.name}"] as ${getScalarColType(it)}${getNullableFlag(it)}""" }.joinToString(", ")
 
-    println("val records = ${varName}.rows.map { row -> ${dataClassName}(${attrMapping}) }")
+    println("val records = ${receiverVarName}.rows.map { row -> ${dataClassName}(${attrMapping}) }")
 }
 
 
@@ -424,7 +426,7 @@ internal fun GroupedDataFrame.transformGroups(trafo: (DataFrame) -> DataFrame): 
     groups.map { DataGroup(it.groupHash, trafo(it.df)) }.let { GroupedDataFrame(by, it) }
 
 
-fun List<DataCol>.asDataFrame(): DataFrame = SimpleDataFrame(this)
+fun List<DataCol>.bindToDataFrame(): DataFrame = SimpleDataFrame(this)
 
 fun emptyDataFrame(): DataFrame = SimpleDataFrame()
 

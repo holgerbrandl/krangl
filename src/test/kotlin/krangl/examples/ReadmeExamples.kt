@@ -7,7 +7,7 @@ import krangl.*
 fun main(args: Array<String>) {
 
     // Read data-frame from disk
-    val iris = DataFrame.readCSV("data/iris.txt")
+    val iris = DataFrame.readCSV("src/main/resources/krangl/data/iris.txt")
 
     // Create data-frame in memory
     val df: DataFrame = dataFrameOf(
@@ -124,7 +124,8 @@ fun main(args: Array<String>) {
     records.first().mean_weight
 
     // Vice versa we can also convert an existing set of objects into
-    val dfRestored = records.asDataFrame { mapOf("age" to it.age, "weight" to it.mean_weight) }
+    // val dfRestored = records.bindToDataFrame { mapOf("age" to it.age, "weight" to it.mean_weight) }
+    val dfRestored = records.asDataFrame()
     dfRestored.print()
 }
 

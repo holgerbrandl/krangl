@@ -78,7 +78,6 @@ fun DataFrame.Companion.readCSV(
 )
 
 
-
 private fun guessCompressed(file: File) = listOf("gz", "zip").contains(file.extension)
 
 
@@ -132,12 +131,21 @@ fun DataFrame.Companion.readDelim(
     val csvParser = format.parse(reader)
     val records = csvParser.records
 
-    // todo also support reading files without header --> use generic column names if so
-
     val columnNames = csvParser.headerMap?.keys
         ?: (1..csvParser.records[0].count()).mapIndexed { index, _ -> "X${index}" }
 
-    // todo make column names unique when reading them + unit test
+    // Make column names unique when reading them + unit test
+    val uniqueNames = columnNames
+        .withIndex()
+        .groupBy { it.value }
+        .flatMap { (grpName, columns) ->
+            columns
+                .mapIndexed { index, indexedValue ->
+                    indexedValue.index to (grpName + "_${index + 2}")
+                }
+        }
+        .sortedBy { it.first }.map { it.second }
+
 
     //    csvParser.headerMap.keys.pmap{colName ->
     val cols = columnNames.map { colName ->
@@ -347,4 +355,4 @@ val flightsData by lazy {
     // consider to use progress bar here
 }
 
-// todo support Read and write data using Tablesaw’s “.saw” format
+// todo support Read and write data using Tablesaw’s “.saw” format --> use dedicated artifact to minimize dependcies

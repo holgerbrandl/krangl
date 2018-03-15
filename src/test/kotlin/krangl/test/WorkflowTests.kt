@@ -66,6 +66,11 @@ class CompoundTests {
         krangl.samples.renameSomeColumns()
         krangl.samples.textMatching()
     }
+
+    @Test
+    fun `it should run the readme examples`() {
+        krangl.examples.main(emptyArray())
+    }
 }
 
 
