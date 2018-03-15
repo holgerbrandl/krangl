@@ -2,6 +2,7 @@ package krangl.test
 
 import io.kotlintest.matchers.shouldBe
 import krangl.*
+import org.apache.commons.csv.CSVFormat
 import org.junit.Test
 import java.io.File
 
@@ -57,6 +58,20 @@ class IOTests {
     fun `it should read a url`() {
         val df = DataFrame.readCSV("https://raw.githubusercontent.com/holgerbrandl/krangl/master/src/test/resources/krangl/data/1950-2014_torn.csv")
         assert(df.nrow > 2)
+    }
+
+    @Test
+    fun `it should read and write compressed and uncompressed tables`() {
+        //        createTempFile(prefix = "krangl_test", suffix = ".zip").let {
+        //            sleepData.writeCSV(it)
+        //            println("file was $it")
+        //            DataFrame.readCSV(it).nrow shouldBe sleepData.nrow
+        //        }
+
+        createTempFile(prefix = "krangl_test", suffix = ".txt").let {
+            sleepData.writeCSV(it, format = CSVFormat.TDF.withHeader())
+            DataFrame.readCSV(it, format = CSVFormat.TDF.withHeader()).nrow shouldBe sleepData.nrow
+        }
     }
 
     @Test

@@ -9,6 +9,7 @@ import java.io.*
 import java.net.URI
 import java.net.URL
 import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 
 /**
 Methods to read and write tables into/from DataFrames
@@ -44,27 +45,38 @@ fun DataFrame.Companion.readCSV(
 
 fun DataFrame.Companion.readTSV(
     fileOrUrl: String,
+    format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
     colTypes: Map<String, ColType> = mapOf()
 ) = readDelim(
-    asStream(fileOrUrl),
-    format = CSVFormat.TDF.withHeader(),
+    inStream = asStream(fileOrUrl),
+    format = format,
     colTypes = colTypes,
     isCompressed = listOf("gz", "zip").contains(fileOrUrl.split(".").last())
 )
 
-
-fun DataFrame.Companion.readCSV(file: File, colTypes: Map<String, ColType> = mapOf()) = readDelim(
+fun DataFrame.Companion.readTSV(
+    file: File,
+    format: CSVFormat = CSVFormat.DEFAULT,
+    colTypes: Map<String, ColType> = mapOf()
+) = readDelim(
     FileInputStream(file),
-    format = CSVFormat.DEFAULT.withHeader(),
+    format = CSVFormat.TDF.withHeader(),
+    colTypes = colTypes,
+    isCompressed = guessCompressed(file)
+)
+
+
+fun DataFrame.Companion.readCSV(
+    file: File,
+    format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
+    colTypes: Map<String, ColType> = mapOf()
+) = readDelim(
+    inStream = FileInputStream(file),
+    format = format,
     colTypes = colTypes,
     isCompressed = listOf("gz", "zip").contains(file.extension)
 )
 
-
-fun DataFrame.Companion.readTSV(
-    file: File,
-    colTypes: Map<String, ColType> = mapOf()
-) = readDelim(FileInputStream(file), format = CSVFormat.TDF.withHeader(), colTypes = colTypes, isCompressed = guessCompressed(file))
 
 
 private fun guessCompressed(file: File) = listOf("gz", "zip").contains(file.extension)
@@ -88,7 +100,11 @@ fun DataFrame.Companion.readDelim(
         InputStreamReader(inputStream)
     }
 
-    return readDelim(BufferedReader(streamReader), format, colTypes = colTypes)
+    return readDelim(
+        BufferedReader(streamReader),
+        format = format,
+        colTypes = colTypes
+    )
 }
 
 //http://stackoverflow.com/questions/5200187/convert-inputstream-to-bufferedreader
@@ -107,9 +123,13 @@ fun DataFrame.Companion.readDelim(
     }
 
 
-fun DataFrame.Companion.readDelim(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT.withHeader(), colTypes: Map<String, ColType> = mapOf()): DataFrame {
-    val csvParser = format.parse(reader)
+fun DataFrame.Companion.readDelim(
+    reader: Reader,
+    format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
+    colTypes: Map<String, ColType> = mapOf()
+): DataFrame {
 
+    val csvParser = format.parse(reader)
     val records = csvParser.records
 
     // todo also support reading files without header --> use generic column names if so
@@ -207,28 +227,31 @@ internal fun isBoolCol(firstElements: List<String?>): Boolean = try {
 internal fun peekCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5) = records.take(peekSize).mapIndexed { rowIndex, _ -> records[rowIndex][colName].naAsNull() }
 
 
-//TODO add support for compressed writing
+fun DataFrame.writeCSV(
+    file: File,
+    format: CSVFormat = CSVFormat.DEFAULT.withHeader(*names.toTypedArray())
+) {
+    val format = if (format.run { header != null && header.size == 0 }) {
+        warning("[krangl] Adding missing column name to csv format")
+        format.withHeader(*names.toTypedArray())
+    } else {
+        format
+    }
 
-fun DataFrame.writeCSV(file: String, format: CSVFormat = CSVFormat.DEFAULT, colNames: Boolean = true) = writeCSV(File(file), format, colNames)
+    val compress: Boolean = listOf("gz", "zip").contains(file.extension)
 
-fun DataFrame.writeCSV(file: File, format: CSVFormat = CSVFormat.DEFAULT, colNames: Boolean = true) {
-    //initialize FileWriter object
-    val fileWriter = FileWriter(file)
+    val p = if (!compress) PrintWriter(file) else BufferedWriter(OutputStreamWriter(GZIPOutputStream(FileOutputStream(file))))
 
     //initialize CSVPrinter object
-    val csvFilePrinter = CSVPrinter(fileWriter, format)
-
-    //Create CSV file header
-    if (colNames) csvFilePrinter.printRecord(names)
+    val csvFilePrinter = CSVPrinter(p, format)
 
     // write records
     for (record in rowData()) {
         csvFilePrinter.printRecord(record)
     }
 
-    fileWriter.flush()
-    fileWriter.close()
-    csvFilePrinter.close()
+    p.flush()
+    p.close()
 }
 
 
@@ -250,7 +273,7 @@ Additional variables order, conservation status and vore were added from wikiped
 - brainwt. brain weight in kilograms
 - bodywt. body weight in kilograms
  */
-val sleepData by lazy { DataFrame.readDelim(DataFrame::class.java.getResourceAsStream("data/msleep.csv"), CSVFormat.DEFAULT.withHeader()) }
+val sleepData by lazy { DataFrame.readDelim(DataFrame::class.java.getResourceAsStream("data/msleep.csv")) }
 
 
 /* Data class required to parse sleep Data records. */
