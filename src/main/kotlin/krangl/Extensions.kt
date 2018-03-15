@@ -310,7 +310,7 @@ fun DataFrame.columnTypes(): List<ColSpec> {
     return cols.mapIndexed { index, col -> ColSpec(index, col.name, getColType(col) ?: "") }
 }
 
-fun List<ColSpec>.asDf() = bindToDataFrame { mapOf("index" to it.pos, "name" to it.name, "type" to it.type) }
+fun List<ColSpec>.asDf() = deparseRecords { mapOf("index" to it.pos, "name" to it.name, "type" to it.type) }
 
 fun List<ColSpec>.print() = asDf().print()
 
@@ -425,8 +425,6 @@ internal inline fun warnIf(value: Boolean, lazyMessage: () -> Any): Unit {
 internal fun GroupedDataFrame.transformGroups(trafo: (DataFrame) -> DataFrame): GroupedDataFrame =
     groups.map { DataGroup(it.groupHash, trafo(it.df)) }.let { GroupedDataFrame(by, it) }
 
-
-fun List<DataCol>.bindToDataFrame(): DataFrame = SimpleDataFrame(this)
 
 fun emptyDataFrame(): DataFrame = SimpleDataFrame()
 

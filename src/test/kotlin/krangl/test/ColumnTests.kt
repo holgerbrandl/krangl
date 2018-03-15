@@ -18,6 +18,16 @@ class ColumnTests {
         (IntCol("", listOf(3)) + "foo")[0] shouldBe "3foo"
     }
 
+    @Test
+    fun `it should do correct string column arithmetics`() {
+
+        irisData.addColumns(
+            // TODO this does not get a compiler warning, but should in this context
+            //            "initials" to { it["Species"].map<String> { it.first() } + it["Species"].map<String> { it.first() } },
+            "initials" to { it["Species"].map<String> { it.first() } concat it["Species"].map<String> { it.first() } }
+        )
+    }
+
 
     @Test
     fun `allow to negate and invert columns`() {

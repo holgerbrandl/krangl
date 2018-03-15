@@ -68,7 +68,7 @@ val df: DataFrame = dataFrameOf(
 )
 
 // Or from csv
-// val otherDF = DataFrame.fromCSV("path/to/file")
+// val otherDF = DataFrame.readCSV("path/to/file")
 
 // Print rows
 df                              // with implict string conversion using default options
@@ -95,12 +95,12 @@ df.addColumn("user_id") { it["last_name"] + "_id" + rowNumber }
 df.addColumn("with_anz") { it["first_name"].asStrings().map { it!!.contains("anz") } }
 
 // Note: krangl is using 'null' as missing value, and provides convenience methods to process non-NA bits
-df.addColumn("first_name_initial") { it["first_name"].asStrings().mapNonNull { first().toString() } }
+df.addColumn("first_name_initial") { it["first_name"].map<String>{ it.first() } }
 
 // or add multiple columns at once
 df.addColumns(
     "age_plus3" to { it["age"] + 3 },
-    "initials" to { it["first_name"].map<String> { it.first() } + it["last_name"].map<String> { it.first() } }
+    "initials" to { it["first_name"].map<String> { it.first() } concat it["last_name"].map<String> { it.first() } }
 )
 
 
@@ -144,7 +144,7 @@ df.summarize(
     "max_age" to { it["age"].max() }
 )
 
-// for sake of r and python adoptability you also use `=` here
+// for sake of r and python adoptability you can also use `=` here
 df.summarize(
     "min_age" `=` { it["age"].min() },
     "max_age" `=` { it["age"].max() }
@@ -173,8 +173,12 @@ val records = sumDF.rows.map { row -> SumDF(row["age"] as Int, row["mean_weight"
 records.first().mean_weight
 
 // Vice versa we can also convert an existing set of objects into
-val dfRestored = records.asDataFrame { mapOf("age" to it.age, "weight" to it.mean_weight) }
-dfRestored.print()
+val recordsDF = records.asDataFrame()
+recordsDF.print()
+
+// to populate a data-frame with selected properties only, we can do
+val deparsedDF = records.deparseRecords { mapOf("age" to it.age, "weight" to it.mean_weight) }
+
 ```
 
 Support & Documentation

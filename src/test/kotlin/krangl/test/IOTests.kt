@@ -38,7 +38,7 @@ class IOTests {
             Car("BMW Mustang", 3, Engine.Otto)
         )
 
-        val carsDF = myCars.bindToDataFrame {
+        val carsDF = myCars.deparseRecords {
             mapOf(
                 "model" to it.name,
                 "motor" to it.engine,

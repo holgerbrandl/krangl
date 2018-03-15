@@ -487,8 +487,12 @@ class InvalidColumnOperationException(msg: String) : RuntimeException(msg) {
 
 class NonScalarValueException(tf: ColumnFormula, result: Any) :
     RuntimeException("summarize() expression for '${tf.name}' did not evaluate into a scalar value but into a '${result}'")
+
+
 //
 // Category/String helper extensions
 //
 
-// see https://github.com/holgerbrandl/krangl/issues/3
+/** Vectorized string concatenation. */
+// similar to https://stackoverflow.com/questions/9958506/element-wise-string-concatenation-in-numpy
+infix fun List<Any?>.concat(right: List<Any?>) = zip(right).map { it.first.toString() + " " + it.second.toString() }

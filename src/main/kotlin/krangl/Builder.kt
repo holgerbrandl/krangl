@@ -1,6 +1,7 @@
 package krangl
 
 import krangl.ArrayUtils.handleListErasure
+import krangl.util.asDF
 import java.sql.ResultSet
 import java.time.LocalDate
 import java.time.LocalTime
@@ -10,7 +11,7 @@ import kotlin.reflect.full.declaredMembers
 
 // todo javadoc example needed
 /** Create a data-frame from a list of objects */
-fun <T> Iterable<T>.bindToDataFrame(mapping: (T) -> DataFrameRow) = DataFrame.fromRecords(this, mapping)
+fun <T> Iterable<T>.deparseRecords(mapping: (T) -> DataFrameRow) = DataFrame.fromRecords(this, mapping)
 
 
 /** Create a data-frame from a list of objects */
@@ -24,7 +25,7 @@ fun <T> DataFrame.Companion.fromRecords(records: Iterable<T>, mapping: (T) -> Da
         columnData.forEach { colName, colData -> colData.add(record[colName]) }
     }
 
-    return columnData.map { (name, data) -> handleListErasure(name, data) }.bindToDataFrame()
+    return columnData.map { (name, data) -> handleListErasure(name, data) }.asDF()
 }
 
 
@@ -45,8 +46,11 @@ inline fun <reified T> Iterable<T>.asDataFrame(): DataFrame {
 
     val columns = results.map { handleListErasure(it.first, it.second) }
 
-    return columns.bindToDataFrame()
+    return columns.asDF()
 }
+
+
+
 
 /** Convert rows into objects by using reflection. Only parameters used in constructor will be mapped.
  * Note: This is tested with kotlin data classes only. File a ticket for better type compatiblity or any issues!
