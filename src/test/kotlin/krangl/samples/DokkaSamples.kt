@@ -1,8 +1,6 @@
 package krangl.samples
 
-import krangl.DataFrame
 import krangl.*
-import krangl.flightsData
 import java.time.LocalDate
 
 
@@ -46,4 +44,11 @@ fun renameSomeColumns() {
     // and use it like
     irisData.renameSelect({ startsWith("Sepal") }, { "My" + it })
 
+}
+
+fun textMatching() {
+    irisData
+        // filter for all record where species starts with "se"
+        .filter { it["Species"].isMatching { startsWith("se") } }
+        .glimpse()
 }

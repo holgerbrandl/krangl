@@ -57,6 +57,15 @@ class CompoundTests {
 
         naDF.summarize("num_na", { it["bar"].isNA().sumBy { if (it) 1 else 0 } }).print()
     }
+
+
+    @Test
+    fun `it should run all dokka examples without exception`() {
+        krangl.samples.packageInfoSample()
+        krangl.samples.builderSample()
+        krangl.samples.renameSomeColumns()
+        krangl.samples.textMatching()
+    }
 }
 
 

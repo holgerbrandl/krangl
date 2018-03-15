@@ -95,6 +95,15 @@ fun DataFrame.filter(vararg predicates: DataFrame.(DataFrame) -> List<Boolean>):
 // df.filter({ it["last_name"].asStrings().map { it!!.startsWith("Do") } })
 
 
+/** Match a text column in a NA-aware manner to create a predicate vector for filtering.
+ *
+ * @sample krangl.samples.textMatching
+ */
+@Suppress("UNCHECKED_CAST")
+fun DataCol.isMatching(missingAs: Boolean = false, filter: String.() -> Boolean): BooleanArray =
+    (map<String> { it.filter() }.map { it ?: missingAs } as List<Boolean>).toBooleanArray()
+
+
 /**
  * Select random rows from a table.  If receiver is grouped, sampling is done per group.
  *
