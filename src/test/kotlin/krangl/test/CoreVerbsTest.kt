@@ -173,7 +173,10 @@ class MutateTest {
     fun `it should  allow to use a new column in the same mutate call`() {
         sleepData.addColumns(
             "vore_new" to { it["vore"] },
-            "vore_first_char" to { it["vore"].asStrings().mapNonNull { it.toList().first().toString() } }
+            // old API
+            // "vore_first_char" to { it["vore"].asStrings().mapNonNull { it.toList().first().toString() } }
+            // more modern
+            "vore_first_char" to { it["vore"].map<String> { it.toList().first().toString() } }
         )
     }
 
@@ -293,6 +296,21 @@ class FilterTest {
             }
     }
 
+    @Test
+    fun `it should filter rows with text matching helpers`() {
+        sleepData.filter { it["vore"].isMatching { equals("insecti") } }.nrow shouldBe 5
+        sleepData.filter { it["vore"].isMatching { startsWith("ins") } }.nrow shouldBe 5
+
+
+        val df = dataFrameOf("x")(1, 2, 3, 4, 5, null)
+        df.filter { it["x"] gt 2 }.apply {
+            filter { isNA("x") }.nrow shouldBe 0
+            nrow shouldBe 3
+        }
+        df.filter { it["x"] ge 2 }.nrow shouldBe 4
+        df.filter { it["x"] lt 2.0 }.nrow shouldBe 1
+        df.filter { it["x"] le 2f }.nrow shouldBe 2
+    }
 }
 
 

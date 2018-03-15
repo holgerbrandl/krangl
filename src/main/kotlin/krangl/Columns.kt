@@ -237,25 +237,32 @@ infix fun BooleanArray.AND(other: BooleanArray) = mapIndexed { index, first -> f
 
 infix fun BooleanArray.OR(other: BooleanArray) = mapIndexed { index, first -> first || other[index] }.toBooleanArray()
 
+operator fun BooleanArray.not() = BooleanArray(this.size, { !this[it] })
+
 
 infix fun DataCol.gt(i: Number) = greaterThan(i)
 infix fun DataCol.ge(i: Number) = greaterEqualsThan(i)
 
+
+infix fun DataCol.lt(i: Number) = lesserThan(i)
+infix fun DataCol.le(i: Number) = lesserEquals(i)
+
+
+fun DataCol.lesserThan(i: Number) = !ge(i) AND isNotNA()
+fun DataCol.lesserEquals(i: Number) = !gt(i) AND isNotNA()
+
 fun DataCol.greaterThan(i: Number) = when (this) {
-    is DoubleCol -> this.values.map { nullsLast<Double>().compare(it, i.toDouble()) > 0 }
-    is IntCol -> this.values.map { nullsLast<Double>().compare(it!!.toDouble(), i.toDouble()) > 0 }
+    is DoubleCol -> this.values.map { nullsFirst<Double>().compare(it, i.toDouble()) > 0 }
+    is IntCol -> this.values.map { nullsFirst<Double>().compare(it?.toDouble(), i.toDouble()) > 0 }
     else -> throw UnsupportedOperationException()
 }.toBooleanArray()
 
 fun DataCol.greaterEqualsThan(i: Number) = when (this) {
-    is DoubleCol -> this.values.map { nullsLast<Double>().compare(it, i.toDouble()) >= 0 }
-    is IntCol -> this.values.map { nullsLast<Double>().compare(it!!.toDouble(), i.toDouble()) >= 0 }
+    is DoubleCol -> this.values.map { nullsFirst<Double>().compare(it, i.toDouble()) >= 0 }
+    is IntCol -> this.values.map { nullsFirst<Double>().compare(it?.toDouble(), i.toDouble()) >= 0 }
     else -> throw UnsupportedOperationException()
 }.toBooleanArray()
 
-
-infix fun DataCol.lt(i: Int) = gt(i).map { !it }.toBooleanArray()
-fun DataCol.lesserThan(i: Int) = gt(i).map { !it }.toBooleanArray()
 
 infix fun DataCol.isEqualTo(i: Any): BooleanArray = eq(i)
 
@@ -268,7 +275,11 @@ infix fun DataCol.eq(i: Any): BooleanArray = when (this) {
 }.toBooleanArray()
 
 
+//
 // convenience getters for column data
+//
+
+
 //fun DataCol.asStrings(): Array<String?> = (this as StringCol).values()
 //fun DataCol.asStrings(): Array<String?> = asType<String>()
 //fun DataCol.asInts(): Array<Int?> = asType<Int>()
@@ -340,7 +351,13 @@ inline fun <reified T> DataCol.map(noinline expr: (T) -> Any?): List<Any?> {
     return recast.map { if (it != null) expr(it) else null }.toList()
 }
 
-fun <T> Array<T?>.ignoreNA(expr: T.() -> Any?): List<Any?> = map { if (it != null) expr(it) else null }
+/** Allows to process a list of null-containing elements with an expression. NA will be kept where they were in the resulting table.*/
+fun <T, R> Array<T?>.mapNonNull(expr: (T) -> R?): List<R?> {
+    return map { if (it != null) expr(it) else null }.toList()
+}
+
+
+//fun <T> Array<T?>.ignoreNA(expr: T.() -> Any?): List<Any?> = map { if (it != null) expr(it) else null }
 
 
 // should this be dropeed entirely?
@@ -360,14 +377,12 @@ fun <T> Array<T?>.ignoreNA(expr: T.() -> Any?): List<Any?> = map { if (it != nul
 /** Maps a column to true for the NA values and `false` otherwise. */
 fun DataCol.isNA(): BooleanArray = this.values().map { it == null }.toBooleanArray()
 
+fun ExpressionContext.isNA(columnName: String): BooleanArray = this[columnName].values().map { it == null }.toBooleanArray()
+
 fun DataCol.isNotNA(): BooleanArray = this.values().map { it != null }.toBooleanArray()
+fun ExpressionContext.isNotNA(columnName: String): BooleanArray = isNA(columnName)
 
 
-
-/** Allows to process a list of null-containing elements with an expression. NA will be kept where they were in the resulting table.*/
-fun <T, R> Array<T?>.mapNonNull(expr: (T) -> R?): List<R?> {
-    return map { if (it != null) expr(it) else null }.toList()
-}
 
 //inline fun <T, reified R> Array<T>.mapNonNullArr(expr: T.() -> R?): Array<R?> {
 //    return Array<R?>(size, { expr(this[it])})
