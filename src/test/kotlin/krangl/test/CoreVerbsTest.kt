@@ -316,15 +316,38 @@ class FilterTest {
 
 class SortTest() {
 
-    @Test
-    fun `use selector api for reverse sorting`() {
-        val data = dataFrameOf("user_id")(
-            2,
-            3,
-            4
-        )
+    val data = dataFrameOf("user_id", "name")(
+        6, "maja",
+        3, "anna",
+        null, "max",
+        5, null,
+        1, "tom",
+        5, "tom"
+    )
 
-        data.sortedBy({ -it["user_id"] })["user_id"][0] shouldBe 4
+
+    @Test
+    fun `sort numeric columns`() {
+
+        data.sortedBy("user_id")["user_id"][0] shouldBe 1
+        //        data.sortedByDescending("user_id")["user_id"][0] shouldBe 1
+
+        data.sortedBy { it["user_id"] }["user_id"][0] shouldBe 1
+        data.sortedBy { -it["user_id"] }["user_id"][0] shouldBe 6
+
+
+        // try
+    }
+
+    @Test
+    fun `it should text columns asc and desc`() {
+        //asc
+        data.sortedBy { it["name"] }["name"][0] shouldBe "anna"
+        data.sortedBy("name")["name"][0] shouldBe "anna"
+
+        //desc
+        data.sortedBy { desc(it["name"]) }["name"][0] shouldBe "tom"
+        data.sortedByDescending("name")["name"][0] shouldBe "tom"
     }
 }
 

@@ -3,6 +3,7 @@
 package krangl
 
 import krangl.ArrayUtils.handleArrayErasure
+import krangl.util.createComparator
 import java.util.*
 
 
@@ -181,6 +182,21 @@ fun DataFrame.sortedBy(vararg tableExpressions: TableExpression): DataFrame {
     return addColumns(*sortBys.toTypedArray()).sortedBy(*sortByNames).remove(sortByNames.asList())
     //           select({ listOf(*sortByNames).not() })
 }
+
+
+// todo we may want to introduce a subtype of ExpressionContext for sorting. Currently it will be visible in all contexts
+fun ExpressionContext.desc(dataCol: DataCol) = rank(dataCol).reversed().let { IntCol(UUID.randomUUID().toString(), it) }
+
+
+fun ExpressionContext.rank(dataCol: DataCol): List<Int> {
+    val comparator = dataCol.createComparator()
+
+    // see http://stackoverflow.com/questions/11997326/how-to-find-the-permutation-of-a-sort-in-java
+    val permutation = (0..(nrow - 1)).sortedWith(comparator)
+
+    return permutation
+}
+
 
 ////////////////////////////////////////////////
 // summarize() convenience

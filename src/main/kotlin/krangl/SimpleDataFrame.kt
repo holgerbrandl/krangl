@@ -2,6 +2,7 @@ package krangl
 
 import krangl.ArrayUtils.handleArrayErasure
 import krangl.ArrayUtils.handleListErasure
+import krangl.util.createComparator
 import java.util.*
 
 
@@ -215,22 +216,12 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
             return this
         }
 
+
         // utility method to convert columns to comparators
         fun asComparator(by: String): Comparator<Int> {
             val dataCol = this[by]
             //            return naturalOrder<*>()
-            return when (dataCol) {
-            // todo use nullsLast
-                is DoubleCol -> Comparator { left, right -> nullsLast<Double>().compare(dataCol.values[left], dataCol.values[right]) }
-                is IntCol -> Comparator { left, right -> nullsLast<Int>().compare(dataCol.values[left], dataCol.values[right]) }
-                is BooleanCol -> Comparator { left, right -> nullsLast<Boolean>().compare(dataCol.values[left], dataCol.values[right]) }
-                is StringCol -> Comparator { left, right -> nullsLast<String>().compare(dataCol.values[left], dataCol.values[right]) }
-                is AnyCol -> Comparator { left, right ->
-                    @Suppress("UNCHECKED_CAST")
-                    nullsLast<Comparable<Any>>().compare(dataCol.values[left] as Comparable<Any>, dataCol.values[right] as Comparable<Any>)
-                }
-                else -> throw UnsupportedOperationException()
-            }
+            return dataCol.createComparator()
         }
 
         // https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.comparisons/java.util.-comparator/then-by-descending.html

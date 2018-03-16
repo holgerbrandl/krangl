@@ -126,13 +126,30 @@ interface DataFrame {
     fun transmute(vararg formula: ColumnFormula) = addColumns(*formula).select(*formula.map { it.name }.toTypedArray())
 
 
-    /** Returns a sorted data-frame resorts tables. The first argument defines the primary attribute to sort by. Additional ones are used to
-     * resolve ties.
-     * Works similar as  `listOf(1,2,3).sortedBy{ it }` and  `listOf(1,2,3).sortedByDescending{ it }`
+    /** Resorts the receiver in ascending order (small values to go top of table). The first argument defines the
+     * primary attribute to sort by. Additional ones are used to resolve ties.
+     *
+     * Missing values will come last in the sorted table.
+     *
+     * Works similar as  `listOf(1,2,3).sortedBy{ it }`
      */
     fun sortedBy(vararg by: String): DataFrame
 
-    fun sortedByDescending(vararg by: String): DataFrame = TODO()
+
+    /** Resorts the receiver in descending order (small values to go bottom of table). The first argument defines the
+     * primary attribute to sort by. Additional ones are used to resolve ties.
+     *
+     * Works similar as `listOf(1,2,3).sortedByDescending{ it }`
+     */
+    fun sortedByDescending(vararg by: String): DataFrame {
+        return by.map { sorter ->
+            val tableExpression: TableExpression = { desc(it[sorter]) }
+            tableExpression
+        }.let {
+            sortedBy(*it.toTypedArray())
+        }
+    }
+
 
     /** Creates a summary of a table or a group. The provided expression is expected to evaluate to a scalar value and not into a column.
      * @throws
@@ -149,7 +166,6 @@ interface DataFrame {
 
     /** Removes the grouping (if present from a data frame. */
     fun ungroup(): DataFrame
-
 
 
     // needed for static extensions (see http://stackoverflow.com/questions/28210188/static-extension-methods-in-kotlin)

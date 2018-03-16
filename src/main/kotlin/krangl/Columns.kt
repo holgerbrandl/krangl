@@ -93,6 +93,7 @@ internal fun wrappedNameIfNecessary(it: DataCol): String = it.name.run {
     }
 }
 
+@Deprecated("because we could end up having multiple tmp columns. better use UUID.randminUUID()")
 internal val TMP_COLUMN = "___tmp"
 
 
