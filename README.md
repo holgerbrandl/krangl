@@ -122,12 +122,12 @@ df.select({ endsWith("name") })    // selector mini-language
 // Subset rows with vectorized filter
 df.filter { it["age"] eq 23 }
 df.filter { it["weight"] gt 50 }
-df.filter({ it["last_name"].asStrings().map { it!!.startsWith("Do") }.toBooleanArray() })
+df.filter({ it["last_name"].isMatching { startsWith("Do")  }})
 
-df.filter({ it["last_name"].asStrings().map { it!!.startsWith("Do") }.toBooleanArray() })
-
-// In case vectorized operations are not possible we can also filter tables by row which allows for scalar operators
+// In case vectorized operations are not possible or available we can also filter tables by row
+// which allows for scalar operators
 df.filterByRow { it["age"] as Int > 5 }
+df.filterByRow { (it["age"] as Int).rem(10) == 0 } // round birthdays :-)
 
 
 // Summarize
