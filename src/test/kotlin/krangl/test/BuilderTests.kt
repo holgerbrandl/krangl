@@ -94,6 +94,26 @@ class BuilderTests {
         assert(cols[3] is IntCol)
     }
 
+    val customNaDataFrame by lazy {
+        DataFrame.readCSV("src/test/resources/krangl/data/custom_na_value.csv", format = CSVFormat.DEFAULT.withHeader().withNullString("CUSTOM_NA"))
+    }
+
+
+    @Test
+    fun `it should have a custom NA value`() {
+        val cols = customNaDataFrame.cols
+        assert(cols[0][0] == null)
+    }
+
+    @Test
+    fun `it should peek until it hits the first N non NA values and guess IntCol`() {
+        val cols = customNaDataFrame.cols
+        assert(cols[0] is IntCol)
+
+    }
+}
+
+
     @Test
     fun `it should enforce complete data when building inplace data-frames`() {
 
