@@ -170,6 +170,9 @@ fun DataFrame.Companion.readDelim(
 
 val MISSING_VALUE = "NA"
 
+// NA aware conversions
+internal fun String.naAsNull(): String? = if (this == MISSING_VALUE) null else this
+
 internal fun String?.nullAsNA(): String = this ?: MISSING_VALUE
 
 internal fun String?.cellValueAsBoolean(): Boolean? {
@@ -185,7 +188,7 @@ internal fun String?.cellValueAsBoolean(): Boolean? {
     return cellValue?.toBoolean()
 }
 
-internal fun guessColType(firstElements: List<String?>): ColType =
+internal fun guessColType(firstElements: List<String>): ColType =
     when {
         isBoolCol(firstElements) -> ColType.Boolean
         isIntCol(firstElements) -> ColType.Int
@@ -235,14 +238,12 @@ internal fun isBoolCol(firstElements: List<String?>): Boolean = try {
 }
 
 
-internal fun peekCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 5): List<String?> {
-    val result = mutableListOf<String>()
-    for(element in records) {
-        if(result.size == peekSize) return result
-        if(element[colName] != null) result.add(element[colName])
-    }
-    return result
-}
+internal fun peekCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 10) = records
+    .asSequence()
+    .mapIndexed { rowIndex, _ -> records[rowIndex][colName] }
+    .filterNotNull()
+    .take(peekSize)
+    .toList()
 
 
 fun DataFrame.writeCSV(

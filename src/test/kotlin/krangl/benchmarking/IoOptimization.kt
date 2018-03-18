@@ -11,20 +11,13 @@ import java.util.zip.GZIPInputStream
 
 
 internal fun DataFrame.Companion.fromCSVlistArray(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
-
-    val formatWithNullString = if(format.isNullStringSet) {
-        format
-    } else {
-        format.withNullString(MISSING_VALUE)
-    }
-
-    val csvParser = formatWithNullString.withFirstRecordAsHeader().parse(reader)
+    val csvParser = format.withFirstRecordAsHeader().parse(reader)
 
     val rawCols = mutableMapOf<String, List<String?>>()
     val records = csvParser.records
 
     for (colName in csvParser.headerMap.keys) {
-        rawCols.put(colName, records.map { it[colName] })
+        rawCols.put(colName, records.map { it[colName].naAsNull() })
     }
 
     // parallelize this for better performance
@@ -48,21 +41,14 @@ internal fun DataFrame.Companion.fromCSVlistArray(reader: Reader, format: CSVFor
 
 
 internal fun DataFrame.Companion.fromCSVArray(reader: Reader, format: CSVFormat = CSVFormat.DEFAULT): DataFrame {
-
-    val formatWithNullString = if(format.isNullStringSet) {
-        format
-    } else {
-        format.withNullString(MISSING_VALUE)
-    }
-
-    val csvParser = formatWithNullString.withFirstRecordAsHeader().parse(reader)
+    val csvParser = format.withFirstRecordAsHeader().parse(reader)
 
     val rawCols = mutableMapOf<String, Array<String?>>()
     val records = csvParser.records
 
     // first fill guess buffer and then
     for (colName in csvParser.headerMap.keys) {
-        rawCols.put(colName, Array(records.size, { records[it][colName] }))
+        rawCols.put(colName, Array(records.size, { records[it][colName].naAsNull() }))
     }
 
 
