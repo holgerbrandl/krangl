@@ -430,7 +430,7 @@ private fun List<DataFrame>.bindColData(colName: String): Array<*> {
 
 // Any.+ overloading does not work and is maybe neight a good idea since it's affecting global operator conventions
 //infix operator fun Any.plus(rightCol:DataCol) = anyAsColumn(this, TMP_COLUMN, rightCol.values().size) + rightCol
-fun ExpressionContext.const(someThing: Any) = anyAsColumn(someThing, TMP_COLUMN, nrow)
+fun ExpressionContext.const(someThing: Any) = anyAsColumn(someThing, tempColumnName(), nrow)
 
 internal fun warning(msg: String, breakLine: Boolean = true) = if (breakLine) System.err.println(msg) else System.err.print(msg)
 

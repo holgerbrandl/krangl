@@ -33,7 +33,7 @@ abstract class DataCol(val name: String) {
     infix operator fun plus(something: String): DataCol = when (this) {
         is StringCol -> values.map { naAwarePlus(it, something) }
         else -> values().map { (it?.toString() ?: MISSING_VALUE) + something }
-    }.toTypedArray().let { StringCol(TMP_COLUMN, it) }
+    }.toTypedArray().let { StringCol(tempColumnName(), it) }
 
 
     operator fun unaryMinus(): DataCol = this * -1
@@ -86,15 +86,14 @@ internal fun getScalarColType(it: DataCol): String = it.javaClass.simpleName.rem
 //}
 
 internal fun wrappedNameIfNecessary(it: DataCol): String = it.name.run {
-    if(this.contains(kotlin.text.Regex("\\s"))) {
+    if (this.contains(kotlin.text.Regex("\\s"))) {
         "`$this`"
     } else {
         this
     }
 }
 
-@Deprecated("because we could end up having multiple tmp columns. better use UUID.randminUUID()")
-internal val TMP_COLUMN = "___tmp"
+internal fun tempColumnName() = "tmp_col_" + UUID.randomUUID()
 
 
 // https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double-array/index.html
@@ -119,7 +118,7 @@ class DoubleCol(name: String, val values: Array<Double?>) : DataCol(name) {
         is IntCol -> Array(values.size) { it -> naAwareOp(this.values[it], something.values[it]?.toDouble(), op) }
         is Number -> Array(values.size, { naAwareOp(values[it], something.toDouble(), op) })
         else -> throw UnsupportedOperationException()
-    }.let { DoubleCol(TMP_COLUMN, it) }
+    }.let { DoubleCol(tempColumnName(), it) }
 }
 
 
@@ -164,7 +163,7 @@ class IntCol(name: String, val values: Array<Int?>) : NumberCol(name) {
         is Double -> Array(values.size, { naAwareOp(values[it]?.toDouble(), something, op) })
 
         else -> throw UnsupportedOperationException()
-    }.let { handleArrayErasure(TMP_COLUMN, it) }
+    }.let { handleArrayErasure(tempColumnName(), it) }
 
 
     private fun intOp(something: Any, op: (Int, Int) -> Int): DataCol = when (something) {
@@ -172,7 +171,7 @@ class IntCol(name: String, val values: Array<Int?>) : NumberCol(name) {
         is Int -> Array(values.size, { naAwareOp(values[it], something, op) })
 
         else -> throw UnsupportedOperationException()
-    }.let { handleArrayErasure(TMP_COLUMN, it) }
+    }.let { handleArrayErasure(tempColumnName(), it) }
 }
 
 
@@ -191,7 +190,7 @@ class StringCol(name: String, val values: Array<String?>) : DataCol(name) {
         }
         else -> throw UnsupportedOperationException()
     }.let {
-        StringCol(TMP_COLUMN, it)
+        StringCol(tempColumnName(), it)
     }
 
     internal fun naAwarePlus(first: String?, second: String?): String? {
@@ -382,7 +381,6 @@ fun ExpressionContext.isNA(columnName: String): BooleanArray = this[columnName].
 
 fun DataCol.isNotNA(): BooleanArray = this.values().map { it != null }.toBooleanArray()
 fun ExpressionContext.isNotNA(columnName: String): BooleanArray = isNA(columnName)
-
 
 
 //inline fun <T, reified R> Array<T>.mapNonNullArr(expr: T.() -> R?): Array<R?> {

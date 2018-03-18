@@ -111,7 +111,6 @@ class BuilderTests {
         assert(cols[0] is IntCol)
 
     }
-}
 
 
     @Test

@@ -33,7 +33,8 @@ private fun asStream(fileOrUrl: String) = (if (isURL(fileOrUrl)) {
 internal fun isURL(fileOrUrl: String): Boolean = listOf("http:", "https:", "ftp:").any { fileOrUrl.startsWith(it) }
 
 
-@JvmOverloads fun DataFrame.Companion.readCSV(
+@JvmOverloads
+fun DataFrame.Companion.readCSV(
     fileOrUrl: String,
     format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
     colTypes: Map<String, ColType> = mapOf()
@@ -45,7 +46,8 @@ internal fun isURL(fileOrUrl: String): Boolean = listOf("http:", "https:", "ftp:
 )
 
 
-@JvmOverloads fun DataFrame.Companion.readTSV(
+@JvmOverloads
+fun DataFrame.Companion.readTSV(
     fileOrUrl: String,
     format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
     colTypes: Map<String, ColType> = mapOf()
@@ -56,7 +58,8 @@ internal fun isURL(fileOrUrl: String): Boolean = listOf("http:", "https:", "ftp:
     isCompressed = listOf("gz", "zip").contains(fileOrUrl.split(".").last())
 )
 
-@JvmOverloads fun DataFrame.Companion.readTSV(
+@JvmOverloads
+fun DataFrame.Companion.readTSV(
     file: File,
     format: CSVFormat = CSVFormat.TDF.withHeader(),
     colTypes: Map<String, ColType> = mapOf()
@@ -68,7 +71,8 @@ internal fun isURL(fileOrUrl: String): Boolean = listOf("http:", "https:", "ftp:
 )
 
 
-@JvmOverloads fun DataFrame.Companion.readCSV(
+@JvmOverloads
+fun DataFrame.Companion.readCSV(
     file: File,
     format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
     colTypes: Map<String, ColType> = mapOf()
@@ -130,7 +134,7 @@ fun DataFrame.Companion.readDelim(
     colTypes: Map<String, ColType> = mapOf()
 ): DataFrame {
 
-    val formatWithNullString = if(format.isNullStringSet) {
+    val formatWithNullString = if (format.isNullStringSet) {
         format
     } else {
         format.withNullString(MISSING_VALUE)

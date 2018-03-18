@@ -111,7 +111,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         // make sure that table is either empty or row number matches table row count
         require(nrow == 0 || newCol.length == nrow) { "Column lengths of dataframe ($nrow) and new column (${newCol.length}) differ" }
         require(newCol.name !in names) { "Column '${newCol.name}' already exists in dataframe" }
-        require(newCol.name != TMP_COLUMN) { "Internal temporary column name should not be expose to user" }
+        require(newCol.name != tempColumnName()) { "Internal temporary column name should not be expose to user" }
 
         val mutatedCols = cols.toMutableList().apply { add(newCol) }
         return SimpleDataFrame(mutatedCols.toList())
@@ -193,7 +193,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
 
         require(newCol.values().size == nrow) { "new column has inconsistent length" }
-        require(newCol.name != TMP_COLUMN) { "missing name in new columns" }
+        require(newCol.name != tempColumnName()) { "missing name in new columns" }
 
         return if (newCol.name in names) replaceColumn(newCol) else addColumn(newCol)
     }
