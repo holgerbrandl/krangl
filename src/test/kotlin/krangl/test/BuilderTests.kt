@@ -114,6 +114,14 @@ class BuilderTests {
 
 
     @Test
+    fun `it shoudl coerece lists and iterables to varargs when building inplace data-frames`() {
+        dataFrameOf("foo")(listOf(1, 2, 3)).nrow shouldBe 3
+        dataFrameOf("foo")(listOf(1, 2, 3).asIterable()).nrow shouldBe 3
+        dataFrameOf("foo")(listOf(1, 2, 3).asSequence()).nrow shouldBe 3
+    }
+
+
+    @Test
     fun `it should enforce complete data when building inplace data-frames`() {
 
         // none

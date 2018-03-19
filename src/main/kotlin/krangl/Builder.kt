@@ -110,6 +110,15 @@ internal fun SimpleDataFrame.addColumn(dataCol: DataCol): SimpleDataFrame =
 class InplaceDataFrameBuilder(private val header: List<String>) {
 
 
+    operator fun invoke(args: Iterable<Any?>): DataFrame {
+        return invoke(*args.toList().toTypedArray())
+    }
+
+
+    operator fun invoke(args: Sequence<Any?>): DataFrame {
+        return invoke(*args.toList().toTypedArray())
+    }
+
     operator fun invoke(vararg tblData: Any?): DataFrame {
         //        if(tblData.first() is Iterable<Any?>) {
         //            tblData = tblData.first() as Iterable<Any?>
