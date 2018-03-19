@@ -345,6 +345,7 @@ inline fun <reified R> DataCol.asType(): Array<R?> {
 /** Allows to transform column data into list of same length ignoring missing values, which are kept but processing
  * can be done in a non-null manner.
  */
+// todo maybe this should return DataCol or similar to allow for more flexible operator overloading
 inline fun <reified T> DataCol.map(noinline expr: (T) -> Any?): List<Any?> {
     val recast = asType<T?>()
 

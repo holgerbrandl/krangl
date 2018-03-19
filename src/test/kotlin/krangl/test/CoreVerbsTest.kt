@@ -127,7 +127,7 @@ class SelectTest {
         //        }
 
 
-        // note: typically the user would perform a positive selection but in context like gahter he needs a negative selection api as well
+        // note: typically the user would perform a positive selection but in context like gather he needs a negative selection api as well
         irisData.select { except("Species") AND !startsWith("Sepal") }.columnTypes().print()
         irisData.select { except("Species") AND except { startsWith("Sepal") } }.columnTypes().print()
 

@@ -187,16 +187,16 @@ fun DataFrame.unite(colName: String, vararg which: ColNames.() -> List<Boolean?>
  *
  * @param column Bare column name.
  * @param into Names of new variables to create as character vector.
- * @param sep Separator between columns. If character, is interpreted as a regular expression. The default value is a regular @param expression that matches any sequence of non-alphanumeric values. If numeric, interpreted as positions to split at. Positive values start at 1 at the far-left of the string; negative value start at -1 at the far-right of the string. The length of sep should be one less than into.
+ * @param sep Separator between columns. If character, is interpreted as a regular expression. The default value is a regular @param expression that matches any sequence of non-alphanumeric values.
  * @param remove If TRUE, remove input column from output data frame.
  * @param convert If set, attempt to do a type conversion will be run on all new columns. This                  is useful if the value column was a mix of variables that was coerced to a string.
  */
-fun DataFrame.separate(column: String, into: List<String>, sep: String = "_", remove: Boolean = true, convert: Boolean = false): DataFrame {
+fun DataFrame.separate(column: String, into: List<String>, sep: String = "[^\\w]", remove: Boolean = true, convert: Boolean = false): DataFrame {
 
     val sepCol = this[column]
 
     // split colum  by given delimter and keep NAs
-    val splitData = sepCol.asStrings().map { it?.split(delimiters = sep) }
+    val splitData = sepCol.asStrings().map { it?.split(sep.toRegex()) }
     val splitWidths = splitData.map { it?.size }.filterNotNull().distinct()
     val numSplits = splitWidths.first()
 
@@ -205,7 +205,6 @@ fun DataFrame.separate(column: String, into: List<String>, sep: String = "_", re
 
     // vertically split into columns and perform optional type conversion
     val splitCols: List<DataCol> = (0..(numSplits - 1)).map { splitIndex ->
-        println(splitIndex)
         StringCol(into[splitIndex], splitData.map { it?.get(splitIndex) })
     }.map {
         // optionally do type conversion
