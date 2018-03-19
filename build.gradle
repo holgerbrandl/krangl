@@ -58,7 +58,7 @@ dokka {
     samples = ['src/test/kotlin/krangl/samples']
 
     // Emit warnings about not documented members. Applies globally, also can be overridden by packageOptions
-    reportNotDocumented = false
+    reportUndocumented = false
 
 //    http://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation
     includes = ['misc/packages_info.md']
