@@ -23,3 +23,16 @@ fun DataCol.createComparator(): java.util.Comparator<Int> {
         else -> throw UnsupportedOperationException()
     }
 }
+
+fun createValidIdentifier(columnName: String): String = columnName.run {
+    return columnName.split("[\\s,.]".toRegex()).map(String::capitalize).joinToString("").decapitalize()
+
+
+        //     if (this.contains(kotlin.text.Regex("\\columnName"))) {
+        //        "`$this`"
+        //    } else {
+        //        this
+        //    }
+        // and make legal with respect to kotlin language specs
+        .replace(".", "_")
+}

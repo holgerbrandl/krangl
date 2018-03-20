@@ -85,14 +85,6 @@ internal fun getScalarColType(it: DataCol): String = it.javaClass.simpleName.rem
 //    else -> throw  UnsupportedOperationException()
 //}
 
-internal fun wrappedNameIfNecessary(it: DataCol): String = it.name.run {
-    if (this.contains(kotlin.text.Regex("\\s"))) {
-        "`$this`"
-    } else {
-        this
-    }
-}
-
 internal fun tempColumnName() = "tmp_col_" + UUID.randomUUID()
 
 

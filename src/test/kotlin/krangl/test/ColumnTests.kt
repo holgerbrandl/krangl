@@ -3,6 +3,7 @@ package krangl.test
 import io.kotlintest.matchers.fail
 import io.kotlintest.matchers.shouldBe
 import krangl.*
+import krangl.util.createValidIdentifier
 import org.junit.Test
 
 /**
@@ -51,8 +52,8 @@ class ColumnTests {
         val regularColumn = BooleanCol("simple_column", listOf(true, false))
         val spaceColumn = BooleanCol("space column", listOf(true, false))
 
-        wrappedNameIfNecessary(regularColumn) shouldBe "simple_column"
-        wrappedNameIfNecessary(spaceColumn) shouldBe "`space column`"
+        createValidIdentifier(regularColumn.name) shouldBe "simple_column"
+        createValidIdentifier(spaceColumn.name) shouldBe "`space column`"
     }
 }
 

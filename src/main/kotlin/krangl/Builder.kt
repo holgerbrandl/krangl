@@ -2,6 +2,7 @@ package krangl
 
 import krangl.ArrayUtils.handleListErasure
 import krangl.util.asDF
+import krangl.util.createValidIdentifier
 import java.sql.ResultSet
 import java.time.LocalDate
 import java.time.LocalTime
@@ -50,8 +51,6 @@ inline fun <reified T> Iterable<T>.asDataFrame(): DataFrame {
 }
 
 
-
-
 /** Convert rows into objects by using reflection. Only parameters used in constructor will be mapped.
  * Note: This is tested with kotlin data classes only. File a ticket for better type compatiblity or any issues!
  * @param mapping parameter mapping scheme to link data frame columns to object properties mapOf("someName" to "lastName", etc.)
@@ -65,18 +64,24 @@ inline fun <reified T> DataFrame.rowsAs(mapping: Map<String, String> = names.map
 
     // append names to mapping table
     val dummyMap = names.map { it to it }.toMap()
-    val varLookup = dummyMap.minus(mapping.keys) + mapping
+    val varLookup = (dummyMap.minus(mapping.keys) + mapping).entries.associateBy({ it.value }) { it.key }
+
+    // finally we use the same recoding strategy as in printDataClassSchema to create legit identifiers
+    val legitIdentLookup = varLookup.keys.map { createValidIdentifier(it) to it }.toMap()
+
 
     val bestConst = constructors
         // just constructors for which all columns are present
-        .filter { varLookup.values.containsAll(it.parameters.map { it.name }) }
+        .filter { legitIdentLookup.keys.containsAll(it.parameters.map { it.name }) }
         // select the one with most parameters
         .maxBy { it.parameters.size }
 
     if (bestConst == null) error("[krangl] Could not find matching constructor for subset of ${mapping.values}")
 
     val objects = rows.map { row ->
-        val args = bestConst.parameters.map { row[varLookup[it.name]] }
+        val args = bestConst.parameters.map { constParamName ->
+            row[varLookup[legitIdentLookup[constParamName.name]]]
+        }
         bestConst.call(*args.toTypedArray())
     }
 

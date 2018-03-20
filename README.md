@@ -162,12 +162,12 @@ sumDF.ungroup().print()
 
 // generate object bindings for kotlin.
 // Unfortunately the syntax is a bit odd since we can not access the variable name by reflection
-sumDF.printDataClassSchema("sumDF")
+sumDF.printDataClassSchema("Person")
 
 // This will generate and print the following conversion code:
-data class SumDF(val age: Int, val mean_weight: Double, val num_persons: Int)
+data class Person(val age: Int, val mean_weight: Double, val num_persons: Int)
 
-val records = sumDF.rows.map { row -> SumDF(row["age"] as Int, row["mean_weight"] as Double, row["num_persons"] as Int) }
+val records = sumDF.rows.map { row -> Person(row["age"] as Int, row["mean_weight"] as Double, row["num_persons"] as Int) }
 
 // Now we can use the krangl result table in a strongly typed way
 records.first().mean_weight

@@ -1,6 +1,8 @@
 package krangl.test;
 
+import io.kotlintest.matchers.plusOrMinus
 import io.kotlintest.matchers.shouldBe
+import io.kotlintest.matchers.shouldEqual
 import krangl.*
 import org.junit.Test
 import java.io.ByteArrayOutputStream
@@ -68,32 +70,59 @@ class TypeInterfaceTest {
             .rowsAs<User>(mapping = mapOf("Vorname" to "firstName"))
 
         objPersons.toList().size shouldBe users.nrow
+
+        objPersons.first() shouldEqual User("max", "smith", 53, false)
     }
+
 
     @Test
     fun `it should provide the correct schema for object columns`() {
         val salaries = dataFrameOf("user", "salary")(User("Anna", "Doe", 23, null), 23.3)
 
         captureOutput {
-            salaries.printDataClassSchema("salaries")
+            salaries.printDataClassSchema(receiverVarName = "salaries")
         }.first shouldBe """
-        data class Salaries(val user: Any, val salary: Double)
-        val records = salaries.rows.map { row -> Salaries( row["user"] as Any,  row["salary"] as Double) }
+        data class Salary(val user: Any, val salary: Double)
+        val records = salaries.rowsAs<Salary>()
         """.trimIndent()
 
-        data class Salaries(val user: Any, val salary: Double)
+        data class Salary(val user: Any, val salary: Double)
 
-        val records = salaries.rows.map { row -> Salaries(row["user"] as Any, row["salary"] as Double) }
-        records.size shouldBe 1
+        val records = salaries.rowsAs<Salary>()
+
+        records.toList().size shouldBe 1
     }
+
+
+    @Test
+    fun `it should prevent illegal characters in generated schemas`() {
+        captureOutput {
+            irisData.printDataClassSchema(receiverVarName = "irisData")
+        }.first.apply {
+            print(this)
+            contains("sepalLength") shouldBe true
+            this shouldEqual """
+            data class IrisData(val sepalLength: Double, val sepalWidth: Double, val petalLength: Double, val petalWidth: Double, val species: String)
+            val records = irisData.rowsAs<IrisData>()
+            """.trimIndent()
+        }
+
+        //use generated code to restore iris flowers
+        data class IrisData(val sepalLength: Double, val sepalWidth: Double, val petalLength: Double, val petalWidth: Double, val species: String)
+
+        val records = irisData.rowsAs<IrisData>()
+
+        records.first().sepalLength shouldBe (5.1 plusOrMinus 0E-3)
+    }
+
 
     /** prevent regressions from "Provide more elegant object bindings #22"*/
     @Test
     fun `it should print nullable data class schemes`() {
-        val stdout = captureOutput { users.printDataClassSchema("user") }.first
+        val stdout = captureOutput { users.printDataClassSchema(receiverVarName = "user") }.first
         stdout shouldBe """
             data class User(val firstName: String?, val lastName: String, val age: Int, val hasSudo: Boolean?)
-            val records = user.rows.map { row -> User( row["firstName"] as String?,  row["lastName"] as String,  row["age"] as Int,  row["hasSudo"] as Boolean?) }
+            val records = user.rowsAs<User>()
         """.trimIndent()
     }
 

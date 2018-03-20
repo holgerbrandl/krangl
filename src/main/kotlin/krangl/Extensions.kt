@@ -4,6 +4,7 @@ package krangl
 
 import krangl.ArrayUtils.handleArrayErasure
 import krangl.util.createComparator
+import krangl.util.createValidIdentifier
 import java.util.*
 
 
@@ -79,6 +80,23 @@ infix fun String.`=`(that: TableExpression) = ColumnFormula(this, that)
 
 
 data class ColumnFormula(val name: String, val expression: TableExpression)
+
+
+//data class ColumnFunction(val name: String, val expression: (DataCol) -> ColumnData)
+//
+///** Wrapper to allow for more vectorized operations. */
+//class ColumnData(val List<Any?>)
+//
+//fun DataFrame.mutateAt(columns: ColumnSelector, // no default here to avoid signature clash = { all() },
+// vararg fun : ColumnFunction
+//) : DataFrame {
+//    val columns = colSelectAsNames(reduceColSelectors(arrayOf(columns)))
+//
+//    columns.fold(this, { df, colName -> df.addColumn(colName+){ it[""]}
+//
+//    }
+//}
+
 
 ////////////////////////////////////////////////
 // filter() convenience
@@ -359,21 +377,19 @@ fun DataFrame.glimpse() {
 }
 
 /** Provides a code to convert  a dataframe to a strongly typed list of kotlin data-class instances.*/
-fun DataFrame.printDataClassSchema(receiverVarName: String, dataClassName: String = receiverVarName.capitalize().replace("ies$", "y")) {
+fun DataFrame.printDataClassSchema(
+    dataClassName: String,
+    receiverVarName: String = "dataFrame"
+) {
     val df = this.ungroup() as SimpleDataFrame
 
     // create type
     booleanArrayOf(true, false, false).any()
     fun getNullableFlag(it: DataCol) = if (it.isNA().contains(true)) "?" else ""
-    val dataSpec = df.cols.map { """val ${wrappedNameIfNecessary(it)}: ${getScalarColType(it)}${getNullableFlag(it)}""" }.joinToString(", ")
+    val dataSpec = df.cols.map { """val ${createValidIdentifier(it.name)}: ${getScalarColType(it)}${getNullableFlag(it)}""" }.joinToString(", ")
     println("data class ${dataClassName}(${dataSpec})")
 
-    // map dataframe to
-    // example: val dfEntries = df.rows.map {row ->  Df(row.get("first_name") as String ) }
-
-    val attrMapping = df.cols.map { """ row["${it.name}"] as ${getScalarColType(it)}${getNullableFlag(it)}""" }.joinToString(", ")
-
-    println("val records = ${receiverVarName}.rows.map { row -> ${dataClassName}(${attrMapping}) }")
+    println("val records = ${receiverVarName}.rowsAs<${dataClassName}>()")
 }
 
 
