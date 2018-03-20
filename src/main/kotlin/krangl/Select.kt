@@ -60,7 +60,7 @@ fun ColNames.except(vararg columns: String) = names.map { !columns.contains(it) 
 fun ColNames.except(columnSelector: ColumnSelector) = !columnSelector(this)
 //fun ColNames.not(columnSelector: ColumnSelector) = columnSelector(this).not()
 
-internal operator fun List<Boolean?>.not() = map { it?.not() }
+operator fun List<Boolean?>.not() = map { it?.not() }
 
 //https://kotlinlang.org/docs/reference/inline-functions.html#reified-type-parameters
 /** Select columns by column type */
