@@ -140,9 +140,9 @@ class SpreadUniteTest {
             this["test"].values().size shouldEqual nrow
         }
 
-        val united = sleepData.unite("test", { listOf("name", "sleep_rem") })
+        val united = sleepData.unite("test", { listOf("name", "sleep_rem") }, sep = ",")
 
-        united.separate("test", listOf("new_name", "new_sleep_rem"), convert = true).apply {
+        united.separate("test", listOf("new_name", "new_sleep_rem"), convert = true, sep = ",").apply {
             take().print()
             glimpse()
 

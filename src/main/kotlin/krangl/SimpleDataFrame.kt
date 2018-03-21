@@ -363,6 +363,7 @@ internal fun anyAsColumn(mutation: Any?, name: String, nrow: Int): DataCol {
         is String -> Array<String>(nrow) { mutation }
     // add/test NA support here
         else -> mutation
+    //        else -> Array<Any?>(nrow) { mutation }
     }
 
     val newCol = when (arrifiedMutation) {

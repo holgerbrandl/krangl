@@ -201,7 +201,7 @@ fun DataFrame.separate(column: String, into: List<String>, sep: String = "[^\\w]
     val numSplits = splitWidths.first()
 
     require(splitWidths.size == 1) { "unequal splits are not yet supported" }
-    require(numSplits == into.size) { "mimatch between number of splits ${numSplits} and provided new column names '${into}'" }
+    require(numSplits == into.size) { "mismatch between number of splits ${numSplits} and provided new column names '${into}'" }
 
     // vertically split into columns and perform optional type conversion
     val splitCols: List<DataCol> = (0..(numSplits - 1)).map { splitIndex ->

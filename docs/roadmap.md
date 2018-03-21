@@ -3,14 +3,13 @@ Krangl Roadmap
 
 For completed items see [change-log](../CHANGES.md).
 
-v0.7
-
-### Meta
-
-* todo-cleanup
-* run readme examples as unit-test
 
 ----
+
+### IO
+
+* Add parquet support
+
 ### Core
 * bug: csv reader does not handle incorrect type guesses [#10](https://github.com/holgerbrandl/krangl/issues/10)
 * bug: incorrect indentation in `stucture()`

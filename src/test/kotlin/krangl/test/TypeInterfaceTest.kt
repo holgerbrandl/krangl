@@ -7,6 +7,7 @@ import krangl.*
 import org.junit.Test
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
+import java.net.URL
 
 /**
  * @author Holger Brandl
@@ -80,7 +81,7 @@ class TypeInterfaceTest {
         val salaries = dataFrameOf("user", "salary")(User("Anna", "Doe", 23, null), 23.3)
 
         captureOutput {
-            salaries.printDataClassSchema(receiverVarName = "salaries")
+            salaries.printDataClassSchema("Salary", receiverVarName = "salaries")
         }.first shouldBe """
         data class Salary(val user: Any, val salary: Double)
         val records = salaries.rowsAs<Salary>()
@@ -97,7 +98,7 @@ class TypeInterfaceTest {
     @Test
     fun `it should prevent illegal characters in generated schemas`() {
         captureOutput {
-            irisData.printDataClassSchema(receiverVarName = "irisData")
+            irisData.printDataClassSchema(dataClassName = "IrisData", receiverVarName = "irisData")
         }.first.apply {
             print(this)
             contains("sepalLength") shouldBe true
@@ -119,13 +120,21 @@ class TypeInterfaceTest {
     /** prevent regressions from "Provide more elegant object bindings #22"*/
     @Test
     fun `it should print nullable data class schemes`() {
-        val stdout = captureOutput { users.printDataClassSchema(receiverVarName = "user") }.first
+        val stdout = captureOutput { users.printDataClassSchema("User") }.first
         stdout shouldBe """
             data class User(val firstName: String?, val lastName: String, val age: Int, val hasSudo: Boolean?)
-            val records = user.rowsAs<User>()
+            val records = dataFrame.rowsAs<User>()
         """.trimIndent()
     }
 
+
+    @Test
+    fun `it should allow object columns`() {
+        val id2 = irisData.groupBy("Species").summarize("url") { URL("https://github.com/holgerbrandl/krangl") }
+
+        id2.ncol shouldBe (2)
+        id2.print()
+    }
 
 }
 

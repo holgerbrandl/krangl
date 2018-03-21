@@ -53,7 +53,7 @@ class ColumnTests {
         val spaceColumn = BooleanCol("space column", listOf(true, false))
 
         createValidIdentifier(regularColumn.name) shouldBe "simple_column"
-        createValidIdentifier(spaceColumn.name) shouldBe "`space column`"
+        createValidIdentifier(spaceColumn.name) shouldBe "spaceColumn"
     }
 }
 
