@@ -8,6 +8,7 @@ import org.junit.Test
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.net.URL
+import java.util.*
 
 /**
  * @author Holger Brandl
@@ -136,8 +137,38 @@ class TypeInterfaceTest {
         id2.print()
     }
 
-}
 
+    @Test
+    fun `it should unwrap properties of object columns`() {
+        val users = dataFrameOf("department", "ids")("tech", UUID.randomUUID(), "admin", UUID.randomUUID())
+        val unwrapped = users.unfold<UUID>("ids", properties = listOf("variant"), keep = true)
+
+        unwrapped["variant"][1] shouldEqual 2
+    }
+
+    data class Car(val ps: Int, val brand: String, val brandURL: URL) {
+        val name: String = "${brand} ${ps}"
+
+        fun alternativeURL() = brandURL
+
+        fun alternativeURL(region: String) = brandURL
+    }
+
+    @Test
+    fun `it should unwrap properties of data classes`() {
+
+        val cars = dataFrameOf("cars")(
+            Car(298, "Skoda", URL("http://www.skoda.de")),
+            Car(200, "BMW", URL("http://www.bmw.de"))
+        )
+
+        cars["cars"].asType<Car>().first()!!.name
+
+        val unfolded = cars.unfold<Car>("cars", keep = true)
+
+        unfolded.names shouldBe listOf("cars", "brand", "brandURL", "name", "ps", "alternativeURL")
+    }
+}
 
 internal fun captureOutput(expr: () -> Any): Pair<String, String> {
     val origOut = System.out

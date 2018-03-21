@@ -3,6 +3,7 @@ package krangl
 import krangl.ArrayUtils.handleListErasure
 import krangl.util.asDF
 import krangl.util.createValidIdentifier
+import krangl.util.detectPropertiesByReflection
 import java.sql.ResultSet
 import java.time.LocalDate
 import java.time.LocalTime
@@ -48,6 +49,33 @@ inline fun <reified T> Iterable<T>.asDataFrame(): DataFrame {
     val columns = results.map { handleListErasure(it.first, it.second) }
 
     return columns.asDF()
+}
+
+
+inline fun <reified T> DataFrame.unfold(
+    columnName: String,
+    properties: List<String> = detectPropertiesByReflection<T>().map { it.name },
+    keep: Boolean = true
+): DataFrame {
+
+    val extProperties = properties + properties.map { "get" + it.capitalize() }
+    val propsOrGetters = detectPropertiesByReflection<T>()
+
+
+    val filtMembers = propsOrGetters
+        // match by name
+        .filter { extProperties.contains(it.name) }
+
+    // todo make sure that unfolded columns are not yet present in df, and warn if so and append _1, _2, ... suffix
+    val unfolded = filtMembers.fold(this) { df, kCallable ->
+        df.addColumn(kCallable.name) {
+            df[columnName].map<T> {
+                kCallable.call(it)
+            }
+        }
+    }
+
+    return if (keep) unfolded else unfolded.remove(columnName)
 }
 
 
