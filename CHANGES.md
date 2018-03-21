@@ -1,8 +1,33 @@
 Krangl Release History
 ======================
 
+v0.8
+----
+
+Released 2018-03-21
+
+Major Enhancements
+
+* Added property unfolding `df.unfold<Person("user", properties=listOf("address"))`
+* Added text matching helper: `irisData.filter{ it["Species"].isMatching{ startsWith("se") }}` (fixes #21)
+* Added `sortedByDescending` and `desc` and added more sorting tests
+* Added More elegant object bindings via reflection. Example `val objPersons : Iterable<User> = users.rowsAs<User>()` (fixes #22)
+* Added compressed csv write support, configurable or by filename guessing
+
+Minor Enhancements
+
+* More robust row to object conversion
+* Made `List<Boolean?>.not()` public
+* Use regex instead of string as `separate` separator
+* Replaced fixed temporary column names with uuids
+* Fixed incorrect coercion of incomplete inplace data to df
+* Added `concat` operator for string column arithmetics
+* Fixed arithmetic comparison operators
+* Added beakerx display adapter
+
+
 v0.7
----
+----
 
 Released 2018-03-14
 
