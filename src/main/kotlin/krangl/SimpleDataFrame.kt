@@ -11,8 +11,8 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     // potential performance bottleneck when processing many-groups/joins
     init {
         // validate input columns
-        cols.map { it.name }.apply {
-            require(distinct().size == cols.size) { "Column names are not unique (${this})" }
+        cols.map { it.name }.let {
+            if (it.distinct().size != it.size) throw DuplicatedColumnNameException(it)
         }
     }
 

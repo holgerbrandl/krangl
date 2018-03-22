@@ -68,8 +68,10 @@ internal inline fun <reified T> shouldThrow(thunk: () -> Any): T {
 
     if (e == null)
         fail("Expected exception ${T::class.qualifiedName} but no exception was thrown")
-    else if (e.javaClass.name != T::class.qualifiedName)
+    else if (e.javaClass.name != T::class.qualifiedName) {
+        e.printStackTrace()
         fail("Expected exception ${T::class.qualifiedName} but ${e.javaClass.name} was thrown")
+    }
     else
         return e as T
 }

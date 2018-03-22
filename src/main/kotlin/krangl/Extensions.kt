@@ -235,8 +235,20 @@ fun DataFrame.distinct(vararg selects: String = this.names.toTypedArray()): Data
     groupBy(*selects).slice(1).ungroup()
 
 
-/** Counts observations by group.*/
-fun DataFrame.count(vararg selects: String = this.names.toTypedArray(), countName: String = "n"): DataFrame = select(*selects).groupBy(*selects).summarize(countName, { nrow })
+/**
+ * Counts observations by group.
+ *
+ * If no grouping attributes are provided the method will respect the grouping of the receiver, or in cases of an
+ * ungrouped receiver will simply count the rows in the data.frame
+ *
+ * @param selects The variables to to be used for cross-tabulation.
+ * @param name The name of the count column resulting table.
+ */
+fun DataFrame.count(vararg selects: String, name: String = "n"): DataFrame = when {
+    selects.isNotEmpty() -> select(*selects).groupBy(*selects).summarize(name, { nrow })
+    this is GroupedDataFrame -> select(*selects).summarize(name, { nrow })
+    else -> dataFrameOf(name)(nrow)
+}
 
 
 ////////////////////////////////////////////////

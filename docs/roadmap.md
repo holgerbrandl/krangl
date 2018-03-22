@@ -3,20 +3,26 @@ Krangl Roadmap
 
 For completed items see [change-log](../CHANGES.md).
 
+## Meta
 
-----
+
+* Date column support
+* Better lambda receiver contexts
+* Performance (indices, avoid list and array copies, compressed columns)
+* Use dedicated return type for table formula helpers (like `mean`, `rank`) to reduce runtime errors
+* More bindings to other jvm data-science libraries
+* Better documentation & cheatsheets
+* `Sequence` vs `Iterable`?
+* Pluggable backends like native or SQL
+
 
 ### IO
 
 * Add parquet support
 
 ### Core
-* bug: csv reader does not handle incorrect type guesses [#10](https://github.com/holgerbrandl/krangl/issues/10)
-* bug: incorrect indentation in `stucture()`
-* bug: incorrect printing of structure/glimpse in Idea repl: **{ide bug}**
-![](.roadmap_images/27681fbd.png)
+
 * more defined behavior/tests needed for grouped dfs that become empty after filtering
-* Continue peeking until we hit the first/N non-NA values for column type detection [#8](https://github.com/holgerbrandl/krangl/issues/8)
 * ensure sure that `df.count()` returns `nrow` as a 1-row table. What about grouped data (dplyr)?
 ```
 > iris %>% group_by(Species) %>% count

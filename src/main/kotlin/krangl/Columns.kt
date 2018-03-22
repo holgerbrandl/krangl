@@ -55,7 +55,7 @@ abstract class DataCol(val name: String) {
         if (name != other.name) return false
         if (length != other.length) return false
         //        http://stackoverflow.com/questions/35272761/how-to-compare-two-arrays-in-kotlin
-        if (Arrays.equals(values(), other.values())) return false
+        if (!Arrays.equals(values(), other.values())) return false
 
         return true
     }
@@ -472,6 +472,28 @@ private inline fun <reified E> Array<E?>.forceNotNull(): Array<E> = try {
 /** Thrown if an operation is applied to a column that contains missing values. */
 // todo do we really want this? Shouldn't it rather be NA (or add parameter to suppress Exception )
 class MissingValueException(msg: String) : RuntimeException(msg)
+
+
+private val internalErrorFeedback =
+    "This looks like an issue with krangl. Please submit an example reproducing the problem to https://github.com/holgerbrandl/krangl/issues"
+
+
+class DuplicatedColumnNameException(val names: List<String>) : RuntimeException() {
+
+    override val message: String?
+        get() {
+            val duplicatedNames = names.groupBy { it }.filter { it.value.size > 1 }.keys
+
+            return with(duplicatedNames) {
+                when {
+                    size == 1 -> "'${duplicatedNames.joinToString()}' is already present in data-frame"
+                    size > 1 -> "'${duplicatedNames.joinToString()}' are already present in the data-frame"
+                    else -> internalErrorFeedback
+                }
+            }
+        }
+}
+
 
 class InvalidColumnOperationException(msg: String) : RuntimeException(msg) {
     constructor(receiver: Any) : this(receiver.javaClass.simpleName + " is not a supported by this operation ")

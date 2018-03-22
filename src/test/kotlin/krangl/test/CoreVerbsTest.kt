@@ -370,9 +370,24 @@ class SummarizeTest {
 
     @Test
     fun `it should should allow complex objects as summaries`() {
-
-
         sleepData.groupBy("vore").summarize("foo" to { Something() }, "bar" to { Something() }).print()
+    }
+
+    @Test
+    fun `count should behave like dplyr-count`() {
+        irisData.count() shouldEqual dataFrameOf("n")(150)
+
+        // prevent duplicated column names
+        shouldThrow<DuplicatedColumnNameException> {
+            irisData.count().count("n")
+        }.message shouldBe "'n' is already present in data-frame"
+
+        irisData.count().count("n", name = "new_n").names shouldBe listOf("n", "new_n")
+
+        // is an existing grouping preserved
+        irisData.groupBy("Species").count().nrow shouldBe 3
+
+
     }
 }
 
