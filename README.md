@@ -75,7 +75,7 @@ df                              // with implict string conversion using default 
 df.print(colNames = false)      // with custom printing options
 
 // Print structure
-df.glimpse()
+df.schema()
 
 
 // Add columns with mutate

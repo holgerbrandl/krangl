@@ -63,9 +63,9 @@ interface DataFrame {
     foo.remove{ it.name.startsWith("bar") }
     ```
      */
-    fun select2(colSelector: (DataCol) -> Boolean) = select(cols.filter(colSelector).map { it.name })
+    fun selectIf(colSelector: (DataCol) -> Boolean) = select(cols.filter(colSelector).map { it.name })
 
-    fun remove2(colSelector: (DataCol) -> Boolean) = select(cols.filterNot(colSelector).map { it.name })
+    fun removeIf(colSelector: (DataCol) -> Boolean) = select(cols.filterNot(colSelector).map { it.name })
 
     // unify examples by using sample annotations
     // Core Manipulation Verbs

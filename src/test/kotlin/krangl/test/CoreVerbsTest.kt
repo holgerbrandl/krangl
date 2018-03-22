@@ -31,8 +31,8 @@ class SelectTest {
 
         sleepData.select<IntCol>()
 
-        sleepData.select2 { it is IntCol }
-        sleepData.select2 { it.name.startsWith("foo") }
+        sleepData.selectIf { it is IntCol }
+        sleepData.selectIf { it.name.startsWith("foo") }
 
 
         // type based select
@@ -62,8 +62,8 @@ class SelectTest {
         // dataFrameOf("foo", "bar")(1, LocalDateTime.now()).remove<LocalDateTime>().names shouldBe listOf("bar")
 
 
-        irisData.remove2 { it is StringCol }.ncol shouldBe 4
-        irisData.remove2 { it.name.startsWith("Sepal") }.ncol shouldBe 3
+        irisData.removeIf { it is StringCol }.ncol shouldBe 4
+        irisData.removeIf { it.name.startsWith("Sepal") }.ncol shouldBe 3
 
         // also allow for negative selection (like in the context of gather)
         irisData.select { except { startsWith("Sepal") } }.ncol shouldBe 3

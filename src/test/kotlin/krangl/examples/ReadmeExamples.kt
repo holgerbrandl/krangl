@@ -64,7 +64,7 @@ df.sortedBy { it["weight"].asInts() }
 
 
 // Subset columns with select
-df.select2 { it is IntCol } // functional style column selection
+df.selectIf { it is IntCol } // functional style column selection
 df.select("last_name", "weight")    // positive selection
 df.remove("weight", "age")  // negative selection
 df.select({ endsWith("name") })    // selector mini-language

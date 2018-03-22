@@ -14,11 +14,12 @@ For completed items see [change-log](../CHANGES.md).
 * Better documentation & cheatsheets
 * `Sequence` vs `Iterable`?
 * Pluggable backends like native or SQL
+* impelement actual `nest` and `unnest`
 
 
 ### IO
 
-* Add parquet support
+* Add parquet support https://stackoverflow.com/questions/39728854/create-parquet-files-in-java
 
 ### Core
 
@@ -35,11 +36,7 @@ iris %>% group_by(Species) %>% filter(Sepal.Length>100)
 
 
 * [Select](src/main/kotlin/krangl/Select.kt#L68) should accept basic type as argument instead of more internal column type
-* write and save parquet files https://stackoverflow.com/questions/39728854/create-parquet-files-in-java
-* Add generic NA aware mapper for filter expressions [#21](https://github.com/holgerbrandl/krangl/issues/21)
-* Provide more elegant object bindings [#22](https://github.com/holgerbrandl/krangl/issues/22)
 
----
 
 ### Improve JVM compatibility
 
