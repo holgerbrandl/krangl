@@ -23,18 +23,11 @@ For completed items see [change-log](../CHANGES.md).
 ### Core
 
 * more defined behavior/tests needed for grouped dfs that become empty after filtering
-* ensure sure that `df.count()` returns `nrow` as a 1-row table. What about grouped data (dplyr)?
+```r
+require(dplyr)
+iris %>% group_by(Species) %>% filter(Sepal.Length>100)
+
 ```
-> iris %>% group_by(Species) %>% count
-# A tibble: 3 x 2
-# Groups:   Species [3]
-     Species     n
-      <fctr> <int>
-1     setosa    50
-2 versicolor    50
-3  virginica    50
-```
---> unit test this!
 
 
 ---

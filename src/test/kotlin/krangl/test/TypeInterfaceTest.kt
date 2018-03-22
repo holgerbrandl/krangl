@@ -83,7 +83,7 @@ class TypeInterfaceTest {
 
         captureOutput {
             salaries.printDataClassSchema("Salary", receiverVarName = "salaries")
-        }.first shouldBe """
+        }.stdout shouldBe """
         data class Salary(val user: Any, val salary: Double)
         val records = salaries.rowsAs<Salary>()
         """.trimIndent()
@@ -100,7 +100,7 @@ class TypeInterfaceTest {
     fun `it should prevent illegal characters in generated schemas`() {
         captureOutput {
             irisData.printDataClassSchema(dataClassName = "IrisData", receiverVarName = "irisData")
-        }.first.apply {
+        }.stdout.apply {
             print(this)
             contains("sepalLength") shouldBe true
             this shouldEqual """
@@ -121,7 +121,7 @@ class TypeInterfaceTest {
     /** prevent regressions from "Provide more elegant object bindings #22"*/
     @Test
     fun `it should print nullable data class schemes`() {
-        val stdout = captureOutput { users.printDataClassSchema("User") }.first
+        val stdout = captureOutput { users.printDataClassSchema("User") }.stdout
         stdout shouldBe """
             data class User(val firstName: String?, val lastName: String, val age: Int, val hasSudo: Boolean?)
             val records = dataFrame.rowsAs<User>()
@@ -170,7 +170,9 @@ class TypeInterfaceTest {
     }
 }
 
-internal fun captureOutput(expr: () -> Any): Pair<String, String> {
+internal data class CapturedOutput(val stdout: String, val stderr: String)
+
+internal fun captureOutput(expr: () -> Any): CapturedOutput {
     val origOut = System.out
     val origErr = System.err
     // https://stackoverflow.com/questions/216894/get-an-outputstream-into-a-string
@@ -191,5 +193,5 @@ internal fun captureOutput(expr: () -> Any): Pair<String, String> {
     System.setOut(origOut)
     System.setErr(origErr)
 
-    return stdout to stderr
+    return CapturedOutput(stdout, stderr)
 }

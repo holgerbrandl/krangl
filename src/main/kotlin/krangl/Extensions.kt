@@ -5,6 +5,7 @@ package krangl
 import krangl.ArrayUtils.handleArrayErasure
 import krangl.util.createComparator
 import krangl.util.createValidIdentifier
+import krangl.util.joinToMaxLengthString
 import java.util.*
 
 
@@ -294,10 +295,10 @@ fun DataFrame.slice(vararg slices: Int) = filter { rowNumber.map { slices.contai
 
 /* Prints a dataframe to stdout. df.toString() will also work but has no options .*/
 @JvmOverloads
-fun DataFrame.print(colNames: Boolean = true, maxRows: Int = 20) = println(asString(colNames, maxRows))
+fun DataFrame.print(colNames: Boolean = true, maxRows: Int = 20) = println(asString(colNames, maxRows) + "\n")
 
 
-fun DataFrame.asString(colNames: Boolean = true, maxRows: Int = 20): String {
+fun DataFrame.asString(colNames: Boolean = true, maxRows: Int = 20, maxDigits: Int = 3): String {
 
     var df = this
 
@@ -312,13 +313,27 @@ fun DataFrame.asString(colNames: Boolean = true, maxRows: Int = 20): String {
 
     val printData = take(Math.min(nrow, maxRows))
 
-    // calculate indents
-    val colWidths = printData.cols.map { it.values().map { (it ?: "<NA>").toString().length }.max() ?: 20 }
-    val headerWidths = printData.names.map { it.length }
-    val padding = colWidths.zip(headerWidths).map { (col, head) -> listOf(col, head).max()!! + 3 }
+    val valuePrinter = createValuePrinter(maxDigits)
 
+    // calculate indents
+    val colWidths = printData.cols.map { it.values().map { (valuePrinter(it)).length }.max() ?: 20 }
+    val headerWidths = printData.names.map { it.length }
+
+    // detect column padding
+    val columnSpacing = 3
+    val padding = colWidths.zip(headerWidths)
+        .map { (col, head) -> listOf(col, head).max()!! + columnSpacing }
+        // remove spacer from first column to have correction alignment with beginning of line
+        .toMutableList().also { if (it.size > 0) it[0] -= columnSpacing }.toList()
 
     val sb = StringBuilder()
+
+    sb.appendln("A DataFrame: ${nrow} x ${ncol}")
+
+    if (this is GroupedDataFrame) {
+        sb.append("Groups: ${by.joinToString()} ${groups.size}")
+    }
+
 
     if (colNames) df.cols.mapIndexed { index, col ->
         col.name.padStart(padding[index])
@@ -329,11 +344,11 @@ fun DataFrame.asString(colNames: Boolean = true, maxRows: Int = 20): String {
     printData.rows.map { it.values }.map { rowData ->
         // show null as NA when printing data
         rowData.mapIndexed { index, value ->
-            (value?.toString() ?: "<NA>").padStart(padding[index])
+            valuePrinter(value).padStart(padding[index])
         }.joinToString("").apply { sb.appendln(this) }
     }
 
-    return sb.toString()
+    return sb.trim().toString()
 }
 
 
@@ -362,30 +377,55 @@ fun List<ColSpec>.print() = asDf().print()
 
 
 // todo should it be called structure of glimpse. there should not be any name aliases
-/* Prints the structure of a dataframe to stdout. Alias for `df.glimpse()`*/
-fun DataFrame.structure() = glimpse()
+@Deprecated("use schema instead", replaceWith = ReplaceWith("schema()"))
+fun DataFrame.glimpse() = schema()
 
-/* Prints the structure of a dataframe to stdout.*/
-//@Deprecated("use printSchema() instead")
-fun DataFrame.glimpse() {
+
+// see https://spark.apache.org/docs/latest/sql-programming-guide.html#untyped-dataset-operations-aka-dataframe-operations
+/**
+ *  Prints the schema (that is column names, types, and the first few values per column) of a dataframe to stdout.
+ */
+fun DataFrame.schema(maxDigits: Int = 3, maxLength: Int = 80) {
     // todo add support for grouped data here
     if (this !is SimpleDataFrame) {
         return
     }
 
-    val topN = take(8) as SimpleDataFrame
+    val topN = this
     println("DataFrame with ${nrow} observations")
 
-    for (col in topN.cols) {
+    val namePadding = topN.cols.map { it.name.length }.max() ?: 0
+
+    val typeLabels = topN.cols.map { col ->
         when (col) {
-            is DoubleCol -> listOf("[Dbl]\t", col.values.toList())
-            is IntCol -> listOf("[Int]\t", col.values.toList())
-            is StringCol -> listOf("[Str]\t", col.values.toList())
-            is BooleanCol -> listOf("[Bol]\t", col.values.toList())
-            is AnyCol -> listOf("[Any]\t", col.values.toList())
+            is DoubleCol -> "[Dbl]"
+            is IntCol -> "[Int]"
+            is StringCol -> "[Str]"
+            is BooleanCol -> "[Bol]"
+        // get object type from first element
+            is AnyCol -> (col.values.asSequence().filterNotNull().firstOrNull()?.javaClass?.simpleName
+                ?: "Any").let { "[" + it + "]" }
             else -> throw UnsupportedOperationException()
-        }.joinToString(", ", prefix = col.name + "\t: ").apply { println(this) }
+        }
     }
+
+    val typePadding = typeLabels.map { it.length }.max() ?: 0
+
+    topN.cols.zip(typeLabels).forEach { (col, typeLabel) ->
+        val stringifiedVals = col.values().asSequence()
+            .joinToMaxLengthString(maxLength = maxLength, transform = createValuePrinter(maxDigits))
+
+        println("${col.name.padEnd(namePadding)}  ${typeLabel.padEnd(typePadding)}  $stringifiedVals")
+    }
+}
+
+internal fun createValuePrinter(maxDigits: Int = 3): (Any?) -> String = {
+    it?.let { value ->
+        when (value) {
+            is Double -> value.format(maxDigits)
+            else -> value.toString()
+        }
+    } ?: "<NA>"
 }
 
 /** Provides a code to convert  a dataframe to a strongly typed list of kotlin data-class instances.*/

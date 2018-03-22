@@ -4,6 +4,7 @@ import io.kotlintest.matchers.*
 import krangl.*
 import org.apache.commons.csv.CSVFormat
 import org.junit.Test
+import java.util.*
 
 
 val flights = DataFrame.readDelim(DataFrame::class.java.getResourceAsStream("data/nycflights.tsv.gz"), format = CSVFormat.TDF.withHeader(), isCompressed = true)
@@ -146,7 +147,7 @@ class MutateTest {
     @Test
     fun `rename columns and preserve their positions`() {
         sleepData.rename("vore" to "new_vore", "awake" to "awa2").apply {
-            glimpse()
+            schema()
             names.contains("vore") shouldBe false
             names.contains("new_vore") shouldBe true
 
@@ -392,7 +393,7 @@ class SummarizeTest {
 }
 
 
-class EmptyTest {
+class CoreTests {
 
     @Test
     fun `it should handle empty (row and column-empty) data-frames in all operations`() {
@@ -404,7 +405,7 @@ class EmptyTest {
             cols.toList() should haveSize(0)
 
             // rendering
-            glimpse()
+            schema()
             print()
 
             select(emptyList()) // will output warning
@@ -418,6 +419,36 @@ class EmptyTest {
             (groupBy() as GroupedDataFrame).groupedBy()
         }
     }
+
+
+    @Test
+    fun `it should round numbers when printing`() {
+        val df = dataFrameOf("a")(Random().apply { setSeed(3) }.nextDouble(), null)
+
+        df.asString(maxDigits = 5) shouldBe """
+            A DataFrame: 2 x 1
+                  a
+            0.73106
+               <NA>
+            """.trimIndent()
+    }
+
+    @Test
+    fun `it should print schemas with correct alignment and truncation`() {
+        val iris2 = irisData.addColumn("id") { rowNumber.map { "foo$it".toRegex() } }
+        iris2.schema(maxLength = 20)
+
+        captureOutput { iris2.schema(maxLength = 20) }.stdout shouldEqual """
+            DataFrame with 150 observations
+            Sepal.Length  [Dbl]    5.1, 4.9, 4.7, 4.6, ...
+            Sepal.Width   [Dbl]    3.5, 3, 3.2, 3.1, 3....
+            Petal.Length  [Dbl]    1.4, 1.4, 1.3, 1.5, ...
+            Petal.Width   [Dbl]    0.2, 0.2, 0.2, 0.2, ...
+            Species       [Str]    setosa, setosa, seto...
+            id            [Regex]  foo1, foo2, foo3, fo...
+            """.trimIndent()
+    }
+
 }
 
 

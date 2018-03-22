@@ -14,7 +14,7 @@ class CompoundTests {
 
         val groupedSleep = sleepData
             .filter { it["awake"] gt 3 }
-            .apply { glimpse() }
+            .apply { schema() }
             .addColumn("rem_proportion", { it["sleep_rem"] + it["sleep_rem"] })
             .groupBy("vore")
 

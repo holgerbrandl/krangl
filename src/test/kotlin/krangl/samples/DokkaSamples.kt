@@ -50,5 +50,5 @@ fun textMatching() {
     irisData
         // filter for all record where species starts with "se"
         .filter { it["Species"].isMatching { startsWith("se") } }
-        .glimpse()
+        .schema()
 }

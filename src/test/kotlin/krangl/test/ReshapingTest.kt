@@ -144,7 +144,7 @@ class SpreadUniteTest {
 
         united.separate("test", listOf("new_name", "new_sleep_rem"), convert = true, sep = ",").apply {
             take().print()
-            glimpse()
+            schema()
 
             this["new_name"] == sleepData["name"]
             this["new_sleep_rem"] == sleepData["sleep_rem"]

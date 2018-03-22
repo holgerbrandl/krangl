@@ -55,7 +55,7 @@ class InnerJoinTests {
         val sleepWithInfo = sleepData.leftJoin(voreInfo) // auto detect 'by' here
 
         //        sleepWithInfo.print()
-        sleepWithInfo.glimpse()
+        sleepWithInfo.schema()
 
         sleepWithInfo.nrow shouldBe sleepData.nrow
         // make sure that by columns don't show up twice

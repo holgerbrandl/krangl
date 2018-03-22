@@ -48,7 +48,7 @@ fun evalFlights() {
 
     flights.names
 
-    flights.glimpse()
+    flights.schema()
 
 
     var groupedFlights: DataFrame = SimpleDataFrame()
@@ -73,7 +73,7 @@ fun main(args: Array<String>) {
     }.result
 
 
-    flights.glimpse()
+    flights.schema()
 
     val f = flights["foo"].asInts()
 
@@ -102,7 +102,7 @@ fun main(args: Array<String>) {
             )
             .filter { (it["mean_arr_delay"] gt 30) OR (it["mean_dep_delay"] gt 30) }
 
-        flightsSummary.glimpse()
+        flightsSummary.schema()
         flightsSummary.print()
 
     }, numRuns = 10, warmUp = 0).apply {

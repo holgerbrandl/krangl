@@ -1,5 +1,7 @@
 package krangl
 
+import java.text.DecimalFormat
+
 
 // scalar operations
 // remove because we must work with lists here
@@ -11,7 +13,10 @@ fun List<Double>.mean(): Double = map { it.toDouble() }.sum() / size
 
 
 // from http://stackoverflow.com/questions/23086291/format-in-kotlin-string-templates
-internal fun Double.format(digits: Int) = java.lang.String.format("%.${digits}f", this)
+//internal fun Double.format(digits: Int) = java.lang.String.format("%.${digits}f", this)
+//internal fun Double.format(digits: Int) = java.lang.String.format("%.${"#".repeat(digits)}", this)
+// for scientific notation see https://stackoverflow.com/questions/2944822/format-double-value-in-scientific-notation
+internal fun Double.format(digits: Int) = DecimalFormat("#.${"#".repeat(digits)}").format(this)
 
 // http://stackoverflow.com/questions/4662292/scala-median-implementation
 fun Array<Double>.median(): Double {
