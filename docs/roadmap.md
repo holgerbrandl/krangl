@@ -6,7 +6,7 @@ For completed items see [change-log](../CHANGES.md).
 ## Meta
 
 
-* Date column support
+* Date (column?) support
 * Better lambda receiver contexts
 * Performance (indices, avoid list and array copies, compressed columns)
 * Use dedicated return type for table formula helpers (like `mean`, `rank`) to reduce runtime errors
@@ -14,7 +14,7 @@ For completed items see [change-log](../CHANGES.md).
 * Better documentation & cheatsheets
 * `Sequence` vs `Iterable`?
 * Pluggable backends like native or SQL
-* impelement actual `nest` and `unnest`
+* Implement actual `nest` and `unnest`
 
 
 ### IO
@@ -35,25 +35,6 @@ iris %>% group_by(Species) %>% filter(Sepal.Length>100)
 ### API improvements
 
 
-* [Select](src/main/kotlin/krangl/Select.kt#L68) should accept basic type as argument instead of more internal column type
-
-
-### Improve JVM compatibility
-
-
-* Use JvmName to allow for more strongly typed (see  http://stackoverflow.com/questions/29268526/how-to-overcome-same-jvm-signature-error-when-implementing-a-java-interface)
-```kotlin
-@JvmName("mutateString")
-fun DataFrame.mutate(name: String, formula: (DataFrame) -> List<String>): DataFrame {
-    if(this is SimpleDataFrame){
-        return addColumn(StringCol(name, formula(this)))
-    }else
-        throw UnsupportedOperationException()
-}
-
-```
-* Provide readme-examples as java-code
-
 ---
 ### Performance
 
@@ -70,6 +51,15 @@ List copy optimization
 * Analyze benchmark results with with kravis/krangl :-)
 
 
+* use for column indices to speed up access
+
+fast column storage
+https://github.com/lemire/JavaFastPFOR
+http://fastutil.di.unimi.it/
+
+http://nd4j.org/
+
+
 Backlog
 -------
 
@@ -81,24 +71,11 @@ Backlog
 
 
 * koma bindings --> http://koma.kyonifer.com/
-* Add a `DataFrame.transpose()` method
-
-
+* Add a `DataFrame.transpose()` method `as_tibble(cbind(nms = names(df), t(df)))`
 
 
 * Integrate idoms to do enrichment testing with fisher test from [commons-math](http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math3/distribution/HypergeometricDistribution.html)
 
-
-* use for column indices to speed up access
-
-
-
-
-fast column storage
-https://github.com/lemire/JavaFastPFOR
-http://fastutil.di.unimi.it/
-
-http://nd4j.org/
 
 
 ## Rejected Ideas
