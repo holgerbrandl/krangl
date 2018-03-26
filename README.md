@@ -9,7 +9,7 @@
 
 ---
 
-[`krangl` presentation at Kotlin-Night in Frankfurt (March 2018)](https://holgerbrandl.github.io/kotlin4ds_kotlin_night_frankfurt//emerging_kotlin_ds_ecosystem.html#82)
+[`krangl` presentation at Kotlin-Night in Frankfurt (March 2018)](https://holgerbrandl.github.io/kotlin4ds_kotlin_night_frankfurt//emerging_kotlin_ds_ecosystem.html)
 
 ---
 
