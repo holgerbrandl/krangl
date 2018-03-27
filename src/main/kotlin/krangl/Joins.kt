@@ -248,13 +248,14 @@ internal fun cartesianProduct(left: DataFrame, right: DataFrame, byColumns: List
 }
 
 
-private fun replicateByIndex(df: DataFrame, repIndex: List<Int>): DataFrame {
+internal fun replicateByIndex(df: DataFrame, repIndex: List<Int>): DataFrame {
     val repCols: List<DataCol> = df.cols.map { it ->
         when (it) {
             is DoubleCol -> DoubleCol(it.name, Array(repIndex.size, { index -> it.values[repIndex[index]] }).toList())
             is IntCol -> IntCol(it.name, Array(repIndex.size, { index -> it.values[repIndex[index]] }).toList())
             is BooleanCol -> BooleanCol(it.name, Array(repIndex.size, { index -> it.values[repIndex[index]] }).toList())
             is StringCol -> StringCol(it.name, Array(repIndex.size, { index -> it.values[repIndex[index]] }).toList())
+            is AnyCol -> AnyCol(it.name, Array(repIndex.size, { index -> it.values[repIndex[index]] }).toList())
             else -> throw UnsupportedOperationException()
         }
     }

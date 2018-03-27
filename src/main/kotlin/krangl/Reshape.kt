@@ -25,20 +25,20 @@ fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boo
 
     // todo use big initially empty array here and fill it with spread data
     val spreadGroups: List<DataFrame> = bySpreadGroup
-            .groups
-            .map {
-                val grpDf = it.df
+        .groups
+        .map {
+            val grpDf = it.df
 
-                require(grpDf.select(key).distinct(key).nrow == grpDf.nrow) { "key value mapping is not unique" }
+            require(grpDf.select(key).distinct(key).nrow == grpDf.nrow) { "key value mapping is not unique" }
 
-                val spreadBlock = SimpleDataFrame(handleListErasure(key, newColNames)).leftJoin(grpDf.select(key, value))
+            val spreadBlock = SimpleDataFrame(handleListErasure(key, newColNames)).leftJoin(grpDf.select(key, value))
 
-                val grpSpread = SimpleDataFrame((spreadBlock as SimpleDataFrame).rows.map {
-                    AnyCol(it[key].toString(), listOf(it[value]))
-                })
+            val grpSpread = SimpleDataFrame((spreadBlock as SimpleDataFrame).rows.map {
+                AnyCol(it[key].toString(), listOf(it[value]))
+            })
 
-                bindCols(grpDf.remove(key, value).distinct(), grpSpread)
-            }
+            bindCols(grpDf.remove(key, value).distinct(), grpSpread)
+        }
 
     //    if(fill!=null){
     //        spreadBlock =  spreadBlock.
@@ -49,22 +49,22 @@ fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boo
 
     // coerce types of strinified coluymns similar to how tidy is doing things
     var typeCoercedSpread = newColNames.map { it.toString() }
-            .foldRight(spreadWithGHashes, { spreadCol, df ->
-                df.addColumn(spreadCol) { handleArrayErasure(spreadCol, df[spreadCol].values()) }
-            })
+        .foldRight(spreadWithGHashes, { spreadCol, df ->
+            df.addColumn(spreadCol) { handleArrayErasure(spreadCol, df[spreadCol].values()) }
+        })
 
     if (convert) {
         typeCoercedSpread = newColNames
-                // stringify spread column names
-                .map { it.toString() }
+            // stringify spread column names
+            .map { it.toString() }
 
-                // select for String-type coluymns
-                .filter { typeCoercedSpread[it] is StringCol }
+            // select for String-type coluymns
+            .filter { typeCoercedSpread[it] is StringCol }
 
-                // attempt conversion
-                .foldRight(typeCoercedSpread, { spreadCol, df ->
-                    convertType(df, spreadCol)
-                })
+            // attempt conversion
+            .foldRight(typeCoercedSpread, { spreadCol, df ->
+                convertType(df, spreadCol)
+            })
 
     }
 
@@ -91,7 +91,7 @@ fun DataFrame.gather(key: String, value: String, columns: List<String> = this.na
 
 
     @Suppress("UNCHECKED_CAST")
-            // todo why cant we use handleArrayErasure() here?
+    // todo why cant we use handleArrayErasure() here?
     fun makeValueCol(name: String, data: Array<*>): DataCol = when {
         distinctCols == IntCol::class.java -> IntCol(name, data as List<Int?>)
         distinctCols == DoubleCol::class.java -> DoubleCol(name, data as List<Double?>)
@@ -101,8 +101,8 @@ fun DataFrame.gather(key: String, value: String, columns: List<String> = this.na
 
     val gatherBlock = gatherColumns.cols.map { column ->
         SimpleDataFrame(
-                StringCol(key, Array(column.length, { column.name as String? })),
-                makeValueCol(value, column.values())
+            StringCol(key, Array(column.length, { column.name as String? })),
+            makeValueCol(value, column.values())
         )
     }.bindRows().let {
         // optionally try to convert key column
@@ -128,7 +128,7 @@ fun DataFrame.gather(key: String, value: String, columns: List<String> = this.na
 fun DataFrame.gather(key: String, value: String,
                      columns: ColumnSelector, // no default here to avoid signature clash = { all() },
                      convert: Boolean = false
-): DataFrame = gather(key, value, colSelectAsNames(reduceColSelectors(arrayOf(columns))), convert)
+): DataFrame = gather(key, value, colSelectAsNames(columns), convert)
 
 
 /**
@@ -179,7 +179,7 @@ fun DataFrame.unite(colName: String, which: List<String>, sep: String = "_", rem
 
 
 fun DataFrame.unite(colName: String, vararg which: ColNames.() -> List<Boolean?>, sep: String = "_", remove: Boolean = true): DataFrame =
-        unite(colName, which = colSelectAsNames(reduceColSelectors(which)), sep = sep, remove = remove)
+    unite(colName, which = colSelectAsNames(reduceColSelectors(which)), sep = sep, remove = remove)
 
 
 /**
@@ -215,4 +215,65 @@ fun DataFrame.separate(column: String, into: List<String>, sep: String = "[^\\w]
     val rest = if (remove) remove(column) else this
 
     return bindCols(rest, SimpleDataFrame(splitCols))
+}
+
+
+/**
+ * Nest repeated values in a list-variable.
+ *
+ * There are many possible ways one could choose to nest colSelect inside a data frame. nest() creates a list of data
+ * frames containing all the nested variables: this seems to be the most useful form in practice.
+ *
+ * Usage
+ *
+ * ```
+ * nest(data, ..., columnName = "data")
+ * ```
+ *
+ * @param colSelect A selection of colSelect. If not provided, all except the grouping variables are selected. You can
+ * supply bare variable names, select all variables between x and z with x:z, exclude y with -y. For more options, see the `select()` documentation.
+ *
+ * @param columnName The name of the new column, as a string or symbol.
+ */
+fun DataFrame.nest(
+    colSelect: ColumnSelector = { except(*groupedBy().names.toTypedArray()) },
+    columnName: String = "data"
+): DataFrame {
+    val nestColumns = colSelectAsNames(colSelect)
+
+    return when {
+
+        this is GroupedDataFrame -> {
+            require(nestColumns.intersect(by).isEmpty()) { "Can not nest grouping columns" }
+
+            val listColumn = groups().map { it.select { listOf(nestColumns) } }
+            groupedBy().addColumn(columnName) { listColumn }.ungroup()
+        }
+
+        nestColumns.size == names.size -> { // are all columns nested away
+            dataFrameOf(columnName)(this)
+        }
+
+        else -> {
+            groupBy { except(*nestColumns.toTypedArray()) }.nest(colSelect)
+        }
+    }
+}
+
+fun DataFrame.unnest(columnName: String = "data"): DataFrame {
+    val dataCol = get(columnName).asType<DataFrame>()
+
+    val replicationIndex = dataCol
+        .mapIndexed { rowNumber, dataFrame -> IntArray(dataFrame?.nrow ?: 1, { rowNumber }) }
+        .flatMap { it.toList() }
+
+
+    val left = replicateByIndex(remove(columnName), replicationIndex)
+
+    val unnested = dataCol.toList()
+        .map { it ?: emptyDataFrame() }
+        .bindRows()
+
+    return bindCols(left, unnested)
+
 }

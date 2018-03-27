@@ -52,6 +52,7 @@ interface DataFrame {
      */
     val rows: Iterable<DataFrameRow>
 
+    //todo move examples to dokka samples for better compile checking
     /** Select or remove columns by predicate.
 
     Example:
@@ -79,7 +80,7 @@ interface DataFrame {
     df.select( "foo", "bar")
     ```
      */
-    fun select(vararg columns: String): DataFrame = select(columns.asList())
+    fun select(vararg columns: String): DataFrame
 
     fun remove(vararg columns: String): DataFrame = select(names.minus(columns.asList()))
 
@@ -88,8 +89,9 @@ interface DataFrame {
 
     fun remove(columns: Iterable<String>): DataFrame = remove(*columns.toList().toTypedArray())
 
-    /** Keeps only the variables that match any of the given expressions. E.g. use `startsWith("foo")` to select for columns staring with 'foo'.*/
-    fun select(columns: ColumnSelector): DataFrame = select(*arrayOf(columns))
+    /** Keeps only the variables that match any of the given expressions. E.g. use `startsWith("foo")` to select for
+     * columnSelect staring with 'foo'.*/
+    fun select(columnSelect: ColumnSelector): DataFrame = select(colSelectAsNames(columnSelect))
 
     // `drop` as method name is burnt here since kotlin stdlin contains it for collections.
     fun remove(columnSelect: ColumnSelector): DataFrame = select { except(columnSelect) }
@@ -97,10 +99,6 @@ interface DataFrame {
 
     fun select(vararg columns: ColumnSelector): DataFrame {
         val reducedSelector = reduceColSelectors(columns)
-
-        if (reducedSelector.toList().filterNotNull().distinct().size > 1) {
-            throw InvalidColumnSelectException(names, reducedSelector)
-        }
 
         return select(reducedSelector)
     }
@@ -163,6 +161,10 @@ interface DataFrame {
      * etc. will be executed per group.
      */
     fun groupBy(vararg by: String): DataFrame
+
+
+    fun groupBy(columnSelect: ColumnSelector): DataFrame = groupBy(*colSelectAsNames(columnSelect).toTypedArray())
+
 
     /** Removes the grouping (if present from a data frame. */
     fun ungroup(): DataFrame

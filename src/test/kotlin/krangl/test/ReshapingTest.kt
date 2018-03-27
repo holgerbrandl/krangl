@@ -151,3 +151,80 @@ class SpreadUniteTest {
         }
     }
 }
+
+
+class NestingTests {
+
+    @Test
+    fun `it nest grouped data`() {
+        irisData
+            .groupBy("Species")
+            .nest()
+            .apply {
+                nrow shouldBe 3
+                ncol shouldBe 2
+                names shouldEqual listOf("Species", "data")
+
+                // also make sure that output looks good
+                //                captureOutput { print() }.stdout shouldBe """
+                //                A DataFrame: 3 x 2
+                //                   Species                   data
+                //                    setosa   <DataFrame [50 x 4]>
+                //                versicolor   <DataFrame [50 x 4]>
+                //                 virginica   <DataFrame [50 x 4]>
+                //                    """.trimIndent()
+
+                captureOutput { schema() }.stdout shouldBe """
+                    DataFrame with 3 observations
+                    Species  [Str]        setosa, versicolor, virginica
+                    data     [DataFrame]  <DataFrame [50 x 4]>, <DataFrame [50 x 4]>, <DataFrame [50 x 4]>
+                    """.trimIndent()
+            }
+    }
+
+    @Test
+    fun `it nest ungrouped data`() {
+        irisData
+            .nest()
+            .apply {
+                nrow shouldBe 1
+                ncol shouldBe 1
+                names shouldEqual listOf("data")
+            }
+    }
+
+    @Test
+    fun `it nest selected columns only`() {
+        irisData
+            .nest({ except("Species") })
+            .apply {
+                schema()
+                nrow shouldBe 3
+                ncol shouldBe 2
+                names shouldEqual listOf("Species", "data")
+            }
+    }
+
+
+    @Test
+    fun `it should unnest data`() {
+        // use other small but NA-heavy data set here
+        val restored = sleepData
+            .nest({ except("order") })
+            .unnest()
+            .sortedBy("order")
+            .moveLeft("name", "genus", "vore")
+
+
+
+        restored.apply {
+            print()
+
+            nrow shouldBe sleepData.nrow
+            ncol shouldBe sleepData.ncol
+            names shouldBe sleepData.names
+        }
+
+        restored shouldEqual sleepData.sortedBy("order")
+    }
+}

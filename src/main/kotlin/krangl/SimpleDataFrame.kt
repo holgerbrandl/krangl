@@ -326,8 +326,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
     override fun ungroup(): DataFrame = this // for ungrouped data ungrouping won't do anything
 
-    // todo mimic dplyr.print better here (num observations, hide too many columns, etc.)
-    override fun toString(): String = take(5).asString()
+    override fun toString(): String = asString()
 
 
     override fun equals(other: Any?): Boolean {
