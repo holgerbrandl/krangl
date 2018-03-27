@@ -227,6 +227,7 @@ Similar APIs (not just Kotlin)
 * [pandas](http://pandas.pydata.org/) provides high-performance, easy-to-use data structures and data analysis tools for python ([cheatsheet](https://drive.google.com/folderview?id=0ByIrJAE4KMTtaGhRcXkxNHhmY2M&usp=sharing))
 * [dplyr](https://cran.r-project.org/web/packages/dplyr/index.html) which is a grammar of data manipulation (R-lang)
 * [morpheus-core](https://github.com/zavtech/morpheus-core) which is a data science framework implementing an R-like data-frame for the JVM
+* [Frameless](https://github.com/typelevel/frameless) is a Scala library for working with Spark using more expressive types, including a more strongly typed Dataset/DataFrame API
 
 
 
