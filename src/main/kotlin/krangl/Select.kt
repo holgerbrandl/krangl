@@ -16,22 +16,32 @@ class InvalidColumnSelectException(val colNames: List<String>, val selection: Li
     override val message: String?
         get() {
             val collapsed = colNames.zip(selection).toMap().map { (name, selected) ->
-                    when (selected) {
-                        true -> "+" + name
-                        false -> "-" + name
-                        else -> "<null>"
-                    }
-                }.joinToString(",")
+                when (selected) {
+                    true -> "+" + name
+                    false -> "-" + name
+                    else -> "<null>"
+                }
+            }.joinToString(",")
 
             return "Mixing positive and negative selection does not have meaningful semantics and is not supported:\n" + collapsed
         }
 
- }
+}
 
 
 class ColNames(val names: List<String>)
 
 typealias ColumnSelector = ColNames.() -> List<Boolean?>
+
+
+internal fun ColumnSelector.validate(df: DataFrame) {
+    val which = ColNames(df.names).(this)().toList()
+
+    if (which.filterNotNull().distinct().size > 1) {
+        throw InvalidColumnSelectException(df.names, which)
+    }
+}
+
 
 fun ColNames.matches(regex: String) = matches(regex.toRegex())
 fun ColNames.matches(regex: Regex) = names.map { it.matches(regex) }.falseAsNull()
@@ -55,6 +65,7 @@ fun ColNames.range(from: String, to: String): List<Boolean?> {
 
 // normally, there should be no need for them. We just do positive selection and either use renmove or select
 // BUT: verbs like gather still need to support negative selection
+/** Performs a negative selection by selecting all columns except the listed ones. */
 fun ColNames.except(vararg columns: String) = names.map { !columns.contains(it) }.trueAsNull()
 
 fun ColNames.except(columnSelector: ColumnSelector) = !columnSelector(this)
@@ -78,6 +89,18 @@ inline fun <reified T : DataCol> DataFrame.select() = select(cols.filter { it is
 inline fun <reified T : DataCol> DataFrame.remove() = select(names.minus(select<T>().names))
 
 
+/**
+ * Push some columns to the right end of a data-frame.
+ */
+fun DataFrame.moveRight(vararg columnNames: String): DataFrame = select((names - columnNames) + columnNames.asList())
+
+/**
+ * Push some columns to the left end of a data-frame.
+ */
+fun DataFrame.moveLeft(vararg columnNames: String): DataFrame = select(columnNames.asList() + (names - columnNames))
+
+
+
 // commented out because it's not clear how to use it
 //val foo: ColumnSelector = { startsWith("foo")
 //sleepData.select(foo AND { endsWith("dfd") })
@@ -98,10 +121,6 @@ inline fun <reified T : DataCol> DataFrame.remove() = select(names.minus(select<
 //
 // Internal API
 //
-
-
-internal fun DataFrame.reduceColSelectors(which: Array<out ColumnSelector>): List<Boolean?> =
-        which.map { it(ColNames(names)) }.reduce { selA, selB -> selA nullAwareAND selB }
 
 
 internal infix fun List<Boolean?>.nullAwareAND(other: List<Boolean?>): List<Boolean?> = this.zip(other).map {
@@ -135,13 +154,19 @@ internal fun nullAwareOr(first: Boolean?, second: Boolean?): Boolean? {
     }
 }
 
-internal fun DataFrame.select(which: List<Boolean?>): DataFrame {
-    val colSelection: List<String> = colSelectAsNames(which)
+internal fun DataFrame.select(which: List<Boolean?>): DataFrame = select { which }
 
-    return select(colSelection)
-}
 
-internal fun DataFrame.colSelectAsNames(which: List<Boolean?>): List<String> {
+internal fun DataFrame.reduceColSelectors(which: Array<out ColumnSelector>): ColumnSelector = which
+    .map { it(ColNames(names)) }
+    .reduce { selA, selB -> selA nullAwareAND selB }
+    .let { { it } }
+
+
+internal fun DataFrame.colSelectAsNames(columnSelect: ColumnSelector): List<String> {
+    columnSelect.validate(this)
+
+    val which = ColNames(names).columnSelect()
     require(which.size == ncol) { "selector array has different dimension than data-frame" }
 
     // map boolean array to string selection
@@ -149,9 +174,8 @@ internal fun DataFrame.colSelectAsNames(which: List<Boolean?>): List<String> {
     val whichComplete = which.map { it ?: !isPosSelection }
 
     val colSelection: List<String> = names
-            .zip(whichComplete)
-            .filter { it.second }.map { it.first }
+        .zip(whichComplete)
+        .filter { it.second }.map { it.first }
 
     return colSelection
 }
-
