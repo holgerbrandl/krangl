@@ -28,14 +28,14 @@ internal fun Sequence<*>.joinToMaxLengthString(
     maxLength: Int = 80,
     separator: CharSequence = ", ",
     truncated: CharSequence = "...",
-    transform: ((Any?) -> String?) = { it?.toString() }
+    transform: ((Any?) -> String) = { it?.toString() ?: "" }
 ): String =
     reduceUntil({ a: String?, b -> (a?.let { it + separator } ?: "") + transform(b) }, { it.length < maxLength })?.let {
         when {
             it.length < maxLength -> it
             else -> it.substring(0, maxLength) + truncated
         }
-    } ?: joinToString()
+    } ?: joinToString(transform = { transform(it) })
 
 
 //fun main(args: Array<String>) {

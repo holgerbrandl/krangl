@@ -319,6 +319,8 @@ fun DataFrame.asString(colNames: Boolean = true, maxRows: Int = 20, maxDigits: I
     val colWidths = printData.cols.map { it.values().map { (valuePrinter(it)).length }.max() ?: 20 }
     val headerWidths = printData.names.map { it.length }
 
+    // todo mimic dplyr.print better here (num observations, hide too many columns, etc.)
+
     // detect column padding
     val columnSpacing = 3
     val padding = colWidths.zip(headerWidths)
@@ -368,6 +370,8 @@ fun DataFrame.columnTypes(): List<ColSpec> {
         TODO()
     }
 
+    val foo = mapOf("index" to 1, "name" to "foo")
+
     return cols.mapIndexed { index, col -> ColSpec(index, col.name, getColType(col) ?: "") }
 }
 
@@ -386,8 +390,8 @@ fun DataFrame.glimpse() = schema()
  *  Prints the schema (that is column names, types, and the first few values per column) of a dataframe to stdout.
  */
 fun DataFrame.schema(maxDigits: Int = 3, maxLength: Int = 80) {
-    // todo add support for grouped data here
-    if (this !is SimpleDataFrame) {
+    if (this is GroupedDataFrame) {
+        ungroup().schema(maxDigits, maxLength)
         return
     }
 
@@ -402,9 +406,7 @@ fun DataFrame.schema(maxDigits: Int = 3, maxLength: Int = 80) {
             is IntCol -> "[Int]"
             is StringCol -> "[Str]"
             is BooleanCol -> "[Bol]"
-        // get object type from first element
-            is AnyCol -> (col.values.asSequence().filterNotNull().firstOrNull()?.javaClass?.simpleName
-                ?: "Any").let { "[" + it + "]" }
+            is AnyCol -> "[${getTypeName(col)}]"
             else -> throw UnsupportedOperationException()
         }
     }
@@ -419,10 +421,22 @@ fun DataFrame.schema(maxDigits: Int = 3, maxLength: Int = 80) {
     }
 }
 
+private fun getTypeName(col: AnyCol): String {
+    val firstEl = col.values.asSequence().filterNotNull().firstOrNull()
+
+    if (firstEl == null) return "Any"
+
+    return firstEl.javaClass.simpleName
+        // tweak types for nested data
+        .replace("SimpleDataFrame", "DataFrame")
+        .replace("GroupedDataFrame", "DataFrame")
+}
+
 internal fun createValuePrinter(maxDigits: Int = 3): (Any?) -> String = {
     it?.let { value ->
         when (value) {
             is Double -> value.format(maxDigits)
+            is DataFrame -> "<DataFrame [${value.nrow} x ${value.ncol}]>" // see iris %>% group_by(Species) %>% nest
             else -> value.toString()
         }
     } ?: "<NA>"
@@ -532,3 +546,5 @@ internal fun DataFrame.rowData(): Iterable<List<Any?>> = when (this) {
     else -> throw IllegalArgumentException()
 }
 
+
+internal val DataFrame.rowNumber: List<Int> get() = (1..nrow).toList()
