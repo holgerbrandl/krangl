@@ -60,7 +60,7 @@ df.sortedBy("age")
 // and add secondary sorting attributes as varargs
 df.sortedBy("age", "weight")
 df.sortedByDescending("age")
-df.sortedBy { it["weight"].asInts() }
+df.sortedBy { it["weight"].asInts()  }
 
 
 // Subset columns with select

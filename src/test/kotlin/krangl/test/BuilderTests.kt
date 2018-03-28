@@ -51,7 +51,11 @@ class BuilderTests {
         // use enum order for sorting
         carsDF.columnTypes().print()
 
+        //todo make sure that enum ordinality is used here for sorting
+        carsDF.sortedBy { rowNumber }
+        //        carsDF.sortedBy { it["motor"] }
         carsDF.sortedBy { it["motor"].asType<Engine>() }
+        carsDF.sortedBy { it["motor"].map<Engine> { it.name } }
     }
 
     @Test

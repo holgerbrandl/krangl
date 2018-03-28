@@ -326,22 +326,80 @@ class SortTest() {
         5, "tom"
     )
 
+    @Test
+    fun `it should implement order and rank the same as r`() {
+
+        /*
+
+        # rank returns the order of each element in an ascending list
+        # order returns the index each element would have in an ascending list
+
+        y = c(3.5, 3, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1 )
+        rank(y, ties="first")-1
+        order(y)-1 # thats our "rank"
+         */
+
+        val y = DoubleCol("foo", listOf(3.5, 3.0, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1))
+
+        y.rank() shouldBe listOf(7, 1, 4, 2, 8, 9, 5, 6, 0, 3)
+        y.order() shouldBe listOf(8, 1, 3, 9, 2, 6, 7, 0, 4, 5)
+    }
+
 
     @Test
     fun `sort numeric columns`() {
 
-        data.sortedBy("user_id")["user_id"][0] shouldBe 1
-        //        data.sortedByDescending("user_id")["user_id"][0] shouldBe 1
+        data.sortedBy("user_id").also {
+            it.print()
+        }["user_id"]
+            .run {
+                print(values().asList())
+                get(0) shouldBe 1
+                asInts() shouldBe arrayOf<Int?>(1, 3, 5, 5, 6, null)
+            }
 
         data.sortedBy { it["user_id"] }["user_id"][0] shouldBe 1
         data.sortedBy { -it["user_id"] }["user_id"][0] shouldBe 6
+    }
 
 
-        // try
+    @Test
+    fun `sort numeric columns descending`() {
+        data.sortedByDescending("user_id").also { println(it) }.also {
+            it["user_id"][0] shouldBe 6
+            it["name"][0] shouldBe "maja"
+            it["user_id"][5] shouldBe null
+            it["name"][5] shouldBe "max"
+        }
+
+
+        // also check sorting order if NA's a are present in data (they should come last)
+        sleepData.sortedByDescending("sleep_rem").run {
+            //            print(maxRows = -1)
+            this["sleep_rem"][0] shouldBe 6.6
+        }
     }
 
     @Test
-    fun `it should text columns asc and desc`() {
+    fun `resolve ties if needed`() {
+        // the test would require a tie-resolve if sleep_rem would be included as second sorting attribute
+        sleepData
+            //            .filter { it["order"].isEqualTo("Artiodactyla") }
+            //            .also { print(it) }
+            .sortedBy("order", "sleep_total").run {
+                get("sleep_total").asDoubles()[1] shouldBe 1.9
+            }
+
+        // also mix asc and desc sorting
+        sleepData
+            .sortedBy({ it["order"] }, { desc("sleep_total") }).run {
+                get("sleep_total").asDoubles()[1] shouldBe 9.1 // most sleep one among Artiodactyla
+            }
+
+    }
+
+    @Test
+    fun `it should sort text columns asc and desc`() {
         //asc
         data.sortedBy { it["name"] }["name"][0] shouldBe "anna"
         data.sortedBy("name")["name"][0] shouldBe "anna"

@@ -235,6 +235,7 @@ fun DataFrame.separate(column: String, into: List<String>, sep: String = "[^\\w]
  *
  * @param columnName The name of the new column, as a string or symbol.
  */
+// also see https://github.com/tidyverse/tidyr/blob/master/R/nest.R
 fun DataFrame.nest(
     colSelect: ColumnSelector = { except(*groupedBy().names.toTypedArray()) },
     columnName: String = "data"

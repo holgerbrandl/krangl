@@ -29,7 +29,10 @@ interface DataFrame {
     //    val rowNumber: Iterable<Int>
 
 
-    operator fun get(name: String): DataCol
+    operator fun get(columnName: String): DataCol
+
+    // do we really one this?
+    //    operator fun get(columnIndex: Int): DataCol = get(names[columnIndex])
 
 
     // todo use invoke() style operator here (see https://kotlinlang.org/docs/reference/operator-overloading.html)
@@ -141,8 +144,8 @@ interface DataFrame {
      */
     fun sortedByDescending(vararg by: String): DataFrame {
         return by.map { sorter ->
-            val tableExpression: TableExpression = { desc(it[sorter]) }
-            tableExpression
+            val sortExpression: SortExpression = { desc(sorter) }
+            sortExpression
         }.let {
             sortedBy(*it.toTypedArray())
         }

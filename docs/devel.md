@@ -110,3 +110,10 @@ fun DataFrame.mutate(name: String, formula: (DataFrame) -> List<String>): DataFr
 }
 
 ```
+
+
+## incorrect usage patterns
+
+* `sleepData.sortedBy{ "order" }`
+
+unclear fix except for requiring vectorized result for SortExpression

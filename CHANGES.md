@@ -1,6 +1,14 @@
 Krangl Release History
 ======================
 
+v0.9
+----
+
+In progress
+
+* Added receiver context for sortBy lambdas with sorting specific API
+
+
 v0.8
 ----
 

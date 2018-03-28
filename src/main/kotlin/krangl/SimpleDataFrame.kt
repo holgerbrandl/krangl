@@ -212,10 +212,9 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
     override fun sortedBy(vararg by: String): DataFrame {
         if (by.isEmpty()) {
-            System.err.println("Calling sortedBy without arguments lacks meaningful semantics")
+            warning("[krangl] Calling sortedBy without arguments lacks meaningful semantics")
             return this
         }
-
 
         // utility method to convert columns to comparators
         fun asComparator(by: String): Comparator<Int> {
@@ -226,11 +225,15 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
         // https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.comparisons/java.util.-comparator/then-by-descending.html
         // https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.comparisons/index.html
-        val compChain = by.map { asComparator(it) }.let { it.drop(1).fold(it.first(), { a, b -> a.then(b) }) }
+        val compChain = by.map { asComparator(it) }.reduce { a, b -> a.then(b) }
 
 
         // see http://stackoverflow.com/questions/11997326/how-to-find-the-permutation-of-a-sort-in-java
         val permutation = (0..(nrow - 1)).sortedWith(compChain).toIntArray()
+
+        val rank = permutation
+            .mapIndexed { idx, value -> idx to value }
+            .sortedBy { it.second }.map { it.first }.toIntArray()
 
         // apply permutation to all columns
         return cols.map {
@@ -242,7 +245,9 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
                 is AnyCol -> AnyCol(it.name, Array(nrow, { index -> it.values[permutation[index]] }))
                 else -> throw UnsupportedOperationException()
             }
-        }.let { SimpleDataFrame(it) }
+        }.let {
+            SimpleDataFrame(it)
+        }
 
     }
 

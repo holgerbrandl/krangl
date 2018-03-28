@@ -7,7 +7,7 @@ import java.util.*
 
 // todo internalize these bits in here as much as possible
 
-abstract class DataCol(val name: String) {
+abstract class DataCol(val name: String) {  // tbd why not: Iterable<Any> ??
 
 
     open infix operator fun plus(something: Number): DataCol = plusInternal(something)
@@ -232,6 +232,7 @@ infix fun BooleanArray.OR(other: BooleanArray) = mapIndexed { index, first -> fi
 operator fun BooleanArray.not() = BooleanArray(this.size, { !this[it] })
 
 
+// note: https://github.com/JetBrains/Exposed is using a simlar apprach with `greaterEquals` (see their readme examples)
 infix fun DataCol.gt(i: Number) = greaterThan(i)
 infix fun DataCol.ge(i: Number) = greaterEqualsThan(i)
 

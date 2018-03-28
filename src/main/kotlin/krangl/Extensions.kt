@@ -9,6 +9,17 @@ import krangl.util.joinToMaxLengthString
 import java.util.*
 
 
+open class TableContext(val df: DataFrame) {
+
+    operator fun get(name: String): DataCol = df[name]
+
+
+    // from slack: in general, yes: use lazy mostly for calculating expensive values that might never be needed.
+    val rowNumber: List<Int> get() = (1..df.nrow).toList()
+    //     val rowNumber: Iterable<Int>  by lazy { (1..nrow) }
+}
+
+
 ////////////////////////////////////////////////
 // select() helpers and API
 ////////////////////////////////////////////////
@@ -54,15 +65,9 @@ fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
 /** A proxy on the `df` that exposes just parts of the DataFrame api that are relevant for table expressions
  * @param df A [krangl.DataFrame] instance
  */
-class ExpressionContext(val df: DataFrame) {
-    operator fun get(name: String): DataCol = df[name]
-
-    // from slack: in general, yes: use lazy mostly for calculating expensive values that might never be needed.
-    val rowNumber: List<Int> get() = (1..df.nrow).toList()
-    //     val rowNumber: Iterable<Int>  by lazy { (1..nrow) }
+class ExpressionContext(df: DataFrame) : TableContext(df) {
 
     val nrow = df.nrow
-
 }
 
 
@@ -187,15 +192,64 @@ var _rand = Random(3)
 ////////////////////////////////////////////////
 
 // allow to rather use selectors
-//TODO report incorrect highlighting to JB
+
+
+/** todo add ties arguemnt. */
+// from https://stackoverflow.com/questions/12289224/rank-and-order-in-r
+/**
+ * `rank` returns the order of each element in an ascending list
+ *
+ *  `order` returns the index each element would have in an ascending list
+ */
+fun DataCol.order(naLast: Boolean = true): List<Int> {
+    val comparator = createComparator(naLast)
+
+    return (0..(values().size - 1)).sortedWith(comparator)
+}
+
+/** todo add ties argumnet. */
+fun DataCol.rank(naLast: Boolean = true): List<Int> = order(naLast)
+    .mapIndexed { idx, value -> idx to value }
+    .sortedBy { it.second }.map { it.first }
+
+
+/** A proxy on the `df` that exposes just parts of the DataFrame api that are relevant for sorting
+ *
+ * @param df A [krangl.DataFrame] instance
+ */
+class SortingContext(df: DataFrame) : TableContext(df) {
+
+    /** Creates a sorting attribute that inverts the order of the argument */
+    fun desc(dataCol: DataCol) = dataCol.desc()
+
+    /** Creates a sorting attribute that inverts the order of the argument */
+    fun desc(columnName: String) = desc(this[columnName])
+}
+
+/** Creates a sorting attribute that inverts the order of the argument */
+fun DataCol.desc() = rank(false).map { -it }.let { IntCol(tempColumnName(), it) }
+
+
+typealias SortExpression = SortingContext.(SortingContext) -> Any?
+
 
 //fun DataFrame.sortedBy(tableExpression: TableExpression): DataFrame = sortedBy(*arrayOf(tableExpression))
 
-fun DataFrame.sortedBy(tableExpression: TableExpression) = sortedBy(*arrayOf(tableExpression))
+fun DataFrame.sortedBy(sortExpression: SortExpression) = sortedBy(*arrayOf(sortExpression))
 
-fun DataFrame.sortedBy(vararg tableExpressions: TableExpression): DataFrame {
+// todo can we enable those and use DataCol as result for SortExpression?
+//@JvmName("sortByList")
+//fun DataFrame.sortedBy(sortExpression: SortingContext.(SortingContext) -> List<Any?>) = sortedBy{ this}
+//@JvmName("sortByArray")
+//fun DataFrame.sortedBy(sortExpression: SortingContext.(SortingContext) -> Array<Any?>) = sortedBy(*arrayOf(sortExpression))
+
+
+fun DataFrame.sortedBy(vararg sortExpressions: SortExpression): DataFrame {
     // create derived data frame sort by new columns trash new columns
-    val sortBys = tableExpressions.mapIndexed { index, value -> "__sort$index" to value }
+    val sortBys = sortExpressions.mapIndexed { index, value ->
+        ColumnFormula("__sort$index", { with(SortingContext(it.df)) { value(this, this) } })
+    }
+
     val sortByNames = sortBys.map { it.name }.toTypedArray()
 
     return addColumns(*sortBys.toTypedArray()).sortedBy(*sortByNames).remove(sortByNames.asList())
@@ -203,19 +257,8 @@ fun DataFrame.sortedBy(vararg tableExpressions: TableExpression): DataFrame {
 }
 
 
-// todo we may want to introduce a subtype of ExpressionContext for sorting. Currently it will be visible in all contexts
-fun ExpressionContext.desc(dataCol: DataCol) = rank(dataCol).reversed().let { IntCol(UUID.randomUUID().toString(), it) }
-
-
-fun ExpressionContext.rank(dataCol: DataCol): List<Int> {
-    val comparator = dataCol.createComparator()
-
-    // see http://stackoverflow.com/questions/11997326/how-to-find-the-permutation-of-a-sort-in-java
-    val permutation = (0..(nrow - 1)).sortedWith(comparator)
-
-    return permutation
-}
-
+// tbd should this be part of API or rarely used
+//fun DataFrame.reversed() = sortedBy { rowNumber.reversed() }
 
 ////////////////////////////////////////////////
 // summarize() convenience
@@ -293,12 +336,23 @@ fun DataFrame.slice(vararg slices: Int) = filter { rowNumber.map { slices.contai
 // note: supporting n() here seems pointless since nrow will also work in them mutate context
 
 
+internal const val DEFAULT_PRINT_MAX_ROWS = 10
+
 /* Prints a dataframe to stdout. df.toString() will also work but has no options .*/
 @JvmOverloads
-fun DataFrame.print(colNames: Boolean = true, maxRows: Int = 20) = println(asString(colNames, maxRows) + "\n")
+fun DataFrame.print(
+    title: String = "A DataFrame",
+    colNames: Boolean = true,
+    maxRows: Int = DEFAULT_PRINT_MAX_ROWS
+) = println(asString(title, colNames, maxRows) + "\n")
 
 
-fun DataFrame.asString(colNames: Boolean = true, maxRows: Int = 20, maxDigits: Int = 3): String {
+fun DataFrame.asString(
+    title: String = "A DataFrame",
+    colNames: Boolean = true,
+    maxRows: Int = DEFAULT_PRINT_MAX_ROWS,
+    maxDigits: Int = 3
+): String {
 
     var df = this
 
@@ -311,7 +365,8 @@ fun DataFrame.asString(colNames: Boolean = true, maxRows: Int = 20, maxDigits: I
         throw UnsupportedOperationException()
     }
 
-    val printData = take(Math.min(nrow, maxRows))
+    val maxRowsOrInf = if (maxRows < 0) Integer.MAX_VALUE else maxRows
+    val printData = take(Math.min(nrow, maxRowsOrInf))
 
     val valuePrinter = createValuePrinter(maxDigits)
 
@@ -330,7 +385,7 @@ fun DataFrame.asString(colNames: Boolean = true, maxRows: Int = 20, maxDigits: I
 
     val sb = StringBuilder()
 
-    sb.appendln("A DataFrame: ${nrow} x ${ncol}")
+    sb.appendln("${title}: ${nrow} x ${ncol}")
 
     if (this is GroupedDataFrame) {
         sb.append("Groups: ${by.joinToString()} ${groups.size}")

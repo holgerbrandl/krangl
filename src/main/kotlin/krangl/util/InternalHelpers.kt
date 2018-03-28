@@ -13,16 +13,17 @@ import kotlin.reflect.full.starProjectedType
 fun List<DataCol>.asDF(): DataFrame = SimpleDataFrame(this)
 
 
-fun DataCol.createComparator(): java.util.Comparator<Int> {
+internal fun DataCol.createComparator(naLast: Boolean = true): java.util.Comparator<Int> {
+    fun <T : Comparable<T>> nullWhere(): Comparator<T?> = if (naLast) nullsLast<T>() else nullsFirst<T>()
+
     return when (this) {
-    // todo use nullsLast
-        is DoubleCol -> Comparator { left, right -> nullsLast<Double>().compare(values[left], values[right]) }
-        is IntCol -> Comparator { left, right -> nullsLast<Int>().compare(values[left], values[right]) }
-        is BooleanCol -> Comparator { left, right -> nullsLast<Boolean>().compare(values[left], values[right]) }
-        is StringCol -> Comparator { left, right -> nullsLast<String>().compare(values[left], values[right]) }
+        is DoubleCol -> Comparator { left, right -> nullWhere<Double>().compare(values[left], values[right]) }
+        is IntCol -> Comparator { left, right -> nullWhere<Int>().compare(values[left], values[right]) }
+        is BooleanCol -> Comparator { left, right -> nullWhere<Boolean>().compare(values[left], values[right]) }
+        is StringCol -> Comparator { left, right -> nullWhere<String>().compare(values[left], values[right]) }
         is AnyCol -> Comparator { left, right ->
             @Suppress("UNCHECKED_CAST")
-            nullsLast<Comparable<Any>>().compare(values[left] as Comparable<Any>, values[right] as Comparable<Any>)
+            nullWhere<Comparable<Any>>().compare(values[left] as Comparable<Any>, values[right] as Comparable<Any>)
         }
         else -> throw UnsupportedOperationException()
     }
