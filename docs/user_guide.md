@@ -57,6 +57,13 @@ df.createColumn("user_id") { const("id") + nrow }
 https://blog.jooq.org/2016/07/05/say-no-to-venn-diagrams-when-explaining-joins/
 
 
+## Nested Data
+
+For an intro see the corresponding R documentation
+* https://www.rdocumentation.org/packages/tidyr/versions/0.8.0/topics/unnest
+* https://www.rdocumentation.org/packages/tidyr/versions/0.8.0/topics/nest
+
+
 # Examples, examples,  and more examples
 
 1. Add a suffix to some column names
@@ -113,3 +120,9 @@ df.select(
 val df = Dataframe(df.structure().target.selectWhere(column("Column Type").isEqualTo("INTEGER")))
 ```
 
+
+# Resources
+
+Other great resources are
+
+* http://garrettgman.github.io/tidying/

@@ -119,6 +119,17 @@ class GatherTest {
         }
 
     }
+
+    @Test
+    fun `it should disallow mixed selections`() {
+        // to prevent regressions of https://github.com/holgerbrandl/krangl/issues/35
+        shouldThrow<InvalidColumnSelectException> {
+            sleepData.gather("foo", "bar", columns = { except("order") AND startsWith("sleep") })
+        }.message shouldBe """
+            Mixing positive and negative selection does not have meaningful semantics and is not supported:
+            <null>,<null>,<null>,-order,<null>,+sleep_total,+sleep_rem,+sleep_cycle,<null>,<null>,<null>
+            """.trimIndent()
+    }
 }
 
 

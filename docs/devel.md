@@ -68,6 +68,26 @@ star icon -> https://gohugo.io/documentation/
 
 
 
+### gitbook documentation
+
+https://github.com/GitbookIO/gitbook/blob/master/docs/setup.md
+
+```bash
+npm install gitbook-cli -g
+
+gitbook serve
+gitbook build
+
+gitbook build ./ --log=debug --debug
+
+```
+
+don't miss the local editor
+https://www.gitbook.com/editor
+
+https://github.com/GitbookIO/theme-api
+
+
 # Reading Log & Misc
 
 
