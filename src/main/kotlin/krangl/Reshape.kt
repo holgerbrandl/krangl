@@ -218,6 +218,8 @@ fun DataFrame.separate(column: String, into: List<String>, sep: String = "[^\\w]
 }
 
 
+const val DEF_NEST_COLUMN_NAME = "data"
+
 /**
  * Nest repeated values in a list-variable.
  *
@@ -238,7 +240,7 @@ fun DataFrame.separate(column: String, into: List<String>, sep: String = "[^\\w]
 // also see https://github.com/tidyverse/tidyr/blob/master/R/nest.R
 fun DataFrame.nest(
     colSelect: ColumnSelector = { except(*groupedBy().names.toTypedArray()) },
-    columnName: String = "data"
+    columnName: String = DEF_NEST_COLUMN_NAME
 ): DataFrame {
     val nestColumns = colSelectAsNames(colSelect)
 
@@ -261,7 +263,10 @@ fun DataFrame.nest(
     }
 }
 
-fun DataFrame.unnest(columnName: String = "data"): DataFrame {
+/**
+ * If you have a list-column, this makes each element of the list its own row. unnest() can handle list-columns that can atomic vectors, lists, or data frames (but not a mixture of the different types).
+ */
+fun DataFrame.unnest(columnName: String): DataFrame {
     val dataCol = get(columnName).asType<DataFrame>()
 
     val replicationIndex = dataCol

@@ -222,7 +222,7 @@ class NestingTests {
         // use other small but NA-heavy data set here
         val restored = sleepData
             .nest({ except("order") })
-            .unnest()
+            .unnest(DEF_NEST_COLUMN_NAME)
             .sortedBy("order")
             .moveLeft("name", "genus", "vore")
 
