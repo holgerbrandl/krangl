@@ -278,3 +278,28 @@ fun DataFrame.unnest(columnName: String = "data"): DataFrame {
     return bindCols(left, unnested)
 
 }
+
+
+// see https://rdrr.io/cran/tidyr/man/complete.html
+/**
+ * Turns implicit missing values into explicit missing values. This is a wrapper around expand(), dplyr::left_join()
+ * and replace_na() that's useful for completing missing combinations of data.
+ */
+// todo add fill argument as in tidyr::complete
+fun DataFrame.complete(vararg columnNames: String): DataFrame =
+    expand(*columnNames).leftJoin(this, by = columnNames.asIterable())
+
+/**
+ * expand() is often useful in conjunction with left_join if you want to convert implicit missing values to explicit
+ * missing values. Or you can use it in conjunction with anti_join() to figure out which combinations are missing.
+ */
+fun DataFrame.expand(vararg columnNames: String): DataFrame {
+    val dummyCol = tempColumnName()
+    val folded = columnNames
+        .map { select(it).distinct() }
+        .fold(dataFrameOf(dummyCol)(1)) { acc, next ->
+            cartesianProductWithoutBy(acc, next, byColumns = listOf(dummyCol))
+        }
+
+    return folded.remove(dummyCol).sortedBy(*columnNames)
+}

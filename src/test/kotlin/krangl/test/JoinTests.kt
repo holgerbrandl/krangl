@@ -11,6 +11,7 @@ class JointUtilsTest {
 
     @Test
     fun `test constrained cartesian products`() {
+        // project no longer needed becayse of revised cartesianProduct
         val a = DataFrame.builder("name", "project_id")(
             "Max", "P1",
             "Max", "P2",
@@ -23,7 +24,8 @@ class JointUtilsTest {
             "alt_title", "P2"
         )
 
-        val cp = cartesianProduct(a, b, listOf("project_id"))
+        val cp = cartesianProduct(a.remove("project_id"), b)
+        //        val cp = cartesianProductWithoutBy(a, b, listOf("project_id"))
         cp.print()
 
         cp.nrow shouldBe 9

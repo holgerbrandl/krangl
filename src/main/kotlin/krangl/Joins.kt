@@ -157,7 +157,8 @@ fun join(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(lef
     val mergedGroups = mutableListOf<DataFrame>()
 
     for ((unzipLeft, unzipRight) in filterZipper) {
-        cartesianProduct(unzipLeft?.df ?: leftNull, unzipRight?.df ?: rightNull, by.toList()).let { mergedGroups.add(it) }
+        cartesianProductWithoutBy(unzipLeft?.df ?: leftNull, unzipRight?.df
+            ?: rightNull, by.toList()).let { mergedGroups.add(it) }
     }
 
     // todo use more efficient row-bind implementation here
@@ -229,20 +230,27 @@ private fun defaultBy(left: DataFrame, right: DataFrame) = left.names.intersect(
 
 // in a strict sense this is not a cartesian product, but they way we call it (for each tuples of `by`,
 // so the by columns are essentially constant here), it should be
-internal fun cartesianProduct(left: DataFrame, right: DataFrame, byColumns: List<String>): DataFrame {
+internal fun cartesianProductWithoutBy(left: DataFrame, right: DataFrame, byColumns: List<String>): DataFrame {
     // first remove columns that are present in both from right-df
     val rightSlim = right.remove(byColumns)
 
+    //    require(rightSlim.nrow > 0)
+
+    return cartesianProduct(left, rightSlim)
+}
+
+
+internal fun cartesianProduct(left: DataFrame, right: DataFrame): DataFrame {
     // http://thushw.blogspot.de/2015/10/cartesian-product-in-scala.html
     //http://codeaffectionate.blogspot.de/2012/09/fun-with-cartesian-products-cartesian.html
 
-//    val leftIndexReplication = IntArray(left.nrow*right.nrow, { index -> }
+    //    val leftIndexReplication = IntArray(left.nrow*right.nrow, { index -> }
     val leftIndexReplication = (0..(right.nrow - 1)).flatMap { IntArray(left.nrow, { it }).toList() }
     val rightIndexReplication = (0..(right.nrow - 1)).flatMap { leftIt -> IntArray(left.nrow, { leftIt }).toList() }
 
     // replicate data
     val leftCartesian: DataFrame = replicateByIndex(left, leftIndexReplication)
-    val rightCartesian: DataFrame = replicateByIndex(rightSlim, rightIndexReplication)
+    val rightCartesian: DataFrame = replicateByIndex(right, rightIndexReplication)
 
     return bindCols(leftCartesian, rightCartesian)
 }

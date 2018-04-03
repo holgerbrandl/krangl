@@ -238,4 +238,33 @@ class NestingTests {
 
         restored shouldEqual sleepData.sortedBy("order")
     }
+
+
+    @Test
+    fun `it should expand variable tuples like tidyr-expand`() {
+        val someDf = dataFrameOf("person", "year", "weight", "sex")(
+            "max", 2014, 33.1, "M",
+            "max", 2016, null, "M",
+            "anna", 2015, 39.2, "F",
+            "anna", 2016, 39.9, "F"
+        )
+
+        someDf.expand("year", "sex").run {
+            print()
+            nrow shouldBe 6
+            names shouldBe listOf("year", "sex")
+        }
+
+        someDf.complete("year", "person").run {
+            //            sortedBy("person").
+            print()
+            nrow shouldBe 6
+            ncol shouldBe 4
+            filter { it["weight"].isNA() }.nrow shouldBe 3
+        }
+
+
+        // next steps in here: implement test nesting support ...
+
+    }
 }
