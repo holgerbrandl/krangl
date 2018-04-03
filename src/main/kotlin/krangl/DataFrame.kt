@@ -29,10 +29,11 @@ interface DataFrame {
     //    val rowNumber: Iterable<Int>
 
 
+    /** Returns a column by name. */
     operator fun get(columnName: String): DataCol
 
-    // do we really one this?
-    //    operator fun get(columnIndex: Int): DataCol = get(names[columnIndex])
+    /** Returns a column by index. */
+    operator fun get(columnIndex: Int): DataCol = get(names[columnIndex])
 
 
     // todo use invoke() style operator here (see https://kotlinlang.org/docs/reference/operator-overloading.html)
