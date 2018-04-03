@@ -408,6 +408,17 @@ class SortTest() {
         data.sortedBy { desc(it["name"]) }["name"][0] shouldBe "tom"
         data.sortedByDescending("name")["name"][0] shouldBe "tom"
     }
+
+
+    @Test
+    // todo the better design would be to add more type constraints to `SortExpression`
+    fun `it should fail for invalid sorting predicates`() {
+        shouldThrow<InvalidSortingPredicateException> {
+            sleepData.sortedBy { "order" }.print()
+        }
+    }
+
+
 }
 
 

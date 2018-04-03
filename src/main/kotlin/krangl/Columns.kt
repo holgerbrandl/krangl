@@ -504,6 +504,10 @@ class NonScalarValueException(tf: ColumnFormula, result: Any) :
     RuntimeException("summarize() expression for '${tf.name}' did not evaluate into a scalar value but into a '${result}'")
 
 
+class InvalidSortingPredicateException(result: Any) :
+    RuntimeException("Sorting literal did not evaluate into boolean array, but instead to '${result}.")
+
+
 //
 // Category/String helper extensions
 //

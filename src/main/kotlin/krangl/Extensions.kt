@@ -246,8 +246,12 @@ fun DataFrame.sortedBy(sortExpression: SortExpression) = sortedBy(*arrayOf(sortE
 
 fun DataFrame.sortedBy(vararg sortExpressions: SortExpression): DataFrame {
     // create derived data frame sort by new columns trash new columns
-    val sortBys = sortExpressions.mapIndexed { index, value ->
-        ColumnFormula("__sort$index", { with(SortingContext(it.df)) { value(this, this) } })
+    val sortBys = sortExpressions.mapIndexed { index, sortExpr ->
+        ColumnFormula("__sort$index") {
+            with(SortingContext(it.df)) { sortExpr(this, this) }
+                // prevent scalar string attributes here which are most likely column names.
+                .also { if (it is String) throw InvalidSortingPredicateException(it) }
+        }
     }
 
     val sortByNames = sortBys.map { it.name }.toTypedArray()
