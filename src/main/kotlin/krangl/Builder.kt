@@ -80,7 +80,7 @@ inline fun <reified T> DataFrame.unfold(
 
 
 /** Convert rows into objects by using reflection. Only parameters used in constructor will be mapped.
- * Note: This is tested with kotlin data classes only. File a ticket for better type compatiblity or any issues!
+ * Note: This is tested with kotlin data classes only. File a ticket for better type compatibility or any issues!
  * @param mapping parameter mapping scheme to link data frame columns to object properties mapOf("someName" to "lastName", etc.)
  */
 inline fun <reified T> DataFrame.rowsAs(mapping: Map<String, String> = names.map { it to it }.toMap()): Iterable<T> {
@@ -210,8 +210,7 @@ fun DataFrame.Companion.fromResultSet(rs: ResultSet): DataFrame {
             "DATE" -> listOf<LocalDate?>()
             "TIME" -> listOf<LocalTime?>()
             "CHAR", "CHARACTER", "VARCHAR" -> listOf<String>()
-            else -> throw IllegalArgumentException("Column type ${it} is not yet supported by {krangl}." +
-                " Please file a ticket under https://github.com/holgerbrandl/krangl/issues")
+            else -> throw IllegalArgumentException("Column type ${it} is not yet supported by {krangl}. $PLEASE_SUBMIT_MSG")
         }.toMutableList().let { colData.add(it) }
     }
 
@@ -227,8 +226,7 @@ fun DataFrame.Companion.fromResultSet(rs: ResultSet): DataFrame {
                 "DATE" -> rs.getDate(colIndex).toLocalDate()
                 "TIME" -> rs.getTime(colIndex).toLocalTime()
                 "CHAR", "CHARACTER", "VARCHAR" -> rs.getString(colIndex)
-                else -> throw IllegalArgumentException("Column type ${colTypes[colIndex - 1]} is not yet supported by {krangl}." +
-                    " Please file a ticket under https://github.com/holgerbrandl/krangl/issues")
+                else -> throw IllegalArgumentException("Column type ${colTypes[colIndex - 1]} is not yet supported by {krangl}. $PLEASE_SUBMIT_MSG")
             }
             colData[colIndex - 1].add(any)
         }

@@ -6,6 +6,7 @@ import io.kotlintest.matchers.shouldEqual
 import krangl.*
 import org.junit.Test
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.PrintStream
 import java.net.URL
 import java.util.*
@@ -144,6 +145,31 @@ class TypeInterfaceTest {
         val unwrapped = users.unfold<UUID>("ids", properties = listOf("variant"), keep = true)
 
         unwrapped["variant"][1] shouldEqual 2
+    }
+
+    @Test
+
+    fun `it should unwrap deeply nested properties of object columns`() {
+        data class Applicant(val name: String, val bar: File, val stuff: List<URL>)
+
+        val applicants = listOf(
+            Applicant("max", File("cv.pdf"), listOf(URL("http://heise.de"), URL("http://github.com"))),
+            Applicant("moritz", File("docs.pdf"), listOf(URL("http://bintray.com")))
+        )
+        val applDF = applicants.asDataFrame()
+
+        applDF.print()
+        //        applDF.schema()
+
+        // unfold is wrong here because we don't want to unfold (horizontally) but vertically
+        //        val unwrapped = users.unfold<UUID>("ids", properties = listOf("variant"), keep = true)
+
+
+        val flatDF = applDF.unnest("stuff")
+
+        flatDF.print()
+        flatDF.nrow shouldEqual 3
+        flatDF.names shouldEqual listOf("bar", "name", "stuff")
     }
 
     data class Car(val ps: Int, val brand: String, val brandURL: URL) {

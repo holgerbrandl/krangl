@@ -264,9 +264,23 @@ fun DataFrame.nest(
 }
 
 /**
- * If you have a list-column, this makes each element of the list its own row. unnest() can handle list-columns that can atomic vectors, lists, or data frames (but not a mixture of the different types).
+ * If you have a list-column, this makes each element of the list its own row. It unfolds data vertically. unnest() can handle list-columns that can atomic vectors, lists, or data frames (but not a mixture of the different types).
+ *
+ * To unfold properties of objects (that is unfolding data horizontally), use `unfold()`
  */
 fun DataFrame.unnest(columnName: String): DataFrame {
+    val firstOrNull = get(columnName).values().asSequence().filterNotNull().firstOrNull()
+
+    // if the list column is a list we repackage into a single column data-frame column with the same name
+    if (firstOrNull !is DataFrame) {
+        val repackaged = when (firstOrNull) {
+            is Iterable<*> -> addColumn(columnName) { it[columnName].map<List<*>> { values -> dataFrameOf(columnName)(*values.toTypedArray()) } }
+            else -> throw IllegalArgumentException("Unnesting failed because of unsupported list column type")
+        }
+
+        return repackaged.unnest(columnName)
+    }
+
     val dataCol = get(columnName).asType<DataFrame>()
 
     val replicationIndex = dataCol

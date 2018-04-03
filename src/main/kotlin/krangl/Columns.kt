@@ -475,8 +475,10 @@ private inline fun <reified E> Array<E?>.forceNotNull(): Array<E> = try {
 class MissingValueException(msg: String) : RuntimeException(msg)
 
 
-private val internalErrorFeedback =
-    "This looks like an issue with krangl. Please submit an example reproducing the problem to https://github.com/holgerbrandl/krangl/issues"
+internal const val INTERNAL_ERROR_MSG =
+    "This looks like an issue with krangl. Please submit an example reproducing the problem/usecase to https://github.com/holgerbrandl/krangl/issues"
+
+internal const val PLEASE_SUBMIT_MSG = "Feel welcome to submit a ticket to https://github.com/holgerbrandl/krangl/issues"
 
 
 class DuplicatedColumnNameException(val names: List<String>) : RuntimeException() {
@@ -489,7 +491,7 @@ class DuplicatedColumnNameException(val names: List<String>) : RuntimeException(
                 when {
                     size == 1 -> "'${duplicatedNames.joinToString()}' is already present in data-frame"
                     size > 1 -> "'${duplicatedNames.joinToString()}' are already present in the data-frame"
-                    else -> internalErrorFeedback
+                    else -> INTERNAL_ERROR_MSG
                 }
             }
         }

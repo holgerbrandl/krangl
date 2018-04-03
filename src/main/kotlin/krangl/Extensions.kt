@@ -417,16 +417,15 @@ data class ColSpec(val pos: Int, val name: String, val type: String)
 
 
 internal fun getColType(col: DataCol) = when (col) {
-    is AnyCol -> col.values.first()?.javaClass?.simpleName
+    is AnyCol -> col.values().asSequence().filterNotNull().firstOrNull()?.javaClass?.simpleName
     else -> col.javaClass.simpleName.replace("Col", "")
 }
 
 
 //todo should this be part of the public api? It's not needed in most cases
 fun DataFrame.columnTypes(): List<ColSpec> {
-    // todo add support for grouped data here
     if (this !is SimpleDataFrame) {
-        TODO()
+        TODO("Not yet supported data-frame type. $PLEASE_SUBMIT_MSG")
     }
 
     val foo = mapOf("index" to 1, "name" to "foo")
