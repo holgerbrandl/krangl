@@ -16,6 +16,15 @@ For completed items see [change-log](../CHANGES.md).
 * Pluggable backends like native or SQL
 * Implement actual `nest` and `unnest`
 
+* should `unfold` be better called `flatten`?
+
+* write chapter about timeseries support
+    * https://github.com/signaflo/java-timeseries/wiki/ARIMA-models
+    * learn from https://pandas.pydata.org/pandas-docs/stable/timeseries.html
+
+
+* better spec out NA
+    * consider use of doublearray for double-col along with NaN, see https://pandas.pydata.org/pandas-docs/stable/missing_data.html#working-with-missing-data
 
 ### IO
 
@@ -59,6 +68,9 @@ http://fastutil.di.unimi.it/
 
 http://nd4j.org/
 
+benchmarking
+
+https://github.com/mm-mansour/Fast-Pandas
 
 Backlog
 -------

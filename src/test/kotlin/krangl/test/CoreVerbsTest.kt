@@ -312,6 +312,13 @@ class FilterTest {
         df.filter { it["x"] lt 2.0 }.nrow shouldBe 1
         df.filter { it["x"] le 2f }.nrow shouldBe 2
     }
+
+    @Test
+    fun `it should infer boolean-list type in filter extensions`() {
+        //todo fix this; could be a compiler bug
+        //         persons.filter { it["last_name"].asStrings().map { it!!.startsWith("Do") }}
+
+    }
 }
 
 

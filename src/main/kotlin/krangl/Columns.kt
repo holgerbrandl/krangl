@@ -5,8 +5,6 @@ import java.lang.UnsupportedOperationException
 import java.util.*
 
 
-// todo internalize these bits in here as much as possible
-
 abstract class DataCol(val name: String) {  // tbd why not: Iterable<Any> ??
 
 
@@ -216,6 +214,8 @@ class BooleanCol(name: String, val values: Array<Boolean?>) : DataCol(name) {
 // Vectorized operations on columns
 //
 
+//for a discussion about operator overloading see https://discuss.kotlinlang.org/t/post-1-0-roadmap/1496/33
+
 //infix fun List<Boolean>.AND(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first && other[index] }
 //infix fun List<Boolean>.OR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first || other[index] }
 //infix fun List<Boolean>.XOR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first == other[index] }
@@ -338,7 +338,7 @@ inline fun <reified R> DataCol.asType(): Array<R?> {
 /** Allows to transform column data into list of same length ignoring missing values, which are kept but processing
  * can be done in a non-null manner.
  */
-// todo maybe this should return DataCol or similar to allow for more flexible operator overloading
+// todo maybe this should return DataCol or similar to allow for more flexible operator overloading (see #39)
 inline fun <reified T> DataCol.map(noinline expr: (T) -> Any?): List<Any?> {
     val recast = asType<T?>()
 
@@ -385,9 +385,6 @@ fun ExpressionContext.isNotNA(columnName: String): BooleanArray = isNA(columnNam
 //
 // Arithmetic Utilities
 //
-
-//todo improve java interop by annotating with https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.jvm/-throws/
-
 
 // this would work as well but we would gain little as long as we're just providing min, max, median, and mean. Others
 // like quantile() already require additional parameters and the approach would no longer work
@@ -468,11 +465,9 @@ private inline fun <reified E> Array<E?>.forceNotNull(): Array<E> = try {
 }
 
 
-// todo just inherit for Throwble once https://github.com/kotlintest/kotlintest/issues/20 is fixed
-
 /** Thrown if an operation is applied to a column that contains missing values. */
 // todo do we really want this? Shouldn't it rather be NA (or add parameter to suppress Exception )
-class MissingValueException(msg: String) : RuntimeException(msg)
+class MissingValueException(msg: String) : Throwable(msg)
 
 
 internal const val INTERNAL_ERROR_MSG =

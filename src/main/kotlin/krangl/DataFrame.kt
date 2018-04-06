@@ -36,7 +36,7 @@ interface DataFrame {
     operator fun get(columnIndex: Int): DataCol = get(names[columnIndex])
 
 
-    // todo use invoke() style operator here (see https://kotlinlang.org/docs/reference/operator-overloading.html)
+    // should we use invoke() style operator here (see https://kotlinlang.org/docs/reference/operator-overloading.html)?
     fun row(rowIndex: Int): DataFrameRow
 
 
@@ -48,7 +48,7 @@ interface DataFrame {
 
     /** @return An iterator over all rows. Per row data is represented as a named map.
 
-    Example
+    Example:
 
     ```
     df.rows.map { row -> SumDF(row["age"] as Int, row["mean_weight"] as Double, row["num_persons"] as Int) }
@@ -56,68 +56,85 @@ interface DataFrame {
      */
     val rows: Iterable<DataFrameRow>
 
-    //todo move examples to dokka samples for better compile checking
+
     /** Select or remove columns by predicate.
-
-    Example:
-
-    ```
-    foo.select2{ it is IntCol }
-    foo.select2{ it.name.startsWith("bar") }
-
-    foo.remove{ it.name.startsWith("bar") }
-    ```
+     *
+     * @sample krangl.samples.selectExamples
      */
     fun selectIf(colSelector: (DataCol) -> Boolean) = select(cols.filter(colSelector).map { it.name })
 
+
+    /** Select or remove columns by predicate.
+     *
+     * @sample krangl.samples.selectExamples
+     */
     fun removeIf(colSelector: (DataCol) -> Boolean) = select(cols.filterNot(colSelector).map { it.name })
 
     // unify examples by using sample annotations
     // Core Manipulation Verbs
 
 
-    /** Keep only the selected columns.
+    /** Create a new data frame with only the selected columns.
      *
-     *  Example
-
-    ```
-    df.select( "foo", "bar")
-    ```
+     * @sample krangl.samples.selectExamples
      */
     fun select(vararg columns: String): DataFrame
 
+    /** Remove selected columns.
+     *
+     * @sample krangl.samples.selectExamples
+     */
     fun remove(vararg columns: String): DataFrame = select(names.minus(columns.asList()))
 
     /** Convenience wrapper around to work with varag <code>krangl.DataFrame.select</code> */
     fun select(columns: Iterable<String>): DataFrame = select(*columns.toList().toTypedArray())
 
+    /** Remove selected columns.
+     *
+     * @sample krangl.samples.selectExamples
+     */
     fun remove(columns: Iterable<String>): DataFrame = remove(*columns.toList().toTypedArray())
 
-    /** Keeps only the variables that match any of the given expressions. E.g. use `startsWith("foo")` to select for
-     * columnSelect staring with 'foo'.*/
+    /** Keeps only the variables that match any of the given expressions.
+     *
+     * E.g. use `startsWith("foo")` to select for
+     * columnSelect staring with 'foo'.
+     *
+     * @sample krangl.samples.selectExamples
+     */
     fun select(columnSelect: ColumnSelector): DataFrame = select(colSelectAsNames(columnSelect))
 
+
     // `drop` as method name is burnt here since kotlin stdlin contains it for collections.
+    /** Remove selected columns using a predicate
+     *
+     * @sample krangl.samples.selectExamples
+     */
     fun remove(columnSelect: ColumnSelector): DataFrame = select { except(columnSelect) }
 
 
+    /** Create a new data frame with only the selected columns.
+     *
+     * @sample krangl.samples.selectExamples
+     */
     fun select(vararg columns: ColumnSelector): DataFrame {
         val reducedSelector = reduceColSelectors(columns)
 
         return select(reducedSelector)
     }
 
+    /** Remove selected columns.
+     *
+     * @sample krangl.samples.selectExamples
+     */
     fun remove(vararg columSelects: ColumnSelector): DataFrame =
         select(*columSelects.map { it -> { x: ColNames -> x.except(it) } }.toTypedArray())
 
 
-    // todo consider to use List<Boolean> in signature. We can not provide both because of type erasure
     fun filter(predicate: VectorizedRowPredicate): DataFrame
 
     /** Adds new variables and preserves existing.*/
     fun addColumn(tf: ColumnFormula): DataFrame
-    // todo maybe as would be more readible: df.mutate({ mean(it["foo")} as "mean_foo")
-    // todo Also support varargs similar to summarize: var newDf = df.mutate({"new_attr" to  ( it["test"] + it["test"] )})
 
 
     fun addColumn(columnName: String, expression: TableExpression): DataFrame = addColumn(columnName to expression)

@@ -5,11 +5,7 @@
 
 import krangl.*
 
-// todo convert to script
-
 /** Reproduce popular sleep data workflow with krangl*/
-
-
 fun main(args: Array<String>) {
     // sleepData is bundles with Krangl
     sleepData.print()

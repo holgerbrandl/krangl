@@ -43,9 +43,6 @@ repositories {
     mavenCentral()
     mavenLocal()
     jcenter()
-
-    //todo remove
-//    maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
 }
 
 //Minimal dokka configuration:

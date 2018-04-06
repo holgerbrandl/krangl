@@ -34,7 +34,7 @@ data class RenameRule(val oldName: String, val newName: String) {
 }
 
 
-// todo dplyr consistency here or "old" to "new" readbility, what's more important (see docs/user_guide.md)
+// no dplyr consistency here but improved readbility
 fun DataFrame.rename(vararg old2new: Pair<String, String>) =
     this.rename(*old2new.map { RenameRule(it.first, it.second) }.toTypedArray())
 
@@ -116,8 +116,6 @@ fun DataFrame.filter(predicate: DataFrame.(DataFrame) -> List<Boolean>): DataFra
 fun DataFrame.filter(vararg predicates: DataFrame.(DataFrame) -> List<Boolean>): DataFrame =
     predicates.fold(this, { df, p -> df.filter(p) })
 
-// // todo does not work why?
-// df.filter({ it["last_name"].asStrings().map { it!!.startsWith("Do") } })
 
 
 /** Match a text column in a NA-aware manner to create a predicate vector for filtering.
@@ -195,6 +193,7 @@ var _rand = Random(3)
 
 
 /** todo add ties arguemnt. */
+
 // from https://stackoverflow.com/questions/12289224/rank-and-order-in-r
 /**
  * `rank` returns the order of each element in an ascending list
@@ -207,7 +206,6 @@ fun DataCol.order(naLast: Boolean = true): List<Int> {
     return (0..(values().size - 1)).sortedWith(comparator)
 }
 
-/** todo add ties argumnet. */
 fun DataCol.rank(naLast: Boolean = true): List<Int> = order(naLast)
     .mapIndexed { idx, value -> idx to value }
     .sortedBy { it.second }.map { it.first }
@@ -278,7 +276,7 @@ fun DataFrame.summarize(name: String, tableExpression: TableExpression): DataFra
  *
  * @arg selects: Variables to use when determining uniqueness. If there are multiple rows for a given combination of inputs, only the first row will be preserved.
  */
-// todo provide more efficient implementation
+// a more efficient impl should simply hash the `selects` and transform it in to a predicate function
 fun DataFrame.distinct(vararg selects: String = this.names.toTypedArray()): DataFrame =
     groupBy(*selects).slice(1).ungroup()
 
@@ -378,7 +376,6 @@ fun DataFrame.asString(
     val colWidths = printData.cols.map { it.values().map { (valuePrinter(it)).length }.max() ?: 20 }
     val headerWidths = printData.names.map { it.length }
 
-    // todo mimic dplyr.print better here (num observations, hide too many columns, etc.)
 
     // detect column padding
     val columnSpacing = 3
@@ -424,9 +421,7 @@ internal fun getColType(col: DataCol) = when (col) {
 
 //todo should this be part of the public api? It's not needed in most cases
 fun DataFrame.columnTypes(): List<ColSpec> {
-    if (this !is SimpleDataFrame) {
-        TODO("Not yet supported data-frame type. $PLEASE_SUBMIT_MSG")
-    }
+    if (this is GroupedDataFrame) return ungroup().columnTypes()
 
     val foo = mapOf("index" to 1, "name" to "foo")
 
@@ -437,10 +432,6 @@ fun List<ColSpec>.asDf() = deparseRecords { mapOf("index" to it.pos, "name" to i
 
 fun List<ColSpec>.print() = asDf().print()
 
-
-// todo should it be called structure of glimpse. there should not be any name aliases
-@Deprecated("use schema instead", replaceWith = ReplaceWith("schema()"))
-fun DataFrame.glimpse() = schema()
 
 
 // see https://spark.apache.org/docs/latest/sql-programming-guide.html#untyped-dataset-operations-aka-dataframe-operations

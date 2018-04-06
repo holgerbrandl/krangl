@@ -199,6 +199,7 @@ class LeftJoinTest {
     fun `it should left join calculate cross-product when joining on empty by list`() {
 
         // todo should the result be the same as for joinInner with by=emptyList() or should we prevent the empty-join for either of them??)
+        // OR: join on nothing lacks semantics, so why not using `cartesianProduct` directly
 
         //        joinOuter(persons, weights, by = "last" to "name").apply {
         //            nrow shouldBe  9
@@ -212,7 +213,7 @@ class LeftJoinTest {
 
     @Test
     fun `it should should allow for NA in by attribute-lists`() {
-        //todo it's more eyefriendly if NA merge tuples come last in the result table. Can we do the same
+        //todo it's more eyefriendly if NA merge tuples come last in the result table. Can we do the same?
         //        TODO()
     }
 }

@@ -6,6 +6,34 @@ import java.time.LocalDate
 
 enum class Sex { MALE, FEMALE }
 
+fun selectExamples() {
+
+    // data-frames can be a  mix of atomic (int, double, boolean, string) and object columns
+    val birthdays = DataFrame.builder("name", "height", "sex", "birthday")(
+        "Tom", 1.89, Sex.MALE, LocalDate.of(1980, 5, 22),
+        "Jane", 1.73, Sex.FEMALE, LocalDate.of(1973, 2, 13)
+    )
+
+    // just select/deselect columns of interest with varargs
+    birthdays.select("name", "height")
+    birthdays.remove("sex")
+
+    // use helper API to match columns of interest
+    birthdays.select { matches("^na") }
+    birthdays.select { endsWith("x") }
+
+    // do positive and negative selection as needed
+    birthdays.remove { startsWith("birth") }
+    birthdays.select { except("birth") }
+
+
+    // or use stdlib-like filter with `selectIf`
+    birthdays.selectIf { it is IntCol }
+    birthdays.selectIf { it.name.startsWith("bar") }
+
+
+}
+
 fun builderSample() {
     // data-frames can be a  mix of atomic (int, double, boolean, string) and object columns
     val birthdays = DataFrame.builder("name", "height", "sex", "birthday")(
