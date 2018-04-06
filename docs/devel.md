@@ -87,6 +87,19 @@ https://www.gitbook.com/editor
 
 https://github.com/GitbookIO/theme-api
 
+nice extensions
+https://github.com/GitbookIO/theme-api
+https://github.com/jadu/gitbook-theme
+
+
+for theming add
+```
+"styles": {
+  "website": "assets/continuum/cp.css"
+}
+```
+
+docs in sub-directory https://github.com/GitbookIO/gitbook/issues/688
 
 # Reading Log & Misc
 
