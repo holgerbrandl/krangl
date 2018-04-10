@@ -503,9 +503,9 @@ class CoreTests {
 
         df.asString(maxDigits = 5) shouldBe """
             A DataFrame: 2 x 1
-                  a
-            0.73106
-               <NA>
+            #         a
+            1   0.73106
+            2      <NA>
             """.trimIndent()
     }
 

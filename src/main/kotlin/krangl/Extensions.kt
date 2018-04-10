@@ -117,7 +117,6 @@ fun DataFrame.filter(vararg predicates: DataFrame.(DataFrame) -> List<Boolean>):
     predicates.fold(this, { df, p -> df.filter(p) })
 
 
-
 /** Match a text column in a NA-aware manner to create a predicate vector for filtering.
  *
  * @sample krangl.samples.textMatching
@@ -353,7 +352,8 @@ fun DataFrame.asString(
     title: String = "A DataFrame",
     colNames: Boolean = true,
     maxRows: Int = DEFAULT_PRINT_MAX_ROWS,
-    maxDigits: Int = 3
+    maxDigits: Int = 3,
+    rowNumbers: Boolean = true
 ): String {
 
     var df = this
@@ -369,6 +369,10 @@ fun DataFrame.asString(
 
     val maxRowsOrInf = if (maxRows < 0) Integer.MAX_VALUE else maxRows
     val printData = take(Math.min(nrow, maxRowsOrInf))
+        // optionally add rownames
+        .run {
+            if (rowNumbers) addColumn("#") { rowNumber }.moveLeft("#") else this
+        }
 
     val valuePrinter = createValuePrinter(maxDigits)
 
@@ -393,7 +397,7 @@ fun DataFrame.asString(
     }
 
 
-    if (colNames) df.cols.mapIndexed { index, col ->
+    if (colNames) printData.cols.mapIndexed { index, col ->
         col.name.padStart(padding[index])
     }.joinToString("").apply {
         sb.appendln(this)
@@ -431,7 +435,6 @@ fun DataFrame.columnTypes(): List<ColSpec> {
 fun List<ColSpec>.asDf() = deparseRecords { mapOf("index" to it.pos, "name" to it.name, "type" to it.type) }
 
 fun List<ColSpec>.print() = asDf().print()
-
 
 
 // see https://spark.apache.org/docs/latest/sql-programming-guide.html#untyped-dataset-operations-aka-dataframe-operations
