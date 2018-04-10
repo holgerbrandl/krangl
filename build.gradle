@@ -58,7 +58,7 @@ dokka {
     reportUndocumented = false
 
 //    http://kotlinlang.org/docs/reference/kotlin-doc.html#module-and-package-documentation
-    includes = ['misc/packages_info.md']
+    includes = ['docs/packages_info.md']
 }
 
 // http://stackoverflow.com/questions/11474729/how-to-build-sources-jar-with-gradle

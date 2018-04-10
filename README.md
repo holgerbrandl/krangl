@@ -204,11 +204,6 @@ Documentation
 * TBD `krangl` Cheat Sheet
 
 
-Presentations
-
-
-
-
 
 How to contribute?
 ------------------
