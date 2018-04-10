@@ -1,15 +1,29 @@
 # Developer Notes for Krangl
 
+[TOC]: # " "
+
+- [Developer Notes for Krangl](#developer-notes-for-krangl)
+- [Interactive shell](#interactive-shell)
+- [Potentially useful libraries](#potentially-useful-libraries)
+- [Design](#design)
+- [Performance Optimization](#performance-optimization)
+- [Comparison to other APIs](#comparison-to-other-apis)
+    - [Known differences to `dplyr` package in R](#known-differences-to-dplyr-package-in-r)
+    - [Spark](#spark)
+    - [tablesaw](#tablesaw)
+
+
 
 
 # Interactive shell
+
 ```bash
 kscript -i - <<"EOF"
 //DEPS de.mpicbg.scicomp:krangl:0.9-SNAPSHOT
 EOF
 ```
 
-## Potentially useful libraries
+# Potentially useful libraries
 
 * https://github.com/mplatvoet/progress
 * https://github.com/SalomonBrys/Kodein cool dependency injection
@@ -17,12 +31,12 @@ EOF
 * https://github.com/zeroturnaround/zt-exec cool process builder api
 
 
-## Design
+# Design
 
 https://stackoverflow.com/questions/45090808/intarray-vs-arrayint-in-kotlin --> bottom line: Array<*> can be null
 
 
-## Gradle
+--
 
 create fresh gradle wrapper with:
 
@@ -31,15 +45,6 @@ create fresh gradle wrapper with:
 From https://github.com/twosigma/beakerx/issues/5135: Split repos?
 > It is a bad idea. Many different repos are hard to maintain. And you do not need this. Gradle allows to publish separate artifacts without splitting repository.  
 you can use `gradle :kernel:base:<whatever>` instead of `cd`.
-
-
-
-
-# Reading Log & Misc
-
-
-From spark release notes:
-> Unifying DataFrames and Datasets in Scala/Java: Starting in Spark 2.0, DataFrame is just a type alias for Dataset of Row. Both the typed methods (e.g. map, filter, groupByKey) and the untyped methods (e.g. select, groupBy) are available on the Dataset class. Also, this new combined Dataset interface is the abstraction used for Structured Streaming. Since compile-time type-safety in Python and R is not a language feature, the concept of Dataset does not apply to these languages’ APIs. Instead, DataFrame remains the primary programing abstraction, which is analogous to the single-node data frame notion in these languages. Get a peek from a Dataset API notebook.
 
 ---
 
@@ -57,6 +62,16 @@ fun DataFrame.mutate(name: String, formula: (DataFrame) -> List<String>): DataFr
 }
 
 ```
+
+
+
+# Performance Optimization
+
+Memory profiling with JMH
+
+* http://java-performance.info/introduction-jmh-profilers/
+* https://cruftex.net/2017/03/28/The-6-Memory-Metrics-You-Should-Track-in-Your-Java-Benchmarks.html?pk_campaign=jmh
+* https://stackoverflow.com/questions/22640804/count-metrics-with-jmh
 
 
 
@@ -79,6 +94,11 @@ fun DataFrame.mutate(name: String, formula: (DataFrame) -> List<String>): DataFr
 * `select()` will throw an error if a grouping column is being removed (see [dplyr ticket](https://github.com/hadley/dplyr/issues/1869))
 
 
+## Spark
+
+
+From spark release notes:
+> Unifying DataFrames and Datasets in Scala/Java: Starting in Spark 2.0, DataFrame is just a type alias for Dataset of Row. Both the typed methods (e.g. map, filter, groupByKey) and the untyped methods (e.g. select, groupBy) are available on the Dataset class. Also, this new combined Dataset interface is the abstraction used for Structured Streaming. Since compile-time type-safety in Python and R is not a language feature, the concept of Dataset does not apply to these languages’ APIs. Instead, DataFrame remains the primary programing abstraction, which is analogous to the single-node data frame notion in these languages. Get a peek from a Dataset API notebook.
 
 ## tablesaw
 
@@ -104,8 +124,3 @@ val df = Dataframe(df.structure().target.selectWhere(column("Column Type").isEqu
 ```
 
 
-# Resources
-
-Other great resources are
-
-* http://garrettgman.github.io/tidying/
