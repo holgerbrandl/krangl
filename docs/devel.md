@@ -70,6 +70,8 @@ star icon -> https://gohugo.io/documentation/
 
 ### gitbook documentation
 
+for gitbook page layout see https://toolchain.gitbook.com/pages.html
+
 https://github.com/GitbookIO/gitbook/blob/master/docs/setup.md
 
 ```bash

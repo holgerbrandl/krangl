@@ -13,6 +13,16 @@
 
 ---
 
+[TOC levels=2,2]: # " "
+
+- [Installation](#installation)
+- [Features](#features)
+- [Examples](#examples)
+- [Documentation](#documentation)
+- [How to contribute?](#how-to-contribute)
+
+
+
 
 Installation
 ------------
@@ -33,7 +43,7 @@ dependencies {
 }
 ```
 
-To build it locally and install it into your local maven cache simply run
+To build it locally and install it into your local maven cache, simply clone the repo and run
 ```bash
 ./gradlew install
 ```
@@ -189,19 +199,36 @@ val deparsedDF = records.deparseRecords { mapOf("age" to it.age, "weight" to it.
 
 ```
 
-Support & Documentation
-----------------------
+Documentation
+-------------
 
 `krangl` is not yet mature, full of bugs and its API is in constant flux. Nevertheless, feel welcome to submit pull-requests or tickets, or simply get in touch via gitter (see button on top).
 
+* [Krangl User Guide](https://krangl.gitbook.io/docs/) for detailed information about the API and usage examples.
+* [API Docs](http://holgerbrandl.github.io/krangl/javadoc/krangl/) for detailed information about the API including manu usage examples
+* TBD `krangl` Cheat Sheet
+
+
+Presentations
 
 * [Krangl Introduction](http://holgerbrandl.github.io/krangl/bier_slides_june2016/krangl_intro.html) A presentation from June 2016 ([sources](./docs/bier_slides_june2016/krangl_intro.md))
-* [Krangl User Guide](./docs/user_guide.md) for detailed information about the API and usage examples.
-* [API Docs](http://holgerbrandl.github.io/krangl/javadoc/krangl/) for detailed information about the API including manu usage examples
-* [Developer Information](./docs/devel.md) with details about to build, test, release and improve `krangl`
-* [Roadmap](./docs/roadmap.md) complementing the tracker with where the project is heading
 
-* TBD `krangl` Cheat Sheet
+
+
+How to contribute?
+------------------
+
+Feel welcome to post ideas, suggestions and criticism to our [tracker](https://github.com/holgerbrandl/krangl/issues).
+
+We always welcome pull requests. :-)
+
+You could also show your spiritual support by upvoting `krangl` here on github.
+
+Also see
+
+* [Developer Information](./docs/devel.md) with technical notes & details about to build, test, release and improve `krangl`
+* [Roadmap](./docs/roadmap.md) complementing the tracker with a backlog
+
 
 
 FAQ
