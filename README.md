@@ -206,7 +206,7 @@ Documentation
 
 Presentations
 
-* [Krangl Introduction](http://holgerbrandl.github.io/krangl/bier_slides_june2016/krangl_intro.html) A presentation from June 2016 ([sources](./docs/bier_slides_june2016/krangl_intro.md))
+
 
 
 
@@ -224,18 +224,6 @@ Also see
 * [Developer Information](./docs/devel.md) with technical notes & details about to build, test, release and improve `krangl`
 * [Roadmap](./docs/roadmap.md) complementing the tracker with a backlog
 
-
-
-FAQ
-===
-
-### How to rewrite common SQL bits with krangl?
-
-1. `select this, that from there where that >5`
-
-```kotlin
-there.select("this", "that").filter{ it["that"] gt 5 }
-```
 
 
 # References
