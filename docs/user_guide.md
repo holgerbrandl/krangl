@@ -15,16 +15,6 @@ For an intro see the corresponding R documentation
 * https://www.rdocumentation.org/packages/tidyr/versions/0.8.0/topics/nest
 
 
-# Examples, examples,  and more examples
-
-1. Add a suffix to some column names
-```kotlin
-// first select column names to be altered
-irisData.names.filter { it.startsWith("Sepal") }.map {
-    // second, apply renaming
-    oldName -> irisData.rename(oldName to ("My" + oldName)) 
-}
-```
 
 
 ## Known differences to `dplyr` package in R
