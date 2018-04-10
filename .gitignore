@@ -85,3 +85,4 @@ fabric.properties
 .project
 .settings
 
+.DS_Store
