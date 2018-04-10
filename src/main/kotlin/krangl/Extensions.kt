@@ -6,7 +6,9 @@ import krangl.ArrayUtils.handleArrayErasure
 import krangl.util.createComparator
 import krangl.util.createValidIdentifier
 import krangl.util.joinToMaxLengthString
+import krangl.util.scanLeft
 import java.util.*
+import java.util.regex.Pattern
 
 
 open class TableContext(val df: DataFrame) {
@@ -344,14 +346,18 @@ internal const val DEFAULT_PRINT_MAX_ROWS = 10
 fun DataFrame.print(
     title: String = "A DataFrame",
     colNames: Boolean = true,
-    maxRows: Int = DEFAULT_PRINT_MAX_ROWS
-) = println(asString(title, colNames, maxRows) + "\n")
+    maxRows: Int = DEFAULT_PRINT_MAX_ROWS,
+    maxWidth: Int = 100,
+    maxDigits: Int = 3,
+    rowNumbers: Boolean = true
+) = println(asString(title, colNames, maxRows, maxWidth, maxDigits, rowNumbers) + "\n")
 
 
 fun DataFrame.asString(
     title: String = "A DataFrame",
     colNames: Boolean = true,
     maxRows: Int = DEFAULT_PRINT_MAX_ROWS,
+    maxWidth: Int = 100,
     maxDigits: Int = 3,
     rowNumbers: Boolean = true
 ): String {
@@ -371,7 +377,7 @@ fun DataFrame.asString(
     val printData = take(Math.min(nrow, maxRowsOrInf))
         // optionally add rownames
         .run {
-            if (rowNumbers) addColumn("#") { rowNumber }.moveLeft("#") else this
+            if (rowNumbers) addColumn(" ") { rowNumber }.moveLeft(" ") else this
         }
 
     val valuePrinter = createValuePrinter(maxDigits)
@@ -388,6 +394,8 @@ fun DataFrame.asString(
         // remove spacer from first column to have correction alignment with beginning of line
         .toMutableList().also { if (it.size > 0) it[0] -= columnSpacing }.toList()
 
+
+    // do the actual printing
     val sb = StringBuilder()
 
     sb.appendln("${title}: ${nrow} x ${ncol}")
@@ -397,22 +405,59 @@ fun DataFrame.asString(
     }
 
 
-    if (colNames) printData.cols.mapIndexed { index, col ->
+    // determine which column to actually print to obey width limitations
+    //    val numPrintCols = 300
+    val numPrintCols = padding.asSequence()
+        .scanLeft(0) { acc, next -> acc + next }
+        .withIndex().takeWhile { it.value < maxWidth }
+        .last().index
+
+    val widthTrimmed = printData.select(printData.names.take(numPrintCols))
+
+
+    if (colNames) widthTrimmed.cols.mapIndexed { index, col ->
         col.name.padStart(padding[index])
     }.joinToString("").apply {
         sb.appendln(this)
     }
 
-    printData.rows.map { it.values }.map { rowData ->
+
+    widthTrimmed.rows.map { it.values }.map { rowData ->
         // show null as NA when printing data
         rowData.mapIndexed { index, value ->
             valuePrinter(value).padStart(padding[index])
         }.joinToString("").apply { sb.appendln(this) }
     }
 
+    // similar to dplyr render a summary below the table
+    var and: List<String> = emptyList()
+    if (maxRowsOrInf < df.nrow) {
+        and += "and ${df.nrow - maxRowsOrInf} more rows"
+    }
+
+    if (numPrintCols < printData.ncol) {
+        val leftOutCols = printData.select(names.subList(numPrintCols, names.size))
+        and += "" + "and ${printData.ncol - numPrintCols} more variables: ${leftOutCols.names.joinToString()}"
+    }
+    sb.append(and.joinToString(", and ").wrap(maxWidth))
+
     return sb.trim().toString()
 }
 
+
+// from http://www.davismol.net/2015/02/03/java-how-to-split-a-string-into-fixed-length-rows-without-breaking-the-words/
+private fun String.wrap(lineSize: Int): String {
+    val res = ArrayList<String>()
+
+    val p = Pattern.compile("\\b.{1," + (lineSize - 1) + "}\\b\\W?")
+    val m = p.matcher(this)
+
+    while (m.find()) {
+        //        System.out.println(m.group().trim())   // Debug
+        res.add(m.group().trim())
+    }
+    return res.joinToString("\n")
+}
 
 data class ColSpec(val pos: Int, val name: String, val type: String)
 
@@ -441,9 +486,9 @@ fun List<ColSpec>.print() = asDf().print()
 /**
  *  Prints the schema (that is column names, types, and the first few values per column) of a dataframe to stdout.
  */
-fun DataFrame.schema(maxDigits: Int = 3, maxLength: Int = 80) {
+fun DataFrame.schema(maxDigits: Int = 3, maxWidth: Int = 80) {
     if (this is GroupedDataFrame) {
-        ungroup().schema(maxDigits, maxLength)
+        ungroup().schema(maxDigits, maxWidth)
         return
     }
 
@@ -467,7 +512,7 @@ fun DataFrame.schema(maxDigits: Int = 3, maxLength: Int = 80) {
 
     topN.cols.zip(typeLabels).forEach { (col, typeLabel) ->
         val stringifiedVals = col.values().asSequence()
-            .joinToMaxLengthString(maxLength = maxLength, transform = createValuePrinter(maxDigits))
+            .joinToMaxLengthString(maxLength = maxWidth, transform = createValuePrinter(maxDigits))
 
         println("${col.name.padEnd(namePadding)}  ${typeLabel.padEnd(typePadding)}  $stringifiedVals")
     }

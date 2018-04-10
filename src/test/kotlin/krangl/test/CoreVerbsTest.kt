@@ -503,7 +503,7 @@ class CoreTests {
 
         df.asString(maxDigits = 5) shouldBe """
             A DataFrame: 2 x 1
-            #         a
+                      a
             1   0.73106
             2      <NA>
             """.trimIndent()
@@ -512,9 +512,9 @@ class CoreTests {
     @Test
     fun `it should print schemas with correct alignment and truncation`() {
         val iris2 = irisData.addColumn("id") { rowNumber.map { "foo$it".toRegex() } }
-        iris2.schema(maxLength = 20)
+        iris2.schema(maxWidth = 20)
 
-        captureOutput { iris2.schema(maxLength = 20) }.stdout shouldEqual """
+        captureOutput { iris2.schema(maxWidth = 20) }.stdout shouldEqual """
             DataFrame with 150 observations
             Sepal.Length  [Dbl]    5.1, 4.9, 4.7, 4.6, ...
             Sepal.Width   [Dbl]    3.5, 3, 3.2, 3.1, 3....
@@ -522,6 +522,27 @@ class CoreTests {
             Petal.Width   [Dbl]    0.2, 0.2, 0.2, 0.2, ...
             Species       [Str]    setosa, setosa, seto...
             id            [Regex]  foo1, foo2, foo3, fo...
+            """.trimIndent()
+    }
+
+    @Test
+    fun `it should print just first columns and rows`() {
+        captureOutput { flightsData.print(maxWidth = 50) }.stdout shouldEqual """
+            A DataFrame: 336776 x 16
+                 year   month   day   dep_time   dep_delay
+             1   2013       1     1        517           2
+             2   2013       1     1        533           4
+             3   2013       1     1        542           2
+             4   2013       1     1        544          -1
+             5   2013       1     1        554          -6
+             6   2013       1     1        554          -4
+             7   2013       1     1        555          -5
+             8   2013       1     1        557          -3
+             9   2013       1     1        557          -3
+            10   2013       1     1        558          -2
+            and 336766 more rows, and and 11 more variables:
+            arr_delay, carrier, tailnum, flight, origin, dest,
+            air_time, distance, hour, minute
             """.trimIndent()
     }
 
