@@ -6,6 +6,8 @@
 - [Interactive shell](#interactive-shell)
 - [Potentially useful libraries](#potentially-useful-libraries)
 - [Design](#design)
+    - [Receiver vs parameter functions vs properties](#receiver-vs-parameter-functions-vs-properties)
+    - [gradle](#gradle)
 - [Performance Optimization](#performance-optimization)
 - [Comparison to other APIs](#comparison-to-other-apis)
     - [Known differences to `dplyr` package in R](#known-differences-to-dplyr-package-in-r)
@@ -35,8 +37,25 @@ EOF
 
 https://stackoverflow.com/questions/45090808/intarray-vs-arrayint-in-kotlin --> bottom line: Array<*> can be null
 
+## Receiver vs parameter functions vs properties
 
---
+How to write vector utilties?
+
+```
+dataFrame.summarize("mean_salary") { mean(it["salaray"]) }    // function parameter 
+dataFrame.summarize("mean_salary") { it["salaray"].mean() }   // extension/member function
+dataFrame.summarize("mean_salary") { it["salaray"].mean }     // extension property
+```
+
+???
+
+Don't overload `operator Any?.plus` --> Confusion
+
+https://kotlinlang.org/docs/reference/operator-overloading.html
+
+
+
+## gradle
 
 create fresh gradle wrapper with:
 
