@@ -59,8 +59,53 @@ fun DataFrame.mutate(name: String, formula: (DataFrame) -> List<String>): DataFr
 ```
 
 
-## incorrect usage patterns
 
-* `sleepData.sortedBy{ "order" }`
+# Comparison to other APIs
 
-unclear fix except for requiring vectorized result for SortExpression
+
+## Known differences to `dplyr` package in R
+
+* `rename()` will preserve column positions whereas `dplyr::rename` add renamed columns to the end of the table
+* The mapping order is inverted in `rename()`. Instead of
+   ```
+   dplyr::rename(data, new_name=old_name)
+   ```
+   the krangl syntax is inverted to be more readible
+   ```
+   data.rename("old_name" to "new_name")
+   ```
+* `sortedBy()` will sort by grouping attributes first, and then per group with the provided sorting attributes.
+* `select()` does not silently ignore multiple selections of the same column, but throws an error instead
+* `select()` will throw an error if a grouping column is being removed (see [dplyr ticket](https://github.com/hadley/dplyr/issues/1869))
+
+
+
+## tablesaw
+
+* https://github.com/jtablesaw/tablesaw which is the supposedly The simplest way to slice data in Java
+
+| Feature                | Krangl | TableSaw |
+|:-----------------------|:-------|:---------|
+| Kotlin API             | Yes    | Yes      |
+| Add column             | df.    |          |
+| Select columns by type |        |          |
+
+
+
+Select columns by type
+* krangl
+```
+df.select( 
+```
+
+* tablesaw
+```
+val df = Dataframe(df.structure().target.selectWhere(column("Column Type").isEqualTo("INTEGER")))
+```
+
+
+# Resources
+
+Other great resources are
+
+* http://garrettgman.github.io/tidying/
