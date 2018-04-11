@@ -349,7 +349,25 @@ internal val cacheDataDir by lazy {
 
 internal val flightsCacheFile = File(cacheDataDir, ".flights_data.tsv.gz")
 
-
+/**
+ * Data frame with columns
+ *
+ * * `year`, `month`,day: Date of departure
+ * * `dep_time`, `arr_time`: Actual departure and arrival times, local tz.
+ * * `sched_dep_time`, `sched_arr_time`: Scheduled departure and arrival times, local tz.
+ * * `dep_delay`, `arr_delay`: Departure and arrival delays, in minutes. Negative times represent early departures/arrivals.
+ * * `hour`, `minute`: Time of scheduled departure broken into hour and minutes.
+ * * `carrier`: Two letter carrier abbreviation. See airlines to get name
+ * * `tailnum`: Plane tail number
+ * * `flight`: Flight number
+ * * `origin`,dest: Origin and destination. See airports for additional metadata.
+ * * `air_time`: Amount of time spent in the air, in minutes
+ * * `distance`: Distance between airports, in miles
+ * * `time_hour`: Scheduled date and hour of the flight as a POSIXct date. Along with origin, can be used to join flights data to weather data.
+ *
+ *
+ * Source: https://github.com/hadley/nycflights13
+ */
 val flightsData by lazy {
 
     if (!flightsCacheFile.isFile) {
