@@ -170,21 +170,28 @@ interface DataFrame {
     }
 
 
-    /** Creates a summary of a table or a group. The provided expression is expected to evaluate to a scalar value and not into a column.
-     * @throws
+    /**
+     * Creates a summary of a table or a group. The provided expression is expected to evaluate to a scalar value and not into a column.
+     * `summarise()` is typically used on grouped data created by group_by(). The output will have one row for each group.
      */
     fun summarize(vararg sumRules: ColumnFormula): DataFrame
 
 
     // Grouping
 
-    /** Creates a grouped data-frame given a list of grouping attributes. Most krangl verbs like mutate, summarize,
-     * etc. will be executed per group.
+    /**
+     * Creates a grouped data-frame given a list of grouping attributes.
+     *
+     * Most data operations are done on groups defined by variables. `group_by()` takes the receiver data-frame and
+     * converts it into a grouped data-frame where operations are performed "by group". `ungroup()` removes grouping.
+     *
+     * Most krangl verbs like `mutate()`, `summarize()`, etc. will be executed per group if a grouping is present.
+     *
+     * @sample krangl.samples.groupByExamples
+     *
      */
     fun groupBy(vararg by: String): DataFrame
 
-
-    fun groupBy(columnSelect: ColumnSelector): DataFrame = groupBy(*colSelectAsNames(columnSelect).toTypedArray())
 
 
     /** Removes the grouping (if present from a data frame. */

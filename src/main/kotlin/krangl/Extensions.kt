@@ -298,6 +298,62 @@ fun DataFrame.count(vararg selects: String, name: String = "n"): DataFrame = whe
 }
 
 
+/**
+ * Counts expressions
+ *
+ * If no grouping attributes are provided the method will respect the grouping of the receiver, or in cases of an
+ * ungrouped receiver will simply count the rows in the data.frame
+ *
+ * @param selects The variables to to be used for cross-tabulation.
+ * @param name The name of the count column resulting table.
+ */
+fun DataFrame.countExpr(vararg moreExpressions: TableExpression, name: String = "n", tableExpression: TableExpression? = null): DataFrame {
+    val exprGrouped = groupByExpr(*moreExpressions, tableExpression = tableExpression).also { print(it) }
+    return exprGrouped.count(*exprGrouped.groupedBy().names.toTypedArray(), name = name)
+}
+
+////////////////////////////////////////////////
+// groupBy() convenience
+////////////////////////////////////////////////
+
+
+/**
+ * Creates a grouped data-frame from a column selector function. See `select()` for details about column selection.
+ *
+ * Most data operations are done on groups defined by variables. `group_by()` takes the receiver data-frame and
+ * converts it into a grouped data-frame where operations are performed "by group". `ungroup()` removes grouping.
+ *
+ * Most krangl verbs like `mutate()`, `summarize()`, etc. will be executed per group if a grouping is present.
+ *
+ * @sample krangl.samples.groupByExamples
+ *
+ */
+fun DataFrame.groupBy(columnSelect: ColumnSelector): DataFrame = groupBy(*colSelectAsNames(columnSelect).toTypedArray())
+
+
+/**
+ * Creates a grouped data-frame from one or more table expression. See `addColumn()` for details about table expressions.
+ *
+ * Most data operations are done on groups defined by variables. `group_by()` takes the receiver data-frame and
+ * converts it into a grouped data-frame where operations are performed "by group". `ungroup()` removes grouping.
+ *
+ * Most krangl verbs like `mutate()`, `summarize()`, etc. will be executed per group if a grouping is present.
+ *
+ * @sample krangl.samples.groupByExamples
+ *
+ */
+fun DataFrame.groupByExpr(vararg moreExpressions: TableExpression, tableExpression: TableExpression? = null): DataFrame {
+
+    val tableExpressions = (listOf(tableExpression) + moreExpressions).filterNotNull()
+    val colFormulae = tableExpressions.mapIndexed { index, function ->
+        "group_by_${index + 1}" to function
+    }
+
+    //    val extendedDf = allFormula.fold(this) { acc, next -> acc.addColumn(colFormulae) }
+    return addColumns(*colFormulae.toTypedArray()).groupBy(*colFormulae.map { it.name }.toTypedArray())
+}
+
+
 ////////////////////////////////////////////////
 // General Utilities
 ////////////////////////////////////////////////

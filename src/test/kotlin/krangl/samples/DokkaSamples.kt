@@ -30,9 +30,25 @@ fun selectExamples() {
     // or use stdlib-like filter with `selectIf`
     birthdays.selectIf { it is IntCol }
     birthdays.selectIf { it.name.startsWith("bar") }
-
-
 }
+
+fun groupByExamples() {
+
+    // group by a single attribute
+    flightsData.groupBy("carrier")
+
+
+    // or by multiple attributes
+    flightsData.groupBy("carrier", "tailnum")
+
+    // or by selecting grouping attriutes with indicator function (same as in `select()`
+    flightsData.groupBy { startsWith("dep_") }
+
+    // finally we can also group with arbitrary table expressions
+    flightsData.groupByExpr { it["dep_time"] eq 22 }
+    flightsData.groupByExpr({ it["dep_time"] eq 22 }, { it["carrier"] })
+}
+
 
 fun builderSample() {
     // data-frames can be a  mix of atomic (int, double, boolean, string) and object columns

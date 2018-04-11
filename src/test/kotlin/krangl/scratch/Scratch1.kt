@@ -67,10 +67,10 @@ fun main2(args: Array<String>) {
 
 
     val df = dataFrameOf(
-            "foo", "bar")(
-            "ll", 2, 3,
-            "sdfd", 4, 5,
-            "sdf", 5, 8
+        "foo", "bar")(
+        "ll", 2, 3,
+        "sdfd", 4, 5,
+        "sdf", 5, 8
     )
 
 

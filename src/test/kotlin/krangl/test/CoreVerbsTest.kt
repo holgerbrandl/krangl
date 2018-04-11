@@ -466,6 +466,21 @@ class SummarizeTest {
 
 
     }
+
+    @Test
+    fun `count should work with function literals`() {
+        sleepData.addColumns("sleep_na" to { it["sleep_rem"].isNA() }).count("sleep_na").print()
+
+
+        // should be equivalent to
+        sleepData.groupByExpr { it["sleep_rem"].isNA() }.count().print()
+        sleepData.groupByExpr({ it["sleep_rem"].isNA() }, { it["sleep_rem"].isNA() }).count().print()
+        sleepData.groupByExpr().count().print()
+
+        sleepData.countExpr { it["sleep_rem"].isNA() }.print()
+
+    }
+
 }
 
 

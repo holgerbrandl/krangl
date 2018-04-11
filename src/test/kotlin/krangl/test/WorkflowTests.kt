@@ -62,6 +62,7 @@ class CompoundTests {
     @Test
     fun `it should run all dokka examples without exception`() {
         krangl.samples.selectExamples()
+        krangl.samples.groupByExamples()
         krangl.samples.packageInfoSample()
         krangl.samples.builderSample()
         krangl.samples.renameSomeColumns()
