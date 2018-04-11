@@ -1,11 +1,22 @@
 ## Release Checklist
 
-1. Increment version in readme, gradle, example-poms
-2. Update [CHANGES.md](../CHANGES.md)
-3. Push and wait for travis CI results
-4. Do the release
+1. Increment version in readme, gradle, example-poms and
+
+2. Rebuild the javadoc
 
 ```bash
+gradle clean dokka
+```
+
+3. Update [CHANGES.md](../CHANGES.md)
+
+4. Push and wait for travis CI results
+
+5. Do the release
+
+```bash
+
+
 export KRANGL_HOME="/Users/brandl/projects/kotlin/krangl";
 
 trim() { while read -r line; do echo "$line"; done; }

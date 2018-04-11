@@ -5,7 +5,7 @@ For completed items see [change-log](../CHANGES.md).
 
 ## Meta
 
-
+* use/support compressed columns (https://github.com/lemire/JavaFastPFOR)
 * Date (column?) support
 * Better lambda receiver contexts
 * Performance (indices, avoid list and array copies, compressed columns)

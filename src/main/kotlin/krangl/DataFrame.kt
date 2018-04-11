@@ -185,7 +185,7 @@ interface DataFrame {
      * Most data operations are done on groups defined by variables. `group_by()` takes the receiver data-frame and
      * converts it into a grouped data-frame where operations are performed "by group". `ungroup()` removes grouping.
      *
-     * Most krangl verbs like `mutate()`, `summarize()`, etc. will be executed per group if a grouping is present.
+     * Most krangl verbs like `addColumn()`, `summarize()`, etc. will be executed per group if a grouping is present.
      *
      * @sample krangl.samples.groupByExamples
      *

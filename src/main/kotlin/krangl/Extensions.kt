@@ -323,7 +323,7 @@ fun DataFrame.countExpr(vararg moreExpressions: TableExpression, name: String = 
  * Most data operations are done on groups defined by variables. `group_by()` takes the receiver data-frame and
  * converts it into a grouped data-frame where operations are performed "by group". `ungroup()` removes grouping.
  *
- * Most krangl verbs like `mutate()`, `summarize()`, etc. will be executed per group if a grouping is present.
+ * Most krangl verbs like `addColumn()`, `summarize()`, etc. will be executed per group if a grouping is present.
  *
  * @sample krangl.samples.groupByExamples
  *
@@ -332,12 +332,12 @@ fun DataFrame.groupBy(columnSelect: ColumnSelector): DataFrame = groupBy(*colSel
 
 
 /**
- * Creates a grouped data-frame from one or more table expression. See `addColumn()` for details about table expressions.
+ * Creates a grouped data-frame from one or more table expressions. See `addColumn()` for details about table expressions.
  *
  * Most data operations are done on groups defined by variables. `group_by()` takes the receiver data-frame and
  * converts it into a grouped data-frame where operations are performed "by group". `ungroup()` removes grouping.
  *
- * Most krangl verbs like `mutate()`, `summarize()`, etc. will be executed per group if a grouping is present.
+ * Most krangl verbs like `addColumn()`, `summarize()`, etc. will be executed per group if a grouping is present.
  *
  * @sample krangl.samples.groupByExamples
  *
