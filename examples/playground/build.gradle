@@ -27,7 +27,7 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib"
 
-    compile "de.mpicbg.scicomp:krangl:0.8-SNAPSHOT"
+    compile "de.mpicbg.scicomp:krangl:0.9-SNAPSHOT"
 
     compile 'com.github.holgerbrandl:kravis:0.1-SNAPSHOT'
 

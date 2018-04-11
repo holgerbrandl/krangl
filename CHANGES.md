@@ -1,12 +1,39 @@
 Krangl Release History
 ======================
 
+v0.10
+-----
+
+in progresss
+
 v0.9
 ----
 
-In progress
+Released 2018-04-11
 
-* Added receiver context for sortBy lambdas with sorting specific API
+Major Enhancements
+
+* Allow index access for column model (fixes [#46](https://github.com/holgerbrandl/krangl/issues/46)): `irisData[1][2]`
+* Improved `DataFrame.count` to respect existing groupings and to simply count rows if no grouping is defined
+* Added `moveLeft` and `moveRight` to rearrange column order
+* Added `nest` and `unnest` to wrap columns into sub-tables and back
+* Added `expand` and `complete` to expand column value-sets into data-frames
+* Added function literal support for `count` and `groupBy` (fixes [#48](https://github.com/holgerbrandl/krangl/issues/48)): `irisData.groupByExpr{ it["Sepal.Width"] > 3 }`
+* Added receiver context for sortBy lambdas with sorting specific API (fixes [#44](https://github.com/holgerbrandl/krangl/issues/44))
+
+Improved data-frame rendering
+
+* Improved `print()`ing of data-frames and `schema()`ta to have better alignment and more formatting options
+* Print row numbers by default when using `print` (fixes [#49](https://github.com/holgerbrandl/krangl/issues/49))
+* Fixed [#45](https://github.com/holgerbrandl/krangl/issues/45): `sleepData.sortedBy{ "order" }` should fail with informative exception
+
+
+Minor Enhancements
+
+* Renamed `select2`/`remove2` to `selectIf` and `removeIF`
+* Fixed #39: Can not add scalar object as column
+* Started submodule for documentation
+* Hide columns in `print` after exceeding maximum line length (fixes [#50](https://github.com/holgerbrandl/krangl/issues/50))
 
 
 v0.8
