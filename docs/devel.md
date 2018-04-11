@@ -97,6 +97,9 @@ Memory profiling with JMH
 # Comparison to other APIs
 
 
+And the same in `pandas`. **{PR needed here}**
+
+
 ## Known differences to `dplyr` package in R
 
 * `rename()` will preserve column positions whereas `dplyr::rename` add renamed columns to the end of the table
