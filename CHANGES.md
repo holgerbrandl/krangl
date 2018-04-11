@@ -25,7 +25,6 @@ Improved data-frame rendering
 
 * Improved `print()`ing of data-frames and `schema()`ta to have better alignment and more formatting options
 * Print row numbers by default when using `print` (fixes [#49](https://github.com/holgerbrandl/krangl/issues/49))
-* Fixed [#45](https://github.com/holgerbrandl/krangl/issues/45): `sleepData.sortedBy{ "order" }` should fail with informative exception
 
 
 Minor Enhancements
@@ -34,6 +33,7 @@ Minor Enhancements
 * Fixed #39: Can not add scalar object as column
 * Started submodule for documentation
 * Hide columns in `print` after exceeding maximum line length (fixes [#50](https://github.com/holgerbrandl/krangl/issues/50))
+* Fixed [#45](https://github.com/holgerbrandl/krangl/issues/45): `sleepData.sortedBy{ "order" }` should fail with informative exception
 
 
 v0.8
