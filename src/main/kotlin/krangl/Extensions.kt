@@ -688,7 +688,7 @@ internal fun DataFrame.rowData(): Iterable<List<Any?>> = when (this) {
 
         override fun iterator() = object : Iterator<List<Any?>> {
 
-            val colIterators = cols.map { it.values().iterator() }.toList()
+            val colIterators = cols.map { it.values().iterator() }
 
             override fun hasNext(): Boolean = colIterators.firstOrNull()?.hasNext() ?: false
 
