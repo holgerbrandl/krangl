@@ -369,7 +369,7 @@ internal val cacheDataDir by lazy {
 internal val flightsCacheFile = File(cacheDataDir, ".flights_data.tsv.gz")
 
 /**
- * Data frame with columns
+ * On-time data for all flights that departed NYC (i.e. JFK, LGA or EWR) in 2013.
  *
  * * `year`, `month`,day: Date of departure
  * * `dep_time`, `arr_time`: Actual departure and arrival times, local tz.
@@ -385,7 +385,10 @@ internal val flightsCacheFile = File(cacheDataDir, ".flights_data.tsv.gz")
  * * `time_hour`: Scheduled date and hour of the flight as a POSIXct date. Along with origin, can be used to join flights data to weather data.
  *
  *
- * Source: https://github.com/hadley/nycflights13
+ * ### Source
+ *
+ * * RITA, Bureau of transportation statistics, http://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=236
+ * * https://github.com/hadley/nycflights13
  */
 val flightsData by lazy {
 
