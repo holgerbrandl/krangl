@@ -142,7 +142,7 @@ class SelectTest {
 }
 
 
-class MutateTest {
+class AddColumnTest {
 
     @Test
     fun `rename columns and preserve their positions`() {
@@ -201,6 +201,18 @@ class MutateTest {
         }
 
     }
+
+    @Test
+    fun `it should allow to create columns from Any scalars`() {
+        val someObject = "foo".toRegex()
+
+        dataFrameOf("foo")("bar")
+            .addColumn("some_any") { someObject }.apply {
+                names shouldBe listOf("foo", "some_any")
+                this[1][0] shouldBe someObject
+            }
+    }
+
 
     @Test
     fun `it should perform correct column arithmetics`() {

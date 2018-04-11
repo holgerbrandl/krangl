@@ -389,8 +389,9 @@ internal fun anyAsColumn(mutation: Any?, name: String, nrow: Int): DataCol {
         emptyArray<Any>() -> AnyCol(name, emptyArray())
         is Array<*> -> handleArrayErasure(name, arrifiedMutation)
         is List<*> -> handleListErasure(name, arrifiedMutation)
+        is Sequence<*> -> handleListErasure(name, arrifiedMutation.toList())
 
-        else -> throw UnsupportedOperationException()
+        else -> AnyCol(name, Array(nrow, { arrifiedMutation }))
     }
     return newCol
 }
