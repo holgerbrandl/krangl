@@ -1,7 +1,6 @@
 package org.krangl.performance
 
 import krangl.flightsData
-import krangl.print
 import org.openjdk.jmh.annotations.*
 
 @State(Scope.Benchmark)
@@ -19,7 +18,7 @@ open class KranglBenchmark {
 
     @Benchmark
     fun flightsGrouping() {
-        flightsData.groupBy("tailnum").groupedBy().print()
+        flightsData.groupBy("tailnum").groupedBy() //.print()
     }
 
 }

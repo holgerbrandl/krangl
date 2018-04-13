@@ -21,23 +21,34 @@ plugins {
 
 repositories {
     jcenter()
+    mavenLocal()
 }
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile 'org.openjdk.jmh:jmh-core:1.20'
+
     compile 'com.google.guava:guava:24.1-jre'
+
     jmh 'commons-io:commons-io:2.4'
     jmh 'com.google.guava:guava:24.1-jre'
 
-    compile "de.mpicbg.scicomp:krangl:0.9"
-    jmh "de.mpicbg.scicomp:krangl:0.9"
+    compile "de.mpicbg.scicomp:krangl:0.10-SNAPSHOT"
+    jmh "de.mpicbg.scicomp:krangl:0.10-SNAPSHOT"
 }
 
 jmh {
 //    include = 'org\\..*Bench.*'
-    resultFormat = 'json'
-    resultsFile = file('perf_logs/benchmarks.json')
-//    resultFormat = 'csv'
-//    resultsFile = file('perf_logs/benchmarks.csv')
+//    resultFormat = 'json'
+//    resultsFile = file('perf_logs/benchmarks.json')
+    resultFormat = 'csv'
+    resultsFile = file('perf_logs/jmh_results_' + getDate()+ '.csv')
+
+    // for list of available profilers see http://java-performance.info/introduction-jmh-profilers/
+//    profilers = Arrays.asList("")
+}
+
+//now = new Date().format('yyyyMMdd_HHmm')
+def getDate() {
+    new Date().format('yyyyMMdd_HHmm')
 }

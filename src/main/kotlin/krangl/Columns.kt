@@ -92,6 +92,9 @@ class DoubleCol(name: String, val values: Array<Double?>) : DataCol(name) {
 
     constructor(name: String, values: List<Double?>) : this(name, values.toTypedArray())
 
+    @Suppress("UNCHECKED_CAST")
+    constructor(name: String, values: DoubleArray) : this(name, values.toTypedArray() as Array<Double?>)
+
     override fun values(): Array<Double?> = values
 
     override val length = values.size

@@ -8,7 +8,6 @@
 - [Design](#design)
     - [Receiver vs parameter functions vs properties](#receiver-vs-parameter-functions-vs-properties)
     - [gradle](#gradle)
-- [Performance Optimization](#performance-optimization)
 - [Comparison to other APIs](#comparison-to-other-apis)
     - [Known differences to `dplyr` package in R](#known-differences-to-dplyr-package-in-r)
     - [Spark](#spark)
@@ -83,14 +82,6 @@ fun DataFrame.mutate(name: String, formula: (DataFrame) -> List<String>): DataFr
 ```
 
 
-
-# Performance Optimization
-
-Memory profiling with JMH
-
-* http://java-performance.info/introduction-jmh-profilers/
-* https://cruftex.net/2017/03/28/The-6-Memory-Metrics-You-Should-Track-in-Your-Java-Benchmarks.html?pk_campaign=jmh
-* https://stackoverflow.com/questions/22640804/count-metrics-with-jmh
 
 
 

@@ -89,6 +89,8 @@ Backlog
 * Integrate idoms to do enrichment testing with fisher test from [commons-math](http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math3/distribution/HypergeometricDistribution.html)
 
 
+* see tablesaw changelog https://jtablesaw.github.io/tablesaw/changes_in_v_0.2
+
 
 ## Rejected Ideas
 

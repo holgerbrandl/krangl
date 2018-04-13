@@ -124,6 +124,14 @@ inline fun <reified T> DataFrame.rowsAs(mapping: Map<String, String> = names.map
  */
 fun dataFrameOf(vararg header: String) = InplaceDataFrameBuilder(header.toList())
 
+
+/**
+ * Create a new data-frame from a list of `DataCol` instances
+ *
+ * @sample krangl.samples.builderSample
+ */
+fun dataFrameOf(vararg columns: DataCol) : DataFrame = SimpleDataFrame(*columns)
+
 // added to give consistent api entrypoint
 
 
