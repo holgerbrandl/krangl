@@ -126,6 +126,14 @@ fun dataFrameOf(vararg header: String) = InplaceDataFrameBuilder(header.toList()
 
 
 /**
+ * Create a new data frame in place.
+ *
+ * @sample krangl.samples.builderSample
+ */
+fun dataFrameOf(header: Iterable<String>) = InplaceDataFrameBuilder(header.toList())
+
+
+/**
  * Create a new data-frame from a list of `DataCol` instances
  *
  * @sample krangl.samples.builderSample
