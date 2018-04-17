@@ -612,8 +612,13 @@ fun DataFrame.printDataClassSchema(
 }
 
 
-/** Concatenate a list of data-frame by row. */
 fun List<DataFrame>.bindRows(): DataFrame { // add options about NA-fill over non-overlapping columns
+    return bindRows(*this.toTypedArray())
+}
+
+
+/** Concatenate a list of data-frame by row. */
+fun bindRows(vararg dataFrames: DataFrame): DataFrame { // add options about NA-fill over non-overlapping columns
     // todo more column model consistency checks here
     // note: use fold to bind with non-overlapping column model
 
@@ -621,10 +626,10 @@ fun List<DataFrame>.bindRows(): DataFrame { // add options about NA-fill over no
 
     //    val totalRows = map { it.nrow }.sum()
 
-    for (colName in this.firstOrNull()?.names ?: emptyList()) {
-        val colDataCombined: Array<*> = bindColData(colName)
+    for (colName in dataFrames.firstOrNull()?.names ?: emptyList()) {
+        val colDataCombined: Array<*> = bindColData(dataFrames.toList(), colName)
 
-        when (this.first()[colName]) {
+        when (dataFrames.first()[colName]) {
             is DoubleCol -> DoubleCol(colName, colDataCombined.map { it as Double? })
             is IntCol -> IntCol(colName, colDataCombined.map { it as Int? })
             is StringCol -> StringCol(colName, colDataCombined.map { it as String? })
@@ -642,14 +647,14 @@ fun bindCols(left: DataFrame, right: DataFrame): DataFrame { // add options abou
     return SimpleDataFrame(left.cols.toMutableList().apply { addAll((right as SimpleDataFrame).cols) })
 }
 
-private fun List<DataFrame>.bindColData(colName: String): Array<*> {
-    val totalRows = map { it.nrow }.sum()
+private fun bindColData(dataFrames: List<DataFrame>, colName: String): Array<*> {
+    val totalRows = dataFrames.map { it.nrow }.sum()
 
     val arrayList = Array<Any?>(totalRows, { 0 })
 
     var iter = 0
 
-    forEach {
+    dataFrames.forEach {
         it[colName].values().forEach {
             arrayList[iter++] = it
         }
