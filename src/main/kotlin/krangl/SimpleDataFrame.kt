@@ -121,10 +121,10 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     override val names: List<String> = cols.map { it.name }
 
 
-    override operator fun get(name: String): DataCol = try {
-        cols.first { it.name == name }
+    override operator fun get(columnName: String): DataCol = try {
+        cols.first { it.name == columnName }
     } catch (e: NoSuchElementException) {
-        throw NoSuchElementException("Could not find column '${name}' in dataframe")
+        throw NoSuchElementException("Could not find column '${columnName}' in dataframe")
     }
 
     // Core Verbs
@@ -427,11 +427,8 @@ object ArrayUtils {
     internal fun handleArrayErasure(name: String, mutation: Array<*>): DataCol = when {
     //    isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, mutation as Array<Int?>)
         isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, Array<Int?>(mutation.size, { mutation[it] as? Int }))
-    //    isOfType<String>(mutation) -> StringCol(name, mutation as Array<String?>)
         isOfType<String>(mutation) -> StringCol(name, Array<String?>(mutation.size, { mutation[it] as? String }))
-    //    isOfType<Double>(mutation) -> DoubleCol(name, mutation as Array<Double?>)
         isOfType<Double>(mutation) -> DoubleCol(name, Array<Double?>(mutation.size, { mutation[it] as? Double }))
-    //    isOfType<Boolean>(mutation) -> BooleanCol(name, mutation as Array<Boolean?>)
         isOfType<Boolean>(mutation) -> BooleanCol(name, Array<Boolean?>(mutation.size, { mutation[it] as? Boolean }))
         isOfType<Any>(mutation) -> AnyCol(name, mutation)
         mutation.isEmpty() -> AnyCol(name, emptyArray())

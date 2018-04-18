@@ -55,7 +55,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
     }
 
 
-    override fun get(name: String): DataCol = ungroup()[name]
+    override fun get(columnName: String): DataCol = ungroup()[columnName]
 
 
     override fun summarize(vararg sumRules: ColumnFormula): DataFrame {
