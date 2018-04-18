@@ -626,10 +626,19 @@ fun bindRows(vararg dataFrames: DataFrame): DataFrame { // add options about NA-
 
     //    val totalRows = map { it.nrow }.sum()
 
-    for (colName in dataFrames.firstOrNull()?.names ?: emptyList()) {
+    val colNames = dataFrames
+        .map { it.names }
+        .foldRight(emptyList<String>()) { acc, right ->
+            acc + right.minus(acc)
+        }
+
+    for (colName in colNames) {
         val colDataCombined: Array<*> = bindColData(dataFrames.toList(), colName)
 
-        when (dataFrames.first()[colName]) {
+        // tbd: seems cleaner&better but fails for some reason
+        //        bindCols.add(handleArrayErasure(colName, colDataCombined))
+
+        when (dataFrames.first { it.names.contains(colName) }[colName]) {
             is DoubleCol -> DoubleCol(colName, colDataCombined.map { it as Double? })
             is IntCol -> IntCol(colName, colDataCombined.map { it as Int? })
             is StringCol -> StringCol(colName, colDataCombined.map { it as String? })
@@ -637,7 +646,6 @@ fun bindRows(vararg dataFrames: DataFrame): DataFrame { // add options about NA-
             is AnyCol -> AnyCol(colName, colDataCombined.toList())
             else -> throw UnsupportedOperationException()
         }.apply { bindCols.add(this) }
-
     }
 
     return SimpleDataFrame(bindCols)
@@ -655,8 +663,15 @@ private fun bindColData(dataFrames: List<DataFrame>, colName: String): Array<*> 
     var iter = 0
 
     dataFrames.forEach {
-        it[colName].values().forEach {
-            arrayList[iter++] = it
+        if (it.names.contains(colName)) {
+            it[colName].values().forEach {
+                arrayList[iter++] = it
+            }
+        } else {
+            // colunn is missing in `it`
+            for (row in (0 until it.nrow)) {
+                arrayList[iter++] = null
+            }
         }
     }
 
