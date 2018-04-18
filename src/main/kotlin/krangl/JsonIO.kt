@@ -29,16 +29,70 @@ fun DataFrame.Companion.fromJson(url: URL): DataFrame =
     fromJsonArray(Parser().parse(url.openStream()) as JsonArray<JsonObject>)
 
 
-fun DataFrame.Companion.fromJsonString(jsonData: String) =
-    fromJsonArray(Parser().parse(StringReader(jsonData)) as JsonArray<JsonObject>)
+fun DataFrame.Companion.fromJsonString(jsonData: String): DataFrame {
+    val parsed = Parser().parse(StringReader(jsonData))
+
+    //    var deparseJson = deparseJson(parsed)
+    val ARRAY_COL_ID = "_id"
+    var df = dataFrameOf(ARRAY_COL_ID)(parsed)
+
+    fun isJsonColumn(it: DataCol) = getColType(it)!!.startsWith("Json")
+
+    // convert all json columns
+    while (df.cols.any { isJsonColumn(it) }) {
+        //        df.schema()
+        val jsonCol = df.cols.first { isJsonColumn(it) }
+
+        val jsonColDFs = jsonCol.values().map {
+            when (it) {
+                is JsonArray<*> -> fromJsonArray(it as JsonArray<JsonObject>)
+                is JsonObject -> when {
+                    it.values.first() is JsonArray<*> -> {
+                        dataFrameOf(StringCol(jsonCol.name, it.keys.toList()), AnyCol("value", it.values.toList()))
+                    }
+                    else -> {
+                        it.toMap().map { (key, value) -> AnyCol(key, listOf(value)) }
+                            .let { dataFrameOf(*it.toTypedArray()) }.addColumn(ARRAY_COL_ID) { it.df.names }
+                    }
+                }
+            //                is JsonObject -> dataFrameOf(StringCol(jsonCol.name, it.keys.toList()), AnyCol("value", it.values.toList()))
+            //                    dataFrameOf(StringCol(jsonCol.name, it.keys.toList()), AnyCol("value", it.values.toList()))
+                else -> throw IllegalArgumentException("Can not parse json. " + INTERNAL_ERROR_MSG)
+            }
+        }
+
+        // preserve the root id
+        //        deparseJson = if (deparseJson.ncol == 1) dataFrameOf(ARRAY_COL_ID)(deparseJson.names) else deparseJson
+
+        df = df
+            .addColumn("_dummy_") { null }
+            .remove(jsonCol.name)
+            .addColumn("_json_") { jsonColDFs }
+            .remove("_dummy_")
+            .unnest("_json_")
+
+    }
+
+    return df
+}
 
 
-// todo implement proper flattening here
+private fun deparseJson(parsed: Any?): DataFrame {
+    return when (parsed) {
+
+        is JsonArray<*> -> fromJsonArray(parsed as JsonArray<JsonObject>)
+        is JsonObject -> dataFrameOf(parsed.keys)(parsed.values)
+        else -> throw IllegalArgumentException("Can not parse json. " + INTERNAL_ERROR_MSG)
+    }
+}
+
+
 internal fun fromJsonArray(records: JsonArray<JsonObject>): DataFrame {
     //    records[0]["sdf"]
-    val columnNames = records.first().keys.toList()
-    //    parse.map { it.keys }
-    //
+    val colNames = records
+        .map { it.keys.toList() }
+        .reduceRight { acc, right -> acc + right.minus(acc) }
+
     fun asColumn(colName: String, records: JsonArray<JsonObject>, builder: () -> DataCol): DataCol {
         return try {
             builder()
@@ -49,7 +103,7 @@ internal fun fromJsonArray(records: JsonArray<JsonObject>): DataFrame {
         }
     }
 
-    val cols = columnNames.map { colName ->
+    val cols = colNames.map { colName ->
         val firstElements = records.take(5).mapIndexed { rowIndex, _ -> records[rowIndex][colName] }
 
         try {

@@ -144,4 +144,68 @@ class BuilderTests {
         }
 
     }
+
+
+}
+
+
+class JsonTests {
+
+
+    @Test
+    fun `it should read json data from url`() {
+        val df = DataFrame.fromJson("https://raw.githubusercontent.com/vega/vega/master/test/data/movies.json")
+
+        df.apply {
+            nrow shouldBe 3201
+            names.last() shouldBe "IMDB_Votes"
+        }
+    }
+
+    @Test
+    fun `it should read json data from json string`() {
+        val df = DataFrame.fromJsonString("""
+            {
+                "cars": {
+                    "Nissan": [
+                        {"model":"Sentra", "doors":4},
+                        {"model":"Maxima", "doors":4},
+                        {"model":"Skyline", "doors":2}
+                    ],
+                    "Ford": [
+                        {"model":"Taurus", "doors":4},
+                        {"model":"Escort", "doors":4, "seats":5}
+                    ]
+                }
+            }
+            """)
+
+        df.apply {
+            schema()
+            print()
+            nrow shouldBe 5
+            names shouldBe listOf("_id", "cars", "model", "doors", "seats")
+        }
+    }
+
+
+    @Test
+    fun `it should read incomplete json data from json string`() {
+        val df = DataFrame.fromJsonString("""
+            {
+               "Nissan": [
+                        {"model":"Sentra", "doors":4},
+                        {"model":"Maxima", "doors":4},
+                        {"model":"Skyline", "seats":9}
+                    ],
+            }
+            """)
+
+        df.apply {
+            schema()
+            print()
+            nrow shouldBe 3
+            names shouldBe listOf("_id", "model", "doors", "seats")
+        }
+    }
 }
