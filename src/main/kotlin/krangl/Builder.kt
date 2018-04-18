@@ -138,9 +138,22 @@ fun dataFrameOf(header: Iterable<String>) = InplaceDataFrameBuilder(header.toLis
  *
  * @sample krangl.samples.builderSample
  */
-fun dataFrameOf(vararg columns: DataCol) : DataFrame = SimpleDataFrame(*columns)
+fun dataFrameOf(vararg columns: DataCol): DataFrame = SimpleDataFrame(*columns)
 
-// added to give consistent api entrypoint
+
+/** Create a new data-frame from a records encoded as key-value maps.
+ *
+ * Column types will be inferred from the value types.
+ * @sample krangl.samples.builderSample
+ */
+fun dataFrameOf(rows: Iterable<DataFrameRow>): DataFrame {
+    val colNames = rows.first().keys
+
+    return colNames.map { colName ->
+        val colData = rows.map { it[colName] }
+        handleListErasure(colName, colData)
+    }.let { dataFrameOf(*it.toTypedArray()) }
+}
 
 
 /**

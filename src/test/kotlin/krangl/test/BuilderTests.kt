@@ -146,6 +146,19 @@ class BuilderTests {
     }
 
 
+    @Test
+    fun `it should convert row records in a data frame`() {
+        val records = listOf(
+            mapOf("name" to "Max", "age" to 23),
+            mapOf("name" to "Anna", "age" to 42)
+        )
+
+        dataFrameOf(records).apply {
+            print()
+            nrow shouldBe 2
+            names shouldBe listOf("name", "age")
+        }
+    }
 }
 
 
