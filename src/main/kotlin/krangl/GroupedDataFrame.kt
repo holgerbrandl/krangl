@@ -72,7 +72,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
             val groupTuple = gdf.df.select(*by.toTypedArray()).take(1)
             val groupSummary = gdf.df.summarize(*sumRules)
 
-            bindCols(groupTuple, groupSummary)
+            bindCols(groupTuple, groupSummary, renameDuplicates = false)
         }.bindRows()
     }
 

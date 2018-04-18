@@ -651,7 +651,35 @@ fun bindRows(vararg dataFrames: DataFrame): DataFrame { // add options about NA-
     return SimpleDataFrame(bindCols)
 }
 
-fun bindCols(left: DataFrame, right: DataFrame): DataFrame { // add options about NA-fill over non-overlapping columns
+internal class DuplicateNameResolver(val names: List<String>) {
+    fun resolve(colName: String): String {
+        if (!names.contains(colName)) return colName
+
+        for (suffix in 1..Int.MAX_VALUE) {
+            with(colName + "_" + suffix) {
+                if (!names.contains(this)) return this
+            }
+        }
+
+        throw IllegalArgumentException()
+    }
+}
+
+// todo we should use a more deambiguation approach here,
+// like in:  if bla_1 is also present, Use bla_2, and so on
+fun bindCols(left: DataFrame, right: DataFrame, renameDuplicates: Boolean = true): DataFrame { // add options about NA-fill over non-overlapping columns
+    val duplicatedNames = right.names.intersect(left.names)
+
+    val right = if (renameDuplicates) {
+        val nameResolver = DuplicateNameResolver(left.names)
+
+        right.rename(*duplicatedNames.map {
+            RenameRule(it, nameResolver.resolve(it))
+        }.toTypedArray())
+    } else {
+        right
+    }
+
     return SimpleDataFrame(left.cols.toMutableList().apply { addAll((right as SimpleDataFrame).cols) })
 }
 
