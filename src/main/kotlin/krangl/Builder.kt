@@ -35,7 +35,7 @@ fun <T> DataFrame.Companion.fromRecords(records: Iterable<T>, mapping: (T) -> Da
  * Turn a list of objects into a data-frame using reflection. Currently just properties without any nesting are supported.
  */
 inline fun <reified T> Iterable<T>.asDataFrame(): DataFrame {
-    val declaredMembers = T::class.declaredMembers
+    // val declaredMembers = T::class.declaredMembers
     //    declaredMembers.first().call(this[0])
 
     val properties = T::class.declaredMembers

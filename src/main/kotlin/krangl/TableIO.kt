@@ -153,14 +153,14 @@ fun DataFrame.Companion.readDelim(
         .flatMap { (grpName, columns) ->
             columns
                 .mapIndexed { index, indexedValue ->
-                    indexedValue.index to (grpName + "_${index + 2}")
+                    indexedValue.index to (grpName + if (index > 2) "_${index + 2}" else "")
                 }
         }
         .sortedBy { it.first }.map { it.second }
 
 
     //    csvParser.headerMap.keys.pmap{colName ->
-    val cols = columnNames.map { colName ->
+    val cols = uniqueNames.map { colName ->
         val defaultColType = colTypes[".default"] ?: ColType.Guess
 
         val colType = colTypes[colName] ?: defaultColType
@@ -254,8 +254,9 @@ fun DataFrame.writeCSV(
     file: File,
     format: CSVFormat = CSVFormat.DEFAULT.withHeader(*names.toTypedArray())
 ) {
+    @Suppress("NAME_SHADOWING")
     val format = if (format.run { header != null && header.size == 0 }) {
-        warning("[krangl] Adding missing column name to csv format")
+        warning("[krangl] Adding missing column names to csv format")
         format.withHeader(*names.toTypedArray())
     } else {
         format

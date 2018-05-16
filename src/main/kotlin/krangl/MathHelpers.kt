@@ -28,7 +28,7 @@ fun Array<Double>.median(): Double {
 fun Array<Double>.sd() = if (size == 1) null else Math.sqrt(map { Math.pow(it.toDouble() - mean(), 2.toDouble()) }.sum() / size.toDouble())
 
 // inspired by http://stackoverflow.com/questions/3224935/in-scala-how-do-i-fold-a-list-and-return-the-intermediate-results
-fun <T : Number> List<T>.cumSum(removeNA: Boolean = false): Iterable<Double> {
+fun <T : Number> List<T>.cumSum(): Iterable<Double> {
     return drop(1).fold(listOf(first().toDouble()), { list, curVal -> list + (list.last().toDouble() + curVal.toDouble()) })
 }
 

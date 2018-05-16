@@ -25,10 +25,12 @@ fun DataFrame.Companion.fromJson(fileOrUrl: String): DataFrame {
     return fromJson(url)
 }
 
+@Suppress("UNCHECKED_CAST")
 fun DataFrame.Companion.fromJson(url: URL): DataFrame =
     fromJsonArray(Parser().parse(url.openStream()) as JsonArray<JsonObject>)
 
 
+@Suppress("UNCHECKED_CAST")
 fun DataFrame.Companion.fromJsonString(jsonData: String): DataFrame {
     val parsed = Parser().parse(StringReader(jsonData))
 
@@ -36,7 +38,7 @@ fun DataFrame.Companion.fromJsonString(jsonData: String): DataFrame {
     val ARRAY_COL_ID = "_id"
     var df = dataFrameOf(ARRAY_COL_ID)(parsed)
 
-    fun isJsonColumn(it: DataCol) = getColType(it)!!.startsWith("Json")
+    fun isJsonColumn(it: DataCol) = getColType(it).startsWith("Json")
 
     // convert all json columns
     while (df.cols.any { isJsonColumn(it) }) {
@@ -78,8 +80,8 @@ fun DataFrame.Companion.fromJsonString(jsonData: String): DataFrame {
 
 
 private fun deparseJson(parsed: Any?): DataFrame {
+    @Suppress("UNCHECKED_CAST")
     return when (parsed) {
-
         is JsonArray<*> -> fromJsonArray(parsed as JsonArray<JsonObject>)
         is JsonObject -> dataFrameOf(parsed.keys)(parsed.values)
         else -> throw IllegalArgumentException("Can not parse json. " + INTERNAL_ERROR_MSG)

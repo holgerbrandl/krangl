@@ -47,7 +47,7 @@ fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boo
     val spreadWithGHashes = spreadGroups.bindRows()
 
 
-    // coerce types of strinified coluymns similar to how tidy is doing things
+    // coerce types of stringified columns similar to how tidy is doing things
     var typeCoercedSpread = newColNames.map { it.toString() }
         .foldRight(spreadWithGHashes, { spreadCol, df ->
             df.addColumn(spreadCol) { handleArrayErasure(spreadCol, df[spreadCol].values()) }
@@ -66,6 +66,10 @@ fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boo
                 convertType(df, spreadCol)
             })
 
+    }
+
+    if (fill != null) {
+        TODO()
     }
 
     return typeCoercedSpread
@@ -100,7 +104,7 @@ fun DataFrame.gather(key: String, value: String, columns: List<String> = this.na
         distinctCols.size == 1 && distinctCols.first() == BooleanCol::class.java -> BooleanCol(name, data as Array<Boolean?>)
 
     // upcast mixed gatherings including int and double
-        setOf(IntCol::class.java, DoubleCol::class.java) == distinctCols.toSet() -> DoubleCol(name, data.map { (it as Number)?.toDouble() })
+        setOf(IntCol::class.java, DoubleCol::class.java) == distinctCols.toSet() -> DoubleCol(name, data.map { (it as Number?)?.toDouble() })
 
     // fall back to use any column
         else -> AnyCol(name, data as Array<Any?>)

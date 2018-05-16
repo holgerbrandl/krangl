@@ -174,11 +174,11 @@ fun join(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(lef
 
 
 /** rename second to become compliant with first. */
-private fun resolveUnequalBy(df: DataFrame, by: Iterable<Pair<String, String>>): DataFrame {
+private fun resolveUnequalBy(dataFrame: DataFrame, by: Iterable<Pair<String, String>>): DataFrame {
     // just do something if the pairs are actually unqueal
-//    if (by.count { it.first != it.second } == 0) return df
+    //    if (by.count { it.first != it.second } == 0) return dataFrame
 
-    return by.map { it.second to it.first }.fold(df, { df, curBy -> df.rename(curBy) })
+    return by.map { it.second to it.first }.fold(dataFrame, { df, curBy -> df.rename(curBy) })
 }
 
 

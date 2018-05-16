@@ -532,9 +532,7 @@ internal fun getColType(col: DataCol) = when (col) {
 fun DataFrame.columnTypes(): List<ColSpec> {
     if (this is GroupedDataFrame) return ungroup().columnTypes()
 
-    val foo = mapOf("index" to 1, "name" to "foo")
-
-    return cols.mapIndexed { index, col -> ColSpec(index, col.name, getColType(col) ?: "") }
+    return cols.mapIndexed { index, col -> ColSpec(index, col.name, getColType(col)) }
 }
 
 fun List<ColSpec>.asDf() = deparseRecords { mapOf("index" to it.pos, "name" to it.name, "type" to it.type) }
@@ -685,6 +683,7 @@ fun Iterable<DataCol>.bindCols(): DataFrame { // add options about NA-fill over 
 fun bindCols(left: DataFrame, right: DataFrame, renameDuplicates: Boolean = true): DataFrame { // add options about NA-fill over non-overlapping columns
     val duplicatedNames = right.names.intersect(left.names)
 
+    @Suppress("NAME_SHADOWING")
     val right = if (renameDuplicates) {
         val nameResolver = DuplicateNameResolver(left.names)
 

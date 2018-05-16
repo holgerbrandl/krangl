@@ -231,10 +231,6 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         // see http://stackoverflow.com/questions/11997326/how-to-find-the-permutation-of-a-sort-in-java
         val permutation = (0..(nrow - 1)).sortedWith(compChain).toIntArray()
 
-        val rank = permutation
-            .mapIndexed { idx, value -> idx to value }
-            .sortedBy { it.second }.map { it.first }.toIntArray()
-
         // apply permutation to all columns
         return cols.map {
             when (it) {
@@ -248,7 +244,6 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         }.let {
             SimpleDataFrame(it)
         }
-
     }
 
 
@@ -415,7 +410,6 @@ object ArrayUtils {
     @Suppress("UNCHECKED_CAST")
     internal fun handleArrayErasure(otherCol: DataCol, name: String, mutation: Array<*>): DataCol = when (otherCol) {
     //    isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, mutation as Array<Int?>)
-        is IntCol -> IntCol(name, Array<Int?>(mutation.size, { mutation[it] as? Int }))
         is IntCol -> IntCol(name, Array<Int?>(mutation.size, { mutation[it] as? Int }))
         is StringCol -> StringCol(name, Array<String?>(mutation.size, { mutation[it] as? String }))
         is DoubleCol -> DoubleCol(name, Array<Double?>(mutation.size, { mutation[it] as? Double }))
