@@ -167,7 +167,7 @@ class JsonTests {
 
     @Test
     fun `it should read json data from url`() {
-        val df = DataFrame.fromJson("https://raw.githubusercontent.com/vega/vega/master/test/data/movies.json")
+        val df = DataFrame.fromJson("https://raw.githubusercontent.com/vega/vega/master/docs/data/movies.json")
 
         df.apply {
             nrow shouldBe 3201
