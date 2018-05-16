@@ -665,6 +665,15 @@ internal class DuplicateNameResolver(val names: List<String>) {
     }
 }
 
+
+fun Iterable<DataCol>.bindCols(): DataFrame { // add options about NA-fill over non-overlapping columns
+    return dataFrameOf(*this.toList().toTypedArray())
+}
+
+//fun main(args: Array<String>) {
+//    listOf(DoubleCol("foo", doubleArrayOf(1.2))).bindCols()
+//}
+
 // todo we should use a more deambiguation approach here,
 // like in:  if bla_1 is also present, Use bla_2, and so on
 fun bindCols(left: DataFrame, right: DataFrame, renameDuplicates: Boolean = true): DataFrame { // add options about NA-fill over non-overlapping columns
