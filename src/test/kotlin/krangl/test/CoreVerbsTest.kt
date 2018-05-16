@@ -191,6 +191,9 @@ class AddColumnTest {
         sleepData.addColumn("user_id") {
             const("id").asType<String>().zip(rowNumber).map { (l, r) -> l!! + r }
         }["user_id"][1] shouldBe "id2"
+
+
+        sleepData.addRowNumber().names.first() shouldBe "row_number"
     }
 
 

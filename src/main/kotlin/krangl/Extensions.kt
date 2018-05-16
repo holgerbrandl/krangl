@@ -60,9 +60,10 @@ fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
 }
 
 
-//
+////////////////////////////////////////////////
 // mutate() convenience
-//
+////////////////////////////////////////////////
+
 
 /** A proxy on the `df` that exposes just parts of the DataFrame api that are relevant for table expressions
  * @param df A [krangl.DataFrame] instance
@@ -105,6 +106,9 @@ data class ColumnFormula(val name: String, val expression: TableExpression)
 //    }
 //}
 
+
+/** Add the row-number as column to a data-frame. */
+fun DataFrame.addRowNumber(name: String = "row_number") = addColumn(name) { rowNumber }.moveLeft(name)
 
 ////////////////////////////////////////////////
 // filter() convenience
