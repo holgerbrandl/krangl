@@ -92,6 +92,41 @@ class GatherTest {
 
 
     @Test
+    fun `it should gather a numerical matrix into long format`() {
+        val data = arrayOf(doubleArrayOf(1.3, 2.3), doubleArrayOf(3.9, 7.1))
+        val wideData = data.withIndex().map { (index, data) -> DoubleCol(index.toString(), data.toList()) }.bindCols()
+            .addRowNumber("y")
+
+        val longData = wideData.gather("x", "pixel_value", { except("y") })
+
+        with(longData) {
+            columnTypes()[2].type shouldBe "Double"
+            names shouldBe listOf("y", "x", "pixel_value")
+        }
+    }
+
+    @Test
+    fun `it should gather objects as anycol`() {
+        data class Address(val street: String, val city: String)
+
+        val wideData = dataFrameOf("name", "home_address", "work_address")(
+            "John", Address("Baker Street", "London"), null,
+            "Anna", Address("Mueller Street", "New York"), Address("Stresemannplatz", "Munich")
+        )
+
+        val longData = wideData.gather("type", "address", { endsWith("address") })
+
+
+        with(longData) {
+            schema()
+            ncol shouldBe 3
+            names shouldBe listOf("name", "type", "address")
+            columnTypes()[2].type shouldBe "Address"
+        }
+    }
+
+
+    @Test
     fun `it should allow to exclude key columns from gathering`() {
         // todo that's illegal because it's mixing positive and negative selection
         wideDf.gather("property", "value", columns = { except("person") AND startsWith("person") })

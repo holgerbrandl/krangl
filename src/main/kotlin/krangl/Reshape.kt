@@ -90,13 +90,20 @@ fun DataFrame.gather(key: String, value: String, columns: List<String> = this.na
     val distinctCols = gatherColumns.cols.map { it.javaClass }.distinct()
 
 
+    // Why cant we use handleArrayErasure() here?
+    // Because it would require iterating over data without any need since we know the type already
     @Suppress("UNCHECKED_CAST")
-    // todo why cant we use handleArrayErasure() here?
     fun makeValueCol(name: String, data: Array<*>): DataCol = when {
-        distinctCols == IntCol::class.java -> IntCol(name, data as List<Int?>)
-        distinctCols == DoubleCol::class.java -> DoubleCol(name, data as List<Double?>)
-        distinctCols == BooleanCol::class.java -> BooleanCol(name, data as List<Boolean?>)
-        else -> StringCol(name, Array(data.size, { index -> data[index]?.toString() }))
+        distinctCols.size == 1 && distinctCols.first() == IntCol::class.java -> IntCol(name, data as Array<Int?>)
+        distinctCols.size == 1 && distinctCols.first() == DoubleCol::class.java -> DoubleCol(name, data as Array<Double?>)
+        distinctCols.size == 1 && distinctCols.first() == StringCol::class.java -> StringCol(name, data as Array<String?>)
+        distinctCols.size == 1 && distinctCols.first() == BooleanCol::class.java -> BooleanCol(name, data as Array<Boolean?>)
+
+    // upcast mixed gatherings including int and double
+        setOf(IntCol::class.java, DoubleCol::class.java) == distinctCols.toSet() -> DoubleCol(name, data.map { (it as Number)?.toDouble() })
+
+    // fall back to use any column
+        else -> AnyCol(name, data as Array<Any?>)
     }
 
     val gatherBlock = gatherColumns.cols.map { column ->

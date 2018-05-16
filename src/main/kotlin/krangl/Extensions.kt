@@ -523,7 +523,7 @@ data class ColSpec(val pos: Int, val name: String, val type: String)
 
 
 internal fun getColType(col: DataCol) = when (col) {
-    is AnyCol -> col.values().asSequence().filterNotNull().firstOrNull()?.javaClass?.simpleName
+    is AnyCol -> getTypeName(col)
     else -> col.javaClass.simpleName.replace("Col", "")
 }
 
@@ -587,6 +587,8 @@ private fun getTypeName(col: AnyCol): String {
         // tweak types for nested data
         .replace("SimpleDataFrame", "DataFrame")
         .replace("GroupedDataFrame", "DataFrame")
+        // take care of data-classes defined in other classes or methods
+        .replace(".*\\$".toRegex(), "")
 }
 
 internal fun createValuePrinter(maxDigits: Int = 3): (Any?) -> String = {
