@@ -1,10 +1,25 @@
 Krangl Release History
 ======================
 
-v0.10
+v0.9.1
 -----
 
-in progresss
+Major Enhancements
+
+* `DataFrame.fromJson` will now flatten nested json data
+
+Minor
+
+* Added `sum()` extension for columns summaries/transformation
+* Added `dataFrameOf()` that accepts Iterable of names
+* Added `bindRows()` alias that accepts data frames as varargs
+* Added `bindCols()` extension for list of `DataCol`
+* Fill missing cells with NA in `bindRows` and `bindCols`
+* Resolve duplicated column names in `bindCols()`
+* Added new builder to create data-frame from `DataFrameRow` iterator
+* Added `addRowNumber` to add the row number as column to a data-frame
+* Fixed: Incorrect types in gathered columns
+
 
 v0.9
 ----
