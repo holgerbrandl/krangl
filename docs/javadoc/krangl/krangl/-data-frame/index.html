@@ -231,6 +231,21 @@ primary attribute to sort by. Additional ones are used to resolve ties.</p>
 <tbody>
 <tr>
 <td>
+    <p><a href="../add-row-number.html">addRowNumber</a></p>
+</td>
+    <td>
+        <code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span
+                class="symbol">.</span><span class="identifier">addRowNumber</span><span class="symbol">(</span><span
+                class="identifier" id="krangl$addRowNumber(krangl.DataFrame, kotlin.String)/name">name</span><span
+                class="symbol">:</span>&nbsp;<a
+                href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>&nbsp;<span
+                class="symbol">=</span>&nbsp;"row_number"<span class="symbol">)</span><span class="symbol">: </span><a
+                href="./index.html"><span class="identifier">DataFrame</span></a></code>
+        <p>Add the row-number as column to a data-frame.</p>
+    </td>
+</tr>
+<tr>
+    <td>
 <p><a href="../as-string.html">asString</a></p>
 </td>
 <td>
@@ -335,7 +350,8 @@ gather() when you notice that you have columns that are not variables.</p>
 </td>
 <td>
 <code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">groupByExpr</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="krangl$groupByExpr(krangl.DataFrame, kotlin.Array((kotlin.Function2((krangl.ExpressionContext, , kotlin.Any)))), kotlin.Function2((krangl.ExpressionContext, , kotlin.Any)))/moreExpressions">moreExpressions</span><span class="symbol">:</span>&nbsp;<a href="../-table-expression.html"><span class="identifier">TableExpression</span></a><span class="symbol">, </span><span class="identifier" id="krangl$groupByExpr(krangl.DataFrame, kotlin.Array((kotlin.Function2((krangl.ExpressionContext, , kotlin.Any)))), kotlin.Function2((krangl.ExpressionContext, , kotlin.Any)))/tableExpression">tableExpression</span><span class="symbol">:</span>&nbsp;<a href="../-table-expression.html"><span class="identifier">TableExpression</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code>
-<p>Creates a grouped data-frame from one or more table expression. See <code>addColumn()</code> for details about table expressions.</p>
+    <p>Creates a grouped data-frame from one or more table expressions. See <code>addColumn()</code> for details about
+        table expressions.</p>
 </td>
 </tr>
 <tr>

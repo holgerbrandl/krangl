@@ -377,6 +377,22 @@ flowers from each of 3 species of iris. The species are Iris setosa, versicolor,
 <tbody>
 <tr>
 <td>
+    <p><a href="add-row-number.html">addRowNumber</a></p>
+</td>
+    <td>
+        <code><span class="keyword">fun </span><a href="-data-frame/index.html"><span
+                class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">addRowNumber</span><span
+                class="symbol">(</span><span class="identifier"
+                                             id="krangl$addRowNumber(krangl.DataFrame, kotlin.String)/name">name</span><span
+                class="symbol">:</span>&nbsp;<a
+                href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>&nbsp;<span
+                class="symbol">=</span>&nbsp;"row_number"<span class="symbol">)</span><span class="symbol">: </span><a
+                href="-data-frame/index.html"><span class="identifier">DataFrame</span></a></code>
+        <p>Add the row-number as column to a data-frame.</p>
+    </td>
+</tr>
+<tr>
+    <td>
 <p><a href="all.html">all</a></p>
 </td>
 <td>
@@ -429,7 +445,32 @@ flowers from each of 3 species of iris. The species are Iris setosa, versicolor,
 <p><a href="bind-cols.html">bindCols</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">bindCols</span><span class="symbol">(</span><span class="identifier" id="krangl$bindCols(krangl.DataFrame, krangl.DataFrame)/left">left</span><span class="symbol">:</span>&nbsp;<a href="-data-frame/index.html"><span class="identifier">DataFrame</span></a><span class="symbol">, </span><span class="identifier" id="krangl$bindCols(krangl.DataFrame, krangl.DataFrame)/right">right</span><span class="symbol">:</span>&nbsp;<a href="-data-frame/index.html"><span class="identifier">DataFrame</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-data-frame/index.html"><span class="identifier">DataFrame</span></a></code></td>
+    <code><span class="keyword">fun </span><span class="identifier">bindCols</span><span class="symbol">(</span><span
+            class="identifier" id="krangl$bindCols(krangl.DataFrame, krangl.DataFrame, kotlin.Boolean)/left">left</span><span
+            class="symbol">:</span>&nbsp;<a href="-data-frame/index.html"><span
+            class="identifier">DataFrame</span></a><span class="symbol">, </span><span class="identifier"
+                                                                                       id="krangl$bindCols(krangl.DataFrame, krangl.DataFrame, kotlin.Boolean)/right">right</span><span
+            class="symbol">:</span>&nbsp;<a href="-data-frame/index.html"><span
+            class="identifier">DataFrame</span></a><span class="symbol">, </span><span class="identifier"
+                                                                                       id="krangl$bindCols(krangl.DataFrame, krangl.DataFrame, kotlin.Boolean)/renameDuplicates">renameDuplicates</span><span
+            class="symbol">:</span>&nbsp;<a
+            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span
+            class="symbol">=</span>&nbsp;true<span class="symbol">)</span><span class="symbol">: </span><a
+            href="-data-frame/index.html"><span class="identifier">DataFrame</span></a></code></td>
+</tr>
+<tr>
+    <td>
+        <p><a href="bind-rows.html">bindRows</a></p>
+    </td>
+    <td>
+        <code><span class="keyword">fun </span><span class="identifier">bindRows</span><span
+                class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier"
+                                                                                 id="krangl$bindRows(kotlin.Array((krangl.DataFrame)))/dataFrames">dataFrames</span><span
+                class="symbol">:</span>&nbsp;<a href="-data-frame/index.html"><span class="identifier">DataFrame</span></a><span
+                class="symbol">)</span><span class="symbol">: </span><a href="-data-frame/index.html"><span
+                class="identifier">DataFrame</span></a></code>
+        <p>Concatenate a list of data-frame by row.</p>
+    </td>
 </tr>
 <tr>
 <td>
@@ -478,8 +519,41 @@ and replace_na() that's useful for completing missing combinations of data.</p>
 <p><a href="data-frame-of.html">dataFrameOf</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="identifier">dataFrameOf</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="krangl$dataFrameOf(kotlin.Array((kotlin.String)))/header">header</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="-inplace-data-frame-builder/index.html"><span class="identifier">InplaceDataFrameBuilder</span></a></code>
+    <code><span class="keyword">fun </span><span class="identifier">dataFrameOf</span><span class="symbol">(</span><span
+            class="keyword">vararg</span> <span class="identifier"
+                                                id="krangl$dataFrameOf(kotlin.Array((kotlin.String)))/header">header</span><span
+            class="symbol">:</span>&nbsp;<a
+            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span
+            class="symbol">)</span><span class="symbol">: </span><a href="-inplace-data-frame-builder/index.html"><span
+            class="identifier">InplaceDataFrameBuilder</span></a></code><br/>
+    <code><span class="keyword">fun </span><span class="identifier">dataFrameOf</span><span class="symbol">(</span><span
+            class="identifier"
+            id="krangl$dataFrameOf(kotlin.collections.Iterable((kotlin.String)))/header">header</span><span
+            class="symbol">:</span>&nbsp;<a
+            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-iterable/index.html"><span
+            class="identifier">Iterable</span></a><span class="symbol">&lt;</span><a
+            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span
+            class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a
+            href="-inplace-data-frame-builder/index.html"><span
+            class="identifier">InplaceDataFrameBuilder</span></a></code>
 <p>Create a new data frame in place.</p>
+    <code><span class="keyword">fun </span><span class="identifier">dataFrameOf</span><span class="symbol">(</span><span
+            class="keyword">vararg</span> <span class="identifier"
+                                                id="krangl$dataFrameOf(kotlin.Array((krangl.DataCol)))/columns">columns</span><span
+            class="symbol">:</span>&nbsp;<a href="-data-col/index.html"><span class="identifier">DataCol</span></a><span
+            class="symbol">)</span><span class="symbol">: </span><a href="-data-frame/index.html"><span
+            class="identifier">DataFrame</span></a></code>
+    <p>Create a new data-frame from a list of <code>DataCol</code> instances</p>
+    <code><span class="keyword">fun </span><span class="identifier">dataFrameOf</span><span class="symbol">(</span><span
+            class="identifier"
+            id="krangl$dataFrameOf(kotlin.collections.Iterable((kotlin.collections.Map((kotlin.String, kotlin.Any)))))/rows">rows</span><span
+            class="symbol">:</span>&nbsp;<a
+            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-iterable/index.html"><span
+            class="identifier">Iterable</span></a><span class="symbol">&lt;</span><a href="-data-frame-row.html"><span
+            class="identifier">DataFrameRow</span></a><span class="symbol">&gt;</span><span class="symbol">)</span><span
+            class="symbol">: </span><a href="-data-frame/index.html"><span
+            class="identifier">DataFrame</span></a></code>
+    <p>Create a new data-frame from a records encoded as key-value maps.</p>
 </td>
 </tr>
 <tr>
@@ -597,7 +671,8 @@ gather() when you notice that you have columns that are not variables.</p>
 </td>
 <td>
 <code><span class="keyword">fun </span><a href="-data-frame/index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">groupByExpr</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="krangl$groupByExpr(krangl.DataFrame, kotlin.Array((kotlin.Function2((krangl.ExpressionContext, , kotlin.Any)))), kotlin.Function2((krangl.ExpressionContext, , kotlin.Any)))/moreExpressions">moreExpressions</span><span class="symbol">:</span>&nbsp;<a href="-table-expression.html"><span class="identifier">TableExpression</span></a><span class="symbol">, </span><span class="identifier" id="krangl$groupByExpr(krangl.DataFrame, kotlin.Array((kotlin.Function2((krangl.ExpressionContext, , kotlin.Any)))), kotlin.Function2((krangl.ExpressionContext, , kotlin.Any)))/tableExpression">tableExpression</span><span class="symbol">:</span>&nbsp;<a href="-table-expression.html"><span class="identifier">TableExpression</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="-data-frame/index.html"><span class="identifier">DataFrame</span></a></code>
-<p>Creates a grouped data-frame from one or more table expression. See <code>addColumn()</code> for details about table expressions.</p>
+    <p>Creates a grouped data-frame from one or more table expressions. See <code>addColumn()</code> for details about
+        table expressions.</p>
 </td>
 </tr>
 <tr>
@@ -987,6 +1062,23 @@ Note: This is tested with kotlin data classes only. File a ticket for better typ
 </td>
 <td>
 <code><span class="keyword">fun </span><a href="-col-names/index.html"><span class="identifier">ColNames</span></a><span class="symbol">.</span><span class="identifier">startsWith</span><span class="symbol">(</span><span class="identifier" id="krangl$startsWith(krangl.ColNames, kotlin.String)/prefix">prefix</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">?</span><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+    <td>
+        <p><a href="sum.html">sum</a></p>
+    </td>
+    <td>
+        <code><span class="keyword">fun </span><a href="-data-col/index.html"><span
+                class="identifier">DataCol</span></a><span class="symbol">.</span><span
+                class="identifier">sum</span><span class="symbol">(</span><span class="identifier"
+                                                                                id="krangl$sum(krangl.DataCol, kotlin.Boolean)/removeNA">removeNA</span><span
+                class="symbol">:</span>&nbsp;<a
+                href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span
+                class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a
+                href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-number/index.html"><span class="identifier">Number</span></a><span
+                class="symbol">?</span></code>
+        <p>Calculates the arithmetic mean of the column values.</p>
+    </td>
 </tr>
 <tr>
 <td>
