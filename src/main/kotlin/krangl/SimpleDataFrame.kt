@@ -371,6 +371,7 @@ internal fun anyAsColumn(mutation: Any?, name: String, nrow: Int): DataCol {
             is IntCol -> IntCol(name, arrifiedMutation.values)
             is StringCol -> StringCol(name, arrifiedMutation.values)
             is BooleanCol -> BooleanCol(name, arrifiedMutation.values)
+            is AnyCol -> AnyCol(name, arrifiedMutation.values)
             else -> throw UnsupportedOperationException()
         }
 

@@ -67,6 +67,13 @@ class TypeInterfaceTest {
     }
 
     @Test
+    fun `it should allow to rename objet columns`() {
+        dataFrameOf("id")(UUID.randomUUID()).rename("id" to "new_id").apply {
+            names shouldEqual listOf("new_id")
+        }
+    }
+
+    @Test
     fun `it should map rows to objects with custom mapping scheme`() {
         val objPersons = users
             .rename("firstName" to "Vorname")
