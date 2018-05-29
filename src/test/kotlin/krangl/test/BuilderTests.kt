@@ -1,6 +1,7 @@
 package krangl.test
 
 import io.kotlintest.matchers.shouldBe
+import io.kotlintest.matchers.shouldEqual
 import krangl.*
 import org.apache.commons.csv.CSVFormat
 import org.junit.Test
@@ -219,6 +220,18 @@ class JsonTests {
             print()
             nrow shouldBe 3
             names shouldBe listOf("_id", "model", "doors", "seats")
+        }
+    }
+
+
+    @Test
+    fun `it should convert numerical data-frames to matrices, but should fail for mixed type dfs`() {
+
+        shouldThrow<IllegalArgumentException> { irisData.toDoubleMatrix() }
+
+        irisData.remove("Species").toDoubleMatrix().apply {
+            size shouldBe 4
+            first().size shouldEqual irisData.nrow
         }
     }
 }

@@ -763,3 +763,38 @@ internal fun DataFrame.rowData(): Iterable<List<Any?>> = when (this) {
 
 
 internal val DataFrame.rowNumber: List<Int> get() = (1..nrow).toList()
+
+
+fun DataFrame.toDoubleMatrix(): Array<DoubleArray> {
+    selectIf { !(it is IntCol || it is DoubleCol) }.names.let {
+        require(it.isEmpty()) { "Can not cast to double matrix because not all columns are numeric" }
+    }
+
+    val matrix = cols.map {
+        when (it) {
+            is DoubleCol -> it.values.requireNoNulls().toDoubleArray()
+            is IntCol -> it.values.requireNoNulls().map { it.toDouble() }.toDoubleArray()
+            else -> TODO()
+        }
+    }.toTypedArray()
+
+
+    // todo should we transpose the matrix by default?
+    // https://stackoverflow.com/questions/15449711/transpose-double-matrix-with-a-java-function
+
+    return matrix
+}
+
+
+class Factor(val index: Int, val values: Array<String>)
+
+fun DataCol.asFactor(): DataCol {
+    return when (this) {
+        is StringCol -> {
+            val levels = this.values.filterNotNull().distinct().toTypedArray()
+            val factorizedValues = values.mapNonNull { Factor(levels.indexOf(it), levels) }
+            AnyCol(name, factorizedValues)
+        }
+        else -> TODO()
+    }
+}
