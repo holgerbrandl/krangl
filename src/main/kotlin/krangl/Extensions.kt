@@ -461,7 +461,7 @@ fun DataFrame.asString(
     sb.appendln("${title}: ${nrow} x ${ncol}")
 
     if (this is GroupedDataFrame) {
-        sb.append("Groups: ${by.joinToString()} ${groups.size}")
+        sb.appendln("Groups: ${by.joinToString()} [${groups.size}]")
     }
 
 
