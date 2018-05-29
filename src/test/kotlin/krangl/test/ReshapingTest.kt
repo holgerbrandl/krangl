@@ -276,6 +276,18 @@ class NestingTests {
 
 
     @Test
+    fun `it should unnest List columns`() {
+        dataFrameOf("id", "tags")(
+            "foo", listOf("some", "tags"),
+            "bar", listOf("some", "other", "tags")
+        ).unnest("tags").apply {
+            print()
+            nrow shouldBe 5
+        }
+    }
+
+
+    @Test
     fun `it should expand variable tuples like tidyr-expand`() {
         val someDf = dataFrameOf("person", "year", "weight", "sex")(
             "max", 2014, 33.1, "M",

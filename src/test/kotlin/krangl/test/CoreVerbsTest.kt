@@ -660,5 +660,30 @@ class GroupedDataTest {
             nrow shouldBe 3
         }
     }
+
+
+    @Test
+    fun `it should group tables with object columns and by object column`() {
+        val someUUID = UUID.randomUUID()
+        val otherUUID = UUID.randomUUID()
+
+        val df = dataFrameOf("id", "quantity")(
+            someUUID, 1,
+            otherUUID, 1,
+            otherUUID, 2
+        )
+
+        // first group by non-object column
+        df.groupBy("quantity").apply {
+            print()
+            groups().size shouldBe 2
+        }
+
+        // second group by object column itself
+        df.groupBy("id").apply {
+            print()
+            groups().size shouldBe 2
+        }
+    }
 }
 

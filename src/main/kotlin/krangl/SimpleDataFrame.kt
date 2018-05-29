@@ -303,6 +303,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
             is IntCol -> IntCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }))
             is BooleanCol -> BooleanCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }))
             is StringCol -> StringCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }))
+            is AnyCol -> AnyCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }))
             else -> throw UnsupportedOperationException()
         }
 
