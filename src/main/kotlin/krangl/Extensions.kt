@@ -399,27 +399,30 @@ fun DataFrame.slice(vararg slices: Int) = filter { rowNumber.map { slices.contai
 // note: supporting n() here seems pointless since nrow will also work in them mutate context
 
 
-internal const val DEFAULT_PRINT_MAX_ROWS = 10
+var PRINT_MAX_ROWS = 10
+var PRINT_MAX_WIDTH = 100
+var PRINT_MAX_DIGITS = 3
+var PRINT_ROW_NUMBERS = true
 
 /* Prints a dataframe to stdout. df.toString() will also work but has no options .*/
 @JvmOverloads
 fun DataFrame.print(
     title: String = "A DataFrame",
     colNames: Boolean = true,
-    maxRows: Int = DEFAULT_PRINT_MAX_ROWS,
-    maxWidth: Int = 100,
-    maxDigits: Int = 3,
-    rowNumbers: Boolean = true
+    maxRows: Int = PRINT_MAX_ROWS,
+    maxWidth: Int = PRINT_MAX_WIDTH,
+    maxDigits: Int = PRINT_MAX_DIGITS,
+    rowNumbers: Boolean = PRINT_ROW_NUMBERS
 ) = println(asString(title, colNames, maxRows, maxWidth, maxDigits, rowNumbers) + "\n")
 
 
 fun DataFrame.asString(
     title: String = "A DataFrame",
     colNames: Boolean = true,
-    maxRows: Int = DEFAULT_PRINT_MAX_ROWS,
-    maxWidth: Int = 100,
-    maxDigits: Int = 3,
-    rowNumbers: Boolean = true
+    maxRows: Int = PRINT_MAX_ROWS,
+    maxWidth: Int = PRINT_MAX_WIDTH,
+    maxDigits: Int = PRINT_MAX_DIGITS,
+    rowNumbers: Boolean = PRINT_ROW_NUMBERS
 ): String {
 
     var df = this
