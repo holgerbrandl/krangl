@@ -250,6 +250,12 @@ internal fun peekCol(colName: String?, records: List<CSVRecord>, peekSize: Int =
     .toList()
 
 
+fun DataFrame.writeTSV(
+    file: File,
+    format: CSVFormat = CSVFormat.TDF.withHeader(*names.toTypedArray())
+) = writeCSV(file, format)
+
+
 fun DataFrame.writeCSV(
     file: File,
     format: CSVFormat = CSVFormat.DEFAULT.withHeader(*names.toTypedArray())
