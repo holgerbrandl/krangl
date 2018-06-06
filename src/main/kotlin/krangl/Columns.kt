@@ -235,6 +235,8 @@ infix fun BooleanArray.OR(other: BooleanArray) = mapIndexed { index, first -> fi
 operator fun BooleanArray.not() = BooleanArray(this.size, { !this[it] })
 
 
+// comparisons against fixed values
+
 // note: https://github.com/JetBrains/Exposed is using a simlar apprach with `greaterEquals` (see their readme examples)
 infix fun DataCol.gt(i: Number) = greaterThan(i)
 infix fun DataCol.ge(i: Number) = greaterEqualsThan(i)
@@ -247,15 +249,44 @@ infix fun DataCol.le(i: Number) = lesserEquals(i)
 fun DataCol.lesserThan(i: Number) = !ge(i) AND isNotNA()
 fun DataCol.lesserEquals(i: Number) = !gt(i) AND isNotNA()
 
+private val doubleComp = nullsFirst<Double>()
+private val intComp = nullsFirst<Int>()
+
 fun DataCol.greaterThan(i: Number) = when (this) {
-    is DoubleCol -> this.values.map { nullsFirst<Double>().compare(it, i.toDouble()) > 0 }
-    is IntCol -> this.values.map { nullsFirst<Double>().compare(it?.toDouble(), i.toDouble()) > 0 }
+    is DoubleCol -> this.values.map { doubleComp.compare(it, i.toDouble()) > 0 }
+    is IntCol -> this.values.map { doubleComp.compare(it?.toDouble(), i.toDouble()) > 0 }
     else -> throw UnsupportedOperationException()
 }.toBooleanArray()
 
 fun DataCol.greaterEqualsThan(i: Number) = when (this) {
-    is DoubleCol -> this.values.map { nullsFirst<Double>().compare(it, i.toDouble()) >= 0 }
-    is IntCol -> this.values.map { nullsFirst<Double>().compare(it?.toDouble(), i.toDouble()) >= 0 }
+    is DoubleCol -> this.values.map { doubleComp.compare(it, i.toDouble()) >= 0 }
+    is IntCol -> this.values.map { doubleComp.compare(it?.toDouble(), i.toDouble()) >= 0 }
+    else -> throw UnsupportedOperationException()
+}.toBooleanArray()
+
+
+// column comparison
+
+infix fun DataCol.gt(i: DataCol) = greaterThan(i)
+infix fun DataCol.ge(i: DataCol) = greaterEqualsThan(i)
+
+infix fun DataCol.lt(i: DataCol) = lesserThan(i)
+infix fun DataCol.le(i: DataCol) = lesserEquals(i)
+
+fun DataCol.lesserThan(i: DataCol) = !ge(i) AND isNotNA()
+fun DataCol.lesserEquals(i: DataCol) = !gt(i) AND isNotNA()
+
+
+fun DataCol.greaterThan(i: DataCol) = when (this) {
+    is DoubleCol, is IntCol -> values().zip(i.values()).map { (a, b) -> doubleComp.compare((a as? Number)?.toDouble(), (b as? Number)?.toDouble()) > 0 }
+//    is IntCol -> values.zip(i.values()).map { (a, b) -> intComp.compare(a, (b as Number?)?.toInt()) > 0 }
+    else -> throw UnsupportedOperationException()
+}.toBooleanArray()
+
+
+fun DataCol.greaterEqualsThan(i: DataCol) = when (this) {
+    is DoubleCol, is IntCol -> values().zip(i.values()).map { (a, b) -> doubleComp.compare((a as? Number)?.toDouble(), (b as? Number)?.toDouble()) >= 0 }
+//    is IntCol -> values.zip(i.values()).map { (a, b) -> intComp.compare(a, (b as Number?)?.toInt()) > 0 }
     else -> throw UnsupportedOperationException()
 }.toBooleanArray()
 

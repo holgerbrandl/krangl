@@ -55,6 +55,15 @@ class ColumnTests {
         createValidIdentifier(regularColumn.name) shouldBe "simple_column"
         createValidIdentifier(spaceColumn.name) shouldBe "spaceColumn"
     }
+
+    @Test
+    fun `compare columns correctly`() {
+        // a int, b double
+        val df = dataFrameOf("a", "b")(1, 1.5, 3, 2.5, 4, 4.0)
+
+        df.addColumn("foo") { it["a"] gt it["b"] }["foo"].values() shouldBe arrayOf(false, true, false)
+        df.addColumn("foo") { it["a"] ge it["b"] }["foo"].values() shouldBe arrayOf(false, true, true)
+    }
 }
 
 
