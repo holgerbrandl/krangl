@@ -71,6 +71,24 @@ fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
 class ExpressionContext(df: DataFrame) : TableContext(df) {
 
     val nrow = df.nrow
+
+    /**
+     * A numpu/pequivalentialent to
+     * `df['color'] = np.where(df['Set']=='Z', 'green', 'red')`
+     * See https://stackoverflow.com/questions/19913659/pandas-conditional-creation-of-a-series-dataframe-column
+     */
+    fun where(booleans: BooleanArray, ifTrue: Any, ifFalse: Any): DataCol {
+
+        val mutationTrue = anyAsColumn(ifTrue, tempColumnName(), nrow)
+        val mutationFalse = anyAsColumn(ifFalse, tempColumnName(), nrow)
+
+        // https://stackoverflow.com/questions/50078266/zip-3-lists-of-equal-length
+        val result = booleans.zip(mutationTrue.values().zip(mutationFalse.values())).map { (first, data) ->
+            if (first) data.first else data.second
+        }
+
+        return ArrayUtils.handleListErasure(tempColumnName(), result)
+    }
 }
 
 

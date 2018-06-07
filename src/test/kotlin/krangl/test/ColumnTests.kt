@@ -47,6 +47,37 @@ class ColumnTests {
 
     }
 
+
+    // https://github.com/holgerbrandl/krangl/issues/54
+    @Test
+    fun `allow to create new column conditionally`() {
+        // in padas it is just
+        // https://stackoverflow.com/questions/19913659/pandas-conditional-creation-of-a-series-dataframe-column
+        // df['color'] = np.where(df['Set']=='Z', 'green', 'red')
+
+        irisData.addColumn("is_wide") { it["Sepal.Length"] gt it["Sepal.Width"] }.ncol shouldBe 6
+        irisData.addColumn("is_wide") { it["Sepal.Length"] gt 3 }.ncol shouldBe 6
+
+        krangl.irisData.addColumn("trimmed_petal_length") {
+            where(it["Petal.Length"] gt 1.3, 1.3, it["Petal.Length"])
+        }.print()
+    }
+
+    //    private fun ExpressionContext.where(booleans: BooleanArray, ifTrue: TableExpression, ifFalse: TableExpression): DataCol {
+    //        val mutationTrue = anyAsColumn(ifTrue(this, this), tempColumnName(), nrow)
+    //        val mutationFalse = anyAsColumn(ifFalse(this, this), tempColumnName(), nrow)
+    //
+    //        val result = booleans.zip(mutationTrue.values().zip(mutationFalse.values())).map { (first, data) ->
+    //            if (first) data.first else data.second
+    //        }
+    //
+    //        return handleListErasure(tempColumnName(), result)
+    //        //        anyAsColumn(mutation, tf.name, nrow)
+    //
+    //    }
+
+    //
+
     @Test
     fun `wrap column name with backticks if necessary`() {
         val regularColumn = BooleanCol("simple_column", listOf(true, false))
@@ -80,7 +111,6 @@ internal inline fun <reified T> shouldThrow(thunk: () -> Any): T {
     else if (e.javaClass.name != T::class.qualifiedName) {
         e.printStackTrace()
         fail("Expected exception ${T::class.qualifiedName} but ${e.javaClass.name} was thrown")
-    }
-    else
+    } else
         return e as T
 }

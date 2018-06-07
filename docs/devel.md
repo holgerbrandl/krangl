@@ -14,6 +14,16 @@
     - [tablesaw](#tablesaw)
 
 
+NaN vs Non in pandas: https://stackoverflow.com/questions/17534106/what-is-the-difference-between-nan-and-none
+
+
+
+//
+//class Foo{
+//    fun bar(predicate: (Int) -> String){}
+//
+//    fun bar(predicate: (Int) -> Boolean){}
+//}
 
 
 # Interactive shell

@@ -333,9 +333,20 @@ class FilterTest {
 
     @Test
     fun `it should infer boolean-list type in filter extensions`() {
-        //todo fix this; could be a compiler bug
-        //         persons.filter { it["last_name"].asStrings().map { it!!.startsWith("Do") }}
+        //fixme; could be a compiler bug
+        // see https://medium.com/@quiro91/getting-to-know-kotlins-extension-functions-some-caveats-to-keep-in-mind-d14d734d108b
+        //        persons.filter { it["last_name"].asStrings().map { it!!.startsWith("Do") } }
+        //        // this would work
+        //        persons.filter { it["last_name"].asStrings().map { it!!.startsWith("Do") }.toBooleanArray() }
+    }
 
+
+    @Test
+    fun `it should allow for vectorized filter expressions`() {
+        irisData.filter { (it["Sepal.Length"] gt it["Petal.Length"] * 3) AND (it["Species"] eq "setosa") }.apply {
+            print()
+            nrow shouldBe 44
+        }
     }
 }
 

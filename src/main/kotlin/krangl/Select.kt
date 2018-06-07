@@ -130,7 +130,8 @@ internal infix fun List<Boolean?>.nullAwareAND(other: List<Boolean?>): List<Bool
 
 internal fun List<Boolean>.falseAsNull() = map { if (!it) null else true }
 internal fun List<Boolean>.trueAsNull() = map { if (it) null else false }
-internal fun List<Boolean?>.nullAsFalse(): List<Boolean> = map { it ?: false }
+internal fun List<Boolean?>.nullAsFalse(): BooleanArray = map { it ?: false }.toBooleanArray()
+internal fun List<Boolean?>.nullAsTrue(): BooleanArray = map { it ?: true }.toBooleanArray()
 
 
 // todo the collapse logic does not seem right: why would would null && true be true?

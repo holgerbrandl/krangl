@@ -119,6 +119,8 @@ class DoubleCol(name: String, val values: Array<Double?>) : DataCol(name) {
 abstract class NumberCol(name: String) : DataCol(name)
 
 
+// no na in pandas int columns because of http://pandas.pydata.org/pandas-docs/stable/gotchas.html#support-for-integer-na
+
 class IntCol(name: String, val values: Array<Int?>) : NumberCol(name) {
 
     constructor(name: String, values: List<Int?>) : this(name, values.toTypedArray())
@@ -222,10 +224,10 @@ class BooleanCol(name: String, val values: Array<Boolean?>) : DataCol(name) {
 //infix fun List<Boolean>.AND(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first && other[index] }
 //infix fun List<Boolean>.OR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first || other[index] }
 //infix fun List<Boolean>.XOR(other: List<Boolean>): List<Boolean> = mapIndexed { index, first -> first == other[index] }
-infix fun List<Boolean?>.AND(other: List<Boolean?>): List<Boolean?> = mapIndexed { index, first -> nullAwareAnd(first, other[index]) }
 
-infix fun List<Boolean?>.OR(other: List<Boolean?>): List<Boolean?> = mapIndexed { index, first -> nullAwareOr(first, other[index]) }
-infix fun List<Boolean?>.XOR(other: List<Boolean?>): List<Boolean> = mapIndexed { index, first -> first == other[index] }
+infix fun List<Boolean?>.AND(other: List<Boolean?>) = mapIndexed { index, first -> nullAwareAnd(first, other[index]) }
+infix fun List<Boolean?>.OR(other: List<Boolean?>) = mapIndexed { index, first -> nullAwareOr(first, other[index]) }.nullAsFalse()
+infix fun List<Boolean?>.XOR(other: List<Boolean?>) = mapIndexed { index, first -> first == other[index] }.nullAsFalse()
 
 // Boolean operators for filter expressions
 infix fun BooleanArray.AND(other: BooleanArray) = mapIndexed { index, first -> first && other[index] }.toBooleanArray()
@@ -241,28 +243,29 @@ operator fun BooleanArray.not() = BooleanArray(this.size, { !this[it] })
 infix fun DataCol.gt(i: Number) = greaterThan(i)
 infix fun DataCol.ge(i: Number) = greaterEqualsThan(i)
 
-
 infix fun DataCol.lt(i: Number) = lesserThan(i)
 infix fun DataCol.le(i: Number) = lesserEquals(i)
 
+fun DataCol.greaterThan(i: Number) = _greaterThan(i).nullAsFalse()
+fun DataCol.greaterEqualsThan(i: Number) = _greaterEqualsThan(i).nullAsFalse()
 
-fun DataCol.lesserThan(i: Number) = !ge(i) AND isNotNA()
-fun DataCol.lesserEquals(i: Number) = !gt(i) AND isNotNA()
+fun DataCol.lesserThan(i: Number) = (!_greaterEqualsThan(i)).nullAsFalse() //AND isNotNA()
+fun DataCol.lesserEquals(i: Number) = (!_greaterThan(i)).nullAsFalse() //AND isNotNA()
 
 private val doubleComp = nullsFirst<Double>()
 private val intComp = nullsFirst<Int>()
 
-fun DataCol.greaterThan(i: Number) = when (this) {
-    is DoubleCol -> this.values.map { doubleComp.compare(it, i.toDouble()) > 0 }
-    is IntCol -> this.values.map { doubleComp.compare(it?.toDouble(), i.toDouble()) > 0 }
+internal fun DataCol._greaterThan(i: Number) = when (this) {
+    is DoubleCol -> this.values.mapNonNull { doubleComp.compare(it, i.toDouble()) > 0 }
+    is IntCol -> this.values.mapNonNull { doubleComp.compare(it.toDouble(), i.toDouble()) > 0 }
     else -> throw UnsupportedOperationException()
-}.toBooleanArray()
+}
 
-fun DataCol.greaterEqualsThan(i: Number) = when (this) {
-    is DoubleCol -> this.values.map { doubleComp.compare(it, i.toDouble()) >= 0 }
-    is IntCol -> this.values.map { doubleComp.compare(it?.toDouble(), i.toDouble()) >= 0 }
+internal fun DataCol._greaterEqualsThan(i: Number) = when (this) {
+    is DoubleCol -> this.values.mapNonNull { doubleComp.compare(it, i.toDouble()) >= 0 }
+    is IntCol -> this.values.mapNonNull { doubleComp.compare(it.toDouble(), i.toDouble()) >= 0 }
     else -> throw UnsupportedOperationException()
-}.toBooleanArray()
+}
 
 
 // column comparison
@@ -273,22 +276,25 @@ infix fun DataCol.ge(i: DataCol) = greaterEqualsThan(i)
 infix fun DataCol.lt(i: DataCol) = lesserThan(i)
 infix fun DataCol.le(i: DataCol) = lesserEquals(i)
 
-fun DataCol.lesserThan(i: DataCol) = !ge(i) AND isNotNA()
-fun DataCol.lesserEquals(i: DataCol) = !gt(i) AND isNotNA()
+fun DataCol.greaterThan(i: DataCol) = _greaterThan(i).nullAsFalse()
+fun DataCol.greaterEqualsThan(i: DataCol) = _greaterEqualsThan(i).nullAsFalse()
+
+fun DataCol.lesserThan(i: DataCol) = (!_greaterEqualsThan(i)).nullAsFalse() //AND isNotNA()
+fun DataCol.lesserEquals(i: DataCol) = (!_greaterThan(i)).nullAsFalse() //AND isNotNA()
 
 
-fun DataCol.greaterThan(i: DataCol) = when (this) {
+internal fun DataCol._greaterThan(i: DataCol) = when (this) {
     is DoubleCol, is IntCol -> values().zip(i.values()).map { (a, b) -> doubleComp.compare((a as? Number)?.toDouble(), (b as? Number)?.toDouble()) > 0 }
 //    is IntCol -> values.zip(i.values()).map { (a, b) -> intComp.compare(a, (b as Number?)?.toInt()) > 0 }
     else -> throw UnsupportedOperationException()
-}.toBooleanArray()
+}
 
 
-fun DataCol.greaterEqualsThan(i: DataCol) = when (this) {
+internal fun DataCol._greaterEqualsThan(i: DataCol) = when (this) {
     is DoubleCol, is IntCol -> values().zip(i.values()).map { (a, b) -> doubleComp.compare((a as? Number)?.toDouble(), (b as? Number)?.toDouble()) >= 0 }
 //    is IntCol -> values.zip(i.values()).map { (a, b) -> intComp.compare(a, (b as Number?)?.toInt()) > 0 }
     else -> throw UnsupportedOperationException()
-}.toBooleanArray()
+}
 
 
 infix fun DataCol.isEqualTo(i: Any): BooleanArray = eq(i)
