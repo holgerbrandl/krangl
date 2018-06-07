@@ -1,7 +1,7 @@
 package krangl.test
 
 import io.kotlintest.matchers.plusOrMinus
-import io.kotlintest.matchers.shouldBe
+import io.kotlintest.shouldBe
 import krangl.*
 import org.junit.Test
 

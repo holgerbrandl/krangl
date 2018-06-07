@@ -1,6 +1,9 @@
 package krangl.test
 
-import io.kotlintest.matchers.*
+import io.kotlintest.fail
+import io.kotlintest.matchers.haveSize
+import io.kotlintest.should
+import io.kotlintest.shouldBe
 import krangl.*
 import org.apache.commons.csv.CSVFormat
 import org.junit.Test
@@ -111,7 +114,7 @@ class SelectTest {
             names.contains("vore") shouldBe false
 
             // ensure preserved order of remaining columns
-            sleepData.names.minus(arrayOf("name", "vore")) shouldEqual names
+            sleepData.names.minus(arrayOf("name", "vore")) shouldBe names
         }
 
         irisData.select { !startsWith("Sepal") }.names shouldBe listOf("Petal.Length", "Petal.Width", "Species")
@@ -152,11 +155,11 @@ class AddColumnTest {
             names.contains("new_vore") shouldBe true
 
             // column renaming should preserve positions
-            names.indexOf("new_vore") shouldEqual sleepData.names.indexOf("vore")
+            names.indexOf("new_vore") shouldBe sleepData.names.indexOf("vore")
 
             // renaming should not affect column or row counts
-            nrow == sleepData.nrow
-            ncol == sleepData.ncol
+            nrow shouldBe sleepData.nrow
+            ncol shouldBe sleepData.ncol
         }
     }
 
@@ -467,7 +470,7 @@ class SummarizeTest {
 
     @Test
     fun `count should behave like dplyr-count`() {
-        irisData.count() shouldEqual dataFrameOf("n")(150)
+        irisData.count() shouldBe dataFrameOf("n")(150)
 
         // prevent duplicated column names
         shouldThrow<DuplicatedColumnNameException> {
@@ -544,36 +547,36 @@ class CoreTests {
         val iris2 = irisData.addColumn("id") { rowNumber.map { "foo$it".toRegex() } }
         iris2.schema(maxWidth = 20)
 
-        captureOutput { iris2.schema(maxWidth = 20) }.stdout shouldEqual """
-            DataFrame with 150 observations
-            Sepal.Length  [Dbl]    5.1, 4.9, 4.7, 4.6, ...
-            Sepal.Width   [Dbl]    3.5, 3, 3.2, 3.1, 3....
-            Petal.Length  [Dbl]    1.4, 1.4, 1.3, 1.5, ...
-            Petal.Width   [Dbl]    0.2, 0.2, 0.2, 0.2, ...
-            Species       [Str]    setosa, setosa, seto...
-            id            [Regex]  foo1, foo2, foo3, fo...
-            """.trimIndent()
+        captureOutput { iris2.schema(maxWidth = 20) }.stdout shouldBe """
+                DataFrame with 150 observations
+                Sepal.Length  [Dbl]    5.1, 4.9, 4.7, 4.6, ...
+                Sepal.Width   [Dbl]    3.5, 3, 3.2, 3.1, 3....
+                Petal.Length  [Dbl]    1.4, 1.4, 1.3, 1.5, ...
+                Petal.Width   [Dbl]    0.2, 0.2, 0.2, 0.2, ...
+                Species       [Str]    setosa, setosa, seto...
+                id            [Regex]  foo1, foo2, foo3, fo...
+                """.trimIndent()
     }
 
     @Test
     fun `it should print just first columns and rows`() {
-        captureOutput { flightsData.print(maxWidth = 50) }.stdout shouldEqual """
-            A DataFrame: 336776 x 16
-                 year   month   day   dep_time   dep_delay
-             1   2013       1     1        517           2
-             2   2013       1     1        533           4
-             3   2013       1     1        542           2
-             4   2013       1     1        544          -1
-             5   2013       1     1        554          -6
-             6   2013       1     1        554          -4
-             7   2013       1     1        555          -5
-             8   2013       1     1        557          -3
-             9   2013       1     1        557          -3
-            10   2013       1     1        558          -2
-            and 336766 more rows, and and 11 more variables:
-            arr_delay, carrier, tailnum, flight, origin, dest,
-            air_time, distance, hour, minute
-            """.trimIndent()
+        captureOutput { flightsData.print(maxWidth = 50) }.stdout shouldBe """
+                A DataFrame: 336776 x 16
+                     year   month   day   dep_time   dep_delay
+                 1   2013       1     1        517           2
+                 2   2013       1     1        533           4
+                 3   2013       1     1        542           2
+                 4   2013       1     1        544          -1
+                 5   2013       1     1        554          -6
+                 6   2013       1     1        554          -4
+                 7   2013       1     1        555          -5
+                 8   2013       1     1        557          -3
+                 9   2013       1     1        557          -3
+                10   2013       1     1        558          -2
+                and 336766 more rows, and and 11 more variables:
+                arr_delay, carrier, tailnum, flight, origin, dest,
+                air_time, distance, hour, minute
+                """.trimIndent()
     }
 
 }
@@ -644,7 +647,7 @@ class GroupedDataTest {
     fun `it should calculate same group hash irrespective of column order`() {
         //        flights.glimpse()
 
-        var dfA: DataFrame = dataFrameOf(
+        val dfA: DataFrame = dataFrameOf(
             "first_name", "last_name", "age", "weight")(
             "Max", "Doe", 23, 55,
             "Franz", "Smith", 23, 88,

@@ -1,8 +1,7 @@
 package krangl.test;
 
 import io.kotlintest.matchers.plusOrMinus
-import io.kotlintest.matchers.shouldBe
-import io.kotlintest.matchers.shouldEqual
+import io.kotlintest.shouldBe
 import krangl.*
 import org.junit.Test
 import java.io.ByteArrayOutputStream
@@ -69,7 +68,7 @@ class TypeInterfaceTest {
     @Test
     fun `it should allow to rename objet columns`() {
         dataFrameOf("id")(UUID.randomUUID()).rename("id" to "new_id").apply {
-            names shouldEqual listOf("new_id")
+            names shouldBe listOf("new_id")
         }
     }
 
@@ -81,7 +80,7 @@ class TypeInterfaceTest {
 
         objPersons.toList().size shouldBe users.nrow
 
-        objPersons.first() shouldEqual User("max", "smith", 53, false)
+        objPersons.first() shouldBe User("max", "smith", 53, false)
     }
 
 
@@ -111,10 +110,10 @@ class TypeInterfaceTest {
         }.stdout.apply {
             print(this)
             contains("sepalLength") shouldBe true
-            this shouldEqual """
-            data class IrisData(val sepalLength: Double, val sepalWidth: Double, val petalLength: Double, val petalWidth: Double, val species: String)
-            val records = irisData.rowsAs<IrisData>()
-            """.trimIndent()
+            this shouldBe """
+                    data class IrisData(val sepalLength: Double, val sepalWidth: Double, val petalLength: Double, val petalWidth: Double, val species: String)
+                    val records = irisData.rowsAs<IrisData>()
+                    """.trimIndent()
         }
 
         //use generated code to restore iris flowers
@@ -151,7 +150,7 @@ class TypeInterfaceTest {
         val users = dataFrameOf("department", "ids")("tech", UUID.randomUUID(), "admin", UUID.randomUUID())
         val unwrapped = users.unfold<UUID>("ids", properties = listOf("variant"), keep = true)
 
-        unwrapped["variant"][1] shouldEqual 2
+        unwrapped["variant"][1] shouldBe 2
     }
 
     @Test
@@ -175,8 +174,8 @@ class TypeInterfaceTest {
         val flatDF = applDF.unnest("stuff")
 
         flatDF.print()
-        flatDF.nrow shouldEqual 3
-        flatDF.names shouldEqual listOf("bar", "name", "stuff")
+        flatDF.nrow shouldBe 3
+        flatDF.names shouldBe listOf("bar", "name", "stuff")
     }
 
     data class Car(val ps: Int, val brand: String, val brandURL: URL) {

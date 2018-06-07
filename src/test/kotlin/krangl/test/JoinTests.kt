@@ -1,7 +1,6 @@
 package krangl.test
 
-import io.kotlintest.matchers.shouldBe
-import io.kotlintest.matchers.shouldEqual
+import io.kotlintest.shouldBe
 import krangl.*
 import krangl.UnequalByHelpers.innerJoin
 import org.junit.Test
@@ -116,7 +115,7 @@ class InnerJoinTests {
         // again but now join on nothing
         df.innerJoin(df, by = emptyList(), suffices = "_1" to "_2").apply {
             nrow shouldBe 0
-            names shouldEqual listOf("foo_1", "bar_1", "foo_2", "bar_2")
+            names shouldBe listOf("foo_1", "bar_1", "foo_2", "bar_2")
         }
     }
 
@@ -143,7 +142,7 @@ class OuterJoinTest {
             print()
             nrow shouldBe 6
             ncol shouldBe 4
-            names shouldEqual listOf("foo.x", "bar.x", "foo.y", "bar.y")
+            names shouldBe listOf("foo.x", "bar.x", "foo.y", "bar.y")
         }
     }
 
@@ -177,7 +176,7 @@ class SemiAndAntiJoinTest {
             ncol shouldBe 2
 
             // make sure that renaming does not kick in
-            names shouldEqual listOf("foo", "bar")
+            names shouldBe listOf("foo", "bar")
         }
     }
 

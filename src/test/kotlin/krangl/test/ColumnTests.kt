@@ -1,7 +1,7 @@
 package krangl.test
 
-import io.kotlintest.matchers.fail
-import io.kotlintest.matchers.shouldBe
+import io.kotlintest.fail
+import io.kotlintest.shouldBe
 import krangl.*
 import krangl.util.createValidIdentifier
 import org.junit.Test
@@ -61,8 +61,8 @@ class ColumnTests {
         // a int, b double
         val df = dataFrameOf("a", "b")(1, 1.5, 3, 2.5, 4, 4.0)
 
-        df.addColumn("foo") { it["a"] gt it["b"] }["foo"].values() shouldBe arrayOf(false, true, false)
-        df.addColumn("foo") { it["a"] ge it["b"] }["foo"].values() shouldBe arrayOf(false, true, true)
+        (df.addColumn("foo") { it["a"] gt it["b"] }["foo"].values() contentEquals arrayOf<Boolean?>(false, true, false)) shouldBe true
+        (df.addColumn("foo") { it["a"] ge it["b"] }["foo"].values() contentEquals arrayOf<Boolean?>(false, true, true)) shouldBe true
     }
 }
 

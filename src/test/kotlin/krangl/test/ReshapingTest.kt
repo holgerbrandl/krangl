@@ -1,7 +1,6 @@
 package krangl.test
 
-import io.kotlintest.matchers.shouldBe
-import io.kotlintest.matchers.shouldEqual
+import io.kotlintest.shouldBe
 import krangl.*
 import org.junit.Test
 
@@ -176,14 +175,14 @@ class SpreadUniteTest {
         sleepData.unite("test", listOf("name", "order"), remove = false).apply {
             take().print()
             names.contains("name") shouldBe true
-            this["test"].values().size shouldEqual nrow
+            this["test"].values().size shouldBe nrow
         }
 
         sleepData.unite("test", { listOf("name", "order") }).apply {
             take().print()
 
             names.contains("name") shouldBe false
-            this["test"].values().size shouldEqual nrow
+            this["test"].values().size shouldBe nrow
         }
 
         val united = sleepData.unite("test", { listOf("name", "sleep_rem") }, sep = ",")
@@ -209,7 +208,7 @@ class NestingTests {
             .apply {
                 nrow shouldBe 3
                 ncol shouldBe 2
-                names shouldEqual listOf("Species", "data")
+                names shouldBe listOf("Species", "data")
 
                 // also make sure that output looks good
                 //                captureOutput { print() }.stdout shouldBe """
@@ -235,7 +234,7 @@ class NestingTests {
             .apply {
                 nrow shouldBe 1
                 ncol shouldBe 1
-                names shouldEqual listOf("data")
+                names shouldBe listOf("data")
             }
     }
 
@@ -247,7 +246,7 @@ class NestingTests {
                 schema()
                 nrow shouldBe 3
                 ncol shouldBe 2
-                names shouldEqual listOf("Species", "data")
+                names shouldBe listOf("Species", "data")
             }
     }
 
@@ -271,7 +270,7 @@ class NestingTests {
             names shouldBe sleepData.names
         }
 
-        restored shouldEqual sleepData.sortedBy("order")
+        restored shouldBe sleepData.sortedBy("order")
     }
 
 

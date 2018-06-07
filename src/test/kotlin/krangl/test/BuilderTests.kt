@@ -1,7 +1,6 @@
 package krangl.test
 
-import io.kotlintest.matchers.shouldBe
-import io.kotlintest.matchers.shouldEqual
+import io.kotlintest.shouldBe
 import krangl.*
 import org.apache.commons.csv.CSVFormat
 import org.junit.Test
@@ -231,7 +230,7 @@ class JsonTests {
 
         irisData.remove("Species").toDoubleMatrix().apply {
             size shouldBe 4
-            first().size shouldEqual irisData.nrow
+            first().size shouldBe irisData.nrow
         }
     }
 }

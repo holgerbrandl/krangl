@@ -37,11 +37,23 @@ dependencies {
 //    compile 'me.tongfei:progressbar:0.5.5'
 
     testCompile group: 'junit', name: 'junit', version: '4.11'
-    testCompile "io.kotlintest:kotlintest:2.0.7"
+//    testCompile "io.kotlintest:kotlintest:2.0.7"
+//    testCompile 'io.kotlintest:kotlintest-runner-junit5:3.1.6'
+//    testCompile 'io.kotlintest:kotlintest-runner-junit4:3.1.6'
+    testCompile 'io.kotlintest:kotlintest-assertions:3.1.6'
+
 
     // needed to work around https://youtrack.jetbrains.com/issue/KT-15064
     compileOnly "org.jetbrains.kotlin:kotlin-script-runtime:$kotlin_version"
+//    testCompile "org.jetbrains.kotlin:kotlin-script-runtime:$kotlin_version"
 }
+
+
+// disabled because would require to inherit StringSpec in all test classes
+//test {
+//    useJUnitPlatform()
+//}
+
 
 repositories {
     mavenCentral()
