@@ -116,7 +116,9 @@ fun DataFrame.addRowNumber(name: String = "row_number") = addColumn(name) { rowN
 
 /** Filter the rows of a table with a single predicate.*/
 
-fun DataFrame.filter(predicate: DataFrame.(DataFrame) -> List<Boolean>): DataFrame = filter({ predicate(this.df).toBooleanArray() })
+// fixme not visible because of same jvm signature
+// https://medium.com/@quiro91/getting-to-know-kotlins-extension-functions-some-caveats-to-keep-in-mind-d14d734d108b
+fun DataFrame.filter(predicate: ExpressionContext.(ExpressionContext) -> List<Boolean?>): DataFrame = filter({ predicate(this.df.ec).requireNoNulls().toBooleanArray() })
 
 /** AND-filter a table with different filters.*/
 fun DataFrame.filter(vararg predicates: DataFrame.(DataFrame) -> List<Boolean>): DataFrame =
@@ -141,7 +143,7 @@ fun DataCol.isMatching(missingAs: Boolean = false, filter: String.() -> Boolean)
 fun DataFrame.sampleFrac(fraction: Double, replace: Boolean = false): DataFrame = if (this is GroupedDataFrame) {
     transformGroups({ it.sampleFrac(fraction, replace) })
 } else {
-    sampleN(Math.round(fraction.toDouble() * nrow).toInt(), replace)
+    sampleN(Math.round(fraction * nrow).toInt(), replace)
 }
 
 

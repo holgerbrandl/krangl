@@ -35,6 +35,11 @@ interface DataFrame {
     /** Returns a column by index. */
     operator fun get(columnIndex: Int): DataCol = get(names[columnIndex])
 
+    ////    /** Assign a value to a column */
+    //    operator fun set(columnName: String, value: Any) {
+    //
+    //    }
+    ////     disabled because would render dfs mutable, also it is not compatible with
 
     // should we use invoke() style operator here (see https://kotlinlang.org/docs/reference/operator-overloading.html)?
     fun row(rowIndex: Int): DataFrameRow
@@ -207,7 +212,4 @@ interface DataFrame {
     /** Returns the groups of a grouped data frame or just a reference to this object if not.*/
     fun groups(): List<DataFrame>
 }
-
-
-
 
