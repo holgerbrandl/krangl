@@ -49,7 +49,7 @@ fun DataFrame.Companion.readCSV(
 @JvmOverloads
 fun DataFrame.Companion.readTSV(
     fileOrUrl: String,
-    format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
+    format: CSVFormat = CSVFormat.TDF.withHeader(),
     colTypes: Map<String, ColType> = mapOf()
 ) = readDelim(
     inStream = asStream(fileOrUrl),
