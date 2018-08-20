@@ -73,9 +73,14 @@ class ExpressionContext(df: DataFrame) : TableContext(df) {
     val nrow = df.nrow
 
     /**
-     * A numpu/pequivalentialent to
+     * A numpy equivalent to
      * `df['color'] = np.where(df['Set']=='Z', 'green', 'red')`
      * See https://stackoverflow.com/questions/19913659/pandas-conditional-creation-of-a-series-dataframe-column
+     *
+     * In R the corresoponding pattern would be mutate(df, foo=if_else())
+     *<p>
+     *
+     * @sample krangl.samples.addColumnExamples
      */
     fun where(booleans: BooleanArray, ifTrue: Any, ifFalse: Any): DataCol {
 

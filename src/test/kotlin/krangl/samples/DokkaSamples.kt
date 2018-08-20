@@ -50,6 +50,13 @@ fun groupByExamples() {
 }
 
 
+fun addColumnExamples() {
+
+    flightsData.addColumn("delay_category") { df ->
+        where(df["dep_delay"].asDoubles().mapNonNull { Math.abs(it) > 3 }.nullAsFalse(), "red", "green")
+    }
+}
+
 fun builderSample() {
     // data-frames can be a  mix of atomic (int, double, boolean, string) and object columns
     val birthdays = DataFrame.builder("name", "height", "sex", "birthday")(

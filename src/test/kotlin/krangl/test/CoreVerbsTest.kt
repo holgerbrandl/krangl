@@ -590,6 +590,12 @@ class CoreTests {
                 """.trimIndent()
     }
 
+
+    @Test
+    fun `schema should also work for larger tables`() {
+        // to prevent regressions of: `schema()` should no throw memory exception #53
+        flightsData.schema()
+    }
 }
 
 

@@ -5,6 +5,7 @@ import io.kotlintest.shouldBe
 import krangl.*
 import krangl.util.createValidIdentifier
 import org.junit.Test
+import java.lang.Math.abs
 
 /**
  * @author Holger Brandl
@@ -51,32 +52,22 @@ class ColumnTests {
     // https://github.com/holgerbrandl/krangl/issues/54
     @Test
     fun `allow to create new column conditionally`() {
-        // in padas it is just
-        // https://stackoverflow.com/questions/19913659/pandas-conditional-creation-of-a-series-dataframe-column
-        // df['color'] = np.where(df['Set']=='Z', 'green', 'red')
+        //        irisData.addColumn("trimmed_petal_length") {
+        //            where(it["Petal.Length"] gt 1.5, 1.5, it["Petal.Length"])
+        //        }.print()
 
-        irisData.addColumn("is_wide") { it["Sepal.Length"] gt it["Sepal.Width"] }.ncol shouldBe 6
-        irisData.addColumn("is_wide") { it["Sepal.Length"] gt 3 }.ncol shouldBe 6
+        //        // bad example: trimming could be done with just
+        //        irisData.addColumn("trimmed_petal_length"){ df ->
+        //            df[PETAL_LENGTH].map<Double>{ Math.max(it, 1.3)}
+        //        }
 
-        krangl.irisData.addColumn("trimmed_petal_length") {
-            where(it["Petal.Length"] gt 1.3, 1.3, it["Petal.Length"])
-        }.print()
+        // or using basic mapping
+        //        irisData.addColumn("foo"){ df -> (df["Sepal.Length"] gt 1.3).map{ if(it) 1.3 else df["Petal.Length"].asDoubles() } }.schema()
+
+        flightsData.addColumn("delay_category") { df ->
+            where(df["dep_delay"].asDoubles().mapNonNull { abs(it) > 3 }.nullAsFalse(), "red", "green")
+        }
     }
-
-    //    private fun ExpressionContext.where(booleans: BooleanArray, ifTrue: TableExpression, ifFalse: TableExpression): DataCol {
-    //        val mutationTrue = anyAsColumn(ifTrue(this, this), tempColumnName(), nrow)
-    //        val mutationFalse = anyAsColumn(ifFalse(this, this), tempColumnName(), nrow)
-    //
-    //        val result = booleans.zip(mutationTrue.values().zip(mutationFalse.values())).map { (first, data) ->
-    //            if (first) data.first else data.second
-    //        }
-    //
-    //        return handleListErasure(tempColumnName(), result)
-    //        //        anyAsColumn(mutation, tf.name, nrow)
-    //
-    //    }
-
-    //
 
     @Test
     fun `wrap column name with backticks if necessary`() {

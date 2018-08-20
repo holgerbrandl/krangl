@@ -65,6 +65,7 @@ class CompoundTests {
         krangl.samples.groupByExamples()
         krangl.samples.packageInfoSample()
         krangl.samples.builderSample()
+        krangl.samples.addColumnExamples()
         krangl.samples.renameSomeColumns()
         krangl.samples.textMatching()
     }
