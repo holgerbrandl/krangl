@@ -592,7 +592,7 @@ fun DataFrame.schema(maxDigits: Int = 3, maxWidth: Int = 80) {
     val typePadding = typeLabels.map { it.length }.max() ?: 0
 
     topN.cols.zip(typeLabels).forEach { (col, typeLabel) ->
-        val stringifiedVals = col.values().asSequence()
+        val stringifiedVals = col.values().take(255).asSequence()
             .joinToMaxLengthString(maxLength = maxWidth, transform = createValuePrinter(maxDigits))
 
         println("${col.name.padEnd(namePadding)}  ${typeLabel.padEnd(typePadding)}  $stringifiedVals")
