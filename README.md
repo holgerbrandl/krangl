@@ -17,6 +17,9 @@
 - [How to contribute?](#how-to-contribute)
 
 
+If you're not sure about how to proceed, check out  [krangl in 10 minutes](https://krangl.gitbook.io/docs/getting-started/10_minutes) section in the
+**[krangl user guide](https://krangl.gitbook.io/docs/)**.
+
 
 
 Installation
@@ -218,6 +221,15 @@ Also see
 
 * [Developer Information](./docs/devel.md) with technical notes & details about to build, test, release and improve `krangl`
 * [Roadmap](./docs/roadmap.md) complementing the tracker with a backlog
+
+Also, there are a few issues in the IDE itself which limit the applicability/usability of `krangl`,  So, you may want to vote for
+
+* [KT-11473](https://youtrack.jetbrains.net/issue/KT-11473) Debugging of Kotlin scripts
+* [KT-24789](https://youtrack.jetbrains.net/issue/KT-24789) "Unresolved reference" when running a script which is a symlink to a script outside of source roots
+* [KT-12583](https://youtrack.jetbrains.com/issue/KT-12583) IDE REPL should run in project root directory
+* [KT-11409](https://youtrack.jetbrains.com/issue/KT-11409) Allow to "Send Selection To Kotlin Console"
+* [KT-13319](https://youtrack.jetbrains.net/issue/KT-13319) Support ":paste" for pasting multi-line expressions in REPL
+* [KT-21224](https://youtrack.jetbrains.net/issue/KT-21224) REPL output is not aligned with input
 
 
 
