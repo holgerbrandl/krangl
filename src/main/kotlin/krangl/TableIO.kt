@@ -131,13 +131,20 @@ fun DataFrame.Companion.readDelim(
 fun DataFrame.Companion.readDelim(
     reader: Reader,
     format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
-    colTypes: Map<String, ColType> = mapOf()
+    colTypes: Map<String, ColType> = mapOf(),
+    skip: Int = 0
 ): DataFrame {
 
     val formatWithNullString = if (format.isNullStringSet) {
         format
     } else {
         format.withNullString(MISSING_VALUE)
+    }
+
+    var reader = reader
+    if (skip > 0) {
+        reader = BufferedReader(reader)
+        repeat(skip) { reader.readLine() }
     }
 
     val csvParser = formatWithNullString.parse(reader)
@@ -203,7 +210,7 @@ internal fun guessColType(firstElements: List<String>): ColType =
 
 internal fun dataColFactory(colName: String, colType: ColType, records: MutableList<CSVRecord>): DataCol =
     when (colType) {
-    // see https://github.com/holgerbrandl/krangl/issues/10
+        // see https://github.com/holgerbrandl/krangl/issues/10
         ColType.Int -> try {
             IntCol(colName, records.map { it[colName]?.toInt() })
         } catch (e: NumberFormatException) {

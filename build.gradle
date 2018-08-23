@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.2.41'
+    ext.kotlin_version = '1.2.60'
     ext.dokka_version = '0.9.16'
 //    ext.kotlin_version = '1.2.0-rc-39'
 
