@@ -5,12 +5,26 @@ import krangl.*
 import org.apache.commons.csv.CSVFormat
 import org.junit.Test
 import java.io.File
+import java.io.FileReader
 
 /**
  * @author Holger Brandl
  */
 
-class BuilderTests {
+class CsvReaderTests {
+
+    @Test
+    fun `skip lines and read file without header`() {
+        val dataFile = File("src/test/resources/krangl/data/headerless_with_preamble.txt")
+        val predictions = DataFrame.readDelim(FileReader(dataFile), skip = 7, format = CSVFormat.TDF)
+
+        predictions.apply {
+            nrow shouldBe 13
+            names shouldBe listOf("X1", "X2", "X3")
+            head().print()
+        }
+    }
+
 
     @Test
     fun testTornados() {
@@ -19,43 +33,6 @@ class BuilderTests {
         val df = DataFrame.readCSV(tornandoCsv)
 
         // todo continue test here
-    }
-
-    @Test
-    fun `it should download and cache flights data locally`() {
-        if (flightsCacheFile.exists()) flightsCacheFile.delete()
-        (flightsData.nrow > 0) shouldBe true
-    }
-
-    enum class Engine { Otto, Other }
-    data class Car(val name: String, val numCyl: Int?, val engine: Engine)
-
-    @Test
-    fun `it should convert objects into data-frames`() {
-
-        val myCars = listOf(
-            Car("Ford Mustang", null, Engine.Otto),
-            Car("BMW Mustang", 3, Engine.Otto)
-        )
-
-        val carsDF = myCars.deparseRecords {
-            mapOf(
-                "model" to it.name,
-                "motor" to it.engine,
-                "cylinders" to it.numCyl)
-        }
-
-        carsDF.nrow shouldBe 2
-        carsDF.names shouldBe listOf("model", "motor", "cylinders")
-
-        // use enum order for sorting
-        carsDF.columnTypes().print()
-
-        //todo make sure that enum ordinality is used here for sorting
-        carsDF.sortedBy { rowNumber }
-        //        carsDF.sortedBy { it["motor"] }
-        carsDF.sortedBy { it["motor"].asType<Engine>() }
-        carsDF.sortedBy { it["motor"].map<Engine> { it.name } }
     }
 
     @Test
@@ -114,6 +91,47 @@ class BuilderTests {
         val cols = customNaDataFrame.cols
         assert(cols[0] is IntCol)
 
+    }
+
+}
+
+class BuilderTests {
+
+    @Test
+    fun `it should download and cache flights data locally`() {
+        if (flightsCacheFile.exists()) flightsCacheFile.delete()
+        (flightsData.nrow > 0) shouldBe true
+    }
+
+    enum class Engine { Otto, Other }
+    data class Car(val name: String, val numCyl: Int?, val engine: Engine)
+
+    @Test
+    fun `it should convert objects into data-frames`() {
+
+        val myCars = listOf(
+            Car("Ford Mustang", null, Engine.Otto),
+            Car("BMW Mustang", 3, Engine.Otto)
+        )
+
+        val carsDF = myCars.deparseRecords {
+            mapOf(
+                "model" to it.name,
+                "motor" to it.engine,
+                "cylinders" to it.numCyl)
+        }
+
+        carsDF.nrow shouldBe 2
+        carsDF.names shouldBe listOf("model", "motor", "cylinders")
+
+        // use enum order for sorting
+        carsDF.columnTypes().print()
+
+        //todo make sure that enum ordinality is used here for sorting
+        carsDF.sortedBy { rowNumber }
+        //        carsDF.sortedBy { it["motor"] }
+        carsDF.sortedBy { it["motor"].asType<Engine>() }
+        carsDF.sortedBy { it["motor"].map<Engine> { it.name } }
     }
 
 

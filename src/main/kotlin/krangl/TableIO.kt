@@ -151,7 +151,7 @@ fun DataFrame.Companion.readDelim(
     val records = csvParser.records
 
     val columnNames = csvParser.headerMap?.keys
-        ?: (1..csvParser.records[0].count()).mapIndexed { index, _ -> "X${index}" }
+        ?: (1..records[0].count()).map { index -> "X${index}" }
 
     // Make column names unique when reading them + unit test
     val uniqueNames = columnNames
@@ -167,12 +167,12 @@ fun DataFrame.Companion.readDelim(
 
 
     //    csvParser.headerMap.keys.pmap{colName ->
-    val cols = uniqueNames.map { colName ->
+    val cols = uniqueNames.mapIndexed { colIndex, colName ->
         val defaultColType = colTypes[".default"] ?: ColType.Guess
 
         val colType = colTypes[colName] ?: defaultColType
 
-        dataColFactory(colName, colType, records)
+        dataColFactory(colName, colIndex, colType, records)
     }
 
     return SimpleDataFrame(cols)
@@ -208,23 +208,22 @@ internal fun guessColType(firstElements: List<String>): ColType =
     }
 
 
-internal fun dataColFactory(colName: String, colType: ColType, records: MutableList<CSVRecord>): DataCol =
+internal fun dataColFactory(colName: String, colIndex: Int, colType: ColType, records: MutableList<CSVRecord>): DataCol =
     when (colType) {
         // see https://github.com/holgerbrandl/krangl/issues/10
         ColType.Int -> try {
-            IntCol(colName, records.map { it[colName]?.toInt() })
+            IntCol(colName, records.map { it[colIndex]?.toInt() })
         } catch (e: NumberFormatException) {
-            StringCol(colName, records.map { it[colName] })
+            StringCol(colName, records.map { it[colIndex] })
         }
 
-        ColType.Double -> DoubleCol(colName, records.map { it[colName]?.toDouble() })
+        ColType.Double -> DoubleCol(colName, records.map { it[colIndex]?.toDouble() })
 
-        ColType.Boolean -> BooleanCol(colName, records.map { it[colName]?.cellValueAsBoolean() })
+        ColType.Boolean -> BooleanCol(colName, records.map { it[colIndex]?.cellValueAsBoolean() })
 
-        ColType.String -> StringCol(colName, records.map { it[colName] })
+        ColType.String -> StringCol(colName, records.map { it[colIndex] })
 
-        ColType.Guess -> dataColFactory(colName, guessColType(peekCol(colName, records)), records)
-
+        ColType.Guess -> dataColFactory(colName, colIndex, guessColType(peekCol(colIndex, records)), records)
     }
 
 
@@ -249,9 +248,9 @@ internal fun isBoolCol(firstElements: List<String?>): Boolean = try {
 }
 
 
-internal fun peekCol(colName: String?, records: List<CSVRecord>, peekSize: Int = 10) = records
+internal fun peekCol(colIndex: Int, records: List<CSVRecord>, peekSize: Int = 10) = records
     .asSequence()
-    .mapIndexed { rowIndex, _ -> records[rowIndex][colName] }
+    .mapIndexed { rowIndex, _ -> records[rowIndex][colIndex] }
     .filterNotNull()
     .take(peekSize)
     .toList()
@@ -366,7 +365,7 @@ val sleepPatterns by lazy {
  *
  *
  */
-val irisData = DataFrame.readDelim(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader())
+val irisData by lazy { DataFrame.readDelim(DataFrame::class.java.getResourceAsStream("data/iris.txt"), format = CSVFormat.TDF.withHeader()) }
 
 
 /**
