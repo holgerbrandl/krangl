@@ -15,6 +15,17 @@ import kotlin.reflect.full.declaredMembers
 /** Create a data-frame from a list of objects */
 fun <T> Iterable<T>.deparseRecords(mapping: (T) -> DataFrameRow) = DataFrame.fromRecords(this, mapping)
 
+internal typealias DeparseFormula<T> = T.(T) -> Any?
+
+fun <T> Iterable<T>.deparseRecords(vararg mapping: Pair<String, DeparseFormula<T>>): DataFrame {
+    //    val revMapping = mapping.toMap().entries.associateBy({ it.value }) { it.key }
+    val mappings = mapOf<String, Any?>().toMutableMap().apply { putAll(mapping) }
+    return DataFrame.fromRecords(this, { it -> mappings })
+}
+
+
+infix fun <T> String.with(that: DeparseFormula<T>) = Pair(this, that)
+
 
 /** Create a data-frame from a list of objects */
 fun <T> DataFrame.Companion.fromRecords(records: Iterable<T>, mapping: (T) -> DataFrameRow): DataFrame {

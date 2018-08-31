@@ -103,3 +103,22 @@ fun textMatching() {
         .filter { it["Species"].isMatching { startsWith("se") } }
         .schema()
 }
+
+
+fun iterableDeparsing() {
+
+    val df = sleepPatterns.deparseRecords { sp ->
+        mapOf(
+            "awake" to sp.awake
+        )
+    }
+
+
+    val df2 = sleepPatterns.deparseRecords(
+        "foo" with { awake },
+        "bar" with { it.brainwt?.plus(3) }
+    )
+
+    // or fully automatic using reflection
+    val df3 = sleepPatterns.asDataFrame()
+}
