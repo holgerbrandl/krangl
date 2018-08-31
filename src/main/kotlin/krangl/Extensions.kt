@@ -59,6 +59,11 @@ fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
     return renamed.select(*namesRestoredPos.toTypedArray())
 }
 
+/**
+ *  Replace current column names with new ones. The number of provided names must match the number of columns.
+ */
+fun DataFrame.setNames(vararg newNames: String): DataFrame =
+    rename(*names.zip(newNames).map { (old, new) -> old to new }.toTypedArray())
 
 ////////////////////////////////////////////////
 // mutate() convenience
