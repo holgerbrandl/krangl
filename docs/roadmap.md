@@ -3,6 +3,13 @@ Krangl Roadmap
 
 For completed items see [change-log](../CHANGES.md).
 
+## Next release
+
+inconsistenly named reader methods
+
+*  java.lang.OutOfMemoryError in `flightsData.schema()`
+*  krangl.ColumnsKt#map should have better return type
+
 ## Meta
 
 * use/support compressed columns (https://github.com/lemire/JavaFastPFOR)
