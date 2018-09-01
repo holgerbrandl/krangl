@@ -100,7 +100,6 @@ fun DataFrame.moveRight(vararg columnNames: String): DataFrame = select((names -
 fun DataFrame.moveLeft(vararg columnNames: String): DataFrame = select(columnNames.asList() + (names - columnNames))
 
 
-
 // commented out because it's not clear how to use it
 //val foo: ColumnSelector = { startsWith("foo")
 //sleepData.select(foo AND { endsWith("dfd") })
@@ -171,7 +170,7 @@ internal fun DataFrame.colSelectAsNames(columnSelect: ColumnSelector): List<Stri
     require(which.size == ncol) { "selector array has different dimension than data-frame" }
 
     // map boolean array to string selection
-    val isPosSelection = which.count { it == true } > 0
+    val isPosSelection = which.count { it == true } > 0 || which.filterNotNull().isEmpty()
     val whichComplete = which.map { it ?: !isPosSelection }
 
     val colSelection: List<String> = names

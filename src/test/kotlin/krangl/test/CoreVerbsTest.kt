@@ -92,6 +92,9 @@ class SelectTest {
         }
 
         sleepData.select(*arrayOf<String>()).ncol shouldBe 0
+
+        irisData.select { startsWith("bla") }.ncol shouldBe 0
+
     }
 
 
