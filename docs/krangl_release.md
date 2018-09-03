@@ -30,7 +30,7 @@ echo "new version is $krangl_version"
 ## create tag on github 
 #github-release --help
 
-source /Users/brandl/Dropbox/archive/gh_token.sh
+source /Users/brandl/archive/gh_token.sh
 export GITHUB_TOKEN=${GH_TOKEN}
 #echo $GITHUB_TOKEN
 
