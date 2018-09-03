@@ -346,6 +346,87 @@ fun DataFrame.countExpr(vararg moreExpressions: TableExpression, name: String = 
     return exprGrouped.count(*exprGrouped.groupedBy().names.toTypedArray(), name = name)
 }
 
+//fun DataFrame.summarizeEach(columnSelect: ColumnSelector, vararg aggfuns : DataCol.(DataCol) -> Any?): DataFrame {
+fun DataFrame.summarizeEach(columnSelect: ColumnSelector, vararg aggfuns: AggFun): DataFrame {
+    //        aggfuns.flatMap{aggfun->
+    //        select(columnSelect).cols.map{ (it.name + aggfun.name) to aggfun.value(it, it)}
+    //        }
+    //        val exprGrouped = groupByExpr(*moreExpressions, tableExpression = tableExpression).also { print(it) }
+    //
+    //        return exprGrouped.count(*exprGrouped.groupedBy().names.toTypedArray(), name = name)
+    return this
+}
+
+data class AggFun(val value: DataCol.(DataCol) -> Any?, val suffix: String? = null) {
+    //        fun getName()
+}
+
+typealias SumFormula = DataCol.(DataCol) -> Any?
+typealias MutFormula = DataCol.(DataCol) -> Any?
+
+fun SumFormula.withName() {}
+
+/** Common Aggregration Functions to be used along `summarizeAt/If/All*/
+object SumFuns {
+    val mean = AggFun({ mean() })
+    val median = AggFun({ mean() })
+}
+
+
+fun DataFrame.summarizeEach(columnSelect: ColumnSelector, op: (SummarizeBuilder.() -> Unit)? = null): DataFrame {
+    return SummarizeBuilder(this, columnSelect).apply { op?.invoke(this) }.build()
+}
+
+class SummarizeBuilder(val df: DataFrame, val columnSelect: ColumnSelector) {
+    val rules = emptyMap<SumFormula, String?>().toMutableMap()
+
+    fun add(how: SumFormula, name: String? = null) {
+        rules[how] = name
+    }
+
+    fun build(): DataFrame {
+
+        val rules = df.select(columnSelect).names.flatMap { colName: String ->
+            rules.map { rule ->
+                //todo use rule?.value as name instead
+                val ruleName = colName + (rule.value ?: rule.key.hashCode())
+
+                ColumnFormula(ruleName, { ec ->
+                    val dataCol = ec[colName]
+                    rule.key(dataCol, dataCol)
+                })
+            }
+        }
+
+        return df.summarize(*rules.toTypedArray())
+    }
+}
+
+fun main(args: Array<String>) {
+    //        irisData.summarizeEach({ startsWith("foo") },
+    //            "mean" to { it["Species"].mean() },
+    //            "median" to { it["Species"].mean() }
+    //        )
+
+    irisData.select { startsWith("Length") }.head().print()
+    irisData.summarizeEach({ startsWith("Length") }) {
+        add({ mean() }, "mean")
+        add({ median() }, "median")
+        //        mean() //todo add commom suspects
+        //        median
+    }
+
+
+    println("-------")
+
+    irisData.summarizeEach(
+        { startsWith("Length") },
+        SumFuns.mean,
+        AggFun({ mean() }),
+        AggFun({ median() })
+    ).head().print()
+
+}
 ////////////////////////////////////////////////
 // groupBy() convenience
 ////////////////////////////////////////////////
