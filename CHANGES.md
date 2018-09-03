@@ -1,6 +1,24 @@
 Krangl Release History
 ======================
 
+v0.10
+-----
+
+Major:
+* New: `summarizeAt` for simplified column aggregations
+* New: `setNames` to replace column headers of a data-frame
+* New: Deparse Iterables more conveniently using lambdas in `deparseRecords`
+
+Minor:
+* Fixed: Can not read csv-tables without header
+* Added option to skip lines in csv reader.
+* Fixed `schema()` should no throw memory exception ([#53](https://github.com/holgerbrandl/krangl/issues/53): )
+* Fixed `DataFrame.readTSV` default format ([#56](https://github.com/holgerbrandl/krangl/issues/56))
+* Added `where()` for conditional column creation (relates to [#54](https://github.com/holgerbrandl/krangl/issues/54))
+* Added `writeTSV`
+* Fixed grouping by `Any` columns
+* Added: `toDoubleMatrix()` helper extension method
+
 v0.9.1
 -----
 
