@@ -5,31 +5,36 @@ For completed items see [change-log](../CHANGES.md).
 
 ## Next release
 
-* inconsistenly named reader methods
-* `krangl.ColumnsKt#map` should have better return type
+https://github.com/holgerbrandl/krangl/issues
+
+* [provide a `tidyr::fill` equivalent](https://github.com/holgerbrandl/krangl/issues/61)
+* [consider shorter columns cast as in pandas](https://github.com/holgerbrandl/krangl/issues/60)
+* [Add excel import/export](https://github.com/holgerbrandl/krangl/issues/58)
+* Better documentation & cheatsheet
+* Date (column?) support
+* Factor (column?) support + [Add factor attribute utilities similar to methods in R package `forcats`](https://github.com/holgerbrandl/krangl/issues/47)
+
+* better spec out NA
+    * consider use of doublearray for double/int-col along with NaN, see https://pandas.pydata.org/pandas-docs/stable/missing_data.html#working-with-missing-data
+
 
 ## Meta
 
+* inconsistenly named reader methods
+* `krangl.ColumnsKt#map` should have better return type
 * use/support compressed columns (https://github.com/lemire/JavaFastPFOR)
-* Date (column?) support
 * Better lambda receiver contexts
 * Performance (indices, avoid list and array copies, compressed columns)
 * Use dedicated return type for table formula helpers (like `mean`, `rank`) to reduce runtime errors
 * More bindings to other jvm data-science libraries
-* Better documentation & cheatsheets
 * `Sequence` vs `Iterable`?
 * Pluggable backends like native or SQL
-* Implement actual `nest` and `unnest`
-
 * should `unfold` be better called `flatten`?
 
 * write chapter about timeseries support
     * https://github.com/signaflo/java-timeseries/wiki/ARIMA-models
     * learn from https://pandas.pydata.org/pandas-docs/stable/timeseries.html
 
-
-* better spec out NA
-    * consider use of doublearray for double-col along with NaN, see https://pandas.pydata.org/pandas-docs/stable/missing_data.html#working-with-missing-data
 
 ### IO
 
