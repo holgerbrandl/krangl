@@ -5,10 +5,8 @@ For completed items see [change-log](../CHANGES.md).
 
 ## Next release
 
-inconsistenly named reader methods
-
-*  java.lang.OutOfMemoryError in `flightsData.schema()`
-*  krangl.ColumnsKt#map should have better return type
+* inconsistenly named reader methods
+* `krangl.ColumnsKt#map` should have better return type
 
 ## Meta
 

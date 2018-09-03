@@ -66,7 +66,13 @@ fun ColNames.range(from: String, to: String): List<Boolean?> {
 // normally, there should be no need for them. We just do positive selection and either use renmove or select
 // BUT: verbs like gather still need to support negative selection
 /** Performs a negative selection by selecting all columns except the listed ones. */
-fun ColNames.except(vararg columns: String) = names.map { !columns.contains(it) }.trueAsNull()
+fun ColNames.except(vararg columns: String): List<Boolean?> {
+    return if (columns.isEmpty()) {
+        names.map { true }
+    } else {
+        names.map { !columns.contains(it) }.trueAsNull()
+    }
+}
 
 fun ColNames.except(columnSelector: ColumnSelector) = !columnSelector(this)
 //fun ColNames.not(columnSelector: ColumnSelector) = columnSelector(this).not()
@@ -156,11 +162,27 @@ internal fun nullAwareOr(first: Boolean?, second: Boolean?): Boolean? {
 
 internal fun DataFrame.select(which: List<Boolean?>): DataFrame = select { which }
 
+//private val <T> List<T>.isPositiveSelect: Boolean
+//    get() =  any { it == true }
+//private val <T> List<T>.isNegativeSelect: Boolean
+//    get() =  !isPositiveSelect
 
-internal fun DataFrame.reduceColSelectors(which: Array<out ColumnSelector>): ColumnSelector = which
-    .map { it(ColNames(names)) }
-    .reduce { selA, selB -> selA nullAwareAND selB }
-    .let { { it } }
+internal fun DataFrame.reduceColSelectors(which: Array<out ColumnSelector>): ColumnSelector {
+    // follow dplyr::select here, to:
+    // If the first expression is negative, select() will automatically start with all variables.
+
+    //    val extWhich = if(which.isNotEmpty() && which.first()(ColNames((names))).isNegativeSelect){
+    //        val seedSelect : ColumnSelector = { all() }
+    //        listOf(seedSelect).toMutableList().apply { addAll(which) }.toTypedArray()
+    //    }else{
+    //        which
+    //    }
+
+    return which
+        .map { it(ColNames(names)) }
+        .reduce { selA, selB -> selA nullAwareAND selB }
+        .let { { it } }
+}
 
 
 internal fun DataFrame.colSelectAsNames(columnSelect: ColumnSelector): List<String> {

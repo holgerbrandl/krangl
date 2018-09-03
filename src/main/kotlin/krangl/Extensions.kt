@@ -346,55 +346,53 @@ fun DataFrame.countExpr(vararg moreExpressions: TableExpression, name: String = 
     return exprGrouped.count(*exprGrouped.groupedBy().names.toTypedArray(), name = name)
 }
 
-//fun DataFrame.summarizeEach(columnSelect: ColumnSelector, vararg aggfuns : DataCol.(DataCol) -> Any?): DataFrame {
-fun DataFrame.summarizeEach(columnSelect: ColumnSelector, vararg aggfuns: AggFun): DataFrame {
-    //        aggfuns.flatMap{aggfun->
-    //        select(columnSelect).cols.map{ (it.name + aggfun.name) to aggfun.value(it, it)}
-    //        }
-    //        val exprGrouped = groupByExpr(*moreExpressions, tableExpression = tableExpression).also { print(it) }
-    //
-    //        return exprGrouped.count(*exprGrouped.groupedBy().names.toTypedArray(), name = name)
-    return this
+fun DataFrame.summarizeAt(columnSelect: ColumnSelector, vararg aggfuns: AggFun): DataFrame {
+    return summarizeAt(columnSelect) {
+        aggfuns.forEach { add(it.value, it.suffix) }
+    }
 }
 
-data class AggFun(val value: DataCol.(DataCol) -> Any?, val suffix: String? = null) {
-    //        fun getName()
-}
+data class AggFun(val value: SumFormula, val suffix: String? = null)
 
 typealias SumFormula = DataCol.(DataCol) -> Any?
-typealias MutFormula = DataCol.(DataCol) -> Any?
+//typealias MutFormula = DataCol.(DataCol) -> Any?
 
-fun SumFormula.withName() {}
 
-/** Common Aggregration Functions to be used along `summarizeAt/If/All*/
+/** Common ggregation Functions to be used along `summarizeAt/If/All*/
 object SumFuns {
-    val mean = AggFun({ mean() })
-    val median = AggFun({ mean() })
+    val mean = AggFun({ mean() }, "mean")
+    val median = AggFun({ mean() }, "median")
+    val n = AggFun({ length }, "n")
+    // todo add rank etc
 }
 
-
-fun DataFrame.summarizeEach(columnSelect: ColumnSelector, op: (SummarizeBuilder.() -> Unit)? = null): DataFrame {
+fun DataFrame.summarizeAt(columnSelect: ColumnSelector, op: (SummarizeBuilder.() -> Unit)? = null): DataFrame {
     return SummarizeBuilder(this, columnSelect).apply { op?.invoke(this) }.build()
 }
 
 class SummarizeBuilder(val df: DataFrame, val columnSelect: ColumnSelector) {
     val rules = emptyMap<SumFormula, String?>().toMutableMap()
 
-    fun add(how: SumFormula, name: String? = null) {
-        rules[how] = name
+    fun add(how: SumFormula, name: String? = null, separator: Char = '.') {
+        rules[how] = separator.toString() + name
     }
 
     fun build(): DataFrame {
 
-        val rules = df.select(columnSelect).names.flatMap { colName: String ->
+        val sumCols = df.select(columnSelect).names.toMutableList()
+        if (df is GroupedDataFrame) {
+            sumCols.removeAll(df.by)
+        }
+
+        val rules = sumCols.flatMap { colName: String ->
             rules.map { rule ->
                 //todo use rule?.value as name instead
                 val ruleName = colName + (rule.value ?: rule.key.hashCode())
 
-                ColumnFormula(ruleName, { ec ->
+                ColumnFormula(ruleName) { ec ->
                     val dataCol = ec[colName]
                     rule.key(dataCol, dataCol)
-                })
+                }
             }
         }
 
@@ -409,7 +407,7 @@ fun main(args: Array<String>) {
     //        )
 
     irisData.select { startsWith("Length") }.head().print()
-    irisData.summarizeEach({ startsWith("Length") }) {
+    irisData.summarizeAt({ startsWith("Length") }) {
         add({ mean() }, "mean")
         add({ median() }, "median")
         //        mean() //todo add commom suspects
@@ -419,7 +417,7 @@ fun main(args: Array<String>) {
 
     println("-------")
 
-    irisData.summarizeEach(
+    irisData.summarizeAt(
         { startsWith("Length") },
         SumFuns.mean,
         AggFun({ mean() }),

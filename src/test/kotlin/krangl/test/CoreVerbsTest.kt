@@ -145,6 +145,23 @@ class SelectTest {
 
         //        irisData.select { except{startsWith("Sepal")} }.structure().print()
     }
+
+    @Test
+    fun `it should handle empty negative selections gracefully`() {
+        //        irisData.select { !startsWith("Species")}.print()
+        irisData.select { except() }.print()
+
+    }
+
+    @Test
+    fun `it should allow to select with matchers in grouped df`() {
+        irisData.groupBy("Species")
+            .select { endsWith("Length") }.apply {
+                print()
+                names shouldBe listOf("Species", "Sepal.Length", "Petal.Length")
+            }
+
+    }
 }
 
 
@@ -513,6 +530,43 @@ class SummarizeTest {
 
     }
 
+    @Test
+    fun `summarize multiple columns at once with summarizeEach`() {
+        // using builder style api
+        irisData.summarizeAt({ startsWith("Sepal") }) {
+            add({ mean() }, "mean")
+            add({ median() }, "median")
+        }.apply {
+            print()
+            nrow shouldBe 1
+            names.size shouldBe 4
+        }
+
+
+        // using varargs
+        irisData.summarizeAt({ endsWith("Length") },
+            SumFuns.mean,
+            //            AggFun({ mean() }),
+            AggFun({ median() })
+        ).apply {
+            print()
+            nrow shouldBe 1
+            names.size shouldBe 2
+        }
+    }
+
+
+    @Test
+    fun `summarize multiple columns in grouped data frames with summarizeEach`() {
+
+        irisData.groupBy("Species")
+            .summarizeAt({ endsWith("Length") }, SumFuns.mean).apply {
+                print()
+                nrow shouldBe 3
+                names shouldBe listOf("Species", "Sepal.Length.mean", "Petal.Length.mean")
+            }
+
+    }
 }
 
 
