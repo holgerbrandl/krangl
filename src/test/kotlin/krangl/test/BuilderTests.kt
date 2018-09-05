@@ -134,6 +134,18 @@ class BuilderTests {
         carsDF.sortedBy { it["motor"].map<Engine> { it.name } }
     }
 
+    @Test
+    fun `it should convert object with extractor patterns`() {
+        sleepPatterns.deparseRecords(
+            "foo" with { awake },
+            "bar" with { it.brainwt?.plus(3) }
+        ).apply {
+            print()
+            schema()
+            names shouldBe listOf("foo", "bar")
+        }
+    }
+
 
     @Test
     fun `it shoudl coerece lists and iterables to varargs when building inplace data-frames`() {

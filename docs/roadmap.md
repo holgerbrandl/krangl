@@ -16,7 +16,8 @@ https://github.com/holgerbrandl/krangl/issues
 
 * better spec out NA
     * consider use of doublearray for double/int-col along with NaN, see https://pandas.pydata.org/pandas-docs/stable/missing_data.html#working-with-missing-data
-
+* add a `pretty_column` helper
+* improve `iter.toDataFrame()` to include reference, getters, kotlin property getters
 
 ## Meta
 

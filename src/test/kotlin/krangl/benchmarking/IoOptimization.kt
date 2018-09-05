@@ -1,5 +1,6 @@
 package krangl.benchmarking
 
+import de.mpicbg.scicomp.kutils.MicroBenchmark
 import krangl.*
 import org.apache.commons.csv.CSVFormat
 import java.io.*
@@ -103,60 +104,34 @@ internal fun main(args: Array<String>) {
         return BufferedReader(InputStreamReader(gzip));
     }
 
-    // jvm warmup
-//    DataFrame.fromCSV(getFlightsReader(), CSVFormat.TDF).head(5).writeCSV("flights_head.txt", format = CSVFormat.TDF)
-//    repeat(100) { DataFrame.fromTSV("flights_head.txt") }
 
-    repeat(3) {
-        println("another run:")
-//
-//        RunTimes.measure({
-//            DataFrame.fromCSVlistArray(getFlightsReader(), CSVFormat.TDF)
-//        }, 8).apply {
-//            println("fromCSVlistArray: $this")
-//        }.result//.glimpse()
-//
-//        RunTimes.measure({
-//            DataFrame.fromCSVArray(getFlightsReader(), CSVFormat.TDF)
-//        }, 8).apply {
-//            println("fromCSVArray: $this")
-//        }.result//.glimpse()
+    //make sure that the results are identical
+    //    DataFrame.readTsvUnivox(getFlightsReader()).schema()
+    DataFrame.readDelim(getFlightsReader(), CSVFormat.TDF.withHeader()).schema()
 
-        RunTimes.measure({
-            DataFrame.readDelim(getFlightsReader(), CSVFormat.TDF)
-        }, 8).apply {
-            println("fromCSV: $this")
-        }.result//.glimpse()
+
+    val mb = MicroBenchmark<String>(reps = 20, warmupReps = 5)
+
+    mb.elapseNano("apache_commons") {
+        DataFrame.readDelim(getFlightsReader(), CSVFormat.TDF)
     }
 
-//    val df = SimpleDataFrame()
-//    df.appendRow(mapOf("config" to 1))
+    //    mb.elapseNano("univocity") {
+    //        DataFrame.readTsvUnivox(getFlightsReader())
+    //    }
+
+    //    mb.results.first().mean
+    mb.asDataFrame().print()
+}
+
+fun <T> MicroBenchmark<T>.asDataFrame(): DataFrame {
+    //    return results.deparseRecords (
+    //        "config" with { config },
+    //        "num_reps" with { reps },
+    //        "" with { times }
+    //    )
+
+    return results.asDataFrame()
 }
 
 
-data class RunTimes<T>(val result: T, val runtimes: List<Double>) {
-    val mean by lazy { runtimes.toTypedArray().mean() }
-
-    override fun toString(): String {
-        // todo use actual confidence interval here
-        return "${mean.format(2)} ± ${runtimes.toTypedArray().sd()?.format(2)} SD, N=${runtimes.size} "
-    }
-
-    companion object {
-        inline fun <R> measure(block: () -> R, numRuns: Int = 1, warmUp: Int = 0): RunTimes<R> {
-
-            require(numRuns > 0)
-
-            var result: R? = null
-
-            val runs = (1..(numRuns + warmUp)).map {
-                val start = System.currentTimeMillis()
-                result = block()
-                (System.currentTimeMillis() - start) / 1000.toDouble()
-            }
-
-            return RunTimes<R>(result!!, runs.drop(warmUp))
-        }
-
-    }
-}
