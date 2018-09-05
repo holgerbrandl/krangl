@@ -17,10 +17,14 @@ fun <T> Iterable<T>.deparseRecords(mapping: (T) -> DataFrameRow) = DataFrame.fro
 
 internal typealias DeparseFormula<T> = T.(T) -> Any?
 
-fun <T> Iterable<T>.deparseRecords(vararg mapping: Pair<String, DeparseFormula<T>>): DataFrame {
+inline fun <reified T> Iterable<T>.deparseRecords(vararg mapping: Pair<String, DeparseFormula<T>>): DataFrame {
     //    val revMapping = mapping.toMap().entries.associateBy({ it.value }) { it.key }
     val mappings = mapOf<String, Any?>().toMutableMap().apply { putAll(mapping) }
-    return DataFrame.fromRecords(this, { it -> mappings })
+
+    val function = { record: T ->
+        mapping.toMap().map { (name, deparse) -> name to deparse(record, record) }.toMap() as DataFrameRow
+    }
+    return DataFrame.fromRecords(this, function)
 }
 
 
@@ -45,19 +49,28 @@ fun <T> DataFrame.Companion.fromRecords(records: Iterable<T>, mapping: (T) -> Da
 /**
  * Turn a list of objects into a data-frame using reflection. Currently just properties without any nesting are supported.
  */
-inline fun <reified T> Iterable<T>.asDataFrame(): DataFrame {
+inline fun <reified T> Iterable<T>.asDataFrame(refAs: String? = null): DataFrame {
     // val declaredMembers = T::class.declaredMembers
     //    declaredMembers.first().call(this[0])
 
-    val properties = T::class.declaredMembers
+    val declaredMembers = T::class.declaredMembers
+
+    val properties = declaredMembers
         .filter { it.parameters.toList().size == 1 }
         .filter { it is KProperty }
+
+    // todo call kotlin getters
+    //  declaredMembers.toList()[1].call(first())
+
+    // todo call regular getters
+
 
     val results = properties.map {
         it.name to this.map { el -> it.call(el) }
     }
 
     val columns = results.map { handleListErasure(it.first, it.second) }
+
 
     return columns.asDF()
 }
