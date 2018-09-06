@@ -547,11 +547,11 @@ class SummarizeTest {
         irisData.summarizeAt({ endsWith("Length") },
             SumFuns.mean,
             //            AggFun({ mean() }),
-            AggFun({ median() })
+            AggFun({ median() }, "median")
         ).apply {
             print()
             nrow shouldBe 1
-            names.size shouldBe 2
+            names.size shouldBe 4
         }
     }
 
