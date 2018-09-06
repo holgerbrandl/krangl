@@ -38,7 +38,7 @@ export GITHUB_TOKEN=${GH_TOKEN}
 cd ${KRANGL_HOME}
 
 #git tag v${krangl_version} && git push --tags
-(git diff --exit-code && git tag "v${krangl_version}")  || echo "could not tag current branch"
+(git diff --ignore-submodules --exit-code && git tag "v${krangl_version}")  || echo "could not tag current branch"
 
 git push --tags
 
