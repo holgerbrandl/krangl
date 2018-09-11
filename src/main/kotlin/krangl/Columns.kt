@@ -1,7 +1,6 @@
 package krangl
 
 import krangl.ArrayUtils.handleArrayErasure
-import java.lang.UnsupportedOperationException
 import java.util.*
 
 
@@ -504,6 +503,19 @@ fun DataCol.sum(removeNA: Boolean = false): Number? = when (this) {
 fun DataCol.median(removeNA: Boolean = false): Double? = when (this) {
     is DoubleCol -> values.run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.median()
     is IntCol -> values.map { it?.toDouble() }.toTypedArray().run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.median()
+    else -> throw InvalidColumnOperationException(this)
+}
+
+/**
+ * Calculates the standard deviation of the column values.
+ *
+ * @param removeNA If `true` missing values will be excluded from the operation
+ * @throws MissingValueException If removeNA is `false` but the data contains missing values.
+ * @throws InvalidColumnOperationException If the type of the receiver column is not numeric
+ */
+fun DataCol.sd(removeNA: Boolean = false): Double? = when (this) {
+    is DoubleCol -> values.run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.sd()
+    is IntCol -> values.map { it?.toDouble() }.toTypedArray().run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.sd()
     else -> throw InvalidColumnOperationException(this)
 }
 

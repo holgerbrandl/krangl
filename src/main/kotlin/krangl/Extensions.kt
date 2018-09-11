@@ -362,6 +362,7 @@ typealias SumFormula = DataCol.(DataCol) -> Any?
 object SumFuns {
     val mean = AggFun({ mean() }, "mean")
     val median = AggFun({ mean() }, "median")
+    val sd = AggFun({ sd() }, "sd")
     val n = AggFun({ length }, "n")
     // todo add rank etc
 }
