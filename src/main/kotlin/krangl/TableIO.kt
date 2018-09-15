@@ -302,9 +302,9 @@ Additional variables order, conservation status and vore were added from wikiped
 - vore. carnivore, omnivore or herbivore?
 - order.
 - conservation. the conservation status of the animal
-- sleep\_total. total amount of sleep, in hours
-- sleep\_rem. rem sleep, in hours
-- sleep\_cycle. length of sleep cycle, in hours
+- sleep_total. total amount of sleep, in hours
+- sleep_rem. rem sleep, in hours
+- sleep_cycle. length of sleep cycle, in hours
 - awake. amount of time spent awake, in hours
 - brainwt. brain weight in kilograms
 - bodywt. body weight in kilograms
