@@ -33,7 +33,7 @@ dependencies {
 
 
     compile "org.apache.commons:commons-csv:1.3"
-//    compile "com.univocity:univocity-parsers:2.7.5"
+    compile "com.univocity:univocity-parsers:2.7.5"
     compile 'com.beust:klaxon:0.30'
 //    compile 'me.tongfei:progressbar:0.5.5'
 
@@ -49,6 +49,10 @@ dependencies {
     // needed to work around https://youtrack.jetbrains.com/issue/KT-15064
     compileOnly "org.jetbrains.kotlin:kotlin-script-runtime:$kotlin_version"
 //    testCompile "org.jetbrains.kotlin:kotlin-script-runtime:$kotlin_version"
+
+    testCompile 'tech.tablesaw:tablesaw-core:0.25.2'
+    testCompile "com.github.holgerbrandl:kravis:0.4-SNAPSHOT"
+
 }
 
 
