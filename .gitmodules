@@ -1,3 +1,0 @@
-[submodule "docs/manual"]
-	path = manual
-	url = https://github.com/holgerbrandl/krangl-gitbook.git
