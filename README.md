@@ -224,7 +224,7 @@ Also see
 
 Also, there are a few issues in the IDE itself which limit the applicability/usability of `krangl`,  So, you may want to vote for
 
-* [KT-11473](https://youtrack.jetbrains.net/issue/KT-11473) Debugging of Kotlin scripts
+* [KT-23526](https://youtrack.jetbrains.com/issue/KT-11473) In *.kts scripts, debugger ignores breakpoints in top-level statements and members
 * [KT-24789](https://youtrack.jetbrains.net/issue/KT-24789) "Unresolved reference" when running a script which is a symlink to a script outside of source roots
 * [KT-12583](https://youtrack.jetbrains.com/issue/KT-12583) IDE REPL should run in project root directory
 * [KT-11409](https://youtrack.jetbrains.com/issue/KT-11409) Allow to "Send Selection To Kotlin Console"
