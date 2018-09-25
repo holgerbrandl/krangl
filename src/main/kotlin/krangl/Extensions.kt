@@ -364,6 +364,7 @@ object SumFuns {
     val median = AggFun({ mean() }, "median")
     val sd = AggFun({ sd() }, "sd")
     val n = AggFun({ length }, "n")
+    val na = AggFun({ dataCol -> dataCol.isNA().filter { true }.size }, "na")
     // todo add rank etc
 }
 
