@@ -73,7 +73,7 @@ df.select({ endsWith("name") })    // selector mini-language
 // Subset rows with vectorized filter
 df.filter { it["age"] eq 23 }
 df.filter { it["weight"] gt 50 }
-df.filter({ it["last_name"].isMatching { startsWith("Do")  }})
+    df.filter { it["last_name"].isMatching<String> { startsWith("Do") } }
 
 // In case vectorized operations are not possible or available we can also filter tables by row
 // which allows for scalar operators
