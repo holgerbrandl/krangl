@@ -337,8 +337,8 @@ class FilterTest {
 
     @Test
     fun `it should filter rows with text matching helpers`() {
-        sleepData.filter { it["vore"].isMatching { equals("insecti") } }.nrow shouldBe 5
-        sleepData.filter { it["vore"].isMatching { startsWith("ins") } }.nrow shouldBe 5
+        sleepData.filter { it["vore"].isMatching<String> { equals("insecti") } }.nrow shouldBe 5
+        sleepData.filter { it["vore"].isMatching<String> { startsWith("ins") } }.nrow shouldBe 5
 
 
         val df = dataFrameOf("x")(1, 2, 3, 4, 5, null)
