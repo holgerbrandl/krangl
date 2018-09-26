@@ -158,8 +158,8 @@ fun DataFrame.filter(vararg predicates: DataFrame.(DataFrame) -> List<Boolean>):
  * @sample krangl.samples.textMatching
  */
 @Suppress("UNCHECKED_CAST")
-fun DataCol.isMatching(missingAs: Boolean = false, filter: String.() -> Boolean): BooleanArray =
-    (map<String> { it.filter() }.map { it ?: missingAs } as List<Boolean>).toBooleanArray()
+inline fun <reified T> DataCol.isMatching(missingAs: Boolean = false, crossinline filter: T.() -> Boolean): BooleanArray =
+    (map<T> { it.filter() }.map { it ?: missingAs } as List<Boolean>).toBooleanArray()
 
 
 /**
