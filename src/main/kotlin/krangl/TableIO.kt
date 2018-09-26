@@ -248,7 +248,7 @@ internal fun isBoolCol(firstElements: List<String?>): Boolean = try {
 }
 
 
-internal fun peekCol(colIndex: Int, records: List<CSVRecord>, peekSize: Int = 10) = records
+internal fun peekCol(colIndex: Int, records: List<CSVRecord>, peekSize: Int = 100) = records
     .asSequence()
     .mapIndexed { rowIndex, _ -> records[rowIndex][colIndex] }
     .filterNotNull()
