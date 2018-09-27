@@ -1,18 +1,19 @@
 buildscript {
     ext.kotlin_version = '1.2.70'
-    ext.dokka_version = '0.9.16'
-//    ext.kotlin_version = '1.2.0-rc-39'
+    ext.dokka_version = '0.9.17'
 
     repositories {
-//        maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
         maven { url 'https://dl.bintray.com/kotlin/dokka' }
         mavenCentral()
     }
+
     dependencies {
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
+
+
 
 plugins { id "com.jfrog.bintray" version "1.2" }
 
@@ -23,7 +24,16 @@ apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
 // not neeeded but does not work without
-mainClassName = "de.mpicbg.scicomp.kutils.BashKt" // not needed but does not work without
+mainClassName = "foo.Bar" // not needed but does not work without
+
+
+repositories {
+    mavenCentral()
+    
+//    mavenLocal()
+    
+    jcenter()
+}
 
 
 dependencies {
@@ -37,13 +47,9 @@ dependencies {
     compile 'com.beust:klaxon:0.30'
 //    compile 'me.tongfei:progressbar:0.5.5'
 
-    testCompile group: 'junit', name: 'junit', version: '4.11'
-//    testCompile "io.kotlintest:kotlintest:2.0.7"
-//    testCompile 'io.kotlintest:kotlintest-runner-junit5:3.1.6'
-//    testCompile 'io.kotlintest:kotlintest-runner-junit4:3.1.6'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+//    testCompile "io.kotlintest:kotlintest-runner-junit5:3.1.9"
     testCompile 'io.kotlintest:kotlintest-assertions:3.1.6'
-    testCompile 'de.mpicbg.scicomp:kutils:0.11'
-
 
 
     // needed to work around https://youtrack.jetbrains.com/issue/KT-15064
@@ -58,17 +64,11 @@ dependencies {
 //}
 
 
-repositories {
-    mavenCentral()
-//    mavenLocal()
-    jcenter()
-}
-
 //Minimal dokka configuration:
 dokka {
     outputFormat = 'html'
 //    outputDirectory = "$buildDir/javadoc"
-    outputDirectory = "docs/javadoc"
+    outputDirectory = "$projectDir/javadoc"
 
 //    sourceDirs = files('src/test/kotlin')
     samples = ['src/test/kotlin/krangl/samples']
@@ -95,6 +95,10 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
     outputFormat = 'javadoc'
     outputDirectory = javadoc.destinationDir
+
+    reportUndocumented = false
+    samples = ['src/test/kotlin/krangl/samples']
+
     inputs.dir 'src/main/kotlin'
 }
 
@@ -120,35 +124,9 @@ publishing {
             from components.java
             artifact sourcesJar { classifier "sources" }
             artifact javadocJar
-
-            // just needed because artifact name differs from projet name
-            version = project.version
-            artifactId = 'krangl'
-            groupId = project.group
         }
     }
 }
-
-// https://docs.gradle.org/current/userguide/maven_plugin.html
-//uploadArchives {
-//    repositories {
-//        mavenDeployer {
-////            pom.groupId = 'de.mpicbg.scicomp'
-////            pom.version = '0.1-SNAPSHOT'
-////            pom.artifactId = 'kscript'
-//
-//            repository(url: "file://localhost/tmp/myRepo/")
-//        }
-//    }
-//}
-
-//install {
-//    repositories.mavenInstaller {
-//        pom.version = project.version
-////        pom.artifactId = 'kra'
-//        pom.groupId = project.group
-//    }
-//}
 
 if (hasProperty('bintray_user') && hasProperty('bintray_key')) {
     bintray {
