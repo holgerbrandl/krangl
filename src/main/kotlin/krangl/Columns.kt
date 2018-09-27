@@ -124,6 +124,9 @@ class IntCol(name: String, val values: Array<Int?>) : NumberCol(name) {
 
     constructor(name: String, values: List<Int?>) : this(name, values.toTypedArray())
 
+    @Suppress("UNCHECKED_CAST")
+    constructor(name: String, values: IntArray) : this(name, values.toTypedArray() as Array<Int?>)
+
     // does not work because of signature clash
     // constructor(name: String, vararg values: Int?) : this(name, values.asList().toTypedArray())
 

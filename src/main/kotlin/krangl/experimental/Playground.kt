@@ -1,8 +1,6 @@
 package krangl.experimental
 
-import krangl.DataFrame
-import krangl.unfold
-import krangl.unnest
+import krangl.*
 
 /**
  * Unfold all list columns vertically and all objects properties horizontally.
@@ -53,3 +51,35 @@ internal object DoubleSum {
         val cartesianProduct = cartesianProduct(1..4, 4..20) { i, j -> 2 * i * j }.sum()
     }
 }
+
+
+object KranglOneHot {
+    @JvmStatic
+    fun main(args: Array<String>) {
+        val oneHot = irisData.oneHot("Species")
+        oneHot.schema()
+    }
+}
+
+/**
+ * Performs a one-hot encoding of the specified column.
+ */
+fun DataFrame.oneHot(columName: String): DataFrame {
+    val dataCol = this[columName]
+    require(dataCol is StringCol) { "only one-hot-encoding of string columns is supported at the moment." }
+
+    // what about null
+
+    val categories = dataCol.asStrings().distinct().filterNotNull()
+
+    val hotCols: Map<String, IntArray> = categories.map { it to IntArray(nrow) }.toMap()
+
+    dataCol.asStrings().mapIndexed { rowIndex, value ->
+        hotCols[value]!![rowIndex] = 1
+    }
+
+    val oneHotCols = hotCols.map { (name, data) -> IntCol("$columName[$name]", data) }
+
+    return bindCols(this.remove(columName), dataFrameOf(*oneHotCols.toTypedArray()))
+}
+
