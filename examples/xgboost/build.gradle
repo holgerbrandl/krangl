@@ -28,6 +28,8 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compile "org.jetbrains.kotlin:kotlin-script-runtime:1.2.70"
+    compile "com.github.holgerbrandl:kscript-annotations:1.2"
 
     //    compile("de.mpicbg.scicomp:krangl:0.10-SNAPSHOT")
 //    compile"de.mpicbg.scicomp:krangl:0.9.1"
