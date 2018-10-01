@@ -9,6 +9,8 @@
 import krangl.asType
 import krangl.irisData
 import krangl.toDoubleMatrix
+import kravis.geomPoint
+import kravis.plot
 import ml.dmlc.xgboost4j.java.DMatrix
 import ml.dmlc.xgboost4j.java.XGBoost
 
@@ -44,13 +46,12 @@ trainMat.label = y
 //val validMat = DMatrix("valid.svm.txt") // todo where is this one?
 
 val params = hashMapOf<String, Any>().apply {
-    put("colsample_bytree", 0.4)
-    put("gamma", 0)
-    put("learning_rate", 0.07)
-    put("max_depth", 3)
-    put("min_child_weight", 1.5)
-    put("eta", 1.0)
-    put("max_depth", 3)
+    //    put("colsample_bytree", 0.4)
+//    put("gamma", 0)
+//    put("learning_rate", 0.07)
+//    put("min_child_weight", 1.5)
+//    put("eta", 1.0)
+//    put("max_depth", 3)
 //    put("silent", 1)
     put("objective", "reg:linear")
     put("eval_metric", "rmse")
@@ -88,7 +89,8 @@ val model_dump_with_feature_map = booster.getModelDump("featmap.txt", false)
 //var dtest = DMatrix("test.svm.txt")
 // predict
 var predicts = booster.predict(trainMat)
-predicts.map { it.first() }
+//unwrap
+val predictUnwrapped = predicts.map { it.first() }
 
 //https://www.kaggle.com/fashionlee/using-xgboost-for-regression
 //from sklearn.metrics import mean_squared_error
@@ -99,8 +101,14 @@ predicts.map { it.first() }
 predicts.joinToString(",")
 predicts.first().joinToString(",")
 
+predicts.size
 
-//todo reenable
+val id = irisData.addColumn("predicted_pet_length") { predictUnwrapped }
+
+
+id.plot(x = "Petal.Length", y = "predicted_pet_length").geomPoint()
+
+
 booster.getFeatureScore(null)
 
 
