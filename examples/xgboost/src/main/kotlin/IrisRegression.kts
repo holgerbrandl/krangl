@@ -74,7 +74,8 @@ val watches = hashMapOf<String, DMatrix>().apply {
 //    put("test", testMat)
 }
 
-val nround = 2
+// number of boosting iteration =3 would just build a simple 2-step function model
+val nround = 10
 val booster = XGBoost.train(trainMat, params, nround, watches, null, null)
 
 
