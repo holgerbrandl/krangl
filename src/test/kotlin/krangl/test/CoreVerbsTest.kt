@@ -18,7 +18,7 @@ class SelectTest {
     @Test
     fun `allow for empty data frame`() {
         emptyDataFrame().print()
-        emptyDataFrame().columnTypes()
+        columnTypes(emptyDataFrame())
         emptyDataFrame().head()
         emptyDataFrame().tail()
         emptyDataFrame().select<IntCol>()
@@ -135,12 +135,12 @@ class SelectTest {
 
 
         // note: typically the user would perform a positive selection but in context like gather he needs a negative selection api as well
-        irisData.select { except("Species") AND !startsWith("Sepal") }.columnTypes().print()
-        irisData.select { except("Species") AND except { startsWith("Sepal") } }.columnTypes().print()
+        columnTypes(irisData.select { except("Species") AND !startsWith("Sepal") }).print()
+        columnTypes(irisData.select { except("Species") AND except { startsWith("Sepal") } }).print()
 
         // but she must never mix positive and negative selection
         shouldThrow<InvalidColumnSelectException> {
-            irisData.select { except("Species") AND startsWith("Sepal") }.columnTypes().print()
+            columnTypes(irisData.select { except("Species") AND startsWith("Sepal") }).print()
         }
 
         //        irisData.select { except{startsWith("Sepal")} }.structure().print()
@@ -270,6 +270,7 @@ class FilterTest {
         sleepData.take().nrow shouldBe 5
         sleepData.takeLast(5).nrow shouldBe 5
         sleepData.slice(1, 3, 5).nrow shouldBe 3
+        sleepData.slice(3..5).nrow shouldBe 3
     }
 
     @Test
@@ -624,6 +625,15 @@ class CoreTests {
                 Species       [Str]    setosa, setosa, seto...
                 id            [Regex]  foo1, foo2, foo3, fo...
                 """.trimIndent()
+    }
+
+    @Test
+    fun `it should allow to peek into columns`() {
+        irisData["Sepal.Length"].toString() shouldBe "Sepal.Length [Dbl][150]: 5.1, 4.9, 4.7, 4.6, 5, 5.4, 4.6, 5, 4.4, 4.9, 5.4, 4.8, 4.8, 4.3, 5.8, 5.7,..."
+        irisData["Species"].toString() shouldBe "Species [Str][150]: setosa, setosa, setosa, setosa, setosa, setosa, setosa, setosa, setosa, setosa, ..."
+
+        val users = dataFrameOf("user")(TypeInterfaceTest.User("john", "doe", 33, true))["user"].toString()
+        users shouldBe "user [User][1]: User(firstName=john, lastName=doe, age=33, hasSudo=true)"
     }
 
     @Test

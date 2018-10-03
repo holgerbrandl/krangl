@@ -502,10 +502,17 @@ fun DataFrame.rowwise(): DataFrame {
 }
 
 
-/* Select rows by position.
- * Similar to dplyr::slice this operation works in a grouped manner.
+/**
+ * Select rows by position while taking into account grouping in a data-frame.
  */
 fun DataFrame.slice(vararg slices: Int) = filter { rowNumber.map { slices.contains(it) }.toBooleanArray() }
+
+
+/**
+ * Select rows by position while taking into account grouping in a data-frame.
+ */
+// note we do not reuse the impl from above to avoid expanding the ranges to full lists
+fun DataFrame.slice(slice: IntRange) = filter { rowNumber.map { slice.contains(it) }.toBooleanArray() }
 
 // note: supporting n() here seems pointless since nrow will also work in them mutate context
 
@@ -636,17 +643,11 @@ private fun String.wrap(lineSize: Int): String {
 data class ColSpec(val pos: Int, val name: String, val type: String)
 
 
-internal fun getColType(col: DataCol) = when (col) {
-    is AnyCol -> getTypeName(col)
-    else -> col.javaClass.simpleName.replace("Col", "")
-}
+//note we intentially use a parameter instead of a receiver here to minimize public extension api
+fun columnTypes(df: DataFrame): List<ColSpec> {
+    if (df is GroupedDataFrame) return columnTypes(df.ungroup())
 
-
-//todo should this be part of the public api? It's not needed in most cases
-fun DataFrame.columnTypes(): List<ColSpec> {
-    if (this is GroupedDataFrame) return ungroup().columnTypes()
-
-    return cols.mapIndexed { index, col -> ColSpec(index, col.name, getColType(col)) }
+    return df.cols.mapIndexed { index, col -> ColSpec(index, col.name, getColumnType(col)) }
 }
 
 fun List<ColSpec>.asDf() = deparseRecords { mapOf("index" to it.pos, "name" to it.name, "type" to it.type) }
@@ -658,7 +659,7 @@ fun List<ColSpec>.print() = asDf().print()
 /**
  *  Prints the schema (that is column names, types, and the first few values per column) of a dataframe to stdout.
  */
-fun DataFrame.schema(maxDigits: Int = 3, maxWidth: Int = 80) {
+fun DataFrame.schema(maxDigits: Int = 3, maxWidth: Int = PRINT_MAX_WIDTH) {
     if (this is GroupedDataFrame) {
         ungroup().schema(maxDigits, maxWidth)
         return
@@ -669,16 +670,7 @@ fun DataFrame.schema(maxDigits: Int = 3, maxWidth: Int = 80) {
 
     val namePadding = topN.cols.map { it.name.length }.max() ?: 0
 
-    val typeLabels = topN.cols.map { col ->
-        when (col) {
-            is DoubleCol -> "[Dbl]"
-            is IntCol -> "[Int]"
-            is StringCol -> "[Str]"
-            is BooleanCol -> "[Bol]"
-            is AnyCol -> "[${getTypeName(col)}]"
-            else -> throw UnsupportedOperationException()
-        }
-    }
+    val typeLabels = topN.cols.map { col -> getColumnType(col, wrapSquares = true) }
 
     val typePadding = typeLabels.map { it.length }.max() ?: 0
 
@@ -690,7 +682,19 @@ fun DataFrame.schema(maxDigits: Int = 3, maxWidth: Int = 80) {
     }
 }
 
-private fun getTypeName(col: AnyCol): String {
+internal fun getColumnType(col: DataCol, wrapSquares: Boolean = false): String {
+    return when (col) {
+        is DoubleCol -> "Dbl"
+        is IntCol -> "Int"
+        is StringCol -> "Str"
+        is BooleanCol -> "Bol"
+        is AnyCol -> guessAnyType(col)
+        else -> throw UnsupportedOperationException()
+    }.let { if (wrapSquares) "[$it]" else it }
+}
+
+
+private fun guessAnyType(col: AnyCol): String {
     val firstEl = col.values.asSequence().filterNotNull().firstOrNull()
 
     if (firstEl == null) return "Any"
@@ -898,6 +902,11 @@ fun DataFrame.toDoubleMatrix(): Array<DoubleArray> {
 
     return matrix
 }
+
+
+fun DataFrame.toFloatMatrix(): Array<FloatArray> = toDoubleMatrix().toFloatMatrix()
+
+private fun Array<DoubleArray>.toFloatMatrix(): Array<FloatArray> = map { it.map { it.toFloat() }.toFloatArray() }.toTypedArray()
 
 
 class Factor(val index: Int, val values: Array<String>)

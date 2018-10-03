@@ -99,7 +99,7 @@ class GatherTest {
         val longData = wideData.gather("x", "pixel_value", { except("y") })
 
         with(longData) {
-            columnTypes()[2].type shouldBe "Double"
+            columnTypes(this)[2].type shouldBe "Dbl"
             names shouldBe listOf("y", "x", "pixel_value")
         }
     }
@@ -120,7 +120,7 @@ class GatherTest {
             schema()
             ncol shouldBe 3
             names shouldBe listOf("name", "type", "address")
-            columnTypes()[2].type shouldBe "Address"
+            columnTypes(this)[2].type shouldBe "Address"
         }
     }
 

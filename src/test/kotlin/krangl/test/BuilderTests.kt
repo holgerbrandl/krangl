@@ -125,7 +125,7 @@ class BuilderTests {
         carsDF.names shouldBe listOf("model", "motor", "cylinders")
 
         // use enum order for sorting
-        carsDF.columnTypes().print()
+        columnTypes(carsDF).print()
 
         //todo make sure that enum ordinality is used here for sorting
         carsDF.sortedBy { rowNumber }
@@ -257,6 +257,7 @@ class JsonTests {
     fun `it should convert numerical data-frames to matrices, but should fail for mixed type dfs`() {
 
         shouldThrow<IllegalArgumentException> { irisData.toDoubleMatrix() }
+        shouldThrow<IllegalArgumentException> { irisData.toFloatMatrix() }
 
         irisData.remove("Species").toDoubleMatrix().apply {
             size shouldBe 4

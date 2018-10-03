@@ -38,7 +38,7 @@ fun DataFrame.Companion.fromJsonString(jsonData: String): DataFrame {
     val ARRAY_COL_ID = "_id"
     var df = dataFrameOf(ARRAY_COL_ID)(parsed)
 
-    fun isJsonColumn(it: DataCol) = getColType(it).startsWith("Json")
+    fun isJsonColumn(it: DataCol) = getColumnType(it).startsWith("Json")
 
     // convert all json columns
     while (df.cols.any { isJsonColumn(it) }) {

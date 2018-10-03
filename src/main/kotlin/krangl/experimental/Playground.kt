@@ -61,11 +61,29 @@ object KranglOneHot {
     }
 }
 
+
+/**
+ * Performs a one-hot encoding of the specified `Any`column.
+ */
+inline fun <reified T> DataFrame.oneHot(
+    columnName: String,
+    naValue: String = "NA",
+    crossinline categorizeWith: (T?) -> String? = { it?.toString() }
+): DataFrame {
+//    val dataCol = this[columnName]
+//    require(dataCol is AnyCol) { "only one-hot-encoding of string columns is supported at the moment." }
+
+    return addColumn(columnName) { df ->
+        df[columnName].map<T> { categorizeWith(it) ?: naValue }
+    }.oneHot(columnName)
+}
+
+
 /**
  * Performs a one-hot encoding of the specified column.
  */
-fun DataFrame.oneHot(columName: String): DataFrame {
-    val dataCol = this[columName]
+fun DataFrame.oneHot(columnName: String): DataFrame {
+    val dataCol = this[columnName]
     require(dataCol is StringCol) { "only one-hot-encoding of string columns is supported at the moment." }
 
     // what about null
@@ -78,8 +96,8 @@ fun DataFrame.oneHot(columName: String): DataFrame {
         hotCols[value]!![rowIndex] = 1
     }
 
-    val oneHotCols = hotCols.map { (name, data) -> IntCol("$columName[$name]", data) }
+    val oneHotCols = hotCols.map { (name, data) -> IntCol("$columnName[$name]", data) }
 
-    return bindCols(this.remove(columName), dataFrameOf(*oneHotCols.toTypedArray()))
+    return bindCols(this.remove(columnName), dataFrameOf(*oneHotCols.toTypedArray()))
 }
 

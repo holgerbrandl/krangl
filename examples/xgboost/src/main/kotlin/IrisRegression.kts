@@ -19,8 +19,7 @@ data class TwoDArrayDimension(val nrow: Int, val ncol: Int)
 
 fun Array<FloatArray>.dim(): TwoDArrayDimension = TwoDArrayDimension(first().size, size)
 
-fun Array<DoubleArray>.toFloatMatrix(): Array<FloatArray> =
-    map { it.map { it.toFloat() }.toFloatArray() }.toTypedArray()
+fun Array<DoubleArray>.toFloatMatrix(): Array<FloatArray> = map { it.map { it.toFloat() }.toFloatArray() }.toTypedArray()
 
 val x = irisData.remove("Species", "Petal.Length").toDoubleMatrix().toFloatMatrix()
 

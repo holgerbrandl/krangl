@@ -1,6 +1,7 @@
 package krangl
 
 import krangl.ArrayUtils.handleArrayErasure
+import krangl.util.joinToMaxLengthString
 import java.util.*
 
 
@@ -42,7 +43,11 @@ abstract class DataCol(val name: String) {  // tbd why not: Iterable<Any> ??
     abstract val length: Int
 
     override fun toString(): String {
-        return "$name [${getScalarColType(this)}]"
+        val prefix = "$name [${getColumnType(this)}][$length]: "
+        val peek = values().take(255).asSequence()
+            .joinToMaxLengthString(maxLength = PRINT_MAX_WIDTH - prefix.length, transform = createValuePrinter(PRINT_MAX_DIGITS))
+
+        return prefix + peek
     }
 
     override fun equals(other: Any?): Boolean {
