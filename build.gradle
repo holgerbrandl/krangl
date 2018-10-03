@@ -50,10 +50,12 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 //    testCompile "io.kotlintest:kotlintest-runner-junit5:3.1.9"
     testCompile 'io.kotlintest:kotlintest-assertions:3.1.6'
+    testCompile 'de.mpicbg.scicomp:kutils:0.11'
 
 
     // needed to work around https://youtrack.jetbrains.com/issue/KT-15064
     compileOnly "org.jetbrains.kotlin:kotlin-script-runtime:$kotlin_version"
+
 //    testCompile "org.jetbrains.kotlin:kotlin-script-runtime:$kotlin_version"
 }
 
