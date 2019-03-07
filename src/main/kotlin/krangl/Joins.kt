@@ -187,6 +187,7 @@ private fun nullRow(df: DataFrame): DataFrame = df.cols.fold(SimpleDataFrame(), 
 
     when (column) {
         is IntCol -> IntCol(column.name, listOf(null))
+        is LongCol -> LongCol(column.name, listOf(null))
         is StringCol -> StringCol(column.name, listOf(null))
         is BooleanCol -> BooleanCol(column.name, listOf(null))
         is DoubleCol -> DoubleCol(column.name, listOf(null))
@@ -261,6 +262,7 @@ internal fun replicateByIndex(df: DataFrame, repIndex: List<Int>): DataFrame {
         when (it) {
             is DoubleCol -> DoubleCol(it.name, Array(repIndex.size, { index -> it.values[repIndex[index]] }).toList())
             is IntCol -> IntCol(it.name, Array(repIndex.size, { index -> it.values[repIndex[index]] }).toList())
+            is LongCol -> LongCol(it.name, Array(repIndex.size, { index -> it.values[repIndex[index]] }).toList())
             is BooleanCol -> BooleanCol(it.name, Array(repIndex.size, { index -> it.values[repIndex[index]] }).toList())
             is StringCol -> StringCol(it.name, Array(repIndex.size, { index -> it.values[repIndex[index]] }).toList())
             is AnyCol -> AnyCol(it.name, Array(repIndex.size, { index -> it.values[repIndex[index]] }).toList())

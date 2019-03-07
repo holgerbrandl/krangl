@@ -112,6 +112,7 @@ internal fun fromJsonArray(records: JsonArray<JsonObject>): DataFrame {
             when {
             // see https://github.com/holgerbrandl/krangl/issues/10
                 firstElements.all { it is Int? || it is Long? } -> IntCol(colName, records.map { (it[colName] as Number?)?.toInt() })
+                firstElements.all { it is Long? || it is Long? } -> LongCol(colName, records.map { (it[colName] as Number?)?.toLong() })
                 firstElements.all { it is Double? } -> DoubleCol(colName, records.map { (it[colName] as Number?)?.toDouble() })
                 firstElements.all { it is Boolean? } -> BooleanCol(colName, records.map { it[colName] as Boolean? })
                 firstElements.all { it is Boolean? } -> BooleanCol(colName, records.map { it[colName] as Boolean? })

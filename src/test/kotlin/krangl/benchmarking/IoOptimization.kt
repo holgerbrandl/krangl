@@ -31,6 +31,7 @@ internal fun DataFrame.Companion.fromCSVlistArray(reader: Reader, format: CSVFor
 
         when {
             isIntCol(firstElements) -> IntCol(colName, colData.map { it?.toInt() })
+            isLongCol(firstElements) -> LongCol(colName, colData.map { it?.toLong() })
             isDoubleCol(firstElements) -> DoubleCol(colName, colData.map { it?.toDouble() })
             isBoolCol(firstElements) -> BooleanCol(colName, colData.map { it?.cellValueAsBoolean() })
             else -> StringCol(colName, colData.map { it })
@@ -68,6 +69,7 @@ internal fun DataFrame.Companion.fromCSVArray(reader: Reader, format: CSVFormat 
 
         when {
             isIntCol(firstElements) -> IntCol(colName, colData.map { it?.toInt() })
+            isLongCol(firstElements) -> LongCol(colName, colData.map { it?.toLong() })
             isDoubleCol(firstElements) -> DoubleCol(colName, colData.map { it?.toDouble() })
             isBoolCol(firstElements) -> BooleanCol(colName, colData.map { it.cellValueAsBoolean() })
             else -> StringCol(colName, colData.map { it })

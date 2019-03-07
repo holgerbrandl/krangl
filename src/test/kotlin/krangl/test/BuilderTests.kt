@@ -63,6 +63,7 @@ class CsvReaderTests {
             "b" to ColType.String,
             "c" to ColType.Double,
             "e" to ColType.Boolean,
+            "f" to ColType.Long,
             ".default" to ColType.Int
 
         )
@@ -73,6 +74,8 @@ class CsvReaderTests {
         assert(cols[1] is StringCol)
         assert(cols[2] is DoubleCol)
         assert(cols[3] is IntCol)
+        assert(cols[4] is BooleanCol)
+        assert(cols[5] is LongCol)
     }
 
     val customNaDataFrame by lazy {

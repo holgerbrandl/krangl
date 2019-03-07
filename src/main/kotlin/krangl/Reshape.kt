@@ -99,12 +99,13 @@ fun DataFrame.gather(key: String, value: String, columns: List<String> = this.na
     @Suppress("UNCHECKED_CAST")
     fun makeValueCol(name: String, data: Array<*>): DataCol = when {
         distinctCols.size == 1 && distinctCols.first() == IntCol::class.java -> IntCol(name, data as Array<Int?>)
+        distinctCols.size == 1 && distinctCols.first() == LongCol::class.java -> LongCol(name, data as Array<Long?>)
         distinctCols.size == 1 && distinctCols.first() == DoubleCol::class.java -> DoubleCol(name, data as Array<Double?>)
         distinctCols.size == 1 && distinctCols.first() == StringCol::class.java -> StringCol(name, data as Array<String?>)
         distinctCols.size == 1 && distinctCols.first() == BooleanCol::class.java -> BooleanCol(name, data as Array<Boolean?>)
 
-    // upcast mixed gatherings including int and double
-        setOf(IntCol::class.java, DoubleCol::class.java) == distinctCols.toSet() -> DoubleCol(name, data.map { (it as Number?)?.toDouble() })
+    // upcast mixed gatherings including int, long and double
+        setOf(IntCol::class.java, LongCol::class.java, DoubleCol::class.java) == distinctCols.toSet() -> DoubleCol(name, data.map { (it as Number?)?.toDouble() })
 
     // fall back to use any column
         else -> AnyCol(name, data as Array<Any?>)
@@ -160,6 +161,7 @@ internal fun convertType(spreadCol: DataCol): DataCol {
 
     val convColumn: DataCol = when {
         isIntCol(firstElements) -> IntCol(spreadCol.name, columnData.map { it?.toInt() })
+        isLongCol(firstElements) -> LongCol(spreadCol.name, columnData.map { it?.toLong() })
         isDoubleCol(firstElements) -> DoubleCol(spreadCol.name, columnData.map { it?.toDouble() })
         isBoolCol(firstElements) -> BooleanCol(spreadCol.name, columnData.map { it?.toBoolean() })
         else -> spreadCol

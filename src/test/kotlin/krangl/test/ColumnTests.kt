@@ -37,11 +37,14 @@ class ColumnTests {
         (!BooleanCol("foo", listOf(false, true)))[0] shouldBe true
 
         (-IntCol("foo", listOf(1, 2)))[1] shouldBe -2
+        (-LongCol("foo", listOf(1L, 2L)))[1] shouldBe -2L
         (-DoubleCol("foo", listOf(1.2, 2.0)))[1] shouldBe -2.0
 
 
         shouldThrow<UnsupportedOperationException> { (-BooleanCol("foo", listOf(true))) }
         shouldThrow<UnsupportedOperationException> { (!IntCol("foo", listOf(1))) }
+        shouldThrow<UnsupportedOperationException> { (!LongCol("foo", listOf(1L))) }
+
         //
         shouldThrow<UnsupportedOperationException> { (!AnyCol("foo", listOf(1))) }
         shouldThrow<UnsupportedOperationException> { (-AnyCol("foo", listOf(1))) }
