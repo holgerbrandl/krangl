@@ -19,6 +19,7 @@ internal fun DataCol.createComparator(naLast: Boolean = true): java.util.Compara
     return when (this) {
         is DoubleCol -> Comparator { left, right -> nullWhere<Double>().compare(values[left], values[right]) }
         is IntCol -> Comparator { left, right -> nullWhere<Int>().compare(values[left], values[right]) }
+        is LongCol -> Comparator { left, right -> nullWhere<Long>().compare(values[left], values[right]) }
         is BooleanCol -> Comparator { left, right -> nullWhere<Boolean>().compare(values[left], values[right]) }
         is StringCol -> Comparator { left, right -> nullWhere<String>().compare(values[left], values[right]) }
         is AnyCol -> Comparator { left, right ->

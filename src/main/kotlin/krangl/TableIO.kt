@@ -21,7 +21,7 @@ Methods to read and write tables into/from DataFrames
 
 
 enum class ColType {
-    Int, Double, Boolean, String, Guess
+    Int, Long, Double, Boolean, String, Guess
 }
 
 private fun asStream(fileOrUrl: String) = (if (isURL(fileOrUrl)) {
@@ -203,6 +203,7 @@ internal fun guessColType(firstElements: List<String>): ColType =
     when {
         isBoolCol(firstElements) -> ColType.Boolean
         isIntCol(firstElements) -> ColType.Int
+        isLongCol(firstElements) -> ColType.Long
         isDoubleCol(firstElements) -> ColType.Double
         else -> ColType.String
     }
@@ -213,6 +214,11 @@ internal fun dataColFactory(colName: String, colIndex: Int, colType: ColType, re
         // see https://github.com/holgerbrandl/krangl/issues/10
         ColType.Int -> try {
             IntCol(colName, records.map { it[colIndex]?.toInt() })
+        } catch (e: NumberFormatException) {
+            StringCol(colName, records.map { it[colIndex] })
+        }
+        ColType.Long -> try {
+            LongCol(colName, records.map { it[colIndex]?.toLong() })
         } catch (e: NumberFormatException) {
             StringCol(colName, records.map { it[colIndex] })
         }
@@ -237,6 +243,12 @@ internal fun isDoubleCol(firstElements: List<String?>): Boolean = try {
 
 internal fun isIntCol(firstElements: List<String?>): Boolean = try {
     firstElements.map { it?.toInt() }; true
+} catch (e: NumberFormatException) {
+    false
+}
+
+internal fun isLongCol(firstElements: List<String?>): Boolean = try {
+    firstElements.map { it?.toLong() }; true
 } catch (e: NumberFormatException) {
     false
 }
