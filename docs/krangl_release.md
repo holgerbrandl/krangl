@@ -17,7 +17,8 @@ gradle clean dokka
 ```bash
 
 
-export KRANGL_HOME="/Users/brandl/projects/kotlin/krangl";
+#export KRANGL_HOME="/Users/brandl/projects/kotlin/krangl";
+export KRANGL_HOME="/d/projects/misc/krangl";
 
 trim() { while read -r line; do echo "$line"; done; }
 krangl_version=$(grep '^version' ${KRANGL_HOME}/build.gradle | cut -f2 -d' ' | tr -d "'" | trim)
@@ -30,7 +31,8 @@ echo "new version is $krangl_version"
 ## create tag on github 
 #github-release --help
 
-source /Users/brandl/archive/gh_token.sh
+#source /Users/brandl/archive/gh_token.sh
+source ~/archive/gh_token.sh
 export GITHUB_TOKEN=${GH_TOKEN}
 #echo $GITHUB_TOKEN
 
