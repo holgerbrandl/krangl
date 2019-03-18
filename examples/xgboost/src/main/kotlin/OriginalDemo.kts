@@ -2,8 +2,8 @@
 
 
 @file:DependsOn("com.github.holgerbrandl:kscript-annotations:1.2")
-@file:DependsOn("de.mpicbg.scicomp:krangl:0.11-SNAPSHOT")
-@file:DependsOn("com.github.holgerbrandl:kravis:0.4-SNAPSHOT")
+@file:DependsOn("de.mpicbg.scicomp:krangl:0.11")
+@file:DependsOn("com.github.holgerbrandl:kravis:0.5")
 @file:DependsOn("ml.dmlc:xgboost4j:0.80")
 
 import ml.dmlc.xgboost4j.java.DMatrix

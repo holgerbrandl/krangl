@@ -34,8 +34,8 @@ dependencies {
     //    compile("de.mpicbg.scicomp:krangl:0.10-SNAPSHOT")
 //    compile"de.mpicbg.scicomp:krangl:0.9.1"
 
-    compile "de.mpicbg.scicomp:krangl:0.11-SNAPSHOT"
-    compile "com.github.holgerbrandl:kravis:0.4-SNAPSHOT"
+    compile "de.mpicbg.scicomp:krangl:0.11"
+    compile "com.github.holgerbrandl:kravis:0.5"
 
     compile "ml.dmlc:xgboost4j:0.80"
 }

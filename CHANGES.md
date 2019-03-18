@@ -5,6 +5,9 @@ v0.11
 -----
 
 
+* New: Added built-it support for `Long` columns (PR [#69](https://github.com/holgerbrandl/krangl/issues/69)
+ by @davidpedrosa)
+
 
 v0.10
 -----
@@ -176,6 +179,3 @@ Initial Release
 * TravisCI integration
 * Support for `count()` and `distinct()`
 * Basic benchmarking framework (without jvm usage)
-
-[sdf](file:///Users/brandl/Desktop/README.pdf)
-[sdf](file:///Users/brandl/Desktop/README__DOES_NOT_EXIST.pdf)
