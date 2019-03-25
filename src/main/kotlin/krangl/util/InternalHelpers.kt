@@ -58,5 +58,5 @@ inline fun <reified T> detectPropertiesByReflection(): List<KCallable<*>> {
         }
     }
 
-    return propsOrGetters.filterNot { it.name.run { equals("toString") || equals("hashCode") || matches("component[1-5]".toRegex()) } }
+    return propsOrGetters.filterNot { it.name.run { equals("toString") || equals("hashCode") || matches("component[1-9][0-9]*".toRegex()) } }
 }
