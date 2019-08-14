@@ -3,11 +3,11 @@ package krangl
 
 // To illustrate the structure of th API just core verbs are implemented as instance functions. The rest is implement as extension functions.
 
-internal data class GroupIndex(val groupHash: Int, val rowIndices: IntArray)
+internal data class GroupIndex(val groupHash: GroupKey, val rowIndices: IntArray)
 
-internal class DataGroup(val groupHash: Int, val df: DataFrame) {
+internal class DataGroup(val groupKey: GroupKey, val df: DataFrame) {
     override fun toString(): String {
-        return "DataGroup($groupHash)" // just needed for debugging
+        return "DataGroup($groupKey)" // just needed for debugging
     }
 }
 
@@ -86,7 +86,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
 
         val groupsAndWhich = by.toMutableList().apply { addAll(columns.asList().minus(by)) }
-        return GroupedDataFrame(by, groups.map { DataGroup(it.groupHash, it.df.select(groupsAndWhich)) })
+        return GroupedDataFrame(by, groups.map { DataGroup(it.groupKey, it.df.select(groupsAndWhich)) })
     }
 
 
@@ -102,7 +102,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
     override fun sortedBy(vararg by: String): DataFrame {
         // fixme this is not dplyr-consistent which keeps grouping index detached from global row order
-        return GroupedDataFrame(this.by, groups.map { DataGroup(it.groupHash, it.df.sortedBy(*by)) })
+        return GroupedDataFrame(this.by, groups.map { DataGroup(it.groupKey, it.df.sortedBy(*by)) })
     }
 
     override fun groupBy(vararg by: String): DataFrame =
@@ -111,7 +111,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
     override fun ungroup(): DataFrame = groups.map { it.df }.bindRows()
 
-    override fun toString(): String = "Grouped by: *$by\n" + ungroup().take(5).asString()
+    override fun toString(): String = "Grouped by: *$by$lineSeparator" + ungroup().take(5).asString()
 
     override fun groupedBy() = slice(1).ungroup().select(*by.toTypedArray())
 

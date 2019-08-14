@@ -42,6 +42,7 @@ interface DataFrame {
     ////     disabled because would render dfs mutable, also it is not compatible with
 
     // should we use invoke() style operator here (see https://kotlinlang.org/docs/reference/operator-overloading.html)?
+    /** Returns a row by index **/
     fun row(rowIndex: Int): DataFrameRow
 
 

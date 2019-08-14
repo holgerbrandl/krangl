@@ -63,9 +63,9 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
     override fun select(vararg columns: String): DataFrame {
         warnIf(columns.isEmpty() &&
-            // it may happen that internally we do an empty selection. e.g when joining a df on all columns with itself.
-            // to prevent misleading logging we check for that by detecting the context of this call
-            !Thread.currentThread().getStackTrace().map { it.methodName }.contains("join")) {
+                // it may happen that internally we do an empty selection. e.g when joining a df on all columns with itself.
+                // to prevent misleading logging we check for that by detecting the context of this call
+                !Thread.currentThread().getStackTrace().map { it.methodName }.contains("join")) {
             "Calling select() will always return an empty data-frame"
         }
 
@@ -78,17 +78,17 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     // Utility methods
 
     override fun row(rowIndex: Int): DataFrameRow =
-        cols.map {
-            it.name to when (it) {
-                is DoubleCol -> it.values[rowIndex]
-                is IntCol -> it.values[rowIndex]
-                is LongCol -> it.values[rowIndex]
-                is BooleanCol -> it.values[rowIndex]
-                is StringCol -> it.values[rowIndex]
-                is AnyCol -> it.values[rowIndex]
-                else -> throw UnsupportedOperationException()
-            }
-        }.toMap()
+            cols.map {
+                it.name to when (it) {
+                    is DoubleCol -> it.values[rowIndex]
+                    is IntCol -> it.values[rowIndex]
+                    is LongCol -> it.values[rowIndex]
+                    is BooleanCol -> it.values[rowIndex]
+                    is StringCol -> it.values[rowIndex]
+                    is AnyCol -> it.values[rowIndex]
+                    else -> throw UnsupportedOperationException()
+                }
+            }.toMap()
 
     override val ncol = cols.size
 
@@ -171,13 +171,13 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
                 is Boolean -> BooleanCol(key, arrayOf(sumValue as Boolean?))
                 is String -> StringCol(key, arrayOf(sumValue as String?))
 
-            // prevent non-scalar summaries. See krangl/test/CoreVerbsTest.kt:165
+                // prevent non-scalar summaries. See krangl/test/CoreVerbsTest.kt:165
                 is DataCol -> throw NonScalarValueException(ColumnFormula(key, sumRule), sumValue)
                 is IntArray, is BooleanArray, is DoubleArray, is FloatArray -> throw NonScalarValueException(ColumnFormula(key, sumRule), "Array")
                 is Iterable<*> -> throw NonScalarValueException(ColumnFormula(key, sumRule), "List")
 
-            // todo does null-handling makes sense at all? Might be not-null in other groups for grouped operations // todo add unit-test
-            //                null -> AnyCol(key, listOf(null)) // covered by else as well
+                // todo does null-handling makes sense at all? Might be not-null in other groups for grouped operations // todo add unit-test
+                //                null -> AnyCol(key, listOf(null)) // covered by else as well
                 else -> AnyCol(key, arrayOf(sumValue))
             }.let { sumCols.add(it) }
         }
@@ -262,7 +262,6 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         val groupCols = select(*by) //cols.filter { by.contains(it.name) }
         require(groupCols.ncol == by.size) { "Could not find all grouping columns" }
 
-        val NA_GROUP_HASH = Int.MAX_VALUE - 123
         val EMPTY_BY_HASH = Random().nextInt()
 
         // extract the group value-tuple for each row and calculate row-hashes
@@ -278,32 +277,25 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         //            }
         //        }
 
-        // old (FAST!) raw row iterator approach
-        val rowHashes: List<Int> = if (by.isEmpty()) {
-            IntArray(nrow, { EMPTY_BY_HASH }).toList()
+        // new (FAST!) raw row iterator approach
+        val rowHashes: Iterable<GroupKey> = if (by.isEmpty()) {
+            IntArray(nrow, { EMPTY_BY_HASH }).map { it -> listOf<Any?>(it) }
         } else {
-            groupCols.rowData().map { row: List<Any?> ->
-                //                by.map { row[it]?.hashCode() ?: NA_GROUP_HASH }.hashCode()
-                // we make the assumption here that group columns are as in `by`
-                row.map { it?.hashCode() ?: NA_GROUP_HASH }.hashCode()
-            }
+            groupCols.rowData()
         }
 
-        // and  split up original dataframe columns by selector index
-        val groupIndices = rowHashes.
-            mapIndexed { index, group -> Pair(group, index) }.
-            groupBy { it.first }.
-            map {
-                val groupRowIndices = it.value.map { it.second }.toIntArray()
-                GroupIndex(it.key, groupRowIndices)
-            }
+        // and now split up original dataframe columns by selector index
+        val groupIndices = rowHashes.mapIndexed { index, group -> Pair(group, index) }.groupBy { it.first }.map {
+            val groupRowIndices = it.value.map { it.second }.toIntArray()
+            GroupIndex(it.key, groupRowIndices)
+        }
 
 
         //        Array<String>(3, { it.toString()}).toList()
         //        arrayListOf<String>(3, { it.toString()})
 
         fun extractGroup(col: DataCol, groupIndex: GroupIndex): DataCol = when (col) {
-        // create new array
+            // create new array
             is DoubleCol -> DoubleCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }))
             is IntCol -> IntCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }))
             is LongCol -> LongCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }))
@@ -354,6 +346,8 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
 }
 
+internal typealias GroupKey = List<Any?>
+
 
 internal val DataFrame.ec: ExpressionContext
     get() = ExpressionContext(this)
@@ -367,9 +361,9 @@ internal fun anyAsColumn(mutation: Any?, name: String, nrow: Int): DataCol {
         is Boolean -> BooleanArray(nrow, { mutation })
         is Float -> FloatArray(nrow, { mutation })
         is String -> Array<String>(nrow) { mutation }
-    // add/test NA support here
+        // add/test NA support here
         else -> mutation
-    //        else -> Array<Any?>(nrow) { mutation }
+        //        else -> Array<Any?>(nrow) { mutation }
     }
 
     val newCol = when (arrifiedMutation) {
@@ -383,13 +377,13 @@ internal fun anyAsColumn(mutation: Any?, name: String, nrow: Int): DataCol {
             else -> throw UnsupportedOperationException()
         }
 
-    // todo still needed?
+        // todo still needed?
         is DoubleArray -> DoubleCol(name, arrifiedMutation.run { Array<Double?>(size, { this[it] }) })
         is IntArray -> IntCol(name, arrifiedMutation.run { Array<Int?>(size, { this[it] }) })
         is LongArray -> LongCol(name, arrifiedMutation.run { Array<Long?>(size, { this[it] }) })
         is BooleanArray -> BooleanCol(name, arrifiedMutation.run { Array<Boolean?>(size, { this[it] }) })
 
-    // also handle lists here
+        // also handle lists here
         emptyList<Any>() -> AnyCol(name, emptyArray())
         emptyArray<Any>() -> AnyCol(name, emptyArray())
         is Array<*> -> handleArrayErasure(name, arrifiedMutation)
@@ -419,7 +413,7 @@ object ArrayUtils {
 
     @Suppress("UNCHECKED_CAST")
     internal fun handleArrayErasure(otherCol: DataCol, name: String, mutation: Array<*>): DataCol = when (otherCol) {
-    //    isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, mutation as Array<Int?>)
+        //    isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, mutation as Array<Int?>)
         is IntCol -> IntCol(name, Array<Int?>(mutation.size, { mutation[it] as? Int }))
         is LongCol -> LongCol(name, Array<Long?>(mutation.size, { mutation[it] as? Long }))
         is StringCol -> StringCol(name, Array<String?>(mutation.size, { mutation[it] as? String }))
@@ -430,7 +424,7 @@ object ArrayUtils {
 
     @Suppress("UNCHECKED_CAST")
     internal fun handleArrayErasure(name: String, mutation: Array<*>): DataCol = when {
-    //    isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, mutation as Array<Int?>)
+        //    isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, mutation as Array<Int?>)
         isOfType<Int>(mutation as Array<Any?>) -> IntCol(name, Array<Int?>(mutation.size, { mutation[it] as? Int }))
         isOfType<Long>(mutation as Array<Any?>) -> LongCol(name, Array<Long?>(mutation.size, { mutation[it] as? Long }))
         isOfType<String>(mutation) -> StringCol(name, Array<String?>(mutation.size, { mutation[it] as? String }))
@@ -450,7 +444,7 @@ object ArrayUtils {
         isListOfType<Boolean>(mutation) -> BooleanCol(name, mutation as List<Boolean>)
         mutation.isEmpty() -> AnyCol(name, emptyArray())
         else -> AnyCol(name, mutation)
-    //    else -> throw UnsupportedOperationException()
+        //    else -> throw UnsupportedOperationException()
     }
 
 }

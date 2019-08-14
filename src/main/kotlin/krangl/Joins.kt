@@ -31,11 +31,11 @@ enum class JoinType {
 
 
 fun DataFrame.leftJoin(right: DataFrame, by: String, suffices: Pair<String, String> = ".x" to ".y") =
-    join(this, right, listOf(by), suffices, LEFT)
+        join(this, right, listOf(by), suffices, LEFT)
 
 
 fun DataFrame.leftJoin(right: DataFrame, by: Iterable<String> = defaultBy(this, right), suffices: Pair<String, String> = ".x" to ".y") =
-    join(this, right, by, suffices, LEFT)
+        join(this, right, by, suffices, LEFT)
 
 
 //
@@ -44,11 +44,11 @@ fun DataFrame.leftJoin(right: DataFrame, by: Iterable<String> = defaultBy(this, 
 
 
 fun DataFrame.innerJoin(right: DataFrame, by: String, suffices: Pair<String, String> = ".x" to ".y") =
-    join(this, right, listOf(by), suffices, INNER)
+        join(this, right, listOf(by), suffices, INNER)
 
 
 fun DataFrame.innerJoin(right: DataFrame, by: Iterable<String> = defaultBy(this, right), suffices: Pair<String, String> = ".x" to ".y") =
-    join(this, right, by, suffices, INNER)
+        join(this, right, by, suffices, INNER)
 
 //
 // Semi Join: Special case of inner join against distinct right side
@@ -62,10 +62,10 @@ fun DataFrame.semiJoin(right: DataFrame, by: Iterable<Pair<String, String>>) = s
 
 fun DataFrame.semiJoin(right: DataFrame, by: Iterable<String> = defaultBy(this, right), suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
     val rightReduced = right
-        // just keep one instance per group
-        .distinct(*by.toList().toTypedArray()) //  slow for bigger data (because grouped here and later again)??
-        // remove non-grouping columns to prevent columns suffixing
-        .select(*by.toList().toTypedArray())
+            // just keep one instance per group
+            .distinct(*by.toList().toTypedArray()) //  slow for bigger data (because grouped here and later again)??
+            // remove non-grouping columns to prevent columns suffixing
+            .select(*by.toList().toTypedArray())
 
     return join(this, rightReduced, by, suffices, INNER)
 }
@@ -82,9 +82,17 @@ fun DataFrame.outerJoin(right: DataFrame, by: Iterable<String> = defaultBy(this,
 object UnequalByHelpers {
 
     fun DataFrame.innerJoin(right: DataFrame, by: Iterable<Pair<String, String>>, suffices: Pair<String, String> = ".x" to ".y") =
-        join(this, resolveUnequalBy(right, by), by.toMap().keys, suffices, INNER)
+            join(this, resolveUnequalBy(right, by), by.toMap().keys, suffices, INNER)
 
 
+}
+
+
+internal fun GroupKey.sortKey(): Int {
+    val NA_GROUP_HASH = Int.MAX_VALUE - 123
+
+    // we make the assumption here that group columns are as in `by`
+    return map { it?.hashCode() ?: NA_GROUP_HASH }.hashCode()
 }
 
 
@@ -101,6 +109,8 @@ fun join(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(lef
 
     var rightGroup = rightIt.nextOrNull() // stdlib method??
 
+
+
     leftLoop@
     while (leftIt.hasNext()) {
         val leftGroup = leftIt.next()
@@ -108,12 +118,12 @@ fun join(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(lef
         rightLoop@
         while (rightGroup != null) {
 
-            if (leftGroup.groupHash < rightGroup.groupHash) {
+            if (leftGroup.groupKey.sortKey() < rightGroup.groupKey.sortKey()) {
                 // right is ahead of left
                 groupZipper.add(leftGroup to null)
                 continue@leftLoop
 
-            } else if (leftGroup.groupHash == rightGroup.groupHash) {
+            } else if (leftGroup.groupKey == rightGroup.groupKey) {
                 groupZipper.add(leftGroup to rightGroup)
                 rightGroup = rightIt.nextOrNull()
                 continue@leftLoop
@@ -158,7 +168,7 @@ fun join(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(lef
 
     for ((unzipLeft, unzipRight) in filterZipper) {
         cartesianProductWithoutBy(unzipLeft?.df ?: leftNull, unzipRight?.df
-            ?: rightNull, by.toList()).let { mergedGroups.add(it) }
+                ?: rightNull, by.toList()).let { mergedGroups.add(it) }
     }
 
     // todo use more efficient row-bind implementation here
@@ -209,15 +219,15 @@ private fun prep4Join(by: Iterable<String>, left: DataFrame, right: DataFrame, s
     val toBeSuffixed = left.names.intersect(right.names).minus(by)
 
     val groupedLeft = (addSuffix(left, toBeSuffixed, suffix = suffices.first)
-        // move join columns to the left
-        .run { select(by.toMutableList().apply { addAll(names.minus(by)) }) }
-        .groupBy(*by.toList().toTypedArray()) as GroupedDataFrame).hashSorted()
+            // move join columns to the left
+            .run { select(by.toMutableList().apply { addAll(names.minus(by)) }) }
+            .groupBy(*by.toList().toTypedArray()) as GroupedDataFrame).hashSorted()
 
 
     val groupedRight = (addSuffix(right, toBeSuffixed, suffix = suffices.second)
-        // move join columns to the left
-        .run { select(by.toMutableList().apply { addAll(names.minus(by)) }) }
-        .groupBy(*by.toList().toTypedArray()) as GroupedDataFrame).hashSorted()
+            // move join columns to the left
+            .run { select(by.toMutableList().apply { addAll(names.minus(by)) }) }
+            .groupBy(*by.toList().toTypedArray()) as GroupedDataFrame).hashSorted()
 
     return Pair(groupedLeft, groupedRight)
 }
@@ -274,4 +284,6 @@ internal fun replicateByIndex(df: DataFrame, repIndex: List<Int>): DataFrame {
 }
 
 // make sure that by-NA groups come last here (see unit tests)
-private fun GroupedDataFrame.hashSorted() = groups.sortedBy { it.groupHash }.run { GroupedDataFrame(this@hashSorted.by, this) }
+private fun GroupedDataFrame.hashSorted() = groups
+        .sortedBy { it.groupKey.sortKey() }
+        .run { GroupedDataFrame(this@hashSorted.by, this) }

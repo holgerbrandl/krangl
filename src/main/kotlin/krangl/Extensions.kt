@@ -495,7 +495,7 @@ fun DataFrame.tail(numRows: Int = 5) = takeLast(numRows)
 fun DataFrame.rowwise(): DataFrame {
 
     val rowsAsGroups: List<DataGroup> = (1..nrow).map { rowIndex ->
-        DataGroup(rowIndex, filter { BooleanArray(nrow, { index -> index == rowIndex }) })
+        DataGroup(listOf(rowIndex), filter { BooleanArray(nrow, { index -> index == rowIndex }) })
     }.toList()
 
     return GroupedDataFrame(by = listOf("_row_"), groups = rowsAsGroups)
@@ -637,7 +637,7 @@ private fun String.wrap(lineSize: Int): String {
         //        System.out.println(m.group().trim())   // Debug
         res.add(m.group().trim())
     }
-    return res.joinToString("\n")
+    return res.joinToString(lineSeparator)
 }
 
 data class ColSpec(val pos: Int, val name: String, val type: String)
@@ -856,7 +856,7 @@ internal inline fun warnIf(value: Boolean, lazyMessage: () -> Any): Unit {
 }
 
 internal fun GroupedDataFrame.transformGroups(trafo: (DataFrame) -> DataFrame): GroupedDataFrame =
-    groups.map { DataGroup(it.groupHash, trafo(it.df)) }.let { GroupedDataFrame(by, it) }
+    groups.map { DataGroup(it.groupKey, trafo(it.df)) }.let { GroupedDataFrame(by, it) }
 
 
 fun emptyDataFrame(): DataFrame = SimpleDataFrame()
@@ -924,3 +924,5 @@ fun DataCol.asFactor(): DataCol {
         else -> TODO()
     }
 }
+
+internal val lineSeparator = System.getProperty("line.separator")
