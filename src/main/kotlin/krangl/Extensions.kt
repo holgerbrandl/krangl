@@ -531,7 +531,7 @@ fun DataFrame.print(
     maxWidth: Int = PRINT_MAX_WIDTH,
     maxDigits: Int = PRINT_MAX_DIGITS,
     rowNumbers: Boolean = PRINT_ROW_NUMBERS
-) = println(asString(title, colNames, maxRows, maxWidth, maxDigits, rowNumbers) + "\n")
+) = println(asString(title, colNames, maxRows, maxWidth, maxDigits, rowNumbers) + lineSeparator)
 
 
 fun DataFrame.asString(

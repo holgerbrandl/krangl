@@ -223,7 +223,7 @@ class NestingTests {
                     DataFrame with 3 observations
                     Species  [Str]        setosa, versicolor, virginica
                     data     [DataFrame]  <DataFrame [50 x 4]>, <DataFrame [50 x 4]>, <DataFrame [50 x 4]>
-                    """.trimIndent()
+                    """.trimAndReline()
             }
     }
 

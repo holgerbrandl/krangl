@@ -46,6 +46,8 @@ git push --tags
 
 # check the current tags and existing releases of the repo
 # binaries are located under $GOPATH/bin
+export PATH=~/go/bin/:$PATH
+
 github-release info -u holgerbrandl -r krangl
 
 # create a formal release

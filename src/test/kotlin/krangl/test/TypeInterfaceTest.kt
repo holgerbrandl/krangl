@@ -88,12 +88,14 @@ class TypeInterfaceTest {
     fun `it should provide the correct schema for object columns`() {
         val salaries = dataFrameOf("user", "salary")(User("Anna", "Doe", 23, null), 23.3)
 
+        salaries.printDataClassSchema("Salary", receiverVarName = "salaries")
+
         captureOutput {
             salaries.printDataClassSchema("Salary", receiverVarName = "salaries")
         }.stdout shouldBe """
         data class Salary(val user: Any, val salary: Double)
         val records = salaries.rowsAs<Salary>()
-        """.trimIndent()
+        """.trimAndReline()
 
         data class Salary(val user: Any, val salary: Double)
 
@@ -113,7 +115,7 @@ class TypeInterfaceTest {
             this shouldBe """
                     data class IrisData(val sepalLength: Double, val sepalWidth: Double, val petalLength: Double, val petalWidth: Double, val species: String)
                     val records = irisData.rowsAs<IrisData>()
-                    """.trimIndent()
+                    """.trimAndReline()
         }
 
         //use generated code to restore iris flowers
@@ -128,11 +130,12 @@ class TypeInterfaceTest {
     /** prevent regressions from "Provide more elegant object bindings #22"*/
     @Test
     fun `it should print nullable data class schemes`() {
+        users.printDataClassSchema("User")
         val stdout = captureOutput { users.printDataClassSchema("User") }.stdout
         stdout shouldBe """
             data class User(val firstName: String?, val lastName: String, val age: Int, val hasSudo: Boolean?)
             val records = dataFrame.rowsAs<User>()
-        """.trimIndent()
+        """.trimAndReline()
     }
 
 
@@ -227,3 +230,9 @@ internal fun captureOutput(expr: () -> Any): CapturedOutput {
 
     return CapturedOutput(stdout, stderr)
 }
+
+// since the test reference dat is typically provided as multi-line which is using \n by design, we adjust the
+// out-err stream results accordingly here to become platform independent.
+// https://stackoverflow.com/questions/48933641/kotlin-add-carriage-return-into-multiline-string
+internal fun String.trimAndReline() = trimIndent().replace("\n", System.getProperty("line.separator"))
+

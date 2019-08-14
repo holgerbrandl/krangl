@@ -6,6 +6,7 @@ import io.kotlintest.should
 import io.kotlintest.shouldBe
 import krangl.*
 import org.apache.commons.csv.CSVFormat
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.*
 
@@ -608,7 +609,7 @@ class CoreTests {
                       a
             1   0.73106
             2      <NA>
-            """.trimIndent()
+            """.trimAndReline()
     }
 
     @Test
@@ -624,7 +625,7 @@ class CoreTests {
                 Petal.Width   [Dbl]    0.2, 0.2, 0.2, 0.2, ...
                 Species       [Str]    setosa, setosa, seto...
                 id            [Regex]  foo1, foo2, foo3, fo...
-                """.trimIndent()
+                """.trimAndReline()
     }
 
     @Test
@@ -654,7 +655,7 @@ class CoreTests {
                 and 336766 more rows, and and 11 more variables:
                 arr_delay, carrier, tailnum, flight, origin, dest,
                 air_time, distance, hour, minute
-                """.trimIndent()
+                """.trimAndReline()
     }
 
 
@@ -692,6 +693,28 @@ class GroupedDataTest {
         //todo implement me
     }
 
+
+    @Test
+    fun `distinct avoids hashCode collision`() {
+        val dataFrame = dataFrameOf("a", "b", "c")(
+                3, 263, 5,
+                3, 325, 6,
+                5, 201, 1,
+                5, 263, 2,
+                5, 265, 3,
+                5, 325, 4
+        )
+
+
+        println(listOf(3, 263).hashCode())
+        println(listOf(5, 201).hashCode())
+
+        println(Arrays.asList(3, 263).hashCode())
+        println(Arrays.asList(5, 201).hashCode())
+
+
+        assertEquals(dataFrame.rows.toList(), dataFrame.distinct("a", "b").rows.toList())
+    }
 
     @Test
     fun `it should count group sizes and report distinct rows in a table`() {
