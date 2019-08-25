@@ -105,6 +105,23 @@ fun textMatching() {
 }
 
 
+fun addRowsExamples() {
+    val places = dataFrameOf("name", "population")(
+            "Fort Joy", 150,
+            "Cloudsdale", 2000
+    )
+
+    // You can add multiple rows at the same time.
+    places.addRows(mapOf("name" to "Tristram", "population" to 72), mapOf("name" to "Paper Town", "population" to 0))
+
+    // Adding incomplete rows inserts nulls for missing columns, but still works.
+    places.addRows(mapOf("population" to 10), mapOf("name" to "Paper Town"))
+
+    // Silently drop extra columns if specified. No "area" column will be created.
+    places.addRows(mapOf("name" to "Bucklyn Cross", "area" to 52.2), dropNewCols = true)
+}
+
+
 fun iterableDeparsing() {
 
     val df = sleepPatterns.deparseRecords { sp ->

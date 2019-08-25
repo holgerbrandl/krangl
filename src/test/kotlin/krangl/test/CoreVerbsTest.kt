@@ -797,3 +797,132 @@ class GroupedDataTest {
     }
 }
 
+
+class AddRowsTest {
+
+    @Test
+    fun `it should add complete rows`() {
+        val someDf = dataFrameOf("person", "year", "weight", "sex")(
+                "max", 2014, 33.1, "M",
+                "max", 2016, null, "M",
+                "anna", 2015, 39.2, "F",
+                "anna", 2016, 39.9, "F"
+        )
+
+        val simpleRow1 = mapOf(
+                "person" to "james",
+                "year" to 1996,
+                "weight" to 54.0,
+                "sex" to "M"
+        )
+        val simpleRow2 = mapOf(
+                "person" to "nelll",
+                "year" to 1997,
+                "weight" to 48.1,
+                "sex" to "F"
+        )
+
+        someDf.addRows(simpleRow1, simpleRow2).run {
+            nrow shouldBe 6
+            ncol shouldBe 4
+            rows.elementAt(1)["weight"] shouldBe null
+            rows.elementAt(4)["person"] shouldBe "james"
+            rows.elementAt(4)["weight"] shouldBe 54.0
+            rows.elementAt(5)["person"] shouldBe "nelll"
+            rows.elementAt(5)["year"] shouldBe 1997
+        }
+        // Check that the original has not been modified.
+        someDf.nrow shouldBe 4
+    }
+
+    @Test
+    fun `it should insert NaN for missing columns`() {
+        val someDf = dataFrameOf("person", "year", "weight", "sex")(
+                "max", 2014, 33.1, "M",
+                "max", 2016, null, "M",
+                "anna", 2015, 39.2, "F",
+                "anna", 2016, 39.9, "F"
+        )
+
+        val simpleRow = mapOf(
+                "person" to "james",
+                "year" to 1996
+        )
+
+        someDf.addRows(simpleRow).run {
+            nrow shouldBe 5
+            ncol shouldBe 4
+            rows.elementAt(1)["weight"] shouldBe null
+            rows.elementAt(4)["person"] shouldBe "james"
+            rows.elementAt(4)["weight"] shouldBe null
+            rows.elementAt(4)["sex"] shouldBe null
+        }
+        // Check that the original has not been modified.
+        someDf.nrow shouldBe 4
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `it should not add columns`() {
+        val someDf = dataFrameOf("person", "year", "weight", "sex")(
+                "max", 2014, 33.1, "M",
+                "max", 2016, null, "M",
+                "anna", 2015, 39.2, "F",
+                "anna", 2016, 39.9, "F"
+        )
+        val wrongRow = mapOf(
+                "person" to "batman",
+                "nemesis" to "joker"  // This column does not exist.
+        )
+        // This should fail! Throws IllegalArgumentException
+        someDf.addRows(wrongRow)
+    }
+
+    @Test
+    fun `it should silently drop added columns if specified`() {
+        val someDf = dataFrameOf("person", "year", "weight", "sex")(
+                "max", 2014, 33.1, "M",
+                "max", 2016, null, "M",
+                "anna", 2015, 39.2, "F",
+                "anna", 2016, 39.9, "F"
+        )
+        val wrongRow = mapOf(
+                "person" to "batman",
+                "nemesis" to "joker"  // This column does not exist.
+        )
+
+        // This should go through, and add a new row without a "nemesis" column.
+        someDf.addRows(wrongRow, dropNewCols = true).run {
+            ncol shouldBe 4
+            nrow shouldBe 5
+            rows.elementAt(3)["person"] shouldBe "anna"
+            rows.elementAt(4)["person"] shouldBe "batman"
+            rows.elementAt(4)["weight"] shouldBe null
+        }
+    }
+
+    @Test
+    fun `it should allow adding rows in new groups`() {
+        val df = dataFrameOf("col1", "col2") (
+                "a", "u",
+                "a", "v"
+        )
+        val newDF = df.groupBy("col1").addRows(mapOf("col1" to "b", "col2" to "u"))
+
+        newDF.groups().size shouldBe 2
+
+        newDF.groups()[0].nrow shouldBe 2
+        newDF.groups()[1].nrow shouldBe 1
+    }
+
+    @Test
+    fun `it should allow adding rows with same groups`() {
+        val df = dataFrameOf("col1", "col2") (
+                "a", "u",
+                "a", "v"
+        )
+        val newDF = df.groupBy("col1").addRows(mapOf("col1" to "a", "col2" to "u"))
+        newDF.groups().size shouldBe 1
+        newDF.groups()[0].nrow shouldBe 3
+    }
+}
+
