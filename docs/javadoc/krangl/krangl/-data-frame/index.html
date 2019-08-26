@@ -74,6 +74,15 @@
 </tr>
 <tr>
 <td>
+<p><a href="add-rows.html">addRows</a></p>
+</td>
+<td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">addRows</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="krangl.DataFrame$addRows(kotlin.Array((kotlin.collections.Map((kotlin.String, kotlin.Any)))), kotlin.Boolean)/rows">rows</span><span class="symbol">:</span>&nbsp;<a href="../-data-frame-row.html"><span class="identifier">DataFrameRow</span></a><span class="symbol">, </span><span class="identifier" id="krangl.DataFrame$addRows(kotlin.Array((kotlin.collections.Map((kotlin.String, kotlin.Any)))), kotlin.Boolean)/dropNewCols">dropNewCols</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code>
+<p>Adds new rows. Missing entries are set to null.</p>
+</td>
+</tr>
+<tr>
+<td>
 <p><a href="filter.html">filter</a></p>
 </td>
 <td>
@@ -151,7 +160,9 @@
 <p><a href="row.html">row</a></p>
 </td>
 <td>
-<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">row</span><span class="symbol">(</span><span class="identifier" id="krangl.DataFrame$row(kotlin.Int)/rowIndex">rowIndex</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-data-frame-row.html"><span class="identifier">DataFrameRow</span></a></code></td>
+<code><span class="keyword">abstract</span> <span class="keyword">fun </span><span class="identifier">row</span><span class="symbol">(</span><span class="identifier" id="krangl.DataFrame$row(kotlin.Int)/rowIndex">rowIndex</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../-data-frame-row.html"><span class="identifier">DataFrameRow</span></a></code>
+<p>Returns a row by index</p>
+</td>
 </tr>
 <tr>
 <td>
@@ -212,7 +223,7 @@ primary attribute to sort by. Additional ones are used to resolve ties.</p>
 </td>
 <td>
 <code><span class="keyword">open</span> <span class="keyword">fun </span><span class="identifier">transmute</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="krangl.DataFrame$transmute(kotlin.Array((krangl.ColumnFormula)))/formula">formula</span><span class="symbol">:</span>&nbsp;<a href="../-column-formula/index.html"><span class="identifier">ColumnFormula</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code>
-<p>Create a new dataframe based ona a list of column-formulas which are evaluated in the context of the this instance.</p>
+<p>Create a new dataframe based on a list of column-formulas which are evaluated in the context of the this instance.</p>
 </td>
 </tr>
 <tr>
@@ -231,63 +242,19 @@ primary attribute to sort by. Additional ones are used to resolve ties.</p>
 <tbody>
 <tr>
 <td>
-    <p><a href="../add-row-number.html">addRowNumber</a></p>
+<p><a href="../add-row-number.html">addRowNumber</a></p>
 </td>
-    <td>
-        <code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span
-                class="symbol">.</span><span class="identifier">addRowNumber</span><span class="symbol">(</span><span
-                class="identifier" id="krangl$addRowNumber(krangl.DataFrame, kotlin.String)/name">name</span><span
-                class="symbol">:</span>&nbsp;<a
-                href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>&nbsp;<span
-                class="symbol">=</span>&nbsp;"row_number"<span class="symbol">)</span><span class="symbol">: </span><a
-                href="./index.html"><span class="identifier">DataFrame</span></a></code>
-        <p>Add the row-number as column to a data-frame.</p>
-    </td>
+<td>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">addRowNumber</span><span class="symbol">(</span><span class="identifier" id="krangl$addRowNumber(krangl.DataFrame, kotlin.String)/name">name</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>&nbsp;<span class="symbol">=</span>&nbsp;"row_number"<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code>
+<p>Add the row-number as column to a data-frame.</p>
+</td>
 </tr>
 <tr>
-    <td>
+<td>
 <p><a href="../as-string.html">asString</a></p>
 </td>
 <td>
-    <code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span
-            class="symbol">.</span><span class="identifier">asString</span><span class="symbol">(</span><span
-            class="identifier"
-            id="krangl$asString(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/title">title</span><span
-            class="symbol">:</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>&nbsp;<span
-            class="symbol">=</span>&nbsp;"A DataFrame"<span class="symbol">, </span><span class="identifier"
-                                                                                          id="krangl$asString(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/colNames">colNames</span><span
-            class="symbol">:</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span
-            class="symbol">=</span>&nbsp;true<span class="symbol">, </span><span class="identifier"
-                                                                                 id="krangl$asString(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/maxRows">maxRows</span><span
-            class="symbol">:</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span
-            class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;PRINT_MAX_ROWS<span
-            class="symbol">, </span><span class="identifier"
-                                          id="krangl$asString(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/maxWidth">maxWidth</span><span
-            class="symbol">:</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span
-            class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;PRINT_MAX_WIDTH<span
-            class="symbol">, </span><span class="identifier"
-                                          id="krangl$asString(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/maxDigits">maxDigits</span><span
-            class="symbol">:</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span
-            class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;PRINT_MAX_DIGITS<span
-            class="symbol">, </span><span class="identifier"
-                                          id="krangl$asString(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/rowNumbers">rowNumbers</span><span
-            class="symbol">:</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span
-            class="symbol">=</span>&nbsp;PRINT_ROW_NUMBERS<span class="symbol">)</span><span class="symbol">: </span><a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code>
-</td>
-</tr>
-<tr>
-<td>
-<p><a href="../column-types.html">columnTypes</a></p>
-</td>
-<td>
-<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">columnTypes</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="../-col-spec/index.html"><span class="identifier">ColSpec</span></a><span class="symbol">&gt;</span></code></td>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">asString</span><span class="symbol">(</span><span class="identifier" id="krangl$asString(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/title">title</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>&nbsp;<span class="symbol">=</span>&nbsp;"A DataFrame"<span class="symbol">, </span><span class="identifier" id="krangl$asString(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/colNames">colNames</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;true<span class="symbol">, </span><span class="identifier" id="krangl$asString(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/maxRows">maxRows</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;PRINT_MAX_ROWS<span class="symbol">, </span><span class="identifier" id="krangl$asString(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/maxWidth">maxWidth</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;PRINT_MAX_WIDTH<span class="symbol">, </span><span class="identifier" id="krangl$asString(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/maxDigits">maxDigits</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;PRINT_MAX_DIGITS<span class="symbol">, </span><span class="identifier" id="krangl$asString(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/rowNumbers">rowNumbers</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;PRINT_ROW_NUMBERS<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a></code></td>
 </tr>
 <tr>
 <td>
@@ -341,19 +308,7 @@ missing values. Or you can use it in conjunction with anti_join() to figure out 
 <p><a href="../filter.html">filter</a></p>
 </td>
 <td>
-    <code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span
-            class="symbol">.</span><span class="identifier">filter</span><span class="symbol">(</span><span
-            class="identifier"
-            id="krangl$filter(krangl.DataFrame, kotlin.Function2((krangl.ExpressionContext, , kotlin.collections.List((kotlin.Boolean)))))/predicate">predicate</span><span
-            class="symbol">:</span>&nbsp;<a href="../-expression-context/index.html"><span class="identifier">ExpressionContext</span></a><span
-            class="symbol">.</span><span class="symbol">(</span><a href="../-expression-context/index.html"><span
-            class="identifier">ExpressionContext</span></a><span class="symbol">)</span>&nbsp;<span
-            class="symbol">-&gt;</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span
-            class="identifier">List</span></a><span class="symbol">&lt;</span><a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span
-            class="symbol">?</span><span class="symbol">&gt;</span><span class="symbol">)</span><span
-            class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">filter</span><span class="symbol">(</span><span class="identifier" id="krangl$filter(krangl.DataFrame, kotlin.Function2((krangl.ExpressionContext, , kotlin.collections.List((kotlin.Boolean)))))/predicate">predicate</span><span class="symbol">:</span>&nbsp;<a href="../-expression-context/index.html"><span class="identifier">ExpressionContext</span></a><span class="symbol">.</span><span class="symbol">(</span><a href="../-expression-context/index.html"><span class="identifier">ExpressionContext</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">?</span><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code>
 <p>Filter the rows of a table with a single predicate.</p>
 <code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">filter</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="krangl$filter(krangl.DataFrame, kotlin.Array((kotlin.Function2((krangl.DataFrame, , kotlin.collections.List((kotlin.Boolean)))))))/predicates">predicates</span><span class="symbol">:</span>&nbsp;<a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="symbol">(</span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html"><span class="identifier">List</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a><span class="symbol">&gt;</span><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code>
 <p>AND-filter a table with different filters.</p>
@@ -393,8 +348,7 @@ gather() when you notice that you have columns that are not variables.</p>
 </td>
 <td>
 <code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">groupByExpr</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="krangl$groupByExpr(krangl.DataFrame, kotlin.Array((kotlin.Function2((krangl.ExpressionContext, , kotlin.Any)))), kotlin.Function2((krangl.ExpressionContext, , kotlin.Any)))/moreExpressions">moreExpressions</span><span class="symbol">:</span>&nbsp;<a href="../-table-expression.html"><span class="identifier">TableExpression</span></a><span class="symbol">, </span><span class="identifier" id="krangl$groupByExpr(krangl.DataFrame, kotlin.Array((kotlin.Function2((krangl.ExpressionContext, , kotlin.Any)))), kotlin.Function2((krangl.ExpressionContext, , kotlin.Any)))/tableExpression">tableExpression</span><span class="symbol">:</span>&nbsp;<a href="../-table-expression.html"><span class="identifier">TableExpression</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code>
-    <p>Creates a grouped data-frame from one or more table expressions. See <code>addColumn()</code> for details about
-        table expressions.</p>
+<p>Creates a grouped data-frame from one or more table expressions. See <code>addColumn()</code> for details about table expressions.</p>
 </td>
 </tr>
 <tr>
@@ -450,6 +404,17 @@ gather() when you notice that you have columns that are not variables.</p>
 </tr>
 <tr>
 <td>
+<p><a href="../../krangl.experimental/one-hot.html">oneHot</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">oneHot</span><span class="symbol">(</span><span class="identifier" id="krangl.experimental$oneHot(krangl.DataFrame, kotlin.String, kotlin.String, kotlin.Function1((krangl.experimental.oneHot.T, kotlin.String)))/columnName">columnName</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="krangl.experimental$oneHot(krangl.DataFrame, kotlin.String, kotlin.String, kotlin.Function1((krangl.experimental.oneHot.T, kotlin.String)))/naValue">naValue</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>&nbsp;<span class="symbol">=</span>&nbsp;"NA"<span class="symbol">, </span><span class="identifier" id="krangl.experimental$oneHot(krangl.DataFrame, kotlin.String, kotlin.String, kotlin.Function1((krangl.experimental.oneHot.T, kotlin.String)))/categorizeWith">categorizeWith</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><a href="../../krangl.experimental/one-hot.html#T"><span class="identifier">T</span></a><span class="symbol">?</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;{ it?.toString() }<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code>
+<p>Performs a one-hot encoding of the specified <code>Any</code>column.</p>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">oneHot</span><span class="symbol">(</span><span class="identifier" id="krangl.experimental$oneHot(krangl.DataFrame, kotlin.String)/columnName">columnName</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code>
+<p>Performs a one-hot encoding of the specified column.</p>
+</td>
+</tr>
+<tr>
+<td>
 <p><a href="../outer-join.html">outerJoin</a></p>
 </td>
 <td>
@@ -460,38 +425,7 @@ gather() when you notice that you have columns that are not variables.</p>
 <p><a href="../print.html">print</a></p>
 </td>
 <td>
-    <code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span
-            class="symbol">.</span><span class="identifier">print</span><span class="symbol">(</span><span
-            class="identifier"
-            id="krangl$print(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/title">title</span><span
-            class="symbol">:</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>&nbsp;<span
-            class="symbol">=</span>&nbsp;"A DataFrame"<span class="symbol">, </span><span class="identifier"
-                                                                                          id="krangl$print(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/colNames">colNames</span><span
-            class="symbol">:</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span
-            class="symbol">=</span>&nbsp;true<span class="symbol">, </span><span class="identifier"
-                                                                                 id="krangl$print(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/maxRows">maxRows</span><span
-            class="symbol">:</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span
-            class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;PRINT_MAX_ROWS<span
-            class="symbol">, </span><span class="identifier"
-                                          id="krangl$print(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/maxWidth">maxWidth</span><span
-            class="symbol">:</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span
-            class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;PRINT_MAX_WIDTH<span
-            class="symbol">, </span><span class="identifier"
-                                          id="krangl$print(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/maxDigits">maxDigits</span><span
-            class="symbol">:</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span
-            class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;PRINT_MAX_DIGITS<span
-            class="symbol">, </span><span class="identifier"
-                                          id="krangl$print(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/rowNumbers">rowNumbers</span><span
-            class="symbol">:</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span
-            class="symbol">=</span>&nbsp;PRINT_ROW_NUMBERS<span class="symbol">)</span><span class="symbol">: </span><a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span
-            class="identifier">Unit</span></a></code></td>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">print</span><span class="symbol">(</span><span class="identifier" id="krangl$print(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/title">title</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>&nbsp;<span class="symbol">=</span>&nbsp;"A DataFrame"<span class="symbol">, </span><span class="identifier" id="krangl$print(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/colNames">colNames</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;true<span class="symbol">, </span><span class="identifier" id="krangl$print(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/maxRows">maxRows</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;PRINT_MAX_ROWS<span class="symbol">, </span><span class="identifier" id="krangl$print(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/maxWidth">maxWidth</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;PRINT_MAX_WIDTH<span class="symbol">, </span><span class="identifier" id="krangl$print(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/maxDigits">maxDigits</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;PRINT_MAX_DIGITS<span class="symbol">, </span><span class="identifier" id="krangl$print(krangl.DataFrame, kotlin.String, kotlin.Boolean, kotlin.Int, kotlin.Int, kotlin.Int, kotlin.Boolean)/rowNumbers">rowNumbers</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;PRINT_ROW_NUMBERS<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
 </tr>
 <tr>
 <td>
@@ -562,7 +496,7 @@ Note: This is tested with kotlin data classes only. File a ticket for better typ
 <p><a href="../schema.html">schema</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">schema</span><span class="symbol">(</span><span class="identifier" id="krangl$schema(krangl.DataFrame, kotlin.Int, kotlin.Int)/maxDigits">maxDigits</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;3<span class="symbol">, </span><span class="identifier" id="krangl$schema(krangl.DataFrame, kotlin.Int, kotlin.Int)/maxWidth">maxWidth</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;80<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">schema</span><span class="symbol">(</span><span class="identifier" id="krangl$schema(krangl.DataFrame, kotlin.Int, kotlin.Int)/maxDigits">maxDigits</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;3<span class="symbol">, </span><span class="identifier" id="krangl$schema(krangl.DataFrame, kotlin.Int, kotlin.Int)/maxWidth">maxWidth</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;PRINT_MAX_WIDTH<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
 <p>Prints the schema (that is column names, types, and the first few values per column) of a dataframe to stdout.</p>
 </td>
 </tr>
@@ -594,20 +528,13 @@ Note: This is tested with kotlin data classes only. File a ticket for better typ
 </td>
 </tr>
 <tr>
-    <td>
-        <p><a href="../set-names.html">setNames</a></p>
-    </td>
-    <td>
-        <code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span
-                class="symbol">.</span><span class="identifier">setNames</span><span class="symbol">(</span><span
-                class="keyword">vararg</span> <span class="identifier"
-                                                    id="krangl$setNames(krangl.DataFrame, kotlin.Array((kotlin.String)))/newNames">newNames</span><span
-                class="symbol">:</span>&nbsp;<a
-                href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span
-                class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code>
-        <p>Replace current column names with new ones. The number of provided names must match the number of
-            columns.</p>
-    </td>
+<td>
+<p><a href="../set-names.html">setNames</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">setNames</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="krangl$setNames(krangl.DataFrame, kotlin.Array((kotlin.String)))/newNames">newNames</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code>
+<p>Replace current column names with new ones. The number of provided names must match the number of columns.</p>
+</td>
 </tr>
 <tr>
 <td>
@@ -623,7 +550,10 @@ Note: This is tested with kotlin data classes only. File a ticket for better typ
 <p><a href="../slice.html">slice</a></p>
 </td>
 <td>
-<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">slice</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="krangl$slice(krangl.DataFrame, kotlin.IntArray)/slices">slices</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code></td>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">slice</span><span class="symbol">(</span><span class="keyword">vararg</span> <span class="identifier" id="krangl$slice(krangl.DataFrame, kotlin.IntArray)/slices">slices</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code><br/>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">slice</span><span class="symbol">(</span><span class="identifier" id="krangl$slice(krangl.DataFrame, kotlin.ranges.IntRange)/slice">slice</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.ranges/-int-range/index.html"><span class="identifier">IntRange</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code>
+<p>Select rows by position while taking into account grouping in a data-frame.</p>
+</td>
 </tr>
 <tr>
 <td>
@@ -651,35 +581,14 @@ Note: This is tested with kotlin data classes only. File a ticket for better typ
 </tr>
 <tr>
 <td>
-    <p><a href="../summarize-at.html">summarizeAt</a></p>
+<p><a href="../summarize-at.html">summarizeAt</a></p>
 </td>
-    <td>
-        <code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span
-                class="symbol">.</span><span class="identifier">summarizeAt</span><span class="symbol">(</span><span
-                class="identifier"
-                id="krangl$summarizeAt(krangl.DataFrame, kotlin.Function1((krangl.ColNames, kotlin.collections.List((kotlin.Boolean)))), kotlin.Array((krangl.AggFun)))/columnSelect">columnSelect</span><span
-                class="symbol">:</span>&nbsp;<a href="../-column-selector.html"><span
-                class="identifier">ColumnSelector</span></a><span class="symbol">, </span><span
-                class="keyword">vararg</span> <span class="identifier"
-                                                    id="krangl$summarizeAt(krangl.DataFrame, kotlin.Function1((krangl.ColNames, kotlin.collections.List((kotlin.Boolean)))), kotlin.Array((krangl.AggFun)))/aggfuns">aggfuns</span><span
-                class="symbol">:</span>&nbsp;<a href="../-agg-fun/index.html"><span class="identifier">AggFun</span></a><span
-                class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code><br/>
-        <code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span
-                class="symbol">.</span><span class="identifier">summarizeAt</span><span class="symbol">(</span><span
-                class="identifier"
-                id="krangl$summarizeAt(krangl.DataFrame, kotlin.Function1((krangl.ColNames, kotlin.collections.List((kotlin.Boolean)))), kotlin.Function1((krangl.SummarizeBuilder, kotlin.Unit)))/columnSelect">columnSelect</span><span
-                class="symbol">:</span>&nbsp;<a href="../-column-selector.html"><span
-                class="identifier">ColumnSelector</span></a><span class="symbol">, </span><span class="identifier"
-                                                                                                id="krangl$summarizeAt(krangl.DataFrame, kotlin.Function1((krangl.ColNames, kotlin.collections.List((kotlin.Boolean)))), kotlin.Function1((krangl.SummarizeBuilder, kotlin.Unit)))/op">op</span><span
-                class="symbol">:</span>&nbsp;<a href="../-summarize-builder/index.html"><span class="identifier">SummarizeBuilder</span></a><span
-                class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span
-                class="symbol">-&gt;</span>&nbsp;<a
-                href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a>&nbsp;<span
-                class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a
-                href="./index.html"><span class="identifier">DataFrame</span></a></code></td>
+<td>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">summarizeAt</span><span class="symbol">(</span><span class="identifier" id="krangl$summarizeAt(krangl.DataFrame, kotlin.Function1((krangl.ColNames, kotlin.collections.List((kotlin.Boolean)))), kotlin.Array((krangl.AggFun)))/columnSelect">columnSelect</span><span class="symbol">:</span>&nbsp;<a href="../-column-selector.html"><span class="identifier">ColumnSelector</span></a><span class="symbol">, </span><span class="keyword">vararg</span> <span class="identifier" id="krangl$summarizeAt(krangl.DataFrame, kotlin.Function1((krangl.ColNames, kotlin.collections.List((kotlin.Boolean)))), kotlin.Array((krangl.AggFun)))/aggfuns">aggfuns</span><span class="symbol">:</span>&nbsp;<a href="../-agg-fun/index.html"><span class="identifier">AggFun</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code><br/>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">summarizeAt</span><span class="symbol">(</span><span class="identifier" id="krangl$summarizeAt(krangl.DataFrame, kotlin.Function1((krangl.ColNames, kotlin.collections.List((kotlin.Boolean)))), kotlin.Function1((krangl.SummarizeBuilder, kotlin.Unit)))/columnSelect">columnSelect</span><span class="symbol">:</span>&nbsp;<a href="../-column-selector.html"><span class="identifier">ColumnSelector</span></a><span class="symbol">, </span><span class="identifier" id="krangl$summarizeAt(krangl.DataFrame, kotlin.Function1((krangl.ColNames, kotlin.collections.List((kotlin.Boolean)))), kotlin.Function1((krangl.SummarizeBuilder, kotlin.Unit)))/op">op</span><span class="symbol">:</span>&nbsp;<a href="../-summarize-builder/index.html"><span class="identifier">SummarizeBuilder</span></a><span class="symbol">.</span><span class="symbol">(</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a>&nbsp;<span class="symbol">=</span>&nbsp;null<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code></td>
 </tr>
 <tr>
-    <td>
+<td>
 <p><a href="../tail.html">tail</a></p>
 </td>
 <td>
@@ -701,19 +610,20 @@ Note: This is tested with kotlin data classes only. File a ticket for better typ
 </tr>
 <tr>
 <td>
-    <p><a href="../to-double-matrix.html">toDoubleMatrix</a></p>
+<p><a href="../to-double-matrix.html">toDoubleMatrix</a></p>
 </td>
-    <td>
-        <code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span
-                class="symbol">.</span><span class="identifier">toDoubleMatrix</span><span class="symbol">(</span><span
-                class="symbol">)</span><span class="symbol">: </span><a
-                href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html"><span class="identifier">Array</span></a><span
-                class="symbol">&lt;</span><a
-                href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double-array/index.html"><span
-                class="identifier">DoubleArray</span></a><span class="symbol">&gt;</span></code></td>
+<td>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">toDoubleMatrix</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html"><span class="identifier">Array</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-double-array/index.html"><span class="identifier">DoubleArray</span></a><span class="symbol">&gt;</span></code></td>
 </tr>
 <tr>
-    <td>
+<td>
+<p><a href="../to-float-matrix.html">toFloatMatrix</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">toFloatMatrix</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-array/index.html"><span class="identifier">Array</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-float-array/index.html"><span class="identifier">FloatArray</span></a><span class="symbol">&gt;</span></code></td>
+</tr>
+<tr>
+<td>
 <p><a href="../unfold.html">unfold</a></p>
 </td>
 <td>
@@ -745,22 +655,11 @@ Note: This is tested with kotlin data classes only. File a ticket for better typ
 <code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">writeCSV</span><span class="symbol">(</span><span class="identifier" id="krangl$writeCSV(krangl.DataFrame, java.io.File, org.apache.commons.csv.CSVFormat)/file">file</span><span class="symbol">:</span>&nbsp;<a href="http://docs.oracle.com/javase/6/docs/api/java/io/File.html"><span class="identifier">File</span></a><span class="symbol">, </span><span class="identifier" id="krangl$writeCSV(krangl.DataFrame, java.io.File, org.apache.commons.csv.CSVFormat)/format">format</span><span class="symbol">:</span>&nbsp;<span class="identifier">CSVFormat</span>&nbsp;<span class="symbol">=</span>&nbsp;CSVFormat.DEFAULT.withHeader(*names.toTypedArray())<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
 </tr>
 <tr>
-    <td>
-        <p><a href="../write-t-s-v.html">writeTSV</a></p>
-    </td>
-    <td>
-        <code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span
-                class="symbol">.</span><span class="identifier">writeTSV</span><span class="symbol">(</span><span
-                class="identifier"
-                id="krangl$writeTSV(krangl.DataFrame, java.io.File, org.apache.commons.csv.CSVFormat)/file">file</span><span
-                class="symbol">:</span>&nbsp;<a href="http://docs.oracle.com/javase/6/docs/api/java/io/File.html"><span
-                class="identifier">File</span></a><span class="symbol">, </span><span class="identifier"
-                                                                                      id="krangl$writeTSV(krangl.DataFrame, java.io.File, org.apache.commons.csv.CSVFormat)/format">format</span><span
-                class="symbol">:</span>&nbsp;<span class="identifier">CSVFormat</span>&nbsp;<span
-                class="symbol">=</span>&nbsp;CSVFormat.TDF.withHeader(*names.toTypedArray())<span
-                class="symbol">)</span><span class="symbol">: </span><a
-                href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code>
-    </td>
+<td>
+<p><a href="../write-t-s-v.html">writeTSV</a></p>
+</td>
+<td>
+<code><span class="keyword">fun </span><a href="./index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">writeTSV</span><span class="symbol">(</span><span class="identifier" id="krangl$writeTSV(krangl.DataFrame, java.io.File, org.apache.commons.csv.CSVFormat)/file">file</span><span class="symbol">:</span>&nbsp;<a href="http://docs.oracle.com/javase/6/docs/api/java/io/File.html"><span class="identifier">File</span></a><span class="symbol">, </span><span class="identifier" id="krangl$writeTSV(krangl.DataFrame, java.io.File, org.apache.commons.csv.CSVFormat)/format">format</span><span class="symbol">:</span>&nbsp;<span class="identifier">CSVFormat</span>&nbsp;<span class="symbol">=</span>&nbsp;CSVFormat.TDF.withHeader(*names.toTypedArray())<span class="symbol">)</span><span class="symbol">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html"><span class="identifier">Unit</span></a></code></td>
 </tr>
 </tbody>
 </table>
@@ -823,53 +722,14 @@ Note: This is tested with kotlin data classes only. File a ticket for better typ
 <td>
 <code><span class="keyword">fun </span><span class="identifier">DataFrame.Companion</span><span class="symbol">.</span><span class="identifier">readDelim</span><span class="symbol">(</span><span class="identifier" id="krangl$readDelim(krangl.DataFrame.Companion, java.net.URI, org.apache.commons.csv.CSVFormat, kotlin.Boolean, kotlin.collections.Map((kotlin.String, krangl.ColType)))/uri">uri</span><span class="symbol">:</span>&nbsp;<a href="http://docs.oracle.com/javase/6/docs/api/java/net/URI.html"><span class="identifier">URI</span></a><span class="symbol">, </span><span class="identifier" id="krangl$readDelim(krangl.DataFrame.Companion, java.net.URI, org.apache.commons.csv.CSVFormat, kotlin.Boolean, kotlin.collections.Map((kotlin.String, krangl.ColType)))/format">format</span><span class="symbol">:</span>&nbsp;<span class="identifier">CSVFormat</span>&nbsp;<span class="symbol">=</span>&nbsp;CSVFormat.DEFAULT.withHeader()<span class="symbol">, </span><span class="identifier" id="krangl$readDelim(krangl.DataFrame.Companion, java.net.URI, org.apache.commons.csv.CSVFormat, kotlin.Boolean, kotlin.collections.Map((kotlin.String, krangl.ColType)))/isCompressed">isCompressed</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;uri.toURL().toString().endsWith(".gz")<span class="symbol">, </span><span class="identifier" id="krangl$readDelim(krangl.DataFrame.Companion, java.net.URI, org.apache.commons.csv.CSVFormat, kotlin.Boolean, kotlin.collections.Map((kotlin.String, krangl.ColType)))/colTypes">colTypes</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html"><span class="identifier">Map</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">,</span>&nbsp;<a href="../-col-type/index.html"><span class="identifier">ColType</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;mapOf()<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code><br/>
 <code><span class="keyword">fun </span><span class="identifier">DataFrame.Companion</span><span class="symbol">.</span><span class="identifier">readDelim</span><span class="symbol">(</span><span class="identifier" id="krangl$readDelim(krangl.DataFrame.Companion, java.io.InputStream, org.apache.commons.csv.CSVFormat, kotlin.Boolean, kotlin.collections.Map((kotlin.String, krangl.ColType)))/inStream">inStream</span><span class="symbol">:</span>&nbsp;<a href="http://docs.oracle.com/javase/6/docs/api/java/io/InputStream.html"><span class="identifier">InputStream</span></a><span class="symbol">, </span><span class="identifier" id="krangl$readDelim(krangl.DataFrame.Companion, java.io.InputStream, org.apache.commons.csv.CSVFormat, kotlin.Boolean, kotlin.collections.Map((kotlin.String, krangl.ColType)))/format">format</span><span class="symbol">:</span>&nbsp;<span class="identifier">CSVFormat</span>&nbsp;<span class="symbol">=</span>&nbsp;CSVFormat.DEFAULT.withHeader()<span class="symbol">, </span><span class="identifier" id="krangl$readDelim(krangl.DataFrame.Companion, java.io.InputStream, org.apache.commons.csv.CSVFormat, kotlin.Boolean, kotlin.collections.Map((kotlin.String, krangl.ColType)))/isCompressed">isCompressed</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html"><span class="identifier">Boolean</span></a>&nbsp;<span class="symbol">=</span>&nbsp;false<span class="symbol">, </span><span class="identifier" id="krangl$readDelim(krangl.DataFrame.Companion, java.io.InputStream, org.apache.commons.csv.CSVFormat, kotlin.Boolean, kotlin.collections.Map((kotlin.String, krangl.ColType)))/colTypes">colTypes</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html"><span class="identifier">Map</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">,</span>&nbsp;<a href="../-col-type/index.html"><span class="identifier">ColType</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;mapOf()<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code><br/>
-    <code><span class="keyword">fun </span><span class="identifier">DataFrame.Companion</span><span
-            class="symbol">.</span><span class="identifier">readDelim</span><span class="symbol">(</span><span
-            class="identifier"
-            id="krangl$readDelim(krangl.DataFrame.Companion, java.io.Reader, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)), kotlin.Int)/reader">reader</span><span
-            class="symbol">:</span>&nbsp;<a href="http://docs.oracle.com/javase/6/docs/api/java/io/Reader.html"><span
-            class="identifier">Reader</span></a><span class="symbol">, </span><span class="identifier"
-                                                                                    id="krangl$readDelim(krangl.DataFrame.Companion, java.io.Reader, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)), kotlin.Int)/format">format</span><span
-            class="symbol">:</span>&nbsp;<span class="identifier">CSVFormat</span>&nbsp;<span class="symbol">=</span>&nbsp;CSVFormat.DEFAULT.withHeader()<span
-            class="symbol">, </span><span class="identifier"
-                                          id="krangl$readDelim(krangl.DataFrame.Companion, java.io.Reader, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)), kotlin.Int)/colTypes">colTypes</span><span
-            class="symbol">:</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html"><span
-            class="identifier">Map</span></a><span class="symbol">&lt;</span><a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span
-            class="symbol">,</span>&nbsp;<a href="../-col-type/index.html"><span
-            class="identifier">ColType</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;mapOf()<span
-            class="symbol">, </span><span class="identifier"
-                                          id="krangl$readDelim(krangl.DataFrame.Companion, java.io.Reader, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)), kotlin.Int)/skip">skip</span><span
-            class="symbol">:</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span
-            class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;0<span
-            class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code>
-</td>
+<code><span class="keyword">fun </span><span class="identifier">DataFrame.Companion</span><span class="symbol">.</span><span class="identifier">readDelim</span><span class="symbol">(</span><span class="identifier" id="krangl$readDelim(krangl.DataFrame.Companion, java.io.Reader, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)), kotlin.Int)/reader">reader</span><span class="symbol">:</span>&nbsp;<a href="http://docs.oracle.com/javase/6/docs/api/java/io/Reader.html"><span class="identifier">Reader</span></a><span class="symbol">, </span><span class="identifier" id="krangl$readDelim(krangl.DataFrame.Companion, java.io.Reader, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)), kotlin.Int)/format">format</span><span class="symbol">:</span>&nbsp;<span class="identifier">CSVFormat</span>&nbsp;<span class="symbol">=</span>&nbsp;CSVFormat.DEFAULT.withHeader()<span class="symbol">, </span><span class="identifier" id="krangl$readDelim(krangl.DataFrame.Companion, java.io.Reader, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)), kotlin.Int)/colTypes">colTypes</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html"><span class="identifier">Map</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">,</span>&nbsp;<a href="../-col-type/index.html"><span class="identifier">ColType</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;mapOf()<span class="symbol">, </span><span class="identifier" id="krangl$readDelim(krangl.DataFrame.Companion, java.io.Reader, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)), kotlin.Int)/skip">skip</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html"><span class="identifier">Int</span></a>&nbsp;<span class="symbol">=</span>&nbsp;0<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code></td>
 </tr>
 <tr>
 <td>
 <p><a href="../read-t-s-v.html">readTSV</a></p>
 </td>
 <td>
-    <code><span class="keyword">fun </span><span class="identifier">DataFrame.Companion</span><span
-            class="symbol">.</span><span class="identifier">readTSV</span><span class="symbol">(</span><span
-            class="identifier"
-            id="krangl$readTSV(krangl.DataFrame.Companion, kotlin.String, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)))/fileOrUrl">fileOrUrl</span><span
-            class="symbol">:</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span
-            class="symbol">, </span><span class="identifier"
-                                          id="krangl$readTSV(krangl.DataFrame.Companion, kotlin.String, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)))/format">format</span><span
-            class="symbol">:</span>&nbsp;<span class="identifier">CSVFormat</span>&nbsp;<span class="symbol">=</span>&nbsp;CSVFormat.TDF.withHeader()<span
-            class="symbol">, </span><span class="identifier"
-                                          id="krangl$readTSV(krangl.DataFrame.Companion, kotlin.String, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)))/colTypes">colTypes</span><span
-            class="symbol">:</span>&nbsp;<a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html"><span
-            class="identifier">Map</span></a><span class="symbol">&lt;</span><a
-            href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span
-            class="symbol">,</span>&nbsp;<a href="../-col-type/index.html"><span
-            class="identifier">ColType</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;mapOf()<span
-            class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code><br/>
+<code><span class="keyword">fun </span><span class="identifier">DataFrame.Companion</span><span class="symbol">.</span><span class="identifier">readTSV</span><span class="symbol">(</span><span class="identifier" id="krangl$readTSV(krangl.DataFrame.Companion, kotlin.String, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)))/fileOrUrl">fileOrUrl</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="krangl$readTSV(krangl.DataFrame.Companion, kotlin.String, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)))/format">format</span><span class="symbol">:</span>&nbsp;<span class="identifier">CSVFormat</span>&nbsp;<span class="symbol">=</span>&nbsp;CSVFormat.TDF.withHeader()<span class="symbol">, </span><span class="identifier" id="krangl$readTSV(krangl.DataFrame.Companion, kotlin.String, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)))/colTypes">colTypes</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html"><span class="identifier">Map</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">,</span>&nbsp;<a href="../-col-type/index.html"><span class="identifier">ColType</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;mapOf()<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code><br/>
 <code><span class="keyword">fun </span><span class="identifier">DataFrame.Companion</span><span class="symbol">.</span><span class="identifier">readTSV</span><span class="symbol">(</span><span class="identifier" id="krangl$readTSV(krangl.DataFrame.Companion, java.io.File, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)))/file">file</span><span class="symbol">:</span>&nbsp;<a href="http://docs.oracle.com/javase/6/docs/api/java/io/File.html"><span class="identifier">File</span></a><span class="symbol">, </span><span class="identifier" id="krangl$readTSV(krangl.DataFrame.Companion, java.io.File, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)))/format">format</span><span class="symbol">:</span>&nbsp;<span class="identifier">CSVFormat</span>&nbsp;<span class="symbol">=</span>&nbsp;CSVFormat.TDF.withHeader()<span class="symbol">, </span><span class="identifier" id="krangl$readTSV(krangl.DataFrame.Companion, java.io.File, org.apache.commons.csv.CSVFormat, kotlin.collections.Map((kotlin.String, krangl.ColType)))/colTypes">colTypes</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-map/index.html"><span class="identifier">Map</span></a><span class="symbol">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">,</span>&nbsp;<a href="../-col-type/index.html"><span class="identifier">ColType</span></a><span class="symbol">&gt;</span>&nbsp;<span class="symbol">=</span>&nbsp;mapOf()<span class="symbol">)</span><span class="symbol">: </span><a href="./index.html"><span class="identifier">DataFrame</span></a></code></td>
 </tr>
 </tbody>

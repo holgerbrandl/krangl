@@ -6,7 +6,7 @@ $dokka.location:krangl$AND(kotlin.collections.List((kotlin.Boolean)), kotlin.col
 $dokka.location:krangl$OR(kotlin.BooleanArray, kotlin.BooleanArray)krangl/kotlin.-boolean-array/-o-r.html
 $dokka.location:krangl$OR(kotlin.collections.List((kotlin.Boolean)), kotlin.collections.List((kotlin.Boolean)))krangl/kotlin.collections.-list/-o-r.html
 $dokka.location:krangl$XOR(kotlin.collections.List((kotlin.Boolean)), kotlin.collections.List((kotlin.Boolean)))krangl/kotlin.collections.-list/-x-o-r.html
-$dokka.location:krangl$asDataFrame(kotlin.collections.Iterable((krangl.asDataFrame.T)))krangl/kotlin.collections.-iterable/as-data-frame.html
+$dokka.location:krangl$asDataFrame(kotlin.collections.Iterable((krangl.asDataFrame.T)), kotlin.String)krangl/kotlin.collections.-iterable/as-data-frame.html
 $dokka.location:krangl$asDf(kotlin.collections.List((krangl.ColSpec)))krangl/kotlin.collections.-list/as-df.html
 $dokka.location:krangl$bindCols(kotlin.collections.Iterable((krangl.DataCol)))krangl/kotlin.collections.-iterable/bind-cols.html
 $dokka.location:krangl$bindRows(kotlin.collections.List((krangl.DataFrame)))krangl/kotlin.collections.-list/bind-rows.html
