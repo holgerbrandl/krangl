@@ -98,10 +98,6 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
         return groups.map { it.df.addColumn(tf) }.bindRows().groupBy(*by.toTypedArray())
     }
 
-    override fun addRows(vararg rows: DataFrameRow, dropNewCols: Boolean): DataFrame {
-        // This is super slow, but it does guarantee correct behaviour.
-        return ungroup().addRows(*rows, dropNewCols = dropNewCols).groupBy(*by.toTypedArray())
-    }
     override fun sortedBy(vararg by: String): DataFrame {
         // fixme this is not dplyr-consistent which keeps grouping index detached from global row order
         return GroupedDataFrame(this.by, groups.map { DataGroup(it.groupKey, it.df.sortedBy(*by)) })

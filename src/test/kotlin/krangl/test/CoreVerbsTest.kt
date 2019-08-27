@@ -798,7 +798,7 @@ class GroupedDataTest {
 }
 
 
-class AddRowsTest {
+class BindRowsTest {
 
     @Test
     fun `it should add complete rows`() {
@@ -822,7 +822,7 @@ class AddRowsTest {
                 "sex" to "F"
         )
 
-        someDf.addRows(simpleRow1, simpleRow2).run {
+        someDf.bindRows(simpleRow1, simpleRow2).run {
             nrow shouldBe 6
             ncol shouldBe 4
             rows.elementAt(1)["weight"] shouldBe null
@@ -849,7 +849,7 @@ class AddRowsTest {
                 "year" to 1996
         )
 
-        someDf.addRows(simpleRow).run {
+        someDf.bindRows(simpleRow).run {
             nrow shouldBe 5
             ncol shouldBe 4
             rows.elementAt(1)["weight"] shouldBe null
@@ -861,68 +861,24 @@ class AddRowsTest {
         someDf.nrow shouldBe 4
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun `it should not add columns`() {
-        val someDf = dataFrameOf("person", "year", "weight", "sex")(
-                "max", 2014, 33.1, "M",
-                "max", 2016, null, "M",
-                "anna", 2015, 39.2, "F",
-                "anna", 2016, 39.9, "F"
-        )
-        val wrongRow = mapOf(
-                "person" to "batman",
-                "nemesis" to "joker"  // This column does not exist.
-        )
-        // This should fail! Throws IllegalArgumentException
-        someDf.addRows(wrongRow)
-    }
-
+//    @Test(expected = IllegalArgumentException::class)
     @Test
-    fun `it should silently drop added columns if specified`() {
+    fun `it should create new columns as needed`() {
         val someDf = dataFrameOf("person", "year", "weight", "sex")(
                 "max", 2014, 33.1, "M",
                 "max", 2016, null, "M",
-                "anna", 2015, 39.2, "F",
                 "anna", 2016, 39.9, "F"
         )
-        val wrongRow = mapOf(
+
+        val newColDf = mapOf(
                 "person" to "batman",
                 "nemesis" to "joker"  // This column does not exist.
         )
 
-        // This should go through, and add a new row without a "nemesis" column.
-        someDf.addRows(wrongRow, dropNewCols = true).run {
-            ncol shouldBe 4
-            nrow shouldBe 5
-            rows.elementAt(3)["person"] shouldBe "anna"
-            rows.elementAt(4)["person"] shouldBe "batman"
-            rows.elementAt(4)["weight"] shouldBe null
+        someDf.bindRows(newColDf).run{
+            ncol shouldBe 5
+            nrow shouldBe 4
         }
-    }
-
-    @Test
-    fun `it should allow adding rows in new groups`() {
-        val df = dataFrameOf("col1", "col2") (
-                "a", "u",
-                "a", "v"
-        )
-        val newDF = df.groupBy("col1").addRows(mapOf("col1" to "b", "col2" to "u"))
-
-        newDF.groups().size shouldBe 2
-
-        newDF.groups()[0].nrow shouldBe 2
-        newDF.groups()[1].nrow shouldBe 1
-    }
-
-    @Test
-    fun `it should allow adding rows with same groups`() {
-        val df = dataFrameOf("col1", "col2") (
-                "a", "u",
-                "a", "v"
-        )
-        val newDF = df.groupBy("col1").addRows(mapOf("col1" to "a", "col2" to "u"))
-        newDF.groups().size shouldBe 1
-        newDF.groups()[0].nrow shouldBe 3
     }
 }
 

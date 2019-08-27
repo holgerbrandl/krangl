@@ -10,8 +10,8 @@ fun selectExamples() {
 
     // data-frames can be a  mix of atomic (int, double, boolean, string) and object columns
     val birthdays = DataFrame.builder("name", "height", "sex", "birthday")(
-        "Tom", 1.89, Sex.MALE, LocalDate.of(1980, 5, 22),
-        "Jane", 1.73, Sex.FEMALE, LocalDate.of(1973, 2, 13)
+            "Tom", 1.89, Sex.MALE, LocalDate.of(1980, 5, 22),
+            "Jane", 1.73, Sex.FEMALE, LocalDate.of(1973, 2, 13)
     )
 
     // just select/deselect columns of interest with varargs
@@ -60,21 +60,21 @@ fun addColumnExamples() {
 fun builderSample() {
     // data-frames can be a  mix of atomic (int, double, boolean, string) and object columns
     val birthdays = DataFrame.builder("name", "height", "sex", "birthday")(
-        "Tom", 1.89, Sex.MALE, LocalDate.of(1980, 5, 22),
-        "Jane", 1.73, Sex.FEMALE, LocalDate.of(1973, 2, 13)
+            "Tom", 1.89, Sex.MALE, LocalDate.of(1980, 5, 22),
+            "Jane", 1.73, Sex.FEMALE, LocalDate.of(1973, 2, 13)
     )
 }
 
 
 fun packageInfoSample() {
     flightsData
-        .groupBy("year", "month", "day")
-        .select({ range("year", "day") }, { listOf("arr_delay", "dep_delay") })
-        .summarize(
-            "mean_arr_delay" to { it["arr_delay"].mean(removeNA = true) },
-            "mean_dep_delay" to { it["dep_delay"].mean(removeNA = true) }
-        )
-        .filter { (it["mean_arr_delay"] gt 30) OR (it["mean_dep_delay"] gt 30) }
+            .groupBy("year", "month", "day")
+            .select({ range("year", "day") }, { listOf("arr_delay", "dep_delay") })
+            .summarize(
+                    "mean_arr_delay" to { it["arr_delay"].mean(removeNA = true) },
+                    "mean_dep_delay" to { it["dep_delay"].mean(removeNA = true) }
+            )
+            .filter { (it["mean_arr_delay"] gt 30) OR (it["mean_dep_delay"] gt 30) }
 }
 
 
@@ -83,14 +83,14 @@ fun renameSomeColumns() {
 
     // manual way: first select column names to be altered
     irisData.names.filter { it.startsWith("Sepal") }
-        // second, apply renaming
-        .fold(irisData, { df, colName -> df.rename(colName to "My" + colName) })
+            // second, apply renaming
+            .fold(irisData, { df, colName -> df.rename(colName to "My" + colName) })
 
 
     // or refactor it away by defining an extension functino to do it
     fun DataFrame.renameSelect(colSelector: String.() -> Boolean, renamingRule: (String) -> String): DataFrame = names
-        .filter(colSelector)
-        .fold(this, { df, colName -> df.rename(colName to renamingRule(colName)) })
+            .filter(colSelector)
+            .fold(this, { df, colName -> df.rename(colName to renamingRule(colName)) })
 
     // and use it like
     irisData.renameSelect({ startsWith("Sepal") }, { "My" + it })
@@ -99,26 +99,36 @@ fun renameSomeColumns() {
 
 fun textMatching() {
     irisData
-        // filter for all record where species starts with "se"
-        .filter { it["Species"].isMatching<String> { startsWith("se") } }
-        .schema()
+            // filter for all record where species starts with "se"
+            .filter { it["Species"].isMatching<String> { startsWith("se") } }
+            .schema()
 }
 
 
-fun addRowsExamples() {
-    val places = dataFrameOf("name", "population")(
+fun bindRowsExamples() {
+    val places = dataFrameOf(
+            "name", "population")(
             "Fort Joy", 150,
             "Cloudsdale", 2000
     )
 
     // You can add multiple rows at the same time.
-    places.addRows(mapOf("name" to "Tristram", "population" to 72), mapOf("name" to "Paper Town", "population" to 0))
+    places.bindRows(
+            mapOf("name" to "Tristram", "population" to 72),
+            mapOf("name" to "Paper Town", "population" to 0)
+    )
 
-    // Adding incomplete rows inserts nulls for missing columns, but still works.
-    places.addRows(mapOf("population" to 10), mapOf("name" to "Paper Town"))
+    // Adding incomplete rows inserts nulls
+    places.bindRows(mapOf("population" to 10), mapOf("name" to "Paper Town"))
 
-    // Silently drop extra columns if specified. No "area" column will be created.
-    places.addRows(mapOf("name" to "Bucklyn Cross", "area" to 52.2), dropNewCols = true)
+    // To drop additional columns originating from the bound rows simply select
+    places.bindRows(mapOf("name" to "Bucklyn Cross", "area" to 52.2)).select(places.names)
+
+    // Grouping is discarded when adding rows and needs to be reconstituated
+    places.groupBy("name")
+            .bindRows(mapOf("population" to 10))
+            // regroup
+            .groupBy("name")
 }
 
 
@@ -126,14 +136,14 @@ fun iterableDeparsing() {
 
     val df = sleepPatterns.deparseRecords { sp ->
         mapOf(
-            "awake" to sp.awake
+                "awake" to sp.awake
         )
     }
 
 
     val df2 = sleepPatterns.deparseRecords(
-        "foo" with { awake },
-        "bar" with { it.brainwt?.plus(3) }
+            "foo" with { awake },
+            "bar" with { it.brainwt?.plus(3) }
     )
 
     // or fully automatic using reflection

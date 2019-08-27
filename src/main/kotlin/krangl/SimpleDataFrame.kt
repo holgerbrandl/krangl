@@ -202,42 +202,6 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         return if (newCol.name in names) replaceColumn(newCol) else addColumn(newCol)
     }
 
-    override fun addRows(vararg rows: DataFrameRow, dropNewCols: Boolean): DataFrame {
-
-        // Make sure that there are no extra columns in the appended rows.
-        if (!dropNewCols) {
-            require(names.toSet().containsAll(rows.fold(emptySet(), { acc, r -> acc + r.keys })))
-        }
-
-        // Step 1: Make an lambda that can jump the gap across the current DataFrame and the new rows.
-        // This could be our own Iterator, but it gets kind of messy since cols aren't iterable.
-        val iterMap: (DataCol, Int) -> Any? = { col, i ->
-            // This when() clause seems to be faster than getOrDefault, so I'm using that.
-            when {
-                i < nrow -> col[i]
-                rows[i - nrow].containsKey(col.name) -> rows[i - nrow][col.name]
-                else -> null
-            }
-        }
-
-        // Step 2: Make the new DataCols by using the iterator jump. Cast to the right type appropriately.
-        val newCols = arrayListOf<DataCol>()
-        this.cols.forEach { col ->
-            val newRawCol: List<Any?> = List(ncol + rows.size) { iterMap(col, it) }
-            when (col) {
-                is StringCol -> newCols.add(StringCol(col.name, newRawCol.map { it as? String }))
-                is LongCol -> newCols.add(LongCol(col.name, newRawCol.map { it as? Long }))
-                is IntCol -> newCols.add(IntCol(col.name, newRawCol.map { it as? Int }))
-                is DoubleCol -> newCols.add(DoubleCol(col.name, newRawCol.map { it as? Double }))
-                is BooleanCol -> newCols.add(BooleanCol(col.name, newRawCol.map { it as? Boolean }))
-                else -> {
-                    throw TypeCastException("Unable to cast column to available type.")
-                }
-            }
-        }
-        return SimpleDataFrame(newCols)
-    }
-
     // todo should this be public API
     private fun SimpleDataFrame.replaceColumn(newCol: DataCol): DataFrame {
         val newColIndex = names.indexOf(newCol.name)

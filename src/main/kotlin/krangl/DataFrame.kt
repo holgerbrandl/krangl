@@ -142,19 +142,6 @@ interface DataFrame {
     /** Adds new variables and preserves existing.*/
     fun addColumn(tf: ColumnFormula): DataFrame
 
-    /** Adds new rows. Missing entries are set to null.
-     *
-     * New columns cannot be added via new rows. By default, addRows checks if a new column is added, and throws
-     * [IllegalArgumentException] when a new column is added. Setting `dropNewCols` to true will drop these columns
-     * silently instead, and will make this operation slightly faster.
-     *
-     * Note calling this function is an inefficient operation as it produces a full copy of the data.
-     * Prefer storing data separately, and calling [DataFrame.Companion.fromRecords] when a DataFrame is needed.
-     *
-     * @sample krangl.samples.addRowsExamples
-     */
-    fun addRows(vararg rows: DataFrameRow, dropNewCols: Boolean = false): DataFrame
-
     fun addColumn(columnName: String, expression: TableExpression): DataFrame = addColumn(columnName to expression)
 
     fun addColumns(vararg columnFormulas: ColumnFormula): DataFrame = columnFormulas.fold(this, { df, tf -> df.addColumn(tf) })

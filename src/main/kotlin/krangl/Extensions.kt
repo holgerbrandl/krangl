@@ -38,7 +38,7 @@ data class RenameRule(val oldName: String, val newName: String) {
 
 // no dplyr consistency here but improved readbility
 fun DataFrame.rename(vararg old2new: Pair<String, String>) =
-    this.rename(*old2new.map { RenameRule(it.first, it.second) }.toTypedArray())
+        this.rename(*old2new.map { RenameRule(it.first, it.second) }.toTypedArray())
 
 
 /** Rename one or several columns. Positions should be preserved */
@@ -63,7 +63,7 @@ fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
  *  Replace current column names with new ones. The number of provided names must match the number of columns.
  */
 fun DataFrame.setNames(vararg newNames: String): DataFrame =
-    rename(*names.zip(newNames).map { (old, new) -> old to new }.toTypedArray())
+        rename(*names.zip(newNames).map { (old, new) -> old to new }.toTypedArray())
 
 ////////////////////////////////////////////////
 // mutate() convenience
@@ -150,7 +150,7 @@ fun DataFrame.filter(predicate: ExpressionContext.(ExpressionContext) -> List<Bo
 
 /** AND-filter a table with different filters.*/
 fun DataFrame.filter(vararg predicates: DataFrame.(DataFrame) -> List<Boolean>): DataFrame =
-    predicates.fold(this, { df, p -> df.filter(p) })
+        predicates.fold(this, { df, p -> df.filter(p) })
 
 
 /** Match a text column in a NA-aware manner to create a predicate vector for filtering.
@@ -159,7 +159,7 @@ fun DataFrame.filter(vararg predicates: DataFrame.(DataFrame) -> List<Boolean>):
  */
 @Suppress("UNCHECKED_CAST")
 inline fun <reified T> DataCol.isMatching(missingAs: Boolean = false, crossinline filter: T.() -> Boolean): BooleanArray =
-    (map<T> { it.filter() }.map { it ?: missingAs } as List<Boolean>).toBooleanArray()
+        (map<T> { it.filter() }.map { it ?: missingAs } as List<Boolean>).toBooleanArray()
 
 
 /**
@@ -242,8 +242,8 @@ fun DataCol.order(naLast: Boolean = true): List<Int> {
 }
 
 fun DataCol.rank(naLast: Boolean = true): List<Int> = order(naLast)
-    .mapIndexed { idx, value -> idx to value }
-    .sortedBy { it.second }.map { it.first }
+        .mapIndexed { idx, value -> idx to value }
+        .sortedBy { it.second }.map { it.first }
 
 
 /** A proxy on the `df` that exposes just parts of the DataFrame api that are relevant for sorting
@@ -282,8 +282,8 @@ fun DataFrame.sortedBy(vararg sortExpressions: SortExpression): DataFrame {
     val sortBys = sortExpressions.mapIndexed { index, sortExpr ->
         ColumnFormula("__sort$index") {
             with(SortingContext(it.df)) { sortExpr(this, this) }
-                // prevent scalar string attributes here which are most likely column names.
-                .also { if (it is String) throw InvalidSortingPredicateException(it) }
+                    // prevent scalar string attributes here which are most likely column names.
+                    .also { if (it is String) throw InvalidSortingPredicateException(it) }
         }
     }
 
@@ -313,7 +313,7 @@ fun DataFrame.summarize(name: String, tableExpression: TableExpression): DataFra
  */
 // a more efficient impl should simply hash the `selects` and transform it in to a predicate function
 fun DataFrame.distinct(vararg selects: String = this.names.toTypedArray()): DataFrame =
-    groupBy(*selects).slice(1).ungroup()
+        groupBy(*selects).slice(1).ungroup()
 
 
 /**
@@ -420,10 +420,10 @@ fun main(args: Array<String>) {
     println("-------")
 
     irisData.summarizeAt(
-        { startsWith("Length") },
-        SumFuns.mean,
-        AggFun({ mean() }),
-        AggFun({ median() })
+            { startsWith("Length") },
+            SumFuns.mean,
+            AggFun({ mean() }),
+            AggFun({ median() })
     ).head().print()
 
 }
@@ -525,22 +525,22 @@ var PRINT_ROW_NUMBERS = true
 /* Prints a dataframe to stdout. df.toString() will also work but has no options .*/
 @JvmOverloads
 fun DataFrame.print(
-    title: String = "A DataFrame",
-    colNames: Boolean = true,
-    maxRows: Int = PRINT_MAX_ROWS,
-    maxWidth: Int = PRINT_MAX_WIDTH,
-    maxDigits: Int = PRINT_MAX_DIGITS,
-    rowNumbers: Boolean = PRINT_ROW_NUMBERS
+        title: String = "A DataFrame",
+        colNames: Boolean = true,
+        maxRows: Int = PRINT_MAX_ROWS,
+        maxWidth: Int = PRINT_MAX_WIDTH,
+        maxDigits: Int = PRINT_MAX_DIGITS,
+        rowNumbers: Boolean = PRINT_ROW_NUMBERS
 ) = println(asString(title, colNames, maxRows, maxWidth, maxDigits, rowNumbers) + lineSeparator)
 
 
 fun DataFrame.asString(
-    title: String = "A DataFrame",
-    colNames: Boolean = true,
-    maxRows: Int = PRINT_MAX_ROWS,
-    maxWidth: Int = PRINT_MAX_WIDTH,
-    maxDigits: Int = PRINT_MAX_DIGITS,
-    rowNumbers: Boolean = PRINT_ROW_NUMBERS
+        title: String = "A DataFrame",
+        colNames: Boolean = true,
+        maxRows: Int = PRINT_MAX_ROWS,
+        maxWidth: Int = PRINT_MAX_WIDTH,
+        maxDigits: Int = PRINT_MAX_DIGITS,
+        rowNumbers: Boolean = PRINT_ROW_NUMBERS
 ): String {
 
     var df = this
@@ -556,10 +556,10 @@ fun DataFrame.asString(
 
     val maxRowsOrInf = if (maxRows < 0) Integer.MAX_VALUE else maxRows
     val printData = take(Math.min(nrow, maxRowsOrInf))
-        // optionally add rownames
-        .run {
-            if (rowNumbers) addColumn(" ") { rowNumber }.moveLeft(" ") else this
-        }
+            // optionally add rownames
+            .run {
+                if (rowNumbers) addColumn(" ") { rowNumber }.moveLeft(" ") else this
+            }
 
     val valuePrinter = createValuePrinter(maxDigits)
 
@@ -571,9 +571,9 @@ fun DataFrame.asString(
     // detect column padding
     val columnSpacing = 3
     val padding = colWidths.zip(headerWidths)
-        .map { (col, head) -> listOf(col, head).max()!! + columnSpacing }
-        // remove spacer from first column to have correction alignment with beginning of line
-        .toMutableList().also { if (it.size > 0) it[0] -= columnSpacing }.toList()
+            .map { (col, head) -> listOf(col, head).max()!! + columnSpacing }
+            // remove spacer from first column to have correction alignment with beginning of line
+            .toMutableList().also { if (it.size > 0) it[0] -= columnSpacing }.toList()
 
 
     // do the actual printing
@@ -589,9 +589,9 @@ fun DataFrame.asString(
     // determine which column to actually print to obey width limitations
     //    val numPrintCols = 300
     val numPrintCols = padding.asSequence()
-        .scanLeft(0) { acc, next -> acc + next }
-        .withIndex().takeWhile { it.value < maxWidth }
-        .last().index
+            .scanLeft(0) { acc, next -> acc + next }
+            .withIndex().takeWhile { it.value < maxWidth }
+            .last().index
 
     val widthTrimmed = printData.select(printData.names.take(numPrintCols))
 
@@ -676,7 +676,7 @@ fun DataFrame.schema(maxDigits: Int = 3, maxWidth: Int = PRINT_MAX_WIDTH) {
 
     topN.cols.zip(typeLabels).forEach { (col, typeLabel) ->
         val stringifiedVals = col.values().take(255).asSequence()
-            .joinToMaxLengthString(maxLength = maxWidth, transform = createValuePrinter(maxDigits))
+                .joinToMaxLengthString(maxLength = maxWidth, transform = createValuePrinter(maxDigits))
 
         println("${col.name.padEnd(namePadding)}  ${typeLabel.padEnd(typePadding)}  $stringifiedVals")
     }
@@ -701,11 +701,11 @@ private fun guessAnyType(col: AnyCol): String {
     if (firstEl == null) return "Any"
 
     return firstEl.javaClass.simpleName
-        // tweak types for nested data
-        .replace("SimpleDataFrame", "DataFrame")
-        .replace("GroupedDataFrame", "DataFrame")
-        // take care of data-classes defined in other classes or methods
-        .replace(".*\\$".toRegex(), "")
+            // tweak types for nested data
+            .replace("SimpleDataFrame", "DataFrame")
+            .replace("GroupedDataFrame", "DataFrame")
+            // take care of data-classes defined in other classes or methods
+            .replace(".*\\$".toRegex(), "")
 }
 
 internal fun createValuePrinter(maxDigits: Int = 3): (Any?) -> String = {
@@ -720,8 +720,8 @@ internal fun createValuePrinter(maxDigits: Int = 3): (Any?) -> String = {
 
 /** Provides a code to convert  a dataframe to a strongly typed list of kotlin data-class instances.*/
 fun DataFrame.printDataClassSchema(
-    dataClassName: String,
-    receiverVarName: String = "dataFrame"
+        dataClassName: String,
+        receiverVarName: String = "dataFrame"
 ) {
     val df = this.ungroup() as SimpleDataFrame
 
@@ -735,25 +735,58 @@ fun DataFrame.printDataClassSchema(
 }
 
 
-fun List<DataFrame>.bindRows(): DataFrame { // add options about NA-fill over non-overlapping columns
-    return bindRows(*this.toTypedArray())
+/** Adds new rows. Missing entries are set to null. The output of bindRows() will contain a column if that column appears in any of the inputs.
+ *
+ * When row-binding, columns are matched by name, and any missing columns will be filled with NA.
+ *
+ * Grouping will be discarded when binding rows.
+ *
+ * @sample krangl.samples.bindRowsExamples
+ */
+fun List<DataFrame>.bindRows(): DataFrame {
+    return bindRows(*toTypedArray())
 }
 
 
-/** Concatenate a list of data-frame by row. */
-fun bindRows(vararg dataFrames: DataFrame): DataFrame { // add options about NA-fill over non-overlapping columns
-    // todo more column model consistency checks here
-    // note: use fold to bind with non-overlapping column model
+/** Adds new rows. Missing entries are set to null. The output of bindRows() will contain a column if that column appears in any of the inputs.
+ *
+ * When row-binding, columns are matched by name, and any missing columns will be filled with NA.
+ *
+ * Grouping will be discarded when binding rows.
+ *
+ * @sample krangl.samples.bindRowsExamples
+ */
+fun DataFrame.bindRows(df: DataFrame): DataFrame = bindRows(this, df)
 
+
+/** Adds new rows. Missing entries are set to null. The output of bindRows() will contain a column if that column appears in any of the inputs.
+ *
+ * When row-binding, columns are matched by name, and any missing columns will be filled with NA.
+ *
+ * Grouping will be discarded when binding rows.
+ *
+ * @sample krangl.samples.bindRowsExamples
+ */
+fun DataFrame.bindRows(vararg someRows: DataFrameRow): DataFrame =
+        bindRows(this, dataFrameOf(listOf(*someRows)))
+
+
+/** Adds new rows. Missing entries are set to null. The output of bindRows() will contain a column if that column appears in any of the inputs.
+ *
+ * When row-binding, columns are matched by name, and any missing columns will be filled with NA.
+ *
+ * Grouping will be discarded when binding rows.
+ *
+ * @sample krangl.samples.bindRowsExamples
+ */
+fun bindRows(vararg dataFrames: DataFrame): DataFrame { // add options about NA-fill over non-overlapping columns
     val bindCols = mutableListOf<DataCol>()
 
-    //    val totalRows = map { it.nrow }.sum()
-
     val colNames = dataFrames
-        .map { it.names }
-        .foldRight(emptyList<String>()) { acc, right ->
-            acc + right.minus(acc)
-        }
+            .map { it.names }
+            .foldRight(emptyList<String>()) { acc, right ->
+                acc + right.minus(acc)
+            }
 
     for (colName in colNames) {
         val colDataCombined: Array<*> = bindColData(dataFrames.toList(), colName)
@@ -856,7 +889,7 @@ internal inline fun warnIf(value: Boolean, lazyMessage: () -> Any): Unit {
 }
 
 internal fun GroupedDataFrame.transformGroups(trafo: (DataFrame) -> DataFrame): GroupedDataFrame =
-    groups.map { DataGroup(it.groupKey, trafo(it.df)) }.let { GroupedDataFrame(by, it) }
+        groups.map { DataGroup(it.groupKey, trafo(it.df)) }.let { GroupedDataFrame(by, it) }
 
 
 fun emptyDataFrame(): DataFrame = SimpleDataFrame()

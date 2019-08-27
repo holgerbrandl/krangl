@@ -1,6 +1,14 @@
 Krangl Release History
 ======================
 
+v0.12
+----
+
+
+* New: Extended `bindRows` API to combine data rowwise (see PR [#77](https://github.com/holgerbrandl/krangl/issues/77)
+ by @CrystalLord)
+
+
 v0.11
 -----
 
