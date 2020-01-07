@@ -21,7 +21,6 @@ If you're not sure about how to proceed, check out  [krangl in 10 minutes](https
 **[krangl user guide](https://krangl.gitbook.io/docs/)**.
 
 
-
 Installation
 ------------
 
@@ -205,6 +204,11 @@ Documentation
 * [Krangl User Guide](https://krangl.gitbook.io/docs/) for detailed information about the API and usage examples.
 * [API Docs](http://holgerbrandl.github.io/krangl/javadoc/krangl/) for detailed information about the API including manu usage examples
 * TBD `krangl` Cheat Sheet
+
+
+Another great [introduction into data-science with kotlin](https://blog.jetbrains.com/kotlin/2019/12/making-kotlin-ready-for-data-science/)
+ was presented at 2019's [KotlinConf](https://kotlinconf.com/)
+  by Roman Belov from [JetBrains](https://www.jetbrains.com/).
 
 
 
