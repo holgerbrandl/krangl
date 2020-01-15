@@ -40,6 +40,8 @@ abstract class DataCol(val name: String) {  // tbd why not: Iterable<Any> ??
 
     abstract fun values(): Array<*>
 
+    val hasNulls by lazy { values().any { it == null } }
+
     abstract val length: Int
 
     override fun toString(): String {
