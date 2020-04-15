@@ -71,7 +71,7 @@ Examples
 
 ```kotlin
 // Read data-frame from disk
-val iris = DataFrame.readCSV("data/iris.txt")
+val iris = DataFrame.readTSV("data/iris.txt")
 
 
 // Create data-frame in memory
