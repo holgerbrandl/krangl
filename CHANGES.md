@@ -1,6 +1,11 @@
 Krangl Release History
 ======================
 
+v0.13 (work in progress)
+------------------------
+
+* Added `cumSum` (see [CoreVerbsTest.kt: Lines 536-562](src/test/kotlin/krangl/test/CoreVerbsTest.kt#L536-L562) for usage example(
+
 v0.12
 ----
 
