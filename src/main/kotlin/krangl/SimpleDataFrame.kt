@@ -437,11 +437,11 @@ object ArrayUtils {
 
     @Suppress("UNCHECKED_CAST")
     fun handleListErasure(name: String, mutation: List<*>): DataCol = when {
-        isListOfType<Int>(mutation) -> IntCol(name, mutation as List<Int>)
-        isListOfType<Long>(mutation) -> LongCol(name, mutation as List<Long>)
-        isListOfType<String>(mutation) -> StringCol(name, mutation as List<String>)
-        isListOfType<Double>(mutation) -> DoubleCol(name, mutation as List<Double>)
-        isListOfType<Boolean>(mutation) -> BooleanCol(name, mutation as List<Boolean>)
+        isListOfType<Int?>(mutation) -> IntCol(name, mutation as List<Int?>)
+        isListOfType<Long?>(mutation) -> LongCol(name, mutation as List<Long?>)
+        isListOfType<String?>(mutation) -> StringCol(name, mutation as List<String?>)
+        isListOfType<Double?>(mutation) -> DoubleCol(name, mutation as List<Double?>)
+        isListOfType<Boolean?>(mutation) -> BooleanCol(name, mutation as List<Boolean?>)
         mutation.isEmpty() -> AnyCol(name, emptyArray())
         else -> AnyCol(name, mutation)
         //    else -> throw UnsupportedOperationException()
@@ -453,10 +453,10 @@ inline fun <reified T> isListOfType(items: List<Any?>): Boolean {
     val it = items.iterator()
 
     while (it.hasNext()) {
-        if (it.next() is T) return true
+        if (it.next() !is T) return false
     }
 
-    return false
+    return true
 }
 
 //@Suppress("UNCHECKED_CAST")
