@@ -24,9 +24,9 @@ class ColumnTests {
     fun `it should do correct string column arithmetics`() {
 
         irisData.addColumns(
-            // TODO this does not get a compiler warning, but should in this context
-            //            "initials" to { it["Species"].map<String> { it.first() } + it["Species"].map<String> { it.first() } },
-            "initials" to { it["Species"].map<String> { it.first() } concat it["Species"].map<String> { it.first() } }
+                // TODO this does not get a compiler warning, but should in this context
+                //            "initials" to { it["Species"].map<String> { it.first() } + it["Species"].map<String> { it.first() } },
+                "initials" to { it["Species"].map<String> { it.first() } concat it["Species"].map<String> { it.first() } }
         )
     }
 
@@ -88,6 +88,33 @@ class ColumnTests {
 
         (df.addColumn("foo") { it["a"] gt it["b"] }["foo"].values() contentEquals arrayOf<Boolean?>(false, true, false)) shouldBe true
         (df.addColumn("foo") { it["a"] ge it["b"] }["foo"].values() contentEquals arrayOf<Boolean?>(false, true, true)) shouldBe true
+    }
+
+
+    @Test
+    fun `calculate cummulative sum in grouped dataframe including NAs`() {
+        val sales = dataFrameOf("product", "sales")(
+                "A", 32.3,
+                "A", 12.2,
+                "A", 24.2,
+                "B", 23.3,
+                "B", 12.3,
+                "B", null,
+                "B", 2.5)
+
+//        sales.summarize("mean_sales" to { it["sales"].mean(removeNA = true)})
+//        sales.addColumn("cum_sales" to { it["sales"].cumSum()}).print()
+
+        val cumSumGrd = sales.groupBy("product").addColumn("cum_sales" to { it["sales"].cumSum() })
+
+        cumSumGrd.apply {
+            print()
+            nrow shouldBe sales.nrow
+            this["cum_sales"][1] shouldBe 44.5
+            this["cum_sales"][4] shouldBe  35.6
+            this["cum_sales"][5] shouldBe  null
+            this["cum_sales"][6] shouldBe  null
+        }
     }
 }
 

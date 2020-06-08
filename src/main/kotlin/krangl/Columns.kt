@@ -1,6 +1,7 @@
 package krangl
 
 import krangl.ArrayUtils.handleArrayErasure
+import krangl.ArrayUtils.handleListErasure
 import krangl.util.joinToMaxLengthString
 import java.util.*
 
@@ -596,6 +597,24 @@ fun DataCol.sd(removeNA: Boolean = false): Double? = when (this) {
     is LongCol -> values.map { it?.toDouble() }.toTypedArray().run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.sd()
     else -> throw InvalidColumnOperationException(this)
 }
+
+/**
+ * Calculates the cumulative sum of the column values.
+ *
+ * An NA value in x causes the corresponding and following elements of the return value to be NA.
+ *
+ * @throws InvalidColumnOperationException If the type of the receiver column is not numeric
+ */
+fun DataCol.cumSum(): DataCol = when (this) {
+    is DoubleCol -> values.drop(1).fold(listOf(values.first()), { list, curVal ->
+        list + list.last().let { if (it == null || curVal == null) null else (it + curVal) }
+    })
+    is IntCol -> values.drop(1).fold(listOf(values.first()), { list, curVal ->
+        list + list.last().let { if (it == null || curVal == null) null else (it + curVal) }
+    })
+    else -> throw InvalidColumnOperationException(this)
+}.let { handleListErasure(tempColumnName(), it) }
+
 
 private fun <E : Number> Array<E?>.forceDoubleNotNull() = try {
     map { it!!.toDouble() }
