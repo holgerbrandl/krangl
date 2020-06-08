@@ -25,20 +25,20 @@ fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boo
 
     // todo use big initially empty array here and fill it with spread data
     val spreadGroups: List<DataFrame> = bySpreadGroup
-        .groups
-        .map {
-            val grpDf = it.df
+            .groups
+            .map {
+                val grpDf = it.df
 
-            require(grpDf.select(key).distinct(key).nrow == grpDf.nrow) { "key value mapping is not unique" }
+                require(grpDf.select(key).distinct(key).nrow == grpDf.nrow) { "key value mapping is not unique" }
 
-            val spreadBlock = SimpleDataFrame(handleListErasure(key, newColNames)).leftJoin(grpDf.select(key, value))
+                val spreadBlock = SimpleDataFrame(handleListErasure(key, newColNames)).leftJoin(grpDf.select(key, value))
 
-            val grpSpread = SimpleDataFrame((spreadBlock as SimpleDataFrame).rows.map {
-                AnyCol(it[key].toString(), listOf(it[value]))
-            })
+                val grpSpread = SimpleDataFrame((spreadBlock as SimpleDataFrame).rows.map {
+                    AnyCol(it[key].toString(), listOf(it[value]))
+                })
 
-            bindCols(grpDf.remove(key, value).distinct(), grpSpread)
-        }
+                bindCols(grpDf.remove(key, value).distinct(), grpSpread)
+            }
 
     //    if(fill!=null){
     //        spreadBlock =  spreadBlock.
@@ -49,22 +49,22 @@ fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boo
 
     // coerce types of stringified columns similar to how tidy is doing things
     var typeCoercedSpread = newColNames.map { it.toString() }
-        .foldRight(spreadWithGHashes, { spreadCol, df ->
-            df.addColumn(spreadCol) { handleArrayErasure(spreadCol, df[spreadCol].values()) }
-        })
+            .foldRight(spreadWithGHashes, { spreadCol, df ->
+                df.addColumn(spreadCol) { handleArrayErasure(spreadCol, df[spreadCol].values()) }
+            })
 
     if (convert) {
         typeCoercedSpread = newColNames
-            // stringify spread column names
-            .map { it.toString() }
+                // stringify spread column names
+                .map { it.toString() }
 
-            // select for String-type coluymns
-            .filter { typeCoercedSpread[it] is StringCol }
+                // select for String-type coluymns
+                .filter { typeCoercedSpread[it] is StringCol }
 
-            // attempt conversion
-            .foldRight(typeCoercedSpread, { spreadCol, df ->
-                convertType(df, spreadCol)
-            })
+                // attempt conversion
+                .foldRight(typeCoercedSpread, { spreadCol, df ->
+                    convertType(df, spreadCol)
+                })
 
     }
 
@@ -104,17 +104,17 @@ fun DataFrame.gather(key: String, value: String, columns: List<String> = this.na
         distinctCols.size == 1 && distinctCols.first() == StringCol::class.java -> StringCol(name, data as Array<String?>)
         distinctCols.size == 1 && distinctCols.first() == BooleanCol::class.java -> BooleanCol(name, data as Array<Boolean?>)
 
-    // upcast mixed gatherings including int, long and double
+        // upcast mixed gatherings including int, long and double
         setOf(IntCol::class.java, LongCol::class.java, DoubleCol::class.java) == distinctCols.toSet() -> DoubleCol(name, data.map { (it as Number?)?.toDouble() })
 
-    // fall back to use any column
+        // fall back to use any column
         else -> AnyCol(name, data as Array<Any?>)
     }
 
     val gatherBlock = gatherColumns.cols.map { column ->
         SimpleDataFrame(
-            StringCol(key, Array(column.length, { column.name as String? })),
-            makeValueCol(value, column.values())
+                StringCol(key, Array(column.length, { column.name as String? })),
+                makeValueCol(value, column.values())
         )
     }.bindRows().let {
         // optionally try to convert key column
@@ -192,7 +192,7 @@ fun DataFrame.unite(colName: String, which: List<String>, sep: String = "_", rem
 
 
 fun DataFrame.unite(colName: String, vararg which: ColNames.() -> List<Boolean?>, sep: String = "_", remove: Boolean = true): DataFrame =
-    unite(colName, which = colSelectAsNames(reduceColSelectors(which)), sep = sep, remove = remove)
+        unite(colName, which = colSelectAsNames(reduceColSelectors(which)), sep = sep, remove = remove)
 
 
 /**
@@ -252,8 +252,8 @@ const val DEF_NEST_COLUMN_NAME = "data"
  */
 // also see https://github.com/tidyverse/tidyr/blob/master/R/nest.R
 fun DataFrame.nest(
-    colSelect: ColumnSelector = { except(*groupedBy().names.toTypedArray()) },
-    columnName: String = DEF_NEST_COLUMN_NAME
+        colSelect: ColumnSelector = { except(*groupedBy().names.toTypedArray()) },
+        columnName: String = DEF_NEST_COLUMN_NAME
 ): DataFrame {
     val nestColumns = colSelectAsNames(colSelect)
 
@@ -297,15 +297,15 @@ fun DataFrame.unnest(columnName: String): DataFrame {
     val dataCol = get(columnName).asType<DataFrame>()
 
     val replicationIndex = dataCol
-        .mapIndexed { rowNumber, dataFrame -> IntArray(dataFrame?.nrow ?: 1, { rowNumber }) }
-        .flatMap { it.toList() }
+            .mapIndexed { rowNumber, dataFrame -> IntArray(dataFrame?.nrow ?: 1, { rowNumber }) }
+            .flatMap { it.toList() }
 
 
     val left = replicateByIndex(remove(columnName), replicationIndex)
 
     val unnested = dataCol.toList()
-        .map { it ?: emptyDataFrame() }
-        .bindRows()
+            .map { it ?: emptyDataFrame() }
+            .bindRows()
 
     return bindCols(left, unnested)
 
@@ -319,7 +319,7 @@ fun DataFrame.unnest(columnName: String): DataFrame {
  */
 // todo add fill argument as in tidyr::complete
 fun DataFrame.complete(vararg columnNames: String): DataFrame =
-    expand(*columnNames).leftJoin(this, by = columnNames.asIterable())
+        expand(*columnNames).leftJoin(this, by = columnNames.asIterable())
 
 /**
  * expand() is often useful in conjunction with left_join if you want to convert implicit missing values to explicit
@@ -328,10 +328,10 @@ fun DataFrame.complete(vararg columnNames: String): DataFrame =
 fun DataFrame.expand(vararg columnNames: String): DataFrame {
     val dummyCol = tempColumnName()
     val folded = columnNames
-        .map { select(it).distinct() }
-        .fold(dataFrameOf(dummyCol)(1)) { acc, next ->
-            cartesianProductWithoutBy(acc, next, byColumns = listOf(dummyCol))
-        }
+            .map { select(it).distinct() }
+            .fold(dataFrameOf(dummyCol)(1)) { acc, next ->
+                cartesianProductWithoutBy(acc, next, byColumns = listOf(dummyCol))
+            }
 
     return folded.remove(dummyCol).sortedBy(*columnNames)
 }

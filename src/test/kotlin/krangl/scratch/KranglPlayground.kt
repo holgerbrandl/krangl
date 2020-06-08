@@ -17,7 +17,7 @@ fun main(args: Array<String>) {
 
 
     msleep.groupBy("order").summarize(
-        "mean_weight" to { it["bodywt"].mean(true) }
+            "mean_weight" to { it["bodywt"].mean(true) }
     ).filter({ it["mean_weight"] gt 20 }).print()
 
 
@@ -26,10 +26,10 @@ fun main(args: Array<String>) {
 
     // create data-frame in memory
     var df: DataFrame = SimpleDataFrame(
-        StringCol("first_name", listOf("Max", "Franz", "Horst")),
-        StringCol("last_name", listOf("Doe", "Smith", "Keanes")),
-        IntCol("age", listOf(23, 23, 12)),
-        IntCol("weight", listOf(55, 88, 82))
+            StringCol("first_name", listOf("Max", "Franz", "Horst")),
+            StringCol("last_name", listOf("Doe", "Smith", "Keanes")),
+            IntCol("age", listOf(23, 23, 12)),
+            IntCol("weight", listOf(55, 88, 82))
     )
 
 

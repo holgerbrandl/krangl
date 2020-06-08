@@ -111,9 +111,9 @@ class ColumnTests {
             print()
             nrow shouldBe sales.nrow
             this["cum_sales"][1] shouldBe 44.5
-            this["cum_sales"][4] shouldBe  35.6
-            this["cum_sales"][5] shouldBe  null
-            this["cum_sales"][6] shouldBe  null
+            this["cum_sales"][4] shouldBe 35.6
+            this["cum_sales"][5] shouldBe null
+            this["cum_sales"][6] shouldBe null
         }
     }
 }

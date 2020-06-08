@@ -106,6 +106,7 @@ class ExpressionContext(df: DataFrame) : TableContext(df) {
 //infix fun String.to(that: TableExpression) = Pair<String, DataFrame.(DataFrame) -> Any?>(this, that)
 
 infix fun String.to(that: TableExpression) = ColumnFormula(this, that)
+
 // or using backticked =
 infix fun String.`=`(that: TableExpression) = ColumnFormula(this, that)
 // should we ditch one?

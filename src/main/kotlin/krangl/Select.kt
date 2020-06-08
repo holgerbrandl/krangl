@@ -179,9 +179,9 @@ internal fun DataFrame.reduceColSelectors(which: Array<out ColumnSelector>): Col
     //    }
 
     return which
-        .map { it(ColNames(names)) }
-        .reduce { selA, selB -> selA nullAwareAND selB }
-        .let { { it } }
+            .map { it(ColNames(names)) }
+            .reduce { selA, selB -> selA nullAwareAND selB }
+            .let { { it } }
 }
 
 
@@ -196,8 +196,8 @@ internal fun DataFrame.colSelectAsNames(columnSelect: ColumnSelector): List<Stri
     val whichComplete = which.map { it ?: !isPosSelection }
 
     val colSelection: List<String> = names
-        .zip(whichComplete)
-        .filter { it.second }.map { it.first }
+            .zip(whichComplete)
+            .filter { it.second }.map { it.first }
 
     return colSelection
 }

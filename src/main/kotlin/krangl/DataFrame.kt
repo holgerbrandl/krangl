@@ -134,7 +134,7 @@ interface DataFrame {
      * @sample krangl.samples.selectExamples
      */
     fun remove(vararg columSelects: ColumnSelector): DataFrame =
-        select(*columSelects.map { it -> { x: ColNames -> x.except(it) } }.toTypedArray())
+            select(*columSelects.map { it -> { x: ColNames -> x.except(it) } }.toTypedArray())
 
 
     fun filter(predicate: VectorizedRowPredicate): DataFrame
@@ -196,7 +196,6 @@ interface DataFrame {
      *
      */
     fun groupBy(vararg by: String): DataFrame
-
 
 
     /** Removes the grouping (if present from a data frame. */

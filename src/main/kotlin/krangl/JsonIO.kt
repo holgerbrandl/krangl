@@ -27,7 +27,7 @@ fun DataFrame.Companion.fromJson(fileOrUrl: String): DataFrame {
 
 @Suppress("UNCHECKED_CAST")
 fun DataFrame.Companion.fromJson(url: URL): DataFrame =
-    fromJsonArray(Parser().parse(url.openStream()) as JsonArray<JsonObject>)
+        fromJsonArray(Parser().parse(url.openStream()) as JsonArray<JsonObject>)
 
 
 @Suppress("UNCHECKED_CAST")
@@ -54,11 +54,11 @@ fun DataFrame.Companion.fromJsonString(jsonData: String): DataFrame {
                     }
                     else -> {
                         it.toMap().map { (key, value) -> AnyCol(key, listOf(value)) }
-                            .let { dataFrameOf(*it.toTypedArray()) }.addColumn(ARRAY_COL_ID) { it.df.names }
+                                .let { dataFrameOf(*it.toTypedArray()) }.addColumn(ARRAY_COL_ID) { it.df.names }
                     }
                 }
-            //                is JsonObject -> dataFrameOf(StringCol(jsonCol.name, it.keys.toList()), AnyCol("value", it.values.toList()))
-            //                    dataFrameOf(StringCol(jsonCol.name, it.keys.toList()), AnyCol("value", it.values.toList()))
+                //                is JsonObject -> dataFrameOf(StringCol(jsonCol.name, it.keys.toList()), AnyCol("value", it.values.toList()))
+                //                    dataFrameOf(StringCol(jsonCol.name, it.keys.toList()), AnyCol("value", it.values.toList()))
                 else -> throw IllegalArgumentException("Can not parse json. " + INTERNAL_ERROR_MSG)
             }
         }
@@ -67,11 +67,11 @@ fun DataFrame.Companion.fromJsonString(jsonData: String): DataFrame {
         //        deparseJson = if (deparseJson.ncol == 1) dataFrameOf(ARRAY_COL_ID)(deparseJson.names) else deparseJson
 
         df = df
-            .addColumn("_dummy_") { null }
-            .remove(jsonCol.name)
-            .addColumn("_json_") { jsonColDFs }
-            .remove("_dummy_")
-            .unnest("_json_")
+                .addColumn("_dummy_") { null }
+                .remove(jsonCol.name)
+                .addColumn("_json_") { jsonColDFs }
+                .remove("_dummy_")
+                .unnest("_json_")
 
     }
 
@@ -92,8 +92,8 @@ private fun deparseJson(parsed: Any?): DataFrame {
 internal fun fromJsonArray(records: JsonArray<JsonObject>): DataFrame {
     //    records[0]["sdf"]
     val colNames = records
-        .map { it.keys.toList() }
-        .reduceRight { acc, right -> acc + right.minus(acc) }
+            .map { it.keys.toList() }
+            .reduceRight { acc, right -> acc + right.minus(acc) }
 
     fun asColumn(colName: String, records: JsonArray<JsonObject>, builder: () -> DataCol): DataCol {
         return try {
@@ -110,7 +110,7 @@ internal fun fromJsonArray(records: JsonArray<JsonObject>): DataFrame {
 
         try {
             when {
-            // see https://github.com/holgerbrandl/krangl/issues/10
+                // see https://github.com/holgerbrandl/krangl/issues/10
                 firstElements.all { it is Int? || it is Long? } -> IntCol(colName, records.map { (it[colName] as Number?)?.toInt() })
                 firstElements.all { it is Long? || it is Long? } -> LongCol(colName, records.map { (it[colName] as Number?)?.toLong() })
                 firstElements.all { it is Double? } -> DoubleCol(colName, records.map { (it[colName] as Number?)?.toDouble() })

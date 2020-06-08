@@ -59,12 +59,12 @@ class CsvReaderTests {
     fun `it should have the correct column types`() {
 
         val columnTypes = mapOf(
-            "a" to ColType.String,
-            "b" to ColType.String,
-            "c" to ColType.Double,
-            "e" to ColType.Boolean,
-            "f" to ColType.Long,
-            ".default" to ColType.Int
+                "a" to ColType.String,
+                "b" to ColType.String,
+                "c" to ColType.Double,
+                "e" to ColType.Boolean,
+                "f" to ColType.Long,
+                ".default" to ColType.Int
 
         )
 
@@ -113,15 +113,15 @@ class BuilderTests {
     fun `it should convert objects into data-frames`() {
 
         val myCars = listOf(
-            Car("Ford Mustang", null, Engine.Otto),
-            Car("BMW Mustang", 3, Engine.Otto)
+                Car("Ford Mustang", null, Engine.Otto),
+                Car("BMW Mustang", 3, Engine.Otto)
         )
 
         val carsDF = myCars.deparseRecords {
             mapOf(
-                "model" to it.name,
-                "motor" to it.engine,
-                "cylinders" to it.numCyl)
+                    "model" to it.name,
+                    "motor" to it.engine,
+                    "cylinders" to it.numCyl)
         }
 
         carsDF.nrow shouldBe 2
@@ -140,8 +140,8 @@ class BuilderTests {
     @Test
     fun `it should convert object with extractor patterns`() {
         sleepPatterns.deparseRecords(
-            "foo" with { awake },
-            "bar" with { it.brainwt?.plus(3) }
+                "foo" with { awake },
+                "bar" with { it.brainwt?.plus(3) }
         ).apply {
             print()
             schema()
@@ -182,8 +182,8 @@ class BuilderTests {
     @Test
     fun `it should convert row records in a data frame`() {
         val records = listOf(
-            mapOf("name" to "Max", "age" to 23),
-            mapOf("name" to "Anna", "age" to 42)
+                mapOf("name" to "Max", "age" to 23),
+                mapOf("name" to "Anna", "age" to 42)
         )
 
         dataFrameOf(records).apply {

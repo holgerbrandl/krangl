@@ -46,7 +46,7 @@ abstract class DataCol(val name: String) {  // tbd why not: Iterable<Any> ??
     override fun toString(): String {
         val prefix = "$name [${getColumnType(this)}][$length]: "
         val peek = values().take(255).asSequence()
-            .joinToMaxLengthString(maxLength = PRINT_MAX_WIDTH - prefix.length, transform = createValuePrinter(PRINT_MAX_DIGITS))
+                .joinToMaxLengthString(maxLength = PRINT_MAX_WIDTH - prefix.length, transform = createValuePrinter(PRINT_MAX_DIGITS))
 
         return prefix + peek
     }
@@ -635,7 +635,7 @@ class MissingValueException(msg: String) : Throwable(msg)
 
 
 internal const val INTERNAL_ERROR_MSG =
-    "This looks like an issue with krangl. Please submit an example reproducing the problem/usecase to https://github.com/holgerbrandl/krangl/issues"
+        "This looks like an issue with krangl. Please submit an example reproducing the problem/usecase to https://github.com/holgerbrandl/krangl/issues"
 
 internal const val PLEASE_SUBMIT_MSG = "Feel welcome to submit a ticket to https://github.com/holgerbrandl/krangl/issues"
 
@@ -662,11 +662,11 @@ class InvalidColumnOperationException(msg: String) : RuntimeException(msg) {
 }
 
 class NonScalarValueException(tf: ColumnFormula, result: Any) :
-    RuntimeException("summarize() expression for '${tf.name}' did not evaluate into a scalar value but into a '${result}'")
+        RuntimeException("summarize() expression for '${tf.name}' did not evaluate into a scalar value but into a '${result}'")
 
 
 class InvalidSortingPredicateException(result: Any) :
-    RuntimeException("Sorting literal did not evaluate into boolean array, but instead to '${result}.")
+        RuntimeException("Sorting literal did not evaluate into boolean array, but instead to '${result}.")
 
 
 //

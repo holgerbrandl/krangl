@@ -17,11 +17,11 @@ class TypeInterfaceTest {
 
 
     val users = dataFrameOf(
-        "firstName", "lastName", "age", "hasSudo")(
-        "max", "smith", 53, false,
-        "tom", "doe", 30, false,
-        "eva", "miller", 23, true,
-        null, "meyer", 23, null
+            "firstName", "lastName", "age", "hasSudo")(
+            "max", "smith", 53, false,
+            "tom", "doe", 30, false,
+            "eva", "miller", 23, true,
+            null, "meyer", 23, null
     )
 
     data class User(val firstName: String?, val lastName: String, val age: Int, val hasSudo: Boolean?)
@@ -43,8 +43,8 @@ class TypeInterfaceTest {
         data class Person(val name: String, val age: Int, val weight: Double)
 
         val users = listOf(
-            Person("Anne", 23, 55.4),
-            Person("Tina", 40, 60.4)
+                Person("Anne", 23, 55.4),
+                Person("Tina", 40, 60.4)
         )
 
         val df = users.asDataFrame()
@@ -75,8 +75,8 @@ class TypeInterfaceTest {
     @Test
     fun `it should map rows to objects with custom mapping scheme`() {
         val objPersons = users
-            .rename("firstName" to "Vorname")
-            .rowsAs<User>(mapping = mapOf("Vorname" to "firstName"))
+                .rename("firstName" to "Vorname")
+                .rowsAs<User>(mapping = mapOf("Vorname" to "firstName"))
 
         objPersons.toList().size shouldBe users.nrow
 
@@ -162,8 +162,8 @@ class TypeInterfaceTest {
         data class Applicant(val name: String, val bar: File, val stuff: List<URL>)
 
         val applicants = listOf(
-            Applicant("max", File("cv.pdf"), listOf(URL("http://heise.de"), URL("http://github.com"))),
-            Applicant("moritz", File("docs.pdf"), listOf(URL("http://bintray.com")))
+                Applicant("max", File("cv.pdf"), listOf(URL("http://heise.de"), URL("http://github.com"))),
+                Applicant("moritz", File("docs.pdf"), listOf(URL("http://bintray.com")))
         )
         val applDF = applicants.asDataFrame()
 
@@ -193,8 +193,8 @@ class TypeInterfaceTest {
     fun `it should unwrap properties of data classes`() {
 
         val cars = dataFrameOf("cars")(
-            Car(298, "Skoda", URL("http://www.skoda.de")),
-            Car(200, "BMW", URL("http://www.bmw.de"))
+                Car(298, "Skoda", URL("http://www.skoda.de")),
+                Car(200, "BMW", URL("http://www.bmw.de"))
         )
 
         cars["cars"].asType<Car>().first()!!.name

@@ -157,10 +157,10 @@ class SelectTest {
     @Test
     fun `it should allow to select with matchers in grouped df`() {
         irisData.groupBy("Species")
-            .select { endsWith("Length") }.apply {
-                print()
-                names shouldBe listOf("Species", "Sepal.Length", "Petal.Length")
-            }
+                .select { endsWith("Length") }.apply {
+                    print()
+                    names shouldBe listOf("Species", "Sepal.Length", "Petal.Length")
+                }
 
     }
 }
@@ -197,11 +197,11 @@ class AddColumnTest {
     @Test
     fun `it should  allow to use a new column in the same mutate call`() {
         sleepData.addColumns(
-            "vore_new" to { it["vore"] },
-            // old API
-            // "vore_first_char" to { it["vore"].asStrings().mapNonNull { it.toList().first().toString() } }
-            // more modern
-            "vore_first_char" to { it["vore"].map<String> { it.toList().first().toString() } }
+                "vore_new" to { it["vore"] },
+                // old API
+                // "vore_first_char" to { it["vore"].asStrings().mapNonNull { it.toList().first().toString() } }
+                // more modern
+                "vore_first_char" to { it["vore"].map<String> { it.toList().first().toString() } }
         )
     }
 
@@ -234,31 +234,31 @@ class AddColumnTest {
         val someObject = "foo".toRegex()
 
         dataFrameOf("foo")("bar")
-            .addColumn("some_any") { someObject }.apply {
-                names shouldBe listOf("foo", "some_any")
-                this[1][0] shouldBe someObject
-            }
+                .addColumn("some_any") { someObject }.apply {
+                    names shouldBe listOf("foo", "some_any")
+                    this[1][0] shouldBe someObject
+                }
     }
 
 
     @Test
     fun `it should perform correct column arithmetics`() {
         val data = dataFrameOf("product", "weight", "price", "num_items", "inflammable")(
-            "handy", 2.0, 1.0, 33, true,
-            "tablet", 1.5, 6.0, 22, true,
-            "macbook", 12.5, 20.0, 4, false
+                "handy", 2.0, 1.0, 33, true,
+                "tablet", 1.5, 6.0, 22, true,
+                "macbook", 12.5, 20.0, 4, false
         )
 
         data.addColumn("price_per_kg") { it["price"] / it["weight"] }["price_per_kg"].asDoubles() shouldBe
-            arrayOf<Double?>(0.5, 4.0, 1.6)
+                arrayOf<Double?>(0.5, 4.0, 1.6)
 
         data.addColumn("value") { it["num_items"] * it["price"] }["value"].asDoubles() shouldBe
-            arrayOf<Double?>(33.0, 132.0, 80.0)
+                arrayOf<Double?>(33.0, 132.0, 80.0)
 
 
         // same but with reversed arguments
         data.addColumn("value") { it["price"] * it["num_items"] }["value"].asDoubles() shouldBe
-            arrayOf<Double?>(33.0, 132.0, 80.0)
+                arrayOf<Double?>(33.0, 132.0, 80.0)
     }
 }
 
@@ -277,9 +277,9 @@ class FilterTest {
     @Test
     fun `it should filter in empty table`() {
         sleepData
-            .filter { it["name"] eq "foo" }
-            // refilter on empty one
-            .filter { it["name"] eq "bar" }
+                .filter { it["name"] eq "foo" }
+                // refilter on empty one
+                .filter { it["name"] eq "bar" }
     }
 
     @Test
@@ -328,13 +328,13 @@ class FilterTest {
 
         //  fractional sampling of grouped data should be done per group
         sleepData
-            .groupBy("vore")
-            .sampleFrac(0.5)
-            .count("vore")
-            .filter({ it["vore"] eq "omni" })
-            .apply {
-                this["n"].asInts().first() shouldBe 10
-            }
+                .groupBy("vore")
+                .sampleFrac(0.5)
+                .count("vore")
+                .filter({ it["vore"] eq "omni" })
+                .apply {
+                    this["n"].asInts().first() shouldBe 10
+                }
     }
 
     @Test
@@ -376,12 +376,12 @@ class FilterTest {
 class SortTest() {
 
     val data = dataFrameOf("user_id", "name")(
-        6, "maja",
-        3, "anna",
-        null, "max",
-        5, null,
-        1, "tom",
-        5, "tom"
+            6, "maja",
+            3, "anna",
+            null, "max",
+            5, null,
+            1, "tom",
+            5, "tom"
     )
 
     @Test
@@ -410,11 +410,11 @@ class SortTest() {
         data.sortedBy("user_id").also {
             it.print()
         }["user_id"]
-            .run {
-                print(values().asList())
-                get(0) shouldBe 1
-                asInts() shouldBe arrayOf<Int?>(1, 3, 5, 5, 6, null)
-            }
+                .run {
+                    print(values().asList())
+                    get(0) shouldBe 1
+                    asInts() shouldBe arrayOf<Int?>(1, 3, 5, 5, 6, null)
+                }
 
         data.sortedBy { it["user_id"] }["user_id"][0] shouldBe 1
         data.sortedBy { -it["user_id"] }["user_id"][0] shouldBe 6
@@ -442,17 +442,17 @@ class SortTest() {
     fun `resolve ties if needed`() {
         // the test would require a tie-resolve if sleep_rem would be included as second sorting attribute
         sleepData
-            //            .filter { it["order"].isEqualTo("Artiodactyla") }
-            //            .also { print(it) }
-            .sortedBy("order", "sleep_total").run {
-                get("sleep_total").asDoubles()[1] shouldBe 1.9
-            }
+                //            .filter { it["order"].isEqualTo("Artiodactyla") }
+                //            .also { print(it) }
+                .sortedBy("order", "sleep_total").run {
+                    get("sleep_total").asDoubles()[1] shouldBe 1.9
+                }
 
         // also mix asc and desc sorting
         sleepData
-            .sortedBy({ it["order"] }, { desc("sleep_total") }).run {
-                get("sleep_total").asDoubles()[1] shouldBe 9.1 // most sleep one among Artiodactyla
-            }
+                .sortedBy({ it["order"] }, { desc("sleep_total") }).run {
+                    get("sleep_total").asDoubles()[1] shouldBe 9.1 // most sleep one among Artiodactyla
+                }
 
     }
 
@@ -547,9 +547,9 @@ class SummarizeTest {
 
         // using varargs
         irisData.summarizeAt({ endsWith("Length") },
-            SumFuns.mean,
-            //            AggFun({ mean() }),
-            AggFun({ median() }, "median")
+                SumFuns.mean,
+                //            AggFun({ mean() }),
+                AggFun({ median() }, "median")
         ).apply {
             print()
             nrow shouldBe 1
@@ -562,11 +562,11 @@ class SummarizeTest {
     fun `summarize multiple columns in grouped data frames with summarizeEach`() {
 
         irisData.groupBy("Species")
-            .summarizeAt({ endsWith("Length") }, SumFuns.mean).apply {
-                print()
-                nrow shouldBe 3
-                names shouldBe listOf("Species", "Sepal.Length.mean", "Petal.Length.mean")
-            }
+                .summarizeAt({ endsWith("Length") }, SumFuns.mean).apply {
+                    print()
+                    nrow shouldBe 3
+                    names shouldBe listOf("Species", "Sepal.Length.mean", "Petal.Length.mean")
+                }
 
     }
 }
@@ -737,9 +737,9 @@ class GroupedDataTest {
     fun `it should should auto-select grouping attributes from a grouped dataframe`() {
         //        flights.glimpse()
         val subFlights = flights
-            .groupBy("year", "month", "day")
-            //                .select({ range("year", "day") }, { listOf("arr_delay", "dep_delay") })
-            .select("arr_delay", "dep_delay", "year")
+                .groupBy("year", "month", "day")
+                //                .select({ range("year", "day") }, { listOf("arr_delay", "dep_delay") })
+                .select("arr_delay", "dep_delay", "year")
 
         subFlights.apply {
             ncol shouldBe 5
@@ -755,10 +755,10 @@ class GroupedDataTest {
         //        flights.glimpse()
 
         val dfA: DataFrame = dataFrameOf(
-            "first_name", "last_name", "age", "weight")(
-            "Max", "Doe", 23, 55,
-            "Franz", "Smith", 23, 88,
-            "Horst", "Keanes", 12, 82
+                "first_name", "last_name", "age", "weight")(
+                "Max", "Doe", 23, 55,
+                "Franz", "Smith", 23, 88,
+                "Horst", "Keanes", 12, 82
         )
 
         val dfB = dfA.select("age", "last_name", "weight", "first_name")
@@ -778,9 +778,9 @@ class GroupedDataTest {
         val otherUUID = UUID.randomUUID()
 
         val df = dataFrameOf("id", "quantity")(
-            someUUID, 1,
-            otherUUID, 1,
-            otherUUID, 2
+                someUUID, 1,
+                otherUUID, 1,
+                otherUUID, 2
         )
 
         // first group by non-object column
@@ -861,7 +861,7 @@ class BindRowsTest {
         someDf.nrow shouldBe 4
     }
 
-//    @Test(expected = IllegalArgumentException::class)
+    //    @Test(expected = IllegalArgumentException::class)
     @Test
     fun `it should create new columns as needed`() {
         val someDf = dataFrameOf("person", "year", "weight", "sex")(
@@ -875,7 +875,7 @@ class BindRowsTest {
                 "nemesis" to "joker"  // This column does not exist.
         )
 
-        someDf.bindRows(newColDf).run{
+        someDf.bindRows(newColDf).run {
             ncol shouldBe 5
             nrow shouldBe 4
         }
