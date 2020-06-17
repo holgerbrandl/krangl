@@ -617,6 +617,34 @@ fun DataCol.cumSum(): DataCol = when (this) {
     else -> throw InvalidColumnOperationException(this)
 }.let { handleListErasure(tempColumnName(), it) }
 
+/**
+ * Calculates the percentage change between the current and a prior column value.
+ *
+ * NA values are padded with the last known previous value.
+ *
+ * @throws InvalidColumnOperationException If the type of the receiver column is not numeric
+ */
+fun DataCol.pctChange(): DataCol = when (this) {
+    is DoubleCol -> values.paddedNeighbouringValues().map { (old, new) ->
+        if (old == null || new == null) null else (new - old) / old
+    }
+    is IntCol -> values.paddedNeighbouringValues().map { (old, new) ->
+        if (old == null || new == null) null else (new - old) / old.toDouble()
+    }
+    else -> throw InvalidColumnOperationException(this)
+}.let { handleListErasure(tempColumnName(), it) }
+
+
+private fun <E : Any> Array<E?>.paddedNeighbouringValues(): List<Pair<E?, E?>> {
+    val result = ArrayList<Pair<E?, E?>>(this.size)
+    var previousValue: E? = null
+    for (element in this) {
+        val currentValue = element ?: previousValue
+        result.add(previousValue to currentValue)
+        previousValue = currentValue
+    }
+    return result
+}
 
 private fun <E : Number> Array<E?>.forceDoubleNotNull() = try {
     map { it!!.toDouble() }

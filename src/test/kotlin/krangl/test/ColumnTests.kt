@@ -116,6 +116,35 @@ class ColumnTests {
             this["cum_sales"][6] shouldBe null
         }
     }
+
+    @Test
+    fun `calculate percentage change in grouped dataframe including NAs`() {
+        val sales = dataFrameOf("product", "sales", "price")(
+                "A", null, null,
+                "A", 10,   0.1,
+                "A", 50,   0.5,
+                "A", 10,   0.1,
+                "B", 100,  1.0,
+                "B", 150,  1.5,
+                "B", null, null,
+                "B", 75,   0.75)
+
+        val pctChangeGrd = sales.groupBy("product")
+                .addColumn("sales_pct_change" to { it["sales"].pctChange() })
+                .addColumn("price_pct_change" to { it["price"].pctChange() })
+
+        pctChangeGrd.apply {
+            fun pctChangeFor(product: String, col: String) =
+                    filter { it["product"] eq product }[col + "_pct_change"].values().asList()
+
+            print()
+            nrow shouldBe sales.nrow
+            pctChangeFor("A", "sales") shouldBe (listOf(null, null, 4.0, -0.8))
+            pctChangeFor("A", "price") shouldBe (listOf(null, null, 4.0, -0.8))
+            pctChangeFor("B", "sales") shouldBe (listOf(null, 0.5, 0.0, -0.5))
+            pctChangeFor("B", "price") shouldBe (listOf(null, 0.5, 0.0, -0.5))
+        }
+    }
 }
 
 
