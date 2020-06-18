@@ -97,19 +97,21 @@ internal fun GroupKey.sortKey(): Int {
 
 
 fun join(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y", type: JoinType): DataFrame {
-
     val (groupedLeft, groupedRight) = prep4Join(by, left, right, suffices)
+    // prepare "overhang null-filler blocks" for cartesian products
+    // note: `left` as argument is not enough here because of column shuffling and suffixing
+    val leftNull = nullRow(groupedLeft.groups.first().df)
+    val rightNull = nullRow(groupedRight.groups.first().df)
 
     val rightIt = groupedRight.groups.iterator()
     val leftIt = groupedLeft.groups.iterator()
-
-    val groupZipper = mutableListOf<Pair<DataGroup?, DataGroup?>>()
 
     fun <T> Iterator<T>.nextOrNull(): T? = if (hasNext()) next() else null
 
     var rightGroup = rightIt.nextOrNull() // stdlib method??
 
-
+    val mergedGroups = mutableListOf<DataFrame>()
+    val byColumns = by.toList()
 
     leftLoop@
     while (leftIt.hasNext()) {
@@ -120,61 +122,45 @@ fun join(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(lef
 
             if (leftGroup.groupKey.sortKey() < rightGroup.groupKey.sortKey()) {
                 // right is ahead of left
-                groupZipper.add(leftGroup to null)
+                if (type == LEFT || type == OUTER) {
+                    mergedGroups.add(cartesianProductWithoutBy(leftGroup.df, rightNull, byColumns))
+                }
                 continue@leftLoop
 
             } else if (leftGroup.groupKey == rightGroup.groupKey) {
-                groupZipper.add(leftGroup to rightGroup)
+                mergedGroups.add(cartesianProductWithoutBy(leftGroup.df, rightGroup.df, byColumns))
                 rightGroup = rightIt.nextOrNull()
                 continue@leftLoop
 
             } else {
                 // left is ahead of right
-                groupZipper.add(null to rightGroup)
+                if (type == RIGHT || type == OUTER) {
+                    mergedGroups.add(cartesianProductWithoutBy(leftNull, rightGroup.df, byColumns))
+                }
                 rightGroup = rightIt.nextOrNull()
                 continue@rightLoop
             }
         }
 
         // consume unpaired right blocks
-        groupZipper.add(leftGroup to null)
+        if (type == LEFT || type == OUTER) {
+            mergedGroups.add(cartesianProductWithoutBy(leftGroup.df, rightNull, byColumns))
+        } else {
+            break@leftLoop
+        }
     }
 
     // consume rest of right table iterator
-    while (rightGroup != null) {
-        groupZipper.add(null to rightGroup)
-        rightGroup = rightIt.nextOrNull()
-    }
-
-
-    // depending on join type build cartesian products and finish
-
-    val filterZipper = when (type) {
-        LEFT -> groupZipper.filter { it.first != null }
-        RIGHT -> groupZipper.filter { it.second != null }
-        INNER -> groupZipper.filter { it.first != null && it.second != null }
-        OUTER -> groupZipper
-    }
-
-
-    // prepare "overhang null-filler blocks" for cartesian products
-    // note: `left` as argument is not enough here because of column shuffling and suffixing
-    val leftNull = nullRow(groupedLeft.groups.first().df)
-    val rightNull = nullRow(groupedRight.groups.first().df)
-
-
-    // todo this could be multi-threaded but be careful to ensure deterministic order
-    val mergedGroups = mutableListOf<DataFrame>()
-
-    for ((unzipLeft, unzipRight) in filterZipper) {
-        cartesianProductWithoutBy(unzipLeft?.df ?: leftNull, unzipRight?.df
-                ?: rightNull, by.toList()).let { mergedGroups.add(it) }
+    if (type == RIGHT || type == OUTER) {
+        while (rightGroup != null) {
+            mergedGroups.add(cartesianProductWithoutBy(leftNull, rightGroup.df, byColumns))
+            rightGroup = rightIt.nextOrNull()
+        }
     }
 
     // todo use more efficient row-bind implementation here
-    val header = bindCols(leftNull, rightNull.remove(by.toList())).take(0)
+    val header = bindCols(leftNull, rightNull.remove(byColumns)).take(0)
     return mergedGroups.fold(header, { leftArg, rightArg -> listOf(leftArg, rightArg).bindRows() })
-//    return mergedGroups.reduce { left, right -> listOf(left, right).bindRows() }
 }
 
 
