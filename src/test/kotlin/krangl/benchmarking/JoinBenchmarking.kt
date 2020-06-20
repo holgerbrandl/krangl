@@ -10,7 +10,7 @@ fun main() {
     val flights = DataFrame.readTSV(object {}.javaClass.getResource("/krangl/data/nycflights.tsv.gz").file)
             .take(5000)
 
-    val benchmark = MicroBenchmark<String>(reps = 3, warmupReps = 0)
+    val benchmark = MicroBenchmark<String>(reps = 5, warmupReps = 2)
     benchmark.elapseNano("big join") {
         val bigJoin = flights.innerJoin(flights, by = listOf("dep_delay", "carrier"))
         println("${flights.nrow} flights -> ${bigJoin.nrow} results")
