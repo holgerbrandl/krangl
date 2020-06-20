@@ -96,8 +96,15 @@ internal fun GroupKey.sortKey(): Int {
 }
 
 
-fun join(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(left, right), suffices: Pair<String, String> = ".x" to ".y", type: JoinType): DataFrame {
+fun join(
+        left: DataFrame,
+        right: DataFrame,
+        by: Iterable<String> = defaultBy(left, right),
+        suffices: Pair<String, String> = ".x" to ".y",
+        type: JoinType
+): DataFrame {
     val (groupedLeft, groupedRight) = prep4Join(by, left, right, suffices)
+
     // prepare "overhang null-filler blocks" for cartesian products
     // note: `left` as argument is not enough here because of column shuffling and suffixing
     val leftNull = nullRow(groupedLeft.groups.first().df)
@@ -105,12 +112,14 @@ fun join(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(lef
 
     val rightIt = groupedRight.groups.iterator()
     val leftIt = groupedLeft.groups.iterator()
+
     fun <T> Iterator<T>.nextOrNull(): T? = if (hasNext()) next() else null
     var rightGroup = rightIt.nextOrNull() // stdlib method??
 
     val byColumns = by.toList()
-    val header = bindCols(leftNull, rightNull.remove(byColumns)).take(0)
-    val result = MutableDataFrame(header)
+
+    val groupPairs = mutableListOf<Pair<DataFrame, DataFrame>>()
+
 
     leftLoop@
     while (leftIt.hasNext()) {
@@ -121,18 +130,19 @@ fun join(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(lef
 
             if (leftGroup.groupKey.sortKey() < rightGroup.groupKey.sortKey()) {  // right is ahead of left
                 if (type == LEFT || type == OUTER) {
-                    result.append(cartesianProductWithoutBy(leftGroup.df, rightNull, byColumns))
+                    groupPairs.add(leftGroup.df to rightNull)
                 }
                 continue@leftLoop
 
             } else if (leftGroup.groupKey == rightGroup.groupKey) {  // left and right are in sync
-                result.append(cartesianProductWithoutBy(leftGroup.df, rightGroup.df, byColumns))
+                groupPairs.add(leftGroup.df to rightGroup.df)
+
                 rightGroup = rightIt.nextOrNull()
                 continue@leftLoop
 
             } else {  // left is ahead of right
                 if (type == RIGHT || type == OUTER) {
-                    result.append(cartesianProductWithoutBy(leftNull, rightGroup.df, byColumns))
+                    groupPairs.add(leftNull to rightGroup.df)
                 }
                 rightGroup = rightIt.nextOrNull()
                 continue@rightLoop
@@ -141,7 +151,7 @@ fun join(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(lef
 
         // consume unpaired left blocks
         if (type == LEFT || type == OUTER) {
-            result.append(cartesianProductWithoutBy(leftGroup.df, rightNull, byColumns))
+            groupPairs.add(leftGroup.df to rightNull)
         } else {
             break@leftLoop  // no more right blocks -> nothing to do with the remaining left blocks for right and inner joins
         }
@@ -150,48 +160,20 @@ fun join(left: DataFrame, right: DataFrame, by: Iterable<String> = defaultBy(lef
     // consume rest of right table iterator
     if (type == RIGHT || type == OUTER) {
         while (rightGroup != null) {
-            result.append(cartesianProductWithoutBy(leftNull, rightGroup.df, byColumns))
+            groupPairs.add(leftNull to rightGroup.df)
             rightGroup = rightIt.nextOrNull()
         }
     }
 
-    return result.df
+    // todo this could be multi-threaded but be careful to ensure deterministic order
+    val header = bindCols(leftNull, rightNull.remove(byColumns)).take(0)
+    val groupDfs = groupPairs.map{ (left, right) -> cartesianProductWithoutBy(left, right, byColumns)}
+
+    // we need to include the header when binding the results to get the correct shape even if the resulting
+    // table has no rows
+    return bindRows(header, *groupDfs.toTypedArray())
 }
 
-//
-// Internal utility classes and methods for join implementation
-//
-
-private class MutableDataFrame(val cols: List<MutableCol>) {
-    constructor(initial: DataFrame) : this(initial.cols.map { MutableCol(it.name, it, it.values().toMutableList()) })
-
-    val df: DataFrame
-        get() = SimpleDataFrame(cols.map { it.dataCol })
-
-    fun append(df: DataFrame) {
-        assert(cols.size == df.cols.size)
-        cols.zip(df.cols).forEach { (mutableCol, dfCol) -> mutableCol.append(dfCol) }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private class MutableCol(val name: String, val underlying: DataCol, val values: MutableList<Any?>) {
-        val dataCol: DataCol
-            get() = when (underlying) {
-                is DoubleCol -> DoubleCol(name, values as List<Double?>)
-                is IntCol -> IntCol(name, values as List<Int?>)
-                is LongCol -> LongCol(name, values as List<Long?>)
-                is BooleanCol -> BooleanCol(name, values as List<Boolean?>)
-                is StringCol -> StringCol(name, values as List<String?>)
-                is AnyCol -> AnyCol(name, values)
-                else -> throw UnsupportedOperationException()
-            }
-
-        fun append(col: DataCol) {
-            assert(name == col.name)
-            values.addAll(col.values())
-        }
-    }
-}
 
 /** rename second to become compliant with first. */
 private fun resolveUnequalBy(dataFrame: DataFrame, by: Iterable<Pair<String, String>>): DataFrame {
