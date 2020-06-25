@@ -69,7 +69,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
             "Calling select() will always return an empty data-frame"
         }
 
-        require(names.containsAll(columns.asList())) { "not all selected columns (${columns.joinToString(", ")})are contained in table" }
+        require(names.containsAll(columns.asList())) { "not all selected columns (${columns.joinToString(", ")}) are contained in table" }
         require(columns.distinct().size == columns.size) { "Columns must not be selected more than once" }
 
         return columns.fold(SimpleDataFrame(), { df, colName -> df.addColumn(this[colName]) })
