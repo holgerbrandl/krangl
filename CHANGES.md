@@ -4,7 +4,9 @@ Krangl Release History
 v0.13 (work in progress)
 ------------------------
 
-* Added `cumSum` (see [CoreVerbsTest.kt: Lines 536-562](src/test/kotlin/krangl/test/CoreVerbsTest.kt#L536-L562) for usage example(
+* Added column transformation `cumSum` (see [CoreVerbsTest.kt: Lines 536-562](src/test/kotlin/krangl/test/CoreVerbsTest.kt#L536-L562) for usage example
+* Added  column transformation `pctChange` similar to [pct_change](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.pct_change.html) in pandas (contributed by @amorphous1 in [PR85](https://github.com/holgerbrandl/krangl/pull/85))
+* Significantly improved join performance (contributed by @amorphous1 in [PR85](https://github.com/holgerbrandl/krangl/pull/85))
 
 v0.12
 ----
