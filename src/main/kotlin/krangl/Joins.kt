@@ -169,49 +169,10 @@ fun join(
     val header = bindCols(leftNull, rightNull.remove(byColumns)).take(0)
     val groupDfs = groupPairs.map{ (left, right) -> cartesianProductWithoutBy(left, right, byColumns)}
 
-
-//    val result = MutableDataFrame(header)
-//    listOf(header, *groupDfs.toTypedArray()).forEach{ result.append(it)}
-//    return result.df
-
     // we need to include the header when binding the results to get the correct shape even if the resulting
     // table has no rows
     return bindRows(header, *groupDfs.toTypedArray())
 }
-
-
-@Deprecated(" Restorded to analyse reported performance improvements in https://github.com/holgerbrandl/krangl/pull/85")
-private class MutableDataFrame(val cols: List<MutableCol>) {
-    constructor(initial: DataFrame) : this(initial.cols.map { MutableCol(it.name, it, it.values().toMutableList()) })
-
-    val df: DataFrame
-        get() = SimpleDataFrame(cols.map { it.dataCol })
-
-    fun append(df: DataFrame) {
-        assert(cols.size == df.cols.size)
-        cols.zip(df.cols).forEach { (mutableCol, dfCol) -> mutableCol.append(dfCol) }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private class MutableCol(val name: String, val underlying: DataCol, val values: MutableList<Any?>) {
-        val dataCol: DataCol
-            get() = when (underlying) {
-                is DoubleCol -> DoubleCol(name, values as List<Double?>)
-                is IntCol -> IntCol(name, values as List<Int?>)
-                is LongCol -> LongCol(name, values as List<Long?>)
-                is BooleanCol -> BooleanCol(name, values as List<Boolean?>)
-                is StringCol -> StringCol(name, values as List<String?>)
-                is AnyCol -> AnyCol(name, values)
-                else -> throw UnsupportedOperationException()
-            }
-
-        fun append(col: DataCol) {
-            assert(name == col.name)
-            values.addAll(col.values())
-        }
-    }
-}
-
 
 
 /** rename second to become compliant with first. */
