@@ -145,6 +145,26 @@ class ColumnTests {
             pctChangeFor("B", "price") shouldBe (listOf(null, 0.5, 0.0, -0.5))
         }
     }
+
+    @Test
+    fun `calculate lead and lag values`() {
+        val sales = dataFrameOf("sales", "price")(
+                10,   0.1,
+                20,   0.2,
+                null, null,
+                40,   0.4,
+                50,   0.5)
+
+        val leadAndLag = sales
+                .addColumn("sales_lead" to { it["sales"].lead() })
+                .addColumn("price_lag" to { it["price"].lag(n = 2) })
+
+        leadAndLag.apply {
+            nrow shouldBe sales.nrow
+            leadAndLag["sales_lead"].values().asList() shouldBe (listOf(20, null, 40, 50, null))
+            leadAndLag["price_lag"].values().asList() shouldBe (listOf(null, null, 0.1, 0.2, null))
+        }
+    }
 }
 
 

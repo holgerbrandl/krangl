@@ -634,16 +634,50 @@ fun DataCol.pctChange(): DataCol = when (this) {
     else -> throw InvalidColumnOperationException(this)
 }.let { handleListErasure(tempColumnName(), it) }
 
+/**
+ * Returns the "next" column values. Useful for comparing values ahead of the current values.
+ *
+ * @param n positive integer, giving the number of positions to lead by (defaults to 1)
+ */
+fun DataCol.lead(n: Int = 1): DataCol = when (this) {
+    is StringCol -> values.lead(n)
+    is DoubleCol -> values.lead(n)
+    is BooleanCol -> values.lead(n)
+    is LongCol -> values.lead(n)
+    is IntCol -> values.lead(n)
+    is AnyCol -> values.lead(n)
+    else -> throw InvalidColumnOperationException(this)
+}.let { handleListErasure(tempColumnName(), it) }
+
+/**
+ * Returns the "previous" column values. Useful for comparing values behind the current values.
+ *
+ * @param n positive integer, giving the number of positions to lag by (defaults to 1)
+ */
+fun DataCol.lag(n: Int = 1): DataCol = when (this) {
+    is StringCol -> values.lag(n)
+    is DoubleCol -> values.lag(n)
+    is BooleanCol -> values.lag(n)
+    is LongCol -> values.lag(n)
+    is IntCol -> values.lag(n)
+    is AnyCol -> values.lag(n)
+    else -> throw InvalidColumnOperationException(this)
+}.let { handleListErasure(tempColumnName(), it) }
 
 private fun <E : Any> Array<E?>.paddedNeighbouringValues(): List<Pair<E?, E?>> {
-    val result = ArrayList<Pair<E?, E?>>(this.size)
-    var previousValue: E? = null
-    for (element in this) {
-        val currentValue = element ?: previousValue
-        result.add(previousValue to currentValue)
-        previousValue = currentValue
+    val padded = this.copyOf()
+    for (i in 1 until this.size) {
+        padded[i] = padded[i] ?: padded[i-1]
     }
-    return result
+    return padded.lag(1).zip(padded)
+}
+
+private fun <E : Any> Array<E?>.lead(n: Int): List<E?> {
+    return this.slice(n until this.size) + List(minOf(n, this.size)) { null }
+}
+
+private fun <E : Any> Array<E?>.lag(n: Int): List<E?> {
+    return List(minOf(n, this.size)) { null } + this.slice(0 until this.size-n)
 }
 
 private fun <E : Number> Array<E?>.forceDoubleNotNull() = try {
