@@ -945,6 +945,16 @@ fun DataFrame.toFloatMatrix(): Array<FloatArray> = toDoubleMatrix().toFloatMatri
 
 private fun Array<DoubleArray>.toFloatMatrix(): Array<FloatArray> = map { it.map { it.toFloat() }.toFloatArray() }.toTypedArray()
 
+/**
+ * Expose a view on the data as map from column names to nullable arrays.
+ *
+ * In particular, this allows to use dataframes as input for lets-plot (see https://github.com/holgerbrandl/krangl/issues/86).
+ */
+fun DataFrame.toMap() = names
+        // .filter { it.isNotBlank()} // can this happen
+        .map { Pair(it, get(it).values()) }.toMap()
+
+
 
 class Factor(val index: Int, val values: Array<String>)
 
