@@ -166,6 +166,7 @@ class IntCol(name: String, val values: Array<Int?>) : NumberCol(name) {
 
     private fun doubleOp(something: Any, op: (Double, Double) -> Double): DataCol = when (something) {
         is DoubleCol -> Array(values.size) { it -> naAwareOp(this.values[it]?.toDouble(), something.values[it], op) }
+        is IntCol -> Array(values.size) { it -> naAwareOp(values[it]?.toDouble(), something.values[it]?.toDouble(), op) }
         is Double -> Array(values.size, { naAwareOp(values[it]?.toDouble(), something, op) })
 
         else -> throw UnsupportedOperationException()
@@ -622,17 +623,11 @@ fun DataCol.cumSum(): DataCol = when (this) {
  *
  * NA values are padded with the last known previous value.
  *
+ * Also see https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.pct_change.html
+ *
  * @throws InvalidColumnOperationException If the type of the receiver column is not numeric
  */
-fun DataCol.pctChange(): DataCol = when (this) {
-    is DoubleCol -> values.paddedNeighbouringValues().map { (old, new) ->
-        if (old == null || new == null) null else (new - old) / old
-    }
-    is IntCol -> values.paddedNeighbouringValues().map { (old, new) ->
-        if (old == null || new == null) null else (new - old) / old.toDouble()
-    }
-    else -> throw InvalidColumnOperationException(this)
-}.let { handleListErasure(tempColumnName(), it) }
+fun DataCol.pctChange(): DataCol = this/lag(1)  + (-1)
 
 /**
  * Returns the "next" column values. Useful for comparing values ahead of the current values.
@@ -664,20 +659,13 @@ fun DataCol.lag(n: Int = 1, default: Any? = null): DataCol = when (this) {
     else -> throw InvalidColumnOperationException(this)
 }.let { handleListErasure(tempColumnName(), it) }
 
-private inline fun <reified E : Any> Array<E?>.paddedNeighbouringValues(): List<Pair<E?, E?>> {
-    val padded = this.copyOf()
-    for (i in 1 until this.size) {
-        padded[i] = padded[i] ?: padded[i - 1]
-    }
-    return padded.lag(1, null as E).zip(padded)
-}
 
  private fun <E : Any> Array<E?>.lead(n: Int , default: E?): List<E?> {
     return slice(n until this.size) + List(minOf(n, this.size)) { default }
 }
 
  private fun < E : Any> Array<E?>.lag(n: Int, default: E?): List<E?> {
-    return List(minOf(n, this.size)) { default as E } + this.slice(0 until this.size - n)
+    return List(minOf(n, this.size)) { default } + this.slice(0 until this.size - n)
 }
 
 private fun <E : Number> Array<E?>.forceDoubleNotNull() = try {

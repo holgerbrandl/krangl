@@ -142,8 +142,8 @@ class ColumnTests {
             nrow shouldBe sales.nrow
             pctChangeFor("A", "sales") shouldBe (listOf(null, null, 4.0, -0.8))
             pctChangeFor("A", "price") shouldBe (listOf(null, null, 4.0, -0.8))
-            pctChangeFor("B", "sales") shouldBe (listOf(null, 0.5, 0.0, -0.5))
-            pctChangeFor("B", "price") shouldBe (listOf(null, 0.5, 0.0, -0.5))
+            pctChangeFor("B", "sales") shouldBe (listOf(null, 0.5, null, null))
+            pctChangeFor("B", "price") shouldBe (listOf(null, 0.5, null, null))
         }
     }
 
