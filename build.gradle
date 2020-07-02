@@ -1,6 +1,6 @@
 buildscript {
     ext.kotlin_version = '1.3.72'
-    ext.dokka_version = '0.10.1'
+    ext.dokka_version = '0.10.0' // see https://github.com/Kotlin/dokka/issues/656
 
     repositories {
         maven { url 'https://dl.bintray.com/kotlin/dokka' }
