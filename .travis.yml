@@ -12,6 +12,7 @@ language: java
 jdk:
   - oraclejdk8
 
-install: gradle -q assemble
+install: ./gradlew -q assemble
 
-script: gradle clean check --stacktrace
+# https://stackoverflow.com/questions/50104666/gradle-difference-between-test-and-check
+script: ./gradlew clean check --stacktrace
