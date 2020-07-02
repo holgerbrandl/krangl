@@ -62,7 +62,11 @@ dependencies {
 //test {
 //    useJUnitPlatform()
 //}
+
+
 test {
+    // Tests would fail with default memory settings
+    // See https://stackoverflow.com/questions/20490105/gradleworkermain-outofmemoryerror
     maxHeapSize = "2048m"
 }
 
