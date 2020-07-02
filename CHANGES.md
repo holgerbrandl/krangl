@@ -29,7 +29,7 @@ sales
 sales
     .groupBy("product")
     .sortedBy("quarter")
-    .addColumn("prev_quarter_sales" to { it["sold_units"].pctChange() })
+    .addColumn("prev_quarter_sales" to { it["sold_units"].lag() })
 ```
 
 * Significantly improved join performance (contributed by @amorphous1 in [PR85](https://github.com/holgerbrandl/krangl/pull/85))
