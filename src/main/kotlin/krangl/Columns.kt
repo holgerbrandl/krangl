@@ -587,6 +587,7 @@ fun DataCol.median(removeNA: Boolean = false): Double? = when (this) {
     else -> throw InvalidColumnOperationException(this)
 }
 
+
 /**
  * Calculates the standard deviation of the column values.
  *
@@ -600,6 +601,7 @@ fun DataCol.sd(removeNA: Boolean = false): Double? = when (this) {
     is LongCol -> values.map { it?.toDouble() }.toTypedArray().run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.sd()
     else -> throw InvalidColumnOperationException(this)
 }
+
 
 /**
  * Calculates the cumulative sum of the column values.
@@ -618,10 +620,11 @@ fun DataCol.cumSum(): DataCol = when (this) {
     else -> throw InvalidColumnOperationException(this)
 }.let { handleListErasure(tempColumnName(), it) }
 
+
 /**
  * Calculates the percentage change between the current and a prior column value.
  *
- * NA values are padded with the last known previous value.
+ * TODO: NA values are padded with the last known previous value.
  *
  * Also see https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.pct_change.html
  *
@@ -629,8 +632,11 @@ fun DataCol.cumSum(): DataCol = when (this) {
  */
 fun DataCol.pctChange(): DataCol = this/lag(1)  + (-1)
 
+
 /**
  * Returns the "next" column values. Useful for comparing values ahead of the current values.
+ *
+ * Also see https://dplyr.tidyverse.org/reference/lead-lag.html
  *
  * @param n positive integer, giving the number of positions to lead by (defaults to 1)
  */
@@ -644,8 +650,11 @@ fun DataCol.lead(n: Int = 1, default: Any? = null): DataCol = when (this) {
     else -> throw InvalidColumnOperationException(this)
 }.let { handleListErasure(tempColumnName(), it) }
 
+
 /**
  * Returns the "previous" column values. Useful for comparing values behind the current values.
+ *
+ * Also see https://dplyr.tidyverse.org/reference/lead-lag.html
  *
  * @param n positive integer, giving the number of positions to lag by (defaults to 1)
  */
@@ -660,11 +669,11 @@ fun DataCol.lag(n: Int = 1, default: Any? = null): DataCol = when (this) {
 }.let { handleListErasure(tempColumnName(), it) }
 
 
- private fun <E : Any> Array<E?>.lead(n: Int , default: E?): List<E?> {
+private fun <E : Any> Array<E?>.lead(n: Int , default: E?): List<E?> {
     return slice(n until this.size) + List(minOf(n, this.size)) { default }
 }
 
- private fun < E : Any> Array<E?>.lag(n: Int, default: E?): List<E?> {
+private fun < E : Any> Array<E?>.lag(n: Int, default: E?): List<E?> {
     return List(minOf(n, this.size)) { default } + this.slice(0 until this.size - n)
 }
 

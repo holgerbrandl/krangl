@@ -1,24 +1,57 @@
-Krangl Release History
+krangl Release History
 ======================
 
-v0.13 (work in progress)
+v0.14 (work in progress)
 ------------------------
 
-* Added column transformation `cumSum` (see [CoreVerbsTest.kt: Lines 536-562](src/test/kotlin/krangl/test/CoreVerbsTest.kt#L536-L562) for usage example
-* Added  column transformation `pctChange` similar to [pct_change](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.pct_change.html) in pandas (contributed by @amorphous1 in [PR85](https://github.com/holgerbrandl/krangl/pull/85))
-* Significantly improved join performance (contributed by @amorphous1 in [PR85](https://github.com/holgerbrandl/krangl/pull/85))
-* Added `lead` and `lag` (contributed by @amorphous1 in [PR85](https://github.com/holgerbrandl/krangl/pull/88))
 
-v0.12
-----
+v0.13
+-----
+
+Released: 2020-06-02
+
+* Added column transformation to calculate cumulative sum `cumSum`
+```
+sales
+    .sortedBy("quarter")
+    .addColumn("cum_sales" to { it["sold_units"].cumSum()})
+```
+
+* Added  column transformation `pctChange` to calculate percentage change between the current and a prior element. similar to [pct_change](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.pct_change.html) in pandas (contributed by @amorphous1 in [PR85](https://github.com/holgerbrandl/krangl/pull/85))
+```kotlin
+sales
+    .groupBy("product")
+    .addColumn("sales_pct_change" to { it["sold_units"].pctChange() })
+```
+
+* Added `lead` and `lag` (contributed by @amorphous1 in [PR85](https://github.com/holgerbrandl/krangl/pull/88))
+```kotlin
+sales
+    .groupBy("product")
+    .sortedBy("quarter")
+    .addColumn("prev_quarter_sales" to { it["sold_units"].pctChange() })
+```
+
+* Significantly improved join performance (contributed by @amorphous1 in [PR85](https://github.com/holgerbrandl/krangl/pull/85))
 
 
 * New: Extended `bindRows` API to combine data rowwise (see PR [#77](https://github.com/holgerbrandl/krangl/issues/77)
  by @CrystalLord)
+```kotlin
+val person1 = mapOf("person" to "James", "year" to 1996)
+val person2 = mapOf("person" to "Anne", "year" to 1998)
 
+emptyDataFrame().bindRows(person1, person2).print()
+```
+
+
+v0.12
+-----
+
+internal release
 
 v0.11
------
+----
 
 
 * New: Added built-it support for `Long` columns (PR [#69](https://github.com/holgerbrandl/krangl/issues/69)
