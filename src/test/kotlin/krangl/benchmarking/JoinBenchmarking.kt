@@ -1,10 +1,10 @@
 package krangl.benchmarking
 
-import de.mpicbg.scicomp.kutils.MicroBenchmark
 import krangl.DataFrame
 import krangl.innerJoin
 import krangl.readTSV
 import krangl.take
+import krangl.util.MicroBenchmark
 
 fun main() {
     val flights = DataFrame.readTSV(object {}.javaClass.getResource("/krangl/data/nycflights.tsv.gz").file)

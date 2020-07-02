@@ -1,7 +1,7 @@
 package krangl.benchmarking
 
-import de.mpicbg.scicomp.kutils.MicroBenchmark
 import krangl.*
+import krangl.util.MicroBenchmark
 import org.apache.commons.csv.CSVFormat
 import java.io.*
 import java.util.*

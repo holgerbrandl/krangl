@@ -33,8 +33,8 @@ dependencies {
     jmh 'commons-io:commons-io:2.4'
     jmh 'com.google.guava:guava:24.1-jre'
 
-    compile "de.mpicbg.scicomp:krangl:0.11"
-    jmh "de.mpicbg.scicomp:krangl:0.11"
+    compile "de.mpicbg.scicomp:krangl:0.13"
+    jmh "de.mpicbg.scicomp:krangl:0.13"
 }
 
 jmh {
