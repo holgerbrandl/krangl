@@ -13,7 +13,7 @@
 <tbody>
 <tr>
 <td>
-<p><a href="-krangl-one-hot/index.html">KranglOneHot</a></p>
+<h4><a href="-krangl-one-hot/index.html">KranglOneHot</a></h4>
 </td>
 <td>
 <code><span class="keyword">object </span><span class="identifier">KranglOneHot</span></code></td>
@@ -25,23 +25,21 @@
 <tbody>
 <tr>
 <td>
-<p><a href="flatten.html">flatten</a></p>
+<h4><a href="flatten.html">flatten</a></h4>
 </td>
 <td>
-<code><span class="keyword">fun </span><a href="../krangl/-data-frame/index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">flatten</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../krangl/-data-frame/index.html"><span class="identifier">DataFrame</span></a></code>
 <p>Unfold all list columns vertically and all objects properties horizontally.</p>
-</td>
+<code><span class="keyword">fun </span><a href="../krangl/-data-frame/index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">flatten</span><span class="symbol">(</span><span class="symbol">)</span><span class="symbol">: </span><a href="../krangl/-data-frame/index.html"><span class="identifier">DataFrame</span></a></code></td>
 </tr>
 <tr>
 <td>
-<p><a href="one-hot.html">oneHot</a></p>
+<h4><a href="one-hot.html">oneHot</a></h4>
 </td>
 <td>
-<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <a href="../krangl/-data-frame/index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">oneHot</span><span class="symbol">(</span><span class="identifier" id="krangl.experimental$oneHot(krangl.DataFrame, kotlin.String, kotlin.String, kotlin.Function1((krangl.experimental.oneHot.T, kotlin.String)))/columnName">columnName</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="krangl.experimental$oneHot(krangl.DataFrame, kotlin.String, kotlin.String, kotlin.Function1((krangl.experimental.oneHot.T, kotlin.String)))/naValue">naValue</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>&nbsp;<span class="symbol">=</span>&nbsp;"NA"<span class="symbol">, </span><span class="identifier" id="krangl.experimental$oneHot(krangl.DataFrame, kotlin.String, kotlin.String, kotlin.Function1((krangl.experimental.oneHot.T, kotlin.String)))/categorizeWith">categorizeWith</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><a href="one-hot.html#T"><span class="identifier">T</span></a><span class="symbol">?</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;{ it?.toString() }<span class="symbol">)</span><span class="symbol">: </span><a href="../krangl/-data-frame/index.html"><span class="identifier">DataFrame</span></a></code>
 <p>Performs a one-hot encoding of the specified <code>Any</code>column.</p>
-<code><span class="keyword">fun </span><a href="../krangl/-data-frame/index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">oneHot</span><span class="symbol">(</span><span class="identifier" id="krangl.experimental$oneHot(krangl.DataFrame, kotlin.String)/columnName">columnName</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../krangl/-data-frame/index.html"><span class="identifier">DataFrame</span></a></code>
+<code><span class="keyword">fun </span><span class="symbol">&lt;</span><span class="identifier">T</span><span class="symbol">&gt;</span> <a href="../krangl/-data-frame/index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">oneHot</span><span class="symbol">(</span><span class="identifier" id="krangl.experimental$oneHot(krangl.DataFrame, kotlin.String, kotlin.String, kotlin.Function1((krangl.experimental.oneHot.T, kotlin.String)))/columnName">columnName</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">, </span><span class="identifier" id="krangl.experimental$oneHot(krangl.DataFrame, kotlin.String, kotlin.String, kotlin.Function1((krangl.experimental.oneHot.T, kotlin.String)))/naValue">naValue</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a>&nbsp;<span class="symbol">=</span>&nbsp;"NA"<span class="symbol">, </span><span class="identifier" id="krangl.experimental$oneHot(krangl.DataFrame, kotlin.String, kotlin.String, kotlin.Function1((krangl.experimental.oneHot.T, kotlin.String)))/categorizeWith">categorizeWith</span><span class="symbol">:</span>&nbsp;<span class="symbol">(</span><span class="identifier">T</span><span class="symbol">?</span><span class="symbol">)</span>&nbsp;<span class="symbol">-&gt;</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">?</span>&nbsp;<span class="symbol">=</span>&nbsp;{ it?.toString() }<span class="symbol">)</span><span class="symbol">: </span><a href="../krangl/-data-frame/index.html"><span class="identifier">DataFrame</span></a></code>
 <p>Performs a one-hot encoding of the specified column.</p>
-</td>
+<code><span class="keyword">fun </span><a href="../krangl/-data-frame/index.html"><span class="identifier">DataFrame</span></a><span class="symbol">.</span><span class="identifier">oneHot</span><span class="symbol">(</span><span class="identifier" id="krangl.experimental$oneHot(krangl.DataFrame, kotlin.String)/columnName">columnName</span><span class="symbol">:</span>&nbsp;<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html"><span class="identifier">String</span></a><span class="symbol">)</span><span class="symbol">: </span><a href="../krangl/-data-frame/index.html"><span class="identifier">DataFrame</span></a></code></td>
 </tr>
 </tbody>
 </table>
