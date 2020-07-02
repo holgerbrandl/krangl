@@ -18,6 +18,7 @@ export KRANGL_HOME=/mnt/hgfs/sharedDB/db_projects/krangl/
 
 #**{todo}** automate this
 
+## **{todo}** fix issues with EOL in VM
 
 trim() { while read -r line; do echo "$line"; done; }
 krangl_version=$(grep '^version' ${KRANGL_HOME}/build.gradle | cut -f2 -d' ' | tr -d "'" | trim)
@@ -76,8 +77,12 @@ export GITHUB_TOKEN=${GH_TOKEN}
 # make your tag and upload
 cd ${KRANGL_HOME}
 
+git config  user.email "holgerbrandl@users.noreply.github.com"
+
+
 #git tag v${krangl_version} && git push --tags
 (git diff --ignore-submodules --exit-code && git tag "v${krangl_version}")  || echo "could not tag current branch"
+# -> no longer needed because of github-release
 
 git push --tags
 
