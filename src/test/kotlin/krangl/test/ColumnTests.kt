@@ -6,6 +6,7 @@ import krangl.*
 import krangl.util.createValidIdentifier
 import org.junit.Test
 import java.lang.Math.abs
+import java.util.*
 
 /**
  * @author Holger Brandl
@@ -121,13 +122,13 @@ class ColumnTests {
     fun `calculate percentage change in grouped dataframe including NAs`() {
         val sales = dataFrameOf("product", "sales", "price")(
                 "A", null, null,
-                "A", 10,   0.1,
-                "A", 50,   0.5,
-                "A", 10,   0.1,
-                "B", 100,  1.0,
-                "B", 150,  1.5,
+                "A", 10, 0.1,
+                "A", 50, 0.5,
+                "A", 10, 0.1,
+                "B", 100, 1.0,
+                "B", 150, 1.5,
                 "B", null, null,
-                "B", 75,   0.75)
+                "B", 75, 0.75)
 
         val pctChangeGrd = sales.groupBy("product")
                 .addColumn("sales_pct_change" to { it["sales"].pctChange() })
@@ -146,14 +147,18 @@ class ColumnTests {
         }
     }
 
+}
+
+class LeadLagTest{
+
     @Test
     fun `calculate lead and lag values`() {
         val sales = dataFrameOf("sales", "price")(
-                10,   0.1,
-                20,   0.2,
+                10, 0.1,
+                20, 0.2,
                 null, null,
-                40,   0.4,
-                50,   0.5)
+                40, 0.4,
+                50, 0.5)
 
         val leadAndLag = sales
                 .addColumn("sales_lead" to { it["sales"].lead() })
@@ -161,13 +166,70 @@ class ColumnTests {
 
         leadAndLag.apply {
             nrow shouldBe sales.nrow
-            leadAndLag["sales_lead"].values().asList() shouldBe (listOf(20, null, 40, 50, null))
-            leadAndLag["price_lag"].values().asList() shouldBe (listOf(null, null, 0.1, 0.2, null))
+            this["sales_lead"].values().asList() shouldBe (listOf(20, null, 40, 50, null))
+            this["price_lag"].values().asList() shouldBe (listOf(null, null, 0.1, 0.2, null))
         }
     }
+
+    @Test
+    fun `lead lag column arithmetics`() {
+        val sales = dataFrameOf("quarter", "sales", "store")(
+                1, 30, "london",
+                2, 10, "london",
+                3, 50, "london",
+                4, 10, "london",
+                1, 100, "berlin",
+                2, 150, "berlin",
+                3, null, "berlin",
+                4, 75, "berlin")
+
+
+        sales.groupBy("store")
+                .addColumn("quarter_diff" to { it["sales"] - it["sales"].lag(1) })
+                .apply {
+                    print()
+                    nrow shouldBe sales.nrow
+
+                    this["quarter_diff"][0] shouldBe null
+                    this["quarter_diff"][1] shouldBe -20
+                }
+
+        sales.groupBy("store")
+                .addColumn("lookahead_diff" to { it["sales"] - it["sales"].lead(1) }).apply {
+                    print()
+                    this["lookahead_diff"][0] shouldBe 20
+                }
+
+    }
+
+
+    @Test
+    fun `ensure custom defaults are added when using lead-lag`() {
+        // test string
+        irisData.addColumn("lagged" to {it["Species"].lead(1, "bla")}).apply {
+            this["lagged"][nrow-1] shouldBe "bla"
+        }
+
+        // test numeric (with int default to add a bit complexity)
+        irisData.addColumn("lagged"){ it["Sepal.Length"].lag(default = 42)}.let {
+            it["lagged"][0] shouldBe 42.0
+        }
+
+        // test Any column
+        val df = dataFrameOf("uuid")(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID())
+
+        //todo maybe it could more clever here to ensure type consistency in the column
+        df.addColumn("prev_uuid" to { it["uuid"].lag(default = "foo") }).let {
+            it["prev_uuid"][0] == "foo"
+        }
+
+        val defaultUid = UUID.randomUUID()
+        df.addColumn("prev_uuid" to { it["uuid"].lag(default = defaultUid) }).let {
+            it["prev_uuid"][0] == defaultUid
+        }
+    }
+
 }
-
-
 internal inline fun <reified T> shouldThrow(thunk: () -> Any): T {
     val e = try {
         thunk()

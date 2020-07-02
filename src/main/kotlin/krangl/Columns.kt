@@ -639,13 +639,13 @@ fun DataCol.pctChange(): DataCol = when (this) {
  *
  * @param n positive integer, giving the number of positions to lead by (defaults to 1)
  */
-fun DataCol.lead(n: Int = 1): DataCol = when (this) {
-    is StringCol -> values.lead(n)
-    is DoubleCol -> values.lead(n)
-    is BooleanCol -> values.lead(n)
-    is LongCol -> values.lead(n)
-    is IntCol -> values.lead(n)
-    is AnyCol -> values.lead(n)
+fun DataCol.lead(n: Int = 1, default: Any? = null): DataCol = when (this) {
+    is StringCol -> values.lead(n, default as String?)
+    is DoubleCol -> values.lead(n,  default as Double?)
+    is BooleanCol -> values.lead(n, default as Boolean?)
+    is LongCol -> values.lead(n,  default as Long?)
+    is IntCol -> values.lead(n,  default as Int?)
+    is AnyCol -> values.lead(n,  default)
     else -> throw InvalidColumnOperationException(this)
 }.let { handleListErasure(tempColumnName(), it) }
 
@@ -654,30 +654,30 @@ fun DataCol.lead(n: Int = 1): DataCol = when (this) {
  *
  * @param n positive integer, giving the number of positions to lag by (defaults to 1)
  */
-fun DataCol.lag(n: Int = 1): DataCol = when (this) {
-    is StringCol -> values.lag(n)
-    is DoubleCol -> values.lag(n)
-    is BooleanCol -> values.lag(n)
-    is LongCol -> values.lag(n)
-    is IntCol -> values.lag(n)
-    is AnyCol -> values.lag(n)
+fun DataCol.lag(n: Int = 1, default: Any? = null): DataCol = when (this) {
+    is StringCol -> values.lag(n, default as String?)
+    is DoubleCol -> values.lag(n,  (default as Number?)?.toDouble())
+    is BooleanCol -> values.lag(n, default as Boolean?)
+    is LongCol -> values.lag(n, default as Long?)
+    is IntCol -> values.lag(n, default as Int?)
+    is AnyCol -> values.lag(n, default)
     else -> throw InvalidColumnOperationException(this)
 }.let { handleListErasure(tempColumnName(), it) }
 
-private fun <E : Any> Array<E?>.paddedNeighbouringValues(): List<Pair<E?, E?>> {
+private inline fun <reified E : Any> Array<E?>.paddedNeighbouringValues(): List<Pair<E?, E?>> {
     val padded = this.copyOf()
     for (i in 1 until this.size) {
-        padded[i] = padded[i] ?: padded[i-1]
+        padded[i] = padded[i] ?: padded[i - 1]
     }
-    return padded.lag(1).zip(padded)
+    return padded.lag(1, null as E).zip(padded)
 }
 
-private fun <E : Any> Array<E?>.lead(n: Int): List<E?> {
-    return this.slice(n until this.size) + List(minOf(n, this.size)) { null }
+ private fun <E : Any> Array<E?>.lead(n: Int , default: E?): List<E?> {
+    return slice(n until this.size) + List(minOf(n, this.size)) { default }
 }
 
-private fun <E : Any> Array<E?>.lag(n: Int): List<E?> {
-    return List(minOf(n, this.size)) { null } + this.slice(0 until this.size-n)
+ private fun < E : Any> Array<E?>.lag(n: Int, default: E?): List<E?> {
+    return List(minOf(n, this.size)) { default as E } + this.slice(0 until this.size - n)
 }
 
 private fun <E : Number> Array<E?>.forceDoubleNotNull() = try {
