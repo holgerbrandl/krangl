@@ -262,7 +262,7 @@ fun DataFrame.Companion.fromResultSet(rs: ResultSet): DataFrame {
             "BOOLEAN" -> listOf<Boolean?>()
             "DATE" -> listOf<LocalDate?>()
             "TIME" -> listOf<LocalTime?>()
-            "CHAR", "CHARACTER", "VARCHAR" -> listOf<String>()
+            "CHAR", "CHARACTER", "VARCHAR", "TEXT" -> listOf<String>()
             else -> throw IllegalArgumentException("Column type ${it} is not yet supported by {krangl}. $PLEASE_SUBMIT_MSG")
         }.toMutableList().let { colData.add(it) }
     }
@@ -278,7 +278,7 @@ fun DataFrame.Companion.fromResultSet(rs: ResultSet): DataFrame {
                 "BOOLEAN" -> rs.getBoolean(colIndex)
                 "DATE" -> rs.getDate(colIndex).toLocalDate()
                 "TIME" -> rs.getTime(colIndex).toLocalTime()
-                "CHAR", "CHARACTER", "VARCHAR" -> rs.getString(colIndex)
+                "CHAR", "CHARACTER", "VARCHAR", "TEXT" -> rs.getString(colIndex)
                 else -> throw IllegalArgumentException("Column type ${colTypes[colIndex - 1]} is not yet supported by {krangl}. $PLEASE_SUBMIT_MSG")
             }
             colData[colIndex - 1].add(any)
