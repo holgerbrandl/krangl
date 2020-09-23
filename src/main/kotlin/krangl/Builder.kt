@@ -264,7 +264,7 @@ fun DataFrame.Companion.fromResultSet(rs: ResultSet): DataFrame {
             "TIME" -> listOf<LocalTime?>()
             "CHAR", "CHARACTER", "VARCHAR", "TEXT" -> listOf<String>()
             else -> throw IllegalArgumentException("Column type ${it} is not yet supported by {krangl}. $PLEASE_SUBMIT_MSG")
-        }.toMutableList().let { colData.add(it) }
+        }.toMutableList<Any?>().let { colData.add(it) }
     }
 
     // see https://stackoverflow.com/questions/21956042/mapping-a-jdbc-resultset-to-an-object
