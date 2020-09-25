@@ -146,6 +146,20 @@ interface DataFrame {
 
     fun addColumns(vararg columnFormulas: ColumnFormula): DataFrame = columnFormulas.fold(this, { df, tf -> df.addColumn(tf) })
 
+    /** Returns a DataFrame containing the new row.
+     * The new row must be a list whose length must match the number of columns in the DataFrame */
+    fun addRow(row: List<Any?>) : DataFrame{
+        val rowMap = mutableMapOf<String, Any?>()
+
+        if (row.size != this.names.size)
+            throw IllegalArgumentException("Row length must match number of columns")
+
+        for((currentColumn, column) in this.names.withIndex()){
+            rowMap[column] = row[currentColumn]
+        }
+        return dataFrameOf(this.rows + sequenceOf(rowMap))
+    }
+
     /** Create a new dataframe based on a list of column-formulas which are evaluated in the context of the this instance. */
     fun transmute(vararg formula: ColumnFormula) = addColumns(*formula).select(*formula.map { it.name }.toTypedArray())
 
