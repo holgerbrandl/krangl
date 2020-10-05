@@ -204,7 +204,7 @@ class JsonTests {
 
         df.apply {
             nrow shouldBe 3201
-            names.last() shouldBe "IMDB_Votes"
+            names.last() shouldBe "IMDB Votes"
         }
     }
 
