@@ -330,7 +330,7 @@ fun DataFrame.expand(vararg columnNames: String): DataFrame {
     val folded = columnNames
             .map { select(it).distinct() }
             .fold(dataFrameOf(dummyCol)(1)) { acc, next ->
-                cartesianProductWithoutBy(acc, next, byColumns = listOf(dummyCol))
+                cartesianProductWithoutBy(acc, next, byColumns = listOf(dummyCol), removeRightBy = true)
             }
 
     return folded.remove(dummyCol).sortedBy(*columnNames)

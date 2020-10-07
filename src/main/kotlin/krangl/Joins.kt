@@ -167,7 +167,7 @@ fun join(
 
     // todo this could be multi-threaded but be careful to ensure deterministic order
     val header = bindCols(leftNull, rightNull.remove(byColumns)).take(0)
-    val groupDfs = groupPairs.map{ (left, right) -> cartesianProductWithoutBy(left, right, byColumns)}
+    val groupDfs = groupPairs.map { (left, right) -> cartesianProductWithoutBy(left, right, byColumns, !(left === leftNull) ) }
 
     // we need to include the header when binding the results to get the correct shape even if the resulting
     // table has no rows
@@ -226,20 +226,24 @@ private fun prep4Join(by: Iterable<String>, left: DataFrame, right: DataFrame, s
 
 
 //fun DataFrame.joinLeft(right: DataFrame,by:String) = joinLeft(this, right, *by)
-private fun defaultBy(left: DataFrame, right: DataFrame) = left.names.intersect(right.names).apply {
-    System.err.print("""Joining by: ${this.joinToString(",")}""")
-}
+private fun defaultBy(left: DataFrame, right: DataFrame) = left.names
+        .intersect(right.names)
+        .apply {
+            System.out.println("""Joining by: ${this.joinToString(",")}""")
+        }
 
 
 // in a strict sense this is not a cartesian product, but they way we call it (for each tuples of `by`,
 // so the by columns are essentially constant here), it should be
-internal fun cartesianProductWithoutBy(left: DataFrame, right: DataFrame, byColumns: List<String>): DataFrame {
+internal fun cartesianProductWithoutBy(left: DataFrame, right: DataFrame, byColumns: List<String>, removeRightBy: Boolean): DataFrame {
     // first remove columns that are present in both from right-df
-    val rightSlim = right.remove(byColumns)
+//    val rightSlim = if(removeRightBy) right.remove(byColumns) else right.remove(byColumns)
+
+    return if(removeRightBy) cartesianProduct(left, right.remove(byColumns)) else cartesianProduct(left.remove(byColumns), right)
 
     //    require(rightSlim.nrow > 0)
 
-    return cartesianProduct(left, rightSlim)
+//    return cartesianProduct(left, rightSlim)
 }
 
 

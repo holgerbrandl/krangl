@@ -131,6 +131,7 @@ class InnerJoinTests {
 
 class OuterJoinTest {
 
+    @Test
     fun `it should join calculate cross-product when joining on empty by list`() {
         val dfA = dataFrameOf("foo", "bar")(
                 "a", 2,
@@ -150,6 +151,30 @@ class OuterJoinTest {
     fun `it should should allow for NA in by attribute-lists`() {
         //todo it's more eyefriendly if NA merge tuples come last in the result table. Can we do the same
         //        TODO()
+    }
+
+    @Test
+    fun `it should retain join keys of non-matching LHS records in outer join`(){
+        // see https://github.com/holgerbrandl/krangl/issues/94
+        val user = dataFrameOf(
+                "first_name", "last_name", "age", "weight")(
+                "Max", "Doe", 23, 55,
+                "Franz", "Smith", 23, 88,
+                "Horst", "Keanes", 12, 82
+        )
+
+        val pets = dataFrameOf("first_name", "pet")(
+                "Max", "Cat",
+                "Franz", "Dog",
+                // no pet for Horst
+                "Uwe", "Elephant", // Uwe is not in user dataframe
+        )
+
+        user.outerJoin(pets).apply {
+            print()
+
+            filter { it["pet"] eq "Elephant" }["first_name"][0] shouldBe "Uwe"
+        }
     }
 }
 
