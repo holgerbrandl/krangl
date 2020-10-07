@@ -1,9 +1,12 @@
 krangl Release History
 ======================
 
-v0.14 (work in progress)
-------------------------
+v0.14
+-----
 
+* Fixed missing by values overhanging RHS in outer join (fixes [#94](https://github.com/holgerbrandl/krangl/issues/94))
+* Added addRow (via [PR92](https://github.com/holgerbrandl/krangl/pull/92) by [LeandroC89](https://github.com/LeandroC89)
+* Added column type text to sql interface (fixes [#72](https://github.com/holgerbrandl/krangl/issues/72))
 
 v0.13
 -----
