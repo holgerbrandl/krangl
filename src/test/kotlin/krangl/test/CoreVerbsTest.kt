@@ -658,6 +658,18 @@ class CoreTests {
                 """.trimAndReline()
     }
 
+    @Test
+    fun `it should print an empty dataframe as such`() {
+        captureOutput { emptyDataFrame().print() }.stdout shouldBe """A DataFrame: 0 x 0"""
+
+        captureOutput {
+            irisData.filter { it["Species"] eq "foo" }.print()
+//            irisData.print()
+        }.stdout shouldBe """A DataFrame: 0 x 5
+        Sepal.Length            Sepal.Width           Petal.Length            Petal.Width
+and 1 more variables: Species""".trimAndReline()
+    }
+
 
     @Test
     fun `schema should also work for larger tables`() {
@@ -793,6 +805,16 @@ class GroupedDataTest {
         df.groupBy("id").apply {
             print()
             groups().size shouldBe 2
+        }
+    }
+
+    @Test
+    fun `it should preserve column shape when grouping data-frame without rows`(){
+        val df = dataFrameOf(StringCol("foo", emptyList()), IntCol("bar", emptyList()))
+        df.print()
+
+        df.groupBy("foo").apply {
+            names shouldBe listOf("foo", "bar")
         }
     }
 }

@@ -154,7 +154,7 @@ class OuterJoinTest {
     }
 
     @Test
-    fun `it should retain join keys of non-matching LHS records in outer join`(){
+    fun `it should retain join keys of non-matching LHS records in outer join`() {
         // see https://github.com/holgerbrandl/krangl/issues/94
         val user = dataFrameOf(
                 "first_name", "last_name", "age", "weight")(
@@ -174,6 +174,41 @@ class OuterJoinTest {
             print()
 
             filter { it["pet"] eq "Elephant" }["first_name"][0] shouldBe "Uwe"
+        }
+    }
+
+    @Test
+    fun `it should join empty dataframe`() {
+        val user = dataFrameOf(
+                "first_name", "last_name", "age", "weight")(
+                "Max", "Doe", 23, 55,
+        )
+
+        val pets = dataFrameOf("first_name", "pet")(
+                "Max", "Cat",
+                "Franz", "Dog",
+        )
+        val joinBy = listOf("first_name")
+
+//        user.filter { it["first_name"] eq "Max" }.print()
+//        user.filter { it["first_name"] eq "Max" }.leftJoin(pets, joinBy).print()
+//        user.filter { it["first_name"] eq "Max" }.outerJoin(pets, joinBy).print()
+
+        // Hans does not exist
+        user.filter { it["first_name"] eq "Hans" }.print()
+        user.filter { it["first_name"] eq "Hans" }.leftJoin(pets, joinBy).apply {
+            print("left join result")
+            nrow shouldBe 0
+            names shouldBe listOf("first_name", "last_name", "age", "weight", "pet")
+        }
+
+        user.filter { it["first_name"] eq "Hans" }.outerJoin(pets, joinBy).apply {
+            print("right join result")
+
+            names shouldBe listOf("first_name", "last_name", "age", "weight", "pet")
+
+            nrow shouldBe 2
+            get("first_name").values() shouldBe arrayOf("Max", "Franz")
         }
     }
 }

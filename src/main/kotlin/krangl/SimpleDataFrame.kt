@@ -313,7 +313,14 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         }
 
 
-        return GroupedDataFrame(by.toList(), groupIndices.map { DataGroup(it.groupHash, extractGroupByIndex(it, this)) })
+        var groups = groupIndices.map { DataGroup(it.groupHash, extractGroupByIndex(it, this)) }
+
+        // preserve column structure in empty data-frames
+        if(groups.isEmpty()){
+            groups = listOf(DataGroup(listOf(1), this))
+        }
+
+        return GroupedDataFrame(by.toList(), groups)
     }
 
 

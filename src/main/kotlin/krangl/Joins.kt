@@ -107,8 +107,8 @@ fun join(
 
     // prepare "overhang null-filler blocks" for cartesian products
     // note: `left` as argument is not enough here because of column shuffling and suffixing
-    val leftNull = nullRow(groupedLeft.groups.first().df)
-    val rightNull = nullRow(groupedRight.groups.first().df)
+    val leftNull = nullRow(groupedLeft.groups.firstOrNull()?.df ?: emptyDataFrame())
+    val rightNull = nullRow(groupedRight.groups.firstOrNull()?.df ?: emptyDataFrame())
 
     val rightIt = groupedRight.groups.iterator()
     val leftIt = groupedLeft.groups.iterator()
