@@ -559,7 +559,7 @@ fun DataFrame.asString(
     val printData = take(Math.min(nrow, maxRowsOrInf))
             // optionally add rownames
             .run {
-                if (rowNumbers) addColumn(" ") { rowNumber }.moveLeft(" ") else this
+                if (rowNumbers && nrow > 0) addColumn(" ") { rowNumber }.moveLeft(" ") else this
             }
 
     val valuePrinter = createValuePrinter(maxDigits)
