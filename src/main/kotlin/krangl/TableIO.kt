@@ -5,6 +5,10 @@ package krangl
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import org.apache.commons.csv.CSVRecord
+import org.apache.poi.ss.usermodel.Cell
+import org.apache.poi.ss.usermodel.DataFormatter
+import org.apache.poi.ss.usermodel.Row
+import org.apache.poi.ss.usermodel.WorkbookFactory
 import java.io.*
 import java.net.URI
 import java.net.URL
@@ -302,6 +306,98 @@ fun DataFrame.writeCSV(
     p.close()
 }
 
+fun DataFrame.Companion.readSheetFromExcelFile(filepath: String, sheetName: String, rowNumber: Int = 1): DataFrame {
+    val inputStream = FileInputStream(filepath)
+    var df = emptyDataFrame()
+
+    //Instantiate Excel workbook using existing file:
+    // Consider returning empty DataFrame instead of exception if not found
+    val xlWBook = WorkbookFactory.create(inputStream)
+    val xlSheet = xlWBook.getSheet(sheetName) ?: throw IOException ("Sheet $sheetName not found")
+    val rowIterator = xlSheet.rowIterator()
+    var startingRowCounter = 1
+
+    if (!rowIterator.hasNext())
+        return df
+
+    //Skip lines until starting row number
+    var currentRow = rowIterator.next()
+    while (currentRow.rowNum < rowNumber - 1){
+        if (!rowIterator.hasNext())
+            return df
+        else{
+            currentRow = rowIterator.next()
+            startingRowCounter++
+        }
+    }
+
+    val cellIterator = currentRow.iterator()
+    var valueList: MutableList<String>
+
+    // Get column names
+    val columnResults = getExcelColumnNames(cellIterator, df)
+    df = columnResults.first
+    val lastCell =  columnResults.second
+
+    //Get rows
+    while (rowIterator.hasNext()) {
+        currentRow = rowIterator.next()
+        valueList = mutableListOf()
+
+        val hasValues = readExcelRow(lastCell, currentRow, valueList)
+        //Prevent Excel reading blank lines (whose contents have been cleared but the lines weren't deleted)
+        if (!hasValues)
+            break //Stops reading on first blank line
+        else
+            df = df.addRow(valueList)
+    }
+    return df
+}
+
+private fun readExcelRow(
+        lastCell: Int,
+        currentRow: Row,
+        valueList: MutableList<String>,
+): Boolean {
+    val dataFormatter = DataFormatter()
+    var cellCounter = 0
+    var currentCell : Cell?
+    var currentValue : String
+    var hasValues = false
+    while (cellCounter < lastCell) { //iterator skips blank cells, this ensures all are read
+        currentCell = currentRow.getCell(cellCounter)
+
+        currentValue = ""
+        if (currentCell != null)
+            currentValue = dataFormatter.formatCellValue(currentCell)
+
+        valueList.add(currentValue)
+        cellCounter++
+
+        if (currentValue != "")
+            hasValues = true
+    }
+    return hasValues
+}
+
+private fun getExcelColumnNames(
+        cellIterator: MutableIterator<Cell>,
+        df: DataFrame,
+): Pair<DataFrame, Int> {
+    var currentCell : Cell?
+    var lastAddress = 0
+    var df1 = df
+    var lastCell = 0
+    while (cellIterator.hasNext()) {
+        currentCell = cellIterator.next()
+
+        if (currentCell.address.column > lastAddress + 1) break
+        df1 = df1.addColumn(currentCell.toString()) { }
+        lastAddress = currentCell.address.column
+        lastCell++ //It'll only read columns until the first blank header
+    }
+    return Pair(df1, lastCell)
+}
 
 /**
 An example data frame with 83 rows and 11 variables
