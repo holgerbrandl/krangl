@@ -306,14 +306,28 @@ fun DataFrame.writeCSV(
     p.close()
 }
 
+fun DataFrame.Companion.readExcel(filepath: String, sheet: Int, rowNumber: Int = 1): DataFrame {
+    val inputStream = FileInputStream(filepath)
+
+    //Instantiate Excel workbook using existing file:
+    // Consider returning empty DataFrame instead of exception if not found
+    val xlWBook = WorkbookFactory.create(inputStream)
+    val xlSheet = xlWBook.getSheetAt(sheet) ?: throw IOException ("Sheet at index $sheet not found")
+    return readExcelSheet(xlSheet, rowNumber)
+}
+
 fun DataFrame.Companion.readExcel(filepath: String, sheetName: String, rowNumber: Int = 1): DataFrame {
     val inputStream = FileInputStream(filepath)
-    var df = emptyDataFrame()
 
     //Instantiate Excel workbook using existing file:
     // Consider returning empty DataFrame instead of exception if not found
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheet(sheetName) ?: throw IOException ("Sheet $sheetName not found")
+    return readExcelSheet(xlSheet, rowNumber)
+}
+
+private fun readExcelSheet(xlSheet: Sheet, rowNumber: Int): DataFrame {
+    var df = emptyDataFrame()
     val rowIterator = xlSheet.rowIterator()
     var startingRowCounter = 1
 
@@ -322,10 +336,10 @@ fun DataFrame.Companion.readExcel(filepath: String, sheetName: String, rowNumber
 
     //Skip lines until starting row number
     var currentRow = rowIterator.next()
-    while (currentRow.rowNum < rowNumber - 1){
+    while (currentRow.rowNum < rowNumber - 1) {
         if (!rowIterator.hasNext())
             return df
-        else{
+        else {
             currentRow = rowIterator.next()
             startingRowCounter++
         }
@@ -337,7 +351,7 @@ fun DataFrame.Companion.readExcel(filepath: String, sheetName: String, rowNumber
     // Get column names
     val columnResults = getExcelColumnNames(cellIterator, df)
     df = columnResults.first
-    val lastCell =  columnResults.second
+    val lastCell = columnResults.second
 
     //Get rows
     while (rowIterator.hasNext()) {
@@ -368,8 +382,7 @@ private fun readExcelRow(
         currentCell = currentRow.getCell(cellCounter)
 
         currentValue = ""
-        if (currentCell != null)
-            currentValue = dataFormatter.formatCellValue(currentCell)
+        currentCell?.let { currentValue = dataFormatter.formatCellValue(currentCell) }
 
         valueList.add(currentValue)
         cellCounter++

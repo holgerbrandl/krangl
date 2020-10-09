@@ -278,6 +278,7 @@ class ExcelTests {
 
         headerHigherThanContentDF shouldBe emptyDataFrame()
 
+        //Test Sheet by name starting at row 1
         val df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
                 "FirstSheet",1 )
 
@@ -286,8 +287,9 @@ class ExcelTests {
         df["Name"][0] shouldBe "Hyatt"
         df.print("ExcelReadTest")
 
+        // Test sheet by index + cell range
         val rowSkipTestDF = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
-                "SecondSheet",3 )
+                1,3 )
 
         rowSkipTestDF shouldBe df
 
