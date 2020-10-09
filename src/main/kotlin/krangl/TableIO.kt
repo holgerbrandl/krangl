@@ -420,7 +420,7 @@ fun DataFrame.writeSheetToExcel(filePath: String, sheetName: String, headers: Bo
                 workbook.createCellStyle()
     if (headers)
         createExcelHeaderRow(sheet, boldHeaders, headerCellStyle)
-    createExcelDataRows(sheet)
+    createExcelDataRows(sheet, headers)
     // Exception will be thrown if file is already open
     val fileOut = FileOutputStream(filePath)
     workbook.write(fileOut)
@@ -442,8 +442,8 @@ private fun createExcelHeaderStyle(
     return headerCellStyle
 }
 
-private fun DataFrame.createExcelDataRows(sheet: XSSFSheet) {
-    var rowIdx = 1
+private fun DataFrame.createExcelDataRows(sheet: XSSFSheet, headers: Boolean) {
+    var rowIdx = if (headers) 1 else 0
     for (row in this.rows) {
         val nRow = sheet.createRow(rowIdx++)
         for ((columnPosition, cell) in row.values.toMutableList().withIndex()) {
