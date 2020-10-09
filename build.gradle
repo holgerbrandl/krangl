@@ -50,7 +50,7 @@ dependencies {
     implementation "org.apache.commons:commons-csv:1.6" // cant upgrade to 1.8 because of https://issues.apache.org/jira/browse/CSV-257
 //    compile "com.univocity:univocity-parsers:2.7.5"
     implementation 'com.beust:klaxon:5.0.1'//    compile 'me.tongfei:progressbar:0.5.5'
-
+    implementation 'org.apache.poi:poi-ooxml:4.1.1' // For Excel read/write
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation 'io.kotlintest:kotlintest-assertions:3.4.2'
