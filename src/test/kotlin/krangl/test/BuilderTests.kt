@@ -268,3 +268,43 @@ class JsonTests {
         }
     }
 }
+
+class ExcelTests {
+
+    @Test
+    fun `it should read excel file`(){
+        val headerHigherThanContentDF = DataFrame.readSheetFromExcelFile("src/test/resources/krangl/data/ExcelReadExample.xlsx",
+                "FirstSheet",102 )
+
+        headerHigherThanContentDF shouldBe emptyDataFrame()
+
+        val df = DataFrame.readSheetFromExcelFile("src/test/resources/krangl/data/ExcelReadExample.xlsx",
+                "FirstSheet",1 )
+
+        df.names shouldBe listOf("Name", "Email", "BirthDate", "Country")
+        df.nrow shouldBe 100
+        df["Name"].values()[0] shouldBe "Hyatt"
+        df.print("ExcelReadTest")
+
+        val rowSkipTestDF = DataFrame.readSheetFromExcelFile("src/test/resources/krangl/data/ExcelReadExample.xlsx",
+                "SecondSheet",3 )
+
+        rowSkipTestDF shouldBe df
+
+    }
+    @Test
+    fun `it should write to excel`(){
+        val df = DataFrame.readSheetFromExcelFile("src/test/resources/krangl/data/ExcelReadExample.xlsx",
+                "FirstSheet",1 )
+
+        df.writeSheetToExcel("src/test/resources/krangl/data/ExcelWriteResult.xlsx", "FirstSheet", true, true, false)
+        df.writeSheetToExcel("src/test/resources/krangl/data/ExcelWriteResult.xlsx", "SecondSheet", true, false, true)
+        df.writeSheetToExcel("src/test/resources/krangl/data/ExcelWriteResult.xlsx", "ThirdSheet", false,false, false)
+
+        val writtenDF = DataFrame.readSheetFromExcelFile("src/test/resources/krangl/data/ExcelWriteResult.xlsx",
+                "FirstSheet",1 )
+
+        writtenDF shouldBe df
+    }
+
+}
