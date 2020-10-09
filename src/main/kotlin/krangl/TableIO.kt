@@ -306,7 +306,7 @@ fun DataFrame.writeCSV(
     p.close()
 }
 
-fun DataFrame.Companion.readSheetFromExcelFile(filepath: String, sheetName: String, rowNumber: Int = 1): DataFrame {
+fun DataFrame.Companion.readExcel(filepath: String, sheetName: String, rowNumber: Int = 1): DataFrame {
     val inputStream = FileInputStream(filepath)
     var df = emptyDataFrame()
 
@@ -399,7 +399,7 @@ private fun getExcelColumnNames(
     return Pair(df1, lastCell)
 }
 
-fun DataFrame.writeSheetToExcel(filePath: String, sheetName: String, headers: Boolean = true, eraseFile: Boolean = false, boldHeaders: Boolean = true){
+fun DataFrame.writeExcel(filePath: String, sheetName: String, headers: Boolean = true, eraseFile: Boolean = false, boldHeaders: Boolean = true){
     val workbook: XSSFWorkbook = if(eraseFile)
         XSSFWorkbook()
     else {
