@@ -5,10 +5,10 @@ package krangl
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import org.apache.commons.csv.CSVRecord
-import org.apache.poi.ss.usermodel.Cell
-import org.apache.poi.ss.usermodel.DataFormatter
-import org.apache.poi.ss.usermodel.Row
-import org.apache.poi.ss.usermodel.WorkbookFactory
+import org.apache.poi.ss.usermodel.*
+import org.apache.poi.xssf.usermodel.XSSFCellStyle
+import org.apache.poi.xssf.usermodel.XSSFSheet
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.*
 import java.net.URI
 import java.net.URL
@@ -397,6 +397,73 @@ private fun getExcelColumnNames(
         lastCell++ //It'll only read columns until the first blank header
     }
     return Pair(df1, lastCell)
+}
+
+fun DataFrame.writeSheetToExcel(filePath: String, sheetName: String, headers: Boolean = true, eraseFile: Boolean = false, boldHeaders: Boolean = true){
+    val workbook: XSSFWorkbook = if(eraseFile)
+        XSSFWorkbook()
+    else {
+        try {
+            XSSFWorkbook(FileInputStream(filePath))
+        } catch (e: FileNotFoundException) {
+            XSSFWorkbook()
+        }
+    }
+    val sheet: XSSFSheet
+    //Let Exception be thrown if already exists
+    sheet = workbook.createSheet(sheetName)
+
+    val headerCellStyle =
+            if(headers)
+                createExcelHeaderStyle(workbook, boldHeaders)
+            else
+                workbook.createCellStyle()
+    if (headers)
+        createExcelHeaderRow(sheet, boldHeaders, headerCellStyle)
+    createExcelDataRows(sheet)
+    // Exception will be thrown if file is already open
+    val fileOut = FileOutputStream(filePath)
+    workbook.write(fileOut)
+    fileOut.close()
+    workbook.close()
+}
+
+private fun createExcelHeaderStyle(
+        workbook: XSSFWorkbook,
+        boldHeaders: Boolean,
+): XSSFCellStyle? {
+    val headerCellStyle = workbook.createCellStyle()
+    if (boldHeaders) {
+        val headerFont = workbook.createFont()
+        headerFont.bold = true
+        headerFont.color = IndexedColors.BLACK.getIndex()
+        headerCellStyle.setFont(headerFont)
+    }
+    return headerCellStyle
+}
+
+private fun DataFrame.createExcelDataRows(sheet: XSSFSheet) {
+    var rowIdx = 1
+    for (row in this.rows) {
+        val nRow = sheet.createRow(rowIdx++)
+        for ((columnPosition, cell) in row.values.toMutableList().withIndex()) {
+            nRow.createCell(columnPosition).setCellValue(cell.toString())
+        }
+    }
+}
+
+private fun DataFrame.createExcelHeaderRow(
+        sheet: XSSFSheet,
+        boldHeaders: Boolean,
+        headerCellStyle: XSSFCellStyle?
+) {
+    val headerRow = sheet.createRow(0)
+    for ((colPos, col) in this.names.withIndex()) {
+        val cell = headerRow.createCell(colPos)
+        cell.setCellValue(col)
+        if (boldHeaders)
+            cell.cellStyle = headerCellStyle
+    }
 }
 
 /**
