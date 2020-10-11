@@ -306,27 +306,23 @@ fun DataFrame.writeCSV(
     p.close()
 }
 
-fun DataFrame.Companion.readExcel(filepath: String, sheet: Int, rowNumber: Int = 1): DataFrame {
+@JvmOverloads
+fun DataFrame.Companion.readExcel(filepath: String, sheet: Int, rowNumber: Int = 1, colTypes: Map<String, ColType> = mapOf()): DataFrame {
     val inputStream = FileInputStream(filepath)
-
-    //Instantiate Excel workbook using existing file:
-    // Consider returning empty DataFrame instead of exception if not found
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheetAt(sheet) ?: throw IOException ("Sheet at index $sheet not found")
-    return readExcelSheet(xlSheet, rowNumber)
+    return readExcelSheet(xlSheet, rowNumber, colTypes)
 }
 
-fun DataFrame.Companion.readExcel(filepath: String, sheetName: String, rowNumber: Int = 1): DataFrame {
+@JvmOverloads
+fun DataFrame.Companion.readExcel(filepath: String, sheetName: String, rowNumber: Int = 1, colTypes: Map<String, ColType> = mapOf()): DataFrame {
     val inputStream = FileInputStream(filepath)
-
-    //Instantiate Excel workbook using existing file:
-    // Consider returning empty DataFrame instead of exception if not found
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheet(sheetName) ?: throw IOException ("Sheet $sheetName not found")
-    return readExcelSheet(xlSheet, rowNumber)
+    return readExcelSheet(xlSheet, rowNumber, colTypes)
 }
 
-private fun readExcelSheet(xlSheet: Sheet, rowNumber: Int): DataFrame {
+private fun readExcelSheet(xlSheet: Sheet, rowNumber: Int, colTypes: Map<String, ColType>): DataFrame {
     var df = emptyDataFrame()
     val rowIterator = xlSheet.rowIterator()
     var startingRowCounter = 1
@@ -357,15 +353,15 @@ private fun readExcelSheet(xlSheet: Sheet, rowNumber: Int): DataFrame {
     while (rowIterator.hasNext()) {
         currentRow = rowIterator.next()
         valueList = mutableListOf()
-
         val hasValues = readExcelRow(lastCell, currentRow, valueList)
+
         //Prevent Excel reading blank lines (whose contents have been cleared but the lines weren't deleted)
         if (!hasValues)
             break //Stops reading on first blank line
         else
             df = df.addRow(valueList)
     }
-    return df
+    return assignColumnTypes(df, colTypes)
 }
 
 private fun readExcelRow(
@@ -411,6 +407,46 @@ private fun getExcelColumnNames(
     }
     return Pair(df1, lastCell)
 }
+
+private fun assignColumnTypes(df: DataFrame, colTypes: Map<String, ColType>): DataFrame{
+
+    val colList = mutableListOf<DataCol>()
+
+    for (column in df.cols){
+        colList.add(dataColFactoryAny(column.name, (colTypes[column.name] ?: ColType.Guess), column.values()))
+    }
+    return SimpleDataFrame(colList)
+}
+
+internal fun dataColFactoryAny(colName: String, colType: ColType, records: Array<*>): DataCol =
+        when (colType) {
+            // see https://github.com/holgerbrandl/krangl/issues/10
+            ColType.Int -> try {
+                IntCol(colName, records.map { it.toString().toInt() })
+            } catch (e: NumberFormatException) {
+                StringCol(colName, records.map { it.toString() })
+            }
+            ColType.Long -> try {
+                LongCol(colName, records.map { it.toString().toLong() })
+            } catch (e: NumberFormatException) {
+                StringCol(colName, records.map { it.toString() })
+            }
+
+            ColType.Double -> DoubleCol(colName, records.map { it.toString().toDouble() })
+
+            ColType.Boolean -> BooleanCol(colName, records.map { it.toString().cellValueAsBoolean() })
+
+            ColType.String -> StringCol(colName, records.map { it.toString() })
+
+            ColType.Guess -> dataColFactoryAny(colName, guessColType(peekColAny(records)), records)
+        }
+
+internal fun peekColAny(records: Array<*>, peekSize: Int = 100) = records
+        .asSequence()
+        .map{ it.toString() }
+        .filterNotNull()
+        .take(peekSize)
+        .toList()
 
 fun DataFrame.writeExcel(filePath: String, sheetName: String, headers: Boolean = true, eraseFile: Boolean = false, boldHeaders: Boolean = true){
     val workbook: XSSFWorkbook = if(eraseFile)

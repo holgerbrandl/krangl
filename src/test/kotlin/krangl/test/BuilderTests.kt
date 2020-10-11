@@ -280,12 +280,15 @@ class ExcelTests {
 
         //Test Sheet by name starting at row 1
         val df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
-                "FirstSheet",1 )
+                "FirstSheet",1 , colTypes = mapOf(Pair("Activities", ColType.Int)))
 
-        df.names shouldBe listOf("Name", "Email", "BirthDate", "Country")
+        df.names shouldBe listOf("Name", "Email", "BirthDate", "Country", "Activities", "Registered")
         df.nrow shouldBe 100
         df["Name"][0] shouldBe "Hyatt"
-        df.print("ExcelReadTest")
+        (df["Activities"] is IntCol) shouldBe true // Tests when ColType is given
+        (df["Registered"] is BooleanCol) shouldBe true // Tests when ColType is guessed
+        df.print(title = "ExcelReadTest")
+        println(df.schema())
 
         // Test sheet by index + cell range
         val rowSkipTestDF = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
