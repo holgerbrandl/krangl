@@ -309,22 +309,22 @@ fun DataFrame.writeCSV(
 }
 
 @JvmOverloads
-fun DataFrame.Companion.readExcel(filepath: String, sheet: Int, range: String = "", colTypes: Map<String, ColType> = mapOf()): DataFrame {
-    val inputStream = FileInputStream(filepath)
+fun DataFrame.Companion.readExcel(path: String, sheet: Int, range: String = "", colTypes: Map<String, ColType> = mapOf(), guessMax: Int = 100): DataFrame {
+    val inputStream = FileInputStream(path)
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheetAt(sheet) ?: throw IOException ("Sheet at index $sheet not found")
-    return readExcelSheet(xlSheet, range, colTypes)
+    return readExcelSheet(xlSheet, range, colTypes, guessMax)
 }
 
 @JvmOverloads
-fun DataFrame.Companion.readExcel(filepath: String, sheetName: String, range: String = "", colTypes: Map<String, ColType> = mapOf()): DataFrame {
-    val inputStream = FileInputStream(filepath)
+fun DataFrame.Companion.readExcel(path: String, sheetName: String, range: String = "", colTypes: Map<String, ColType> = mapOf(), guessMax: Int = 100): DataFrame {
+    val inputStream = FileInputStream(path)
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheet(sheetName) ?: throw IOException ("Sheet $sheetName not found")
-    return readExcelSheet(xlSheet, range, colTypes)
+    return readExcelSheet(xlSheet, range, colTypes, guessMax)
 }
 
-private fun readExcelSheet(xlSheet: Sheet, range: String, colTypes: Map<String, ColType>): DataFrame {
+private fun readExcelSheet(xlSheet: Sheet, range: String, colTypes: Map<String, ColType>, guessMax: Int): DataFrame {
     var df = emptyDataFrame()
     val rowIterator = xlSheet.rowIterator()
     var startingRowCounter = 1
@@ -364,7 +364,7 @@ private fun readExcelSheet(xlSheet: Sheet, range: String, colTypes: Map<String, 
         else
             df = df.addRow(valueList)
     }
-    return assignColumnTypes(df, colTypes)
+    return assignColumnTypes(df, colTypes, guessMax)
 }
 
 private fun getCellAddressFromString(range: String): CellRangeAddress{
@@ -430,17 +430,17 @@ private fun getExcelColumnNames(
     return Pair(df1, lastCell)
 }
 
-private fun assignColumnTypes(df: DataFrame, colTypes: Map<String, ColType>): DataFrame{
+private fun assignColumnTypes(df: DataFrame, colTypes: Map<String, ColType>, guessMax: Int = 100): DataFrame{
 
     val colList = mutableListOf<DataCol>()
 
     for (column in df.cols){
-        colList.add(dataColFactory(column.name, (colTypes[column.name] ?: ColType.Guess), column.values()))
+        colList.add(dataColFactory(column.name, (colTypes[column.name] ?: ColType.Guess), column.values(), guessMax))
     }
     return SimpleDataFrame(colList)
 }
 
-internal fun dataColFactory(colName: String, colType: ColType, records: Array<*>): DataCol =
+internal fun dataColFactory(colName: String, colType: ColType, records: Array<*>, guessMax: Int = 100): DataCol =
         when (colType) {
             // see https://github.com/holgerbrandl/krangl/issues/10
             ColType.Int -> try {
@@ -460,7 +460,7 @@ internal fun dataColFactory(colName: String, colType: ColType, records: Array<*>
 
             ColType.String -> StringCol(colName, records.map { it.toString() })
 
-            ColType.Guess -> dataColFactory(colName, guessColType(peekCol(records)), records)
+            ColType.Guess -> dataColFactory(colName, guessColType(peekCol(records, guessMax)), records)
         }
 
 internal fun peekCol(records: Array<*>, peekSize: Int = 100) = records
