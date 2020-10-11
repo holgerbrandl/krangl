@@ -6,6 +6,8 @@ import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import org.apache.commons.csv.CSVRecord
 import org.apache.poi.ss.usermodel.*
+import org.apache.poi.ss.util.CellRangeAddress
+import org.apache.poi.ss.util.CellReference
 import org.apache.poi.xssf.usermodel.XSSFCellStyle
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -307,32 +309,33 @@ fun DataFrame.writeCSV(
 }
 
 @JvmOverloads
-fun DataFrame.Companion.readExcel(filepath: String, sheet: Int, rowNumber: Int = 1, colTypes: Map<String, ColType> = mapOf()): DataFrame {
+fun DataFrame.Companion.readExcel(filepath: String, sheet: Int, range: String = "", colTypes: Map<String, ColType> = mapOf()): DataFrame {
     val inputStream = FileInputStream(filepath)
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheetAt(sheet) ?: throw IOException ("Sheet at index $sheet not found")
-    return readExcelSheet(xlSheet, rowNumber, colTypes)
+    return readExcelSheet(xlSheet, range, colTypes)
 }
 
 @JvmOverloads
-fun DataFrame.Companion.readExcel(filepath: String, sheetName: String, rowNumber: Int = 1, colTypes: Map<String, ColType> = mapOf()): DataFrame {
+fun DataFrame.Companion.readExcel(filepath: String, sheetName: String, range: String = "", colTypes: Map<String, ColType> = mapOf()): DataFrame {
     val inputStream = FileInputStream(filepath)
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheet(sheetName) ?: throw IOException ("Sheet $sheetName not found")
-    return readExcelSheet(xlSheet, rowNumber, colTypes)
+    return readExcelSheet(xlSheet, range, colTypes)
 }
 
-private fun readExcelSheet(xlSheet: Sheet, rowNumber: Int, colTypes: Map<String, ColType>): DataFrame {
+private fun readExcelSheet(xlSheet: Sheet, range: String, colTypes: Map<String, ColType>): DataFrame {
     var df = emptyDataFrame()
     val rowIterator = xlSheet.rowIterator()
     var startingRowCounter = 1
+    val cellRange = getCellAddressFromString(range)
 
     if (!rowIterator.hasNext())
         return df
 
     //Skip lines until starting row number
     var currentRow = rowIterator.next()
-    while (currentRow.rowNum < rowNumber - 1) {
+    while (currentRow.rowNum < cellRange.firstRow - 1) {
         if (!rowIterator.hasNext())
             return df
         else {
@@ -345,12 +348,12 @@ private fun readExcelSheet(xlSheet: Sheet, rowNumber: Int, colTypes: Map<String,
     var valueList: MutableList<String>
 
     // Get column names
-    val columnResults = getExcelColumnNames(cellIterator, df)
+    val columnResults = getExcelColumnNames(cellIterator, df, cellRange)
     df = columnResults.first
     val lastCell = columnResults.second
 
     //Get rows
-    while (rowIterator.hasNext()) {
+    while (rowIterator.hasNext() && currentRow.rowNum < cellRange.lastRow) {
         currentRow = rowIterator.next()
         valueList = mutableListOf()
         val hasValues = readExcelRow(lastCell, currentRow, valueList)
@@ -362,6 +365,19 @@ private fun readExcelSheet(xlSheet: Sheet, rowNumber: Int, colTypes: Map<String,
             df = df.addRow(valueList)
     }
     return assignColumnTypes(df, colTypes)
+}
+
+private fun getCellAddressFromString(range: String): CellRangeAddress{
+    val useRange =
+            if (range.isBlank())
+                "A1:XFD1048576"
+            else
+                range
+
+    val cellSplit = useRange.split(":")
+    val firstCell = CellReference(cellSplit[0])
+    val lastCell = CellReference(cellSplit[1])
+    return CellRangeAddress(firstCell.row, lastCell.row, firstCell.col.toInt(), lastCell.col.toInt())
 }
 
 private fun readExcelRow(
@@ -392,6 +408,7 @@ private fun readExcelRow(
 private fun getExcelColumnNames(
         cellIterator: MutableIterator<Cell>,
         df: DataFrame,
+        cellRange: CellRangeAddress
 ): Pair<DataFrame, Int> {
     var currentCell : Cell?
     var lastAddress = 0
@@ -399,6 +416,11 @@ private fun getExcelColumnNames(
     var lastCell = 0
     while (cellIterator.hasNext()) {
         currentCell = cellIterator.next()
+
+        if (currentCell.columnIndex < cellRange.firstColumn)
+            continue
+        else if (currentCell.columnIndex > cellRange.lastColumn)
+            break
 
         if (currentCell.address.column > lastAddress + 1) break
         df1 = df1.addColumn(currentCell.toString()) { }
@@ -413,12 +435,12 @@ private fun assignColumnTypes(df: DataFrame, colTypes: Map<String, ColType>): Da
     val colList = mutableListOf<DataCol>()
 
     for (column in df.cols){
-        colList.add(dataColFactoryAny(column.name, (colTypes[column.name] ?: ColType.Guess), column.values()))
+        colList.add(dataColFactory(column.name, (colTypes[column.name] ?: ColType.Guess), column.values()))
     }
     return SimpleDataFrame(colList)
 }
 
-internal fun dataColFactoryAny(colName: String, colType: ColType, records: Array<*>): DataCol =
+internal fun dataColFactory(colName: String, colType: ColType, records: Array<*>): DataCol =
         when (colType) {
             // see https://github.com/holgerbrandl/krangl/issues/10
             ColType.Int -> try {
@@ -438,10 +460,10 @@ internal fun dataColFactoryAny(colName: String, colType: ColType, records: Array
 
             ColType.String -> StringCol(colName, records.map { it.toString() })
 
-            ColType.Guess -> dataColFactoryAny(colName, guessColType(peekColAny(records)), records)
+            ColType.Guess -> dataColFactory(colName, guessColType(peekCol(records)), records)
         }
 
-internal fun peekColAny(records: Array<*>, peekSize: Int = 100) = records
+internal fun peekCol(records: Array<*>, peekSize: Int = 100) = records
         .asSequence()
         .map{ it.toString() }
         .filterNotNull()

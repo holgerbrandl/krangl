@@ -274,13 +274,13 @@ class ExcelTests {
     @Test
     fun `it should read excel file`(){
         val headerHigherThanContentDF = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
-                "FirstSheet",102 )
+                "FirstSheet","A105:A110" )
 
         headerHigherThanContentDF shouldBe emptyDataFrame()
 
         //Test Sheet by name starting at row 1
         val df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
-                "FirstSheet",1 , colTypes = mapOf(Pair("Activities", ColType.Int)))
+                "FirstSheet", colTypes = mapOf(Pair("Activities", ColType.Int)))
 
         df.names shouldBe listOf("Name", "Email", "BirthDate", "Country", "Activities", "Registered")
         df.nrow shouldBe 100
@@ -291,23 +291,22 @@ class ExcelTests {
         println(df.schema())
 
         // Test sheet by index + cell range
-        val rowSkipTestDF = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
-                1,3 )
+        val cellRangeTestDF = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
+                sheet = 1,range = "A3:F103" )
 
-        rowSkipTestDF shouldBe df
-
+        cellRangeTestDF shouldBe df
     }
     @Test
     fun `it should write to excel`(){
         val df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
-                "FirstSheet",1 )
+                "FirstSheet")
 
-        df.writeExcel("src/test/resources/krangl/data/ExcelWriteResult.xlsx", "FirstSheet", true, true, false)
-        df.writeExcel("src/test/resources/krangl/data/ExcelWriteResult.xlsx", "SecondSheet", true, false, true)
-        df.writeExcel("src/test/resources/krangl/data/ExcelWriteResult.xlsx", "ThirdSheet", false,false, false)
+        df.writeExcel("src/test/resources/krangl/data/ExcelWriteResult.xlsx", "FirstSheet", headers = true, eraseFile = true, boldHeaders = false)
+        df.writeExcel("src/test/resources/krangl/data/ExcelWriteResult.xlsx", "SecondSheet", headers = true, eraseFile = false, boldHeaders = true)
+        df.writeExcel("src/test/resources/krangl/data/ExcelWriteResult.xlsx", "ThirdSheet", headers = false, eraseFile = false, boldHeaders = false)
 
         val writtenDF = DataFrame.readExcel("src/test/resources/krangl/data/ExcelWriteResult.xlsx",
-                "FirstSheet",1 )
+                "FirstSheet" )
 
         writtenDF shouldBe df
     }
