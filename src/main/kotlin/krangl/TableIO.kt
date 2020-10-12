@@ -346,10 +346,10 @@ fun DataFrame.Companion.readExcel(path: String, sheet: Int, range: String = "", 
 }
 
 @JvmOverloads
-fun DataFrame.Companion.readExcel(path: String, sheetName: String, range: String = "", colTypes: Map<String, ColType> = mapOf(), guessMax: Int = 100): DataFrame {
+fun DataFrame.Companion.readExcel(path: String, sheet: String, range: String = "", colTypes: Map<String, ColType> = mapOf(), guessMax: Int = 100): DataFrame {
     val inputStream = FileInputStream(path)
     val xlWBook = WorkbookFactory.create(inputStream)
-    val xlSheet = xlWBook.getSheet(sheetName) ?: throw IOException ("Sheet $sheetName not found")
+    val xlSheet = xlWBook.getSheet(sheet) ?: throw IOException ("Sheet $sheet not found")
     return readExcelSheet(xlSheet, range, colTypes, guessMax)
 }
 
