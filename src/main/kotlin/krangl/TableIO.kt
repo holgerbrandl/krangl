@@ -337,23 +337,29 @@ fun DataFrame.writeCSV(
     p.close()
 }
 
+/**
+ * Returns a DataFrame with the contents from an Excel file sheet
+ */
 @JvmOverloads
-fun DataFrame.Companion.readExcel(path: String, sheet: Int, range: String = "", colTypes: Map<String, ColType> = mapOf(), guessMax: Int = 100): DataFrame {
+fun DataFrame.Companion.readExcel(path: String, sheet: Int, range: String = "", colTypes: Map<String, ColType> = mapOf(), trim_ws: Boolean = false, guessMax: Int = 100): DataFrame {
     val inputStream = FileInputStream(path)
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheetAt(sheet) ?: throw IOException ("Sheet at index $sheet not found")
-    return readExcelSheet(xlSheet, range, colTypes, guessMax)
+    return readExcelSheet(xlSheet, range, colTypes, trim_ws, guessMax)
 }
 
+/**
+ * Returns a DataFrame with the contents from an Excel file sheet
+ */
 @JvmOverloads
-fun DataFrame.Companion.readExcel(path: String, sheet: String, range: String = "", colTypes: Map<String, ColType> = mapOf(), guessMax: Int = 100): DataFrame {
+fun DataFrame.Companion.readExcel(path: String, sheet: String, range: String = "", colTypes: Map<String, ColType> = mapOf(), trim_ws: Boolean = false, guessMax: Int = 100): DataFrame {
     val inputStream = FileInputStream(path)
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheet(sheet) ?: throw IOException ("Sheet $sheet not found")
-    return readExcelSheet(xlSheet, range, colTypes, guessMax)
+    return readExcelSheet(xlSheet, range, colTypes, trim_ws, guessMax)
 }
 
-private fun readExcelSheet(xlSheet: Sheet, range: String, colTypes: Map<String, ColType>, guessMax: Int): DataFrame {
+private fun readExcelSheet(xlSheet: Sheet, range: String, colTypes: Map<String, ColType>, trim_ws: Boolean, guessMax: Int): DataFrame {
     var df = emptyDataFrame()
     val rowIterator = xlSheet.rowIterator()
     var startingRowCounter = 1
@@ -385,7 +391,7 @@ private fun readExcelSheet(xlSheet: Sheet, range: String, colTypes: Map<String, 
     while (rowIterator.hasNext() && currentRow.rowNum < cellRange.lastRow) {
         currentRow = rowIterator.next()
         valueList = mutableListOf()
-        val hasValues = readExcelRow(lastCell, currentRow, valueList)
+        val hasValues = readExcelRow(lastCell, currentRow, valueList, trim_ws)
 
         //Prevent Excel reading blank lines (whose contents have been cleared but the lines weren't deleted)
         if (!hasValues)
@@ -413,6 +419,7 @@ private fun readExcelRow(
         lastCell: Int,
         currentRow: Row,
         valueList: MutableList<String>,
+        trim_ws: Boolean,
 ): Boolean {
     val dataFormatter = DataFormatter()
     var cellCounter = 0
@@ -424,7 +431,8 @@ private fun readExcelRow(
 
         currentValue = ""
         currentCell?.let { currentValue = dataFormatter.formatCellValue(currentCell) }
-
+        if (trim_ws)
+            currentValue = currentValue.trim()
         valueList.add(currentValue)
         cellCounter++
 

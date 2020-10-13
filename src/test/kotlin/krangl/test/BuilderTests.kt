@@ -292,7 +292,7 @@ class ExcelTests {
 
         // Test sheet by index + cell range
         val cellRangeTestDF = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
-                sheet = 1,range = "A3:F103" )
+                sheet = 1, trim_ws = true, range = "A3:F103" )
 
         cellRangeTestDF shouldBe df
     }
