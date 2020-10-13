@@ -149,3 +149,44 @@ fun iterableDeparsing() {
     // or fully automatic using reflection
     val df3 = sleepPatterns.asDataFrame()
 }
+
+fun readExcelExample(){
+
+    val colTypesMap: Map<String,ColType> = mapOf("Activities" to ColType.Int, "Email" to ColType.String)
+
+    // Read excel file using sheet name
+    var df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", "FirstSheet")
+
+    // Read excel file using sheet index
+     df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0)
+
+    // Read excel file only in specified cell range
+    df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0, range = "A1:D10")
+
+    // Read excel file without any leading or trailing whitespace
+    df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0, trim_ws = true)
+
+    // Read excel file specifying column types (Remaining ones will be guessed)
+    df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0, colTypes = colTypesMap)
+
+    // Set max number of records to analyze when guessing column type
+    df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0, guessMax = 10)
+}
+
+fun writeExcelExample(){
+
+    // Creating an already populated DataFrame
+    val df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0)
+
+    // Write to excel with default parameters (This will add a new sheet if the file exists)
+    df.writeExcel("src/test/resources/krangl/data/ExcelWriteResult.xlsx", "FirstSheet")
+
+    // Write to excel while completely overwriting an existing file (if it doesn't exist a new one is created)
+    df.writeExcel("src/test/resources/krangl/data/ExcelWriteResult.xlsx", "FirstSheet", eraseFile = true)
+
+    // Write to excel with normal headers (not bold)
+    df.writeExcel("src/test/resources/krangl/data/ExcelWriteResult.xlsx", "SecondSheet", boldHeaders = false)
+
+    // Write to excel without the column headers
+    df.writeExcel("src/test/resources/krangl/data/ExcelWriteResult.xlsx", "ThirdSheet", headers = false)
+}
