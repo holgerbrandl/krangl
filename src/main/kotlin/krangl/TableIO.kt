@@ -391,7 +391,7 @@ private fun readExcelSheet(xlSheet: Sheet, range: String, colTypes: Map<String, 
     while (rowIterator.hasNext() && currentRow.rowNum < cellRange.lastRow) {
         currentRow = rowIterator.next()
         valueList = mutableListOf()
-        val hasValues = readExcelRow(lastCell, currentRow, valueList, trim_ws)
+        val hasValues = readExcelRow(lastCell, currentRow, valueList, cellRange, trim_ws)
 
         //Prevent Excel reading blank lines (whose contents have been cleared but the lines weren't deleted)
         if (!hasValues)
@@ -419,6 +419,7 @@ private fun readExcelRow(
         lastCell: Int,
         currentRow: Row,
         valueList: MutableList<String>,
+        cellRange: CellRangeAddress,
         trim_ws: Boolean,
 ): Boolean {
     val dataFormatter = DataFormatter()
@@ -426,7 +427,11 @@ private fun readExcelRow(
     var currentCell : Cell?
     var currentValue : String
     var hasValues = false
-    while (cellCounter < lastCell) { //iterator skips blank cells, this ensures all are read
+    while (cellCounter <= (lastCell + cellRange.firstColumn)) { //iterator skips blank cells, this ensures all are read
+        if (cellCounter < cellRange.firstColumn){
+            cellCounter++
+            continue
+        }
         currentCell = currentRow.getCell(cellCounter)
 
         currentValue = ""
@@ -448,9 +453,9 @@ private fun getExcelColumnNames(
         cellRange: CellRangeAddress
 ): Pair<DataFrame, Int> {
     var currentCell : Cell?
-    var lastAddress = 0
+    var lastAddress = cellRange.firstColumn
     var df1 = df
-    var lastCell = 0
+    var lastCell = -1
     while (cellIterator.hasNext()) {
         currentCell = cellIterator.next()
 
