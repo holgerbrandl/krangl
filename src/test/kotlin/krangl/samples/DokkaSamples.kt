@@ -172,6 +172,9 @@ fun readExcelExample(){
 
     // Set max number of records to analyze when guessing column type
     df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0, guessMax = 10)
+
+    // Specify a value for empty cell data (defaults to NA)
+    df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0, na = "No Data")
 }
 
 fun writeExcelExample(){

@@ -7,7 +7,6 @@ import org.apache.commons.csv.CSVPrinter
 import org.apache.commons.csv.CSVRecord
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.ss.util.CellRangeAddress
-import org.apache.poi.ss.util.CellReference
 import org.apache.poi.xssf.usermodel.XSSFCellStyle
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -341,25 +340,25 @@ fun DataFrame.writeCSV(
  * Returns a DataFrame with the contents from an Excel file sheet
  */
 @JvmOverloads
-fun DataFrame.Companion.readExcel(path: String, sheet: Int, cellRange: CellRangeAddress? = null, colTypes: Map<String, ColType> = mapOf(), trim_ws: Boolean = false, guessMax: Int = 100): DataFrame {
+fun DataFrame.Companion.readExcel(path: String, sheet: Int, cellRange: CellRangeAddress? = null, colTypes: Map<String, ColType> = mapOf(), trim_ws: Boolean = false, guessMax: Int = 100, na: String = MISSING_VALUE): DataFrame {
     val inputStream = FileInputStream(path)
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheetAt(sheet) ?: throw IOException ("Sheet at index $sheet not found")
-    return readExcelSheet(xlSheet, cellRange, colTypes, trim_ws, guessMax)
+    return readExcelSheet(xlSheet, cellRange, colTypes, trim_ws, guessMax, na)
 }
 
 /**
  * Returns a DataFrame with the contents from an Excel file sheet
  */
 @JvmOverloads
-fun DataFrame.Companion.readExcel(path: String, sheet: String, cellRange: CellRangeAddress? = null, colTypes: Map<String, ColType> = mapOf(), trim_ws: Boolean = false, guessMax: Int = 100): DataFrame {
+fun DataFrame.Companion.readExcel(path: String, sheet: String, cellRange: CellRangeAddress? = null, colTypes: Map<String, ColType> = mapOf(), trim_ws: Boolean = false, guessMax: Int = 100, na: String = MISSING_VALUE): DataFrame {
     val inputStream = FileInputStream(path)
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheet(sheet) ?: throw IOException ("Sheet $sheet not found")
-    return readExcelSheet(xlSheet, cellRange, colTypes, trim_ws, guessMax)
+    return readExcelSheet(xlSheet, cellRange, colTypes, trim_ws, guessMax, na)
 }
 
-private fun readExcelSheet(xlSheet: Sheet, range: CellRangeAddress?, colTypes: Map<String, ColType>, trim_ws: Boolean, guessMax: Int): DataFrame {
+private fun readExcelSheet(xlSheet: Sheet, range: CellRangeAddress?, colTypes: Map<String, ColType>, trim_ws: Boolean, guessMax: Int, na: String): DataFrame {
     var df = emptyDataFrame()
     val rowIterator = xlSheet.rowIterator()
     var startingRowCounter = 1
@@ -391,7 +390,7 @@ private fun readExcelSheet(xlSheet: Sheet, range: CellRangeAddress?, colTypes: M
     while (rowIterator.hasNext() && currentRow.rowNum < cellRange.lastRow) {
         currentRow = rowIterator.next()
         valueList = mutableListOf()
-        val hasValues = readExcelRow(lastCell, currentRow, valueList, cellRange, trim_ws)
+        val hasValues = readExcelRow(lastCell, currentRow, valueList, cellRange, trim_ws, na)
 
         //Prevent Excel reading blank lines (whose contents have been cleared but the lines weren't deleted)
         if (!hasValues)
@@ -416,6 +415,7 @@ private fun readExcelRow(
         valueList: MutableList<String>,
         cellRange: CellRangeAddress,
         trim_ws: Boolean,
+        na: String,
 ): Boolean {
     val dataFormatter = DataFormatter()
     var cellCounter = 0
@@ -429,14 +429,14 @@ private fun readExcelRow(
         }
         currentCell = currentRow.getCell(cellCounter)
 
-        currentValue = ""
+        currentValue = na
         currentCell?.let { currentValue = dataFormatter.formatCellValue(currentCell) }
         if (trim_ws)
             currentValue = currentValue.trim()
         valueList.add(currentValue)
         cellCounter++
 
-        if (currentValue != "")
+        if (currentValue != na)
             hasValues = true
     }
     return hasValues
