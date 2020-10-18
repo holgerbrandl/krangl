@@ -3,6 +3,7 @@ package krangl.test
 import io.kotlintest.shouldBe
 import krangl.*
 import org.apache.commons.csv.CSVFormat
+import org.apache.poi.ss.util.CellRangeAddress
 import org.junit.Test
 import java.io.File
 import java.io.FileReader
@@ -274,7 +275,7 @@ class ExcelTests {
     @Test
     fun `it should read excel file`(){
         val headerHigherThanContentDF = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
-                "FirstSheet","A105:A110" )
+                "FirstSheet",CellRangeAddress.valueOf("A105:A110" ))
 
         headerHigherThanContentDF shouldBe emptyDataFrame()
 
@@ -292,9 +293,16 @@ class ExcelTests {
 
         // Test sheet by index + cell range
         val cellRangeTestDF = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
-                sheet = 1, trim_ws = true, range = "E3:J103" )
+                sheet = 1, trim_ws = true, cellRange = CellRangeAddress.valueOf("E3:J103" ) )
 
         cellRangeTestDF shouldBe df
+
+        // Test defaulted cellRange's correctness on sheet with empty rows/cols
+        val defaultCellRangeTestDF = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
+                sheet = 1, trim_ws = true )
+
+        defaultCellRangeTestDF shouldBe cellRangeTestDF
+
     }
     @Test
     fun `it should write to excel`(){

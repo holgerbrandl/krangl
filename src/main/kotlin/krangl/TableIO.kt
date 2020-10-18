@@ -341,29 +341,29 @@ fun DataFrame.writeCSV(
  * Returns a DataFrame with the contents from an Excel file sheet
  */
 @JvmOverloads
-fun DataFrame.Companion.readExcel(path: String, sheet: Int, range: String = "", colTypes: Map<String, ColType> = mapOf(), trim_ws: Boolean = false, guessMax: Int = 100): DataFrame {
+fun DataFrame.Companion.readExcel(path: String, sheet: Int, cellRange: CellRangeAddress? = null, colTypes: Map<String, ColType> = mapOf(), trim_ws: Boolean = false, guessMax: Int = 100): DataFrame {
     val inputStream = FileInputStream(path)
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheetAt(sheet) ?: throw IOException ("Sheet at index $sheet not found")
-    return readExcelSheet(xlSheet, range, colTypes, trim_ws, guessMax)
+    return readExcelSheet(xlSheet, cellRange, colTypes, trim_ws, guessMax)
 }
 
 /**
  * Returns a DataFrame with the contents from an Excel file sheet
  */
 @JvmOverloads
-fun DataFrame.Companion.readExcel(path: String, sheet: String, range: String = "", colTypes: Map<String, ColType> = mapOf(), trim_ws: Boolean = false, guessMax: Int = 100): DataFrame {
+fun DataFrame.Companion.readExcel(path: String, sheet: String, cellRange: CellRangeAddress? = null, colTypes: Map<String, ColType> = mapOf(), trim_ws: Boolean = false, guessMax: Int = 100): DataFrame {
     val inputStream = FileInputStream(path)
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheet(sheet) ?: throw IOException ("Sheet $sheet not found")
-    return readExcelSheet(xlSheet, range, colTypes, trim_ws, guessMax)
+    return readExcelSheet(xlSheet, cellRange, colTypes, trim_ws, guessMax)
 }
 
-private fun readExcelSheet(xlSheet: Sheet, range: String, colTypes: Map<String, ColType>, trim_ws: Boolean, guessMax: Int): DataFrame {
+private fun readExcelSheet(xlSheet: Sheet, range: CellRangeAddress?, colTypes: Map<String, ColType>, trim_ws: Boolean, guessMax: Int): DataFrame {
     var df = emptyDataFrame()
     val rowIterator = xlSheet.rowIterator()
     var startingRowCounter = 1
-    val cellRange = getCellAddressFromString(range)
+    val cellRange = range ?: getDefaultCellAddress(xlSheet)
 
     if (!rowIterator.hasNext())
         return df
@@ -402,17 +402,12 @@ private fun readExcelSheet(xlSheet: Sheet, range: String, colTypes: Map<String, 
     return assignColumnTypes(df, colTypes, guessMax)
 }
 
-private fun getCellAddressFromString(range: String): CellRangeAddress{
-    val useRange =
-            if (range.isBlank())
-                "A1:XFD1048576"
-            else
-                range
+private fun getDefaultCellAddress(xlSheet: Sheet): CellRangeAddress{
 
-    val cellSplit = useRange.split(":")
-    val firstCell = CellReference(cellSplit[0])
-    val lastCell = CellReference(cellSplit[1])
-    return CellRangeAddress(firstCell.row, lastCell.row, firstCell.col.toInt(), lastCell.col.toInt())
+    return CellRangeAddress(xlSheet.firstRowNum,
+            xlSheet.lastRowNum,
+            xlSheet.getRow(xlSheet.firstRowNum).firstCellNum.toInt(),
+            xlSheet.getRow(xlSheet.firstRowNum).lastCellNum.toInt())
 }
 
 private fun readExcelRow(

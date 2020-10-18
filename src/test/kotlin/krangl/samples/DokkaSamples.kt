@@ -1,6 +1,7 @@
 package krangl.samples
 
 import krangl.*
+import org.apache.poi.ss.util.CellRangeAddress
 import java.time.LocalDate
 
 
@@ -161,7 +162,7 @@ fun readExcelExample(){
      df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0)
 
     // Read excel file only in specified cell range
-    df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0, range = "A1:D10")
+    df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0, cellRange = CellRangeAddress.valueOf("A1:D10"))
 
     // Read excel file without any leading or trailing whitespace
     df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0, trim_ws = true)
