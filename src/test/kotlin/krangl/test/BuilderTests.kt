@@ -303,6 +303,24 @@ class ExcelTests {
 
         defaultCellRangeTestDF shouldBe cellRangeTestDF
 
+        // Test stop at blank lines
+        val shouldStopAtBlankDF = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
+                sheet = 2, trim_ws = true, cellRange = CellRangeAddress.valueOf("E3:J10" ))
+
+        shouldStopAtBlankDF.nrow shouldBe 4
+
+        // Test continue past blank lines
+        var shouldContinueAtBlankDF = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
+                sheet = 2, trim_ws = true, cellRange = CellRangeAddress.valueOf("E3:J10" ), stopAtBlankLine = false )
+
+        shouldContinueAtBlankDF.nrow shouldBe 6
+
+        // Test continue past blank lines
+        shouldContinueAtBlankDF = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
+                sheet = 2, trim_ws = true, cellRange = CellRangeAddress.valueOf("E3:J10" ), stopAtBlankLine = false, includeBlankLines = true )
+
+        shouldContinueAtBlankDF.nrow shouldBe 7
+
     }
     @Test
     fun `it should write to excel`(){

@@ -174,7 +174,13 @@ fun readExcelExample(){
     df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0, guessMax = 10)
 
     // Specify a value for empty cell data (defaults to NA)
-    df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0, na = "No Data")
+    df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 2, na = "No Data")
+
+    // Continue reading past first blank
+    df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 2, stopAtBlankLine = false)
+
+    // Continue reading past first blank row and include the blank row entries
+    df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 2, stopAtBlankLine = false, includeBlankLines = true)
 }
 
 fun writeExcelExample(){
