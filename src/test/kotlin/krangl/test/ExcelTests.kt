@@ -46,7 +46,7 @@ class ExcelTests {
 
         // Test sheet by index + cell range
         val cellRangeTestDF = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
-                sheet = 1, cellRange = CellRangeAddress.valueOf("E3:J103" ), trim_ws = true )
+                sheet = 1, cellRange = CellRangeAddress.valueOf("E5:J105" ), trim_ws = true )
 
         // Test defaulted cellRange's correctness on sheet with empty rows/cols
         val defaultCellRangeTestDF = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx",
