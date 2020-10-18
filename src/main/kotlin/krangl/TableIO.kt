@@ -340,7 +340,17 @@ fun DataFrame.writeCSV(
  * Returns a DataFrame with the contents from an Excel file sheet
  */
 @JvmOverloads
-fun DataFrame.Companion.readExcel(path: String, sheet: Int, cellRange: CellRangeAddress? = null, colTypes: Map<String, ColType> = mapOf(), trim_ws: Boolean = false, guessMax: Int = 100, na: String = MISSING_VALUE, stopAtBlankLine: Boolean = true, includeBlankLines: Boolean =  false): DataFrame {
+fun DataFrame.Companion.readExcel(
+        path: String,
+        sheet: Int,
+        cellRange: CellRangeAddress? = null,
+        colTypes: Map<String, ColType> = mapOf(),
+        trim_ws: Boolean = false,
+        guessMax: Int = 100,
+        na: String = MISSING_VALUE,
+        stopAtBlankLine: Boolean = true,
+        includeBlankLines: Boolean =  false,
+): DataFrame {
     val inputStream = FileInputStream(path)
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheetAt(sheet) ?: throw IOException ("Sheet at index $sheet not found")
@@ -351,7 +361,17 @@ fun DataFrame.Companion.readExcel(path: String, sheet: Int, cellRange: CellRange
  * Returns a DataFrame with the contents from an Excel file sheet
  */
 @JvmOverloads
-fun DataFrame.Companion.readExcel(path: String, sheet: String, cellRange: CellRangeAddress? = null, colTypes: Map<String, ColType> = mapOf(), trim_ws: Boolean = false, guessMax: Int = 100, na: String = MISSING_VALUE, stopAtBlankLine: Boolean = true, includeBlankLines: Boolean =  false): DataFrame {
+fun DataFrame.Companion.readExcel(
+        path: String,
+        sheet: String,
+        cellRange: CellRangeAddress? = null,
+        colTypes: Map<String, ColType> = mapOf(),
+        trim_ws: Boolean = false,
+        guessMax: Int = 100,
+        na: String = MISSING_VALUE,
+        stopAtBlankLine: Boolean = true,
+        includeBlankLines: Boolean =  false,
+): DataFrame {
     val inputStream = FileInputStream(path)
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheet(sheet) ?: throw IOException ("Sheet $sheet not found")
@@ -361,20 +381,18 @@ fun DataFrame.Companion.readExcel(path: String, sheet: String, cellRange: CellRa
 private fun readExcelSheet(xlSheet: Sheet, range: CellRangeAddress?, colTypes: Map<String, ColType>, trim_ws: Boolean, guessMax: Int, na: String, stopAtBlankLine: Boolean, includeBlankLines: Boolean): DataFrame {
     var df = emptyDataFrame()
     val rowIterator = xlSheet.rowIterator()
-    var startingRowCounter = 1
     val cellRange = range ?: getDefaultCellAddress(xlSheet)
 
     if (!rowIterator.hasNext())
         return df
 
-    //Skip lines until starting row number
+    // Skip lines until starting row number
     var currentRow = rowIterator.next()
     while (currentRow.rowNum < cellRange.firstRow - 1) {
         if (!rowIterator.hasNext())
             return df
         else {
             currentRow = rowIterator.next()
-            startingRowCounter++
         }
     }
 
@@ -384,13 +402,13 @@ private fun readExcelSheet(xlSheet: Sheet, range: CellRangeAddress?, colTypes: M
     // Get column names
     val columnResults = getExcelColumnNames(cellIterator, df, cellRange)
     df = columnResults.first
-    val lastCell = columnResults.second
+    cellRange.lastColumn = columnResults.second  // Stops at first empty column header
 
     //Get rows
     while (rowIterator.hasNext() && currentRow.rowNum < cellRange.lastRow) {
         currentRow = rowIterator.next()
         valueList = mutableListOf()
-        val hasValues = readExcelRow(lastCell, currentRow, valueList, cellRange, trim_ws, na)
+        val hasValues = readExcelRow(currentRow, valueList, cellRange, trim_ws, na)
 
         //Prevent Excel reading blank lines (whose contents have been cleared but the lines weren't deleted)
         if (hasValues)
@@ -414,7 +432,6 @@ private fun getDefaultCellAddress(xlSheet: Sheet): CellRangeAddress{
 }
 
 private fun readExcelRow(
-        lastCell: Int,
         currentRow: Row,
         valueList: MutableList<String>,
         cellRange: CellRangeAddress,
@@ -426,7 +443,7 @@ private fun readExcelRow(
     var currentCell : Cell?
     var currentValue : String
     var hasValues = false
-    while (cellCounter <= (lastCell + cellRange.firstColumn)) { //iterator skips blank cells, this ensures all are read
+    while (cellCounter <= cellRange.lastColumn) { //iterator skips blank cells, this ensures all are read
         if (cellCounter < cellRange.firstColumn){
             cellCounter++
             continue
@@ -454,9 +471,8 @@ private fun getExcelColumnNames(
         cellRange: CellRangeAddress
 ): Pair<DataFrame, Int> {
     var currentCell : Cell?
-    var lastAddress = cellRange.firstColumn
+    var lastColumn = cellRange.firstColumn
     var df1 = df
-    var lastCell = -1
     while (cellIterator.hasNext()) {
         currentCell = cellIterator.next()
 
@@ -465,12 +481,11 @@ private fun getExcelColumnNames(
         else if (currentCell.columnIndex > cellRange.lastColumn)
             break
 
-        if (currentCell.address.column > lastAddress + 1) break
+        if (currentCell.columnIndex > lastColumn + 1) break // Found empty column
         df1 = df1.addColumn(currentCell.toString()) { }
-        lastAddress = currentCell.address.column
-        lastCell++ //It'll only read columns until the first blank header
+        lastColumn = currentCell.columnIndex
     }
-    return Pair(df1, lastCell)
+    return Pair(df1, lastColumn)
 }
 
 private fun assignColumnTypes(df: DataFrame, colTypes: Map<String, ColType>, guessMax: Int = 100): DataFrame{
