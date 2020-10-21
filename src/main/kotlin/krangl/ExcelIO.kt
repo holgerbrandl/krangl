@@ -28,7 +28,10 @@ fun DataFrame.Companion.readExcel(
     val inputStream = FileInputStream(path)
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheetAt(sheet) ?: throw IOException ("Sheet at index $sheet not found")
-    return readExcelSheet(xlSheet, cellRange, colTypes, trim_ws, guessMax, na, stopAtBlankLine, includeBlankLines)
+    val df = readExcelSheet(xlSheet, cellRange, colTypes, trim_ws, guessMax, na, stopAtBlankLine, includeBlankLines)
+    xlWBook.close()
+    inputStream.close()
+    return df
 }
 
 /**
@@ -49,7 +52,10 @@ fun DataFrame.Companion.readExcel(
     val inputStream = FileInputStream(path)
     val xlWBook = WorkbookFactory.create(inputStream)
     val xlSheet = xlWBook.getSheet(sheet) ?: throw IOException ("Sheet $sheet not found")
-    return readExcelSheet(xlSheet, cellRange, colTypes, trim_ws, guessMax, na, stopAtBlankLine, includeBlankLines)
+    val df = readExcelSheet(xlSheet, cellRange, colTypes, trim_ws, guessMax, na, stopAtBlankLine, includeBlankLines)
+    xlWBook.close()
+    inputStream.close()
+    return df
 }
 
 private fun readExcelSheet(xlSheet: Sheet, range: CellRangeAddress?, colTypes: Map<String, ColType>, trim_ws: Boolean, guessMax: Int, na: String, stopAtBlankLine: Boolean, includeBlankLines: Boolean): DataFrame {
