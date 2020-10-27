@@ -25,12 +25,16 @@ fun DataFrame.Companion.readExcel(
         stopAtBlankLine: Boolean = true,
         includeBlankLines: Boolean =  false,
 ): DataFrame {
+    val df: DataFrame
     val inputStream = FileInputStream(path)
     val xlWBook = WorkbookFactory.create(inputStream)
-    val xlSheet = xlWBook.getSheetAt(sheet) ?: throw IOException ("Sheet at index $sheet not found")
-    val df = readExcelSheet(xlSheet, cellRange, colTypes, trim_ws, guessMax, na, stopAtBlankLine, includeBlankLines)
-    xlWBook.close()
-    inputStream.close()
+    try {
+        val xlSheet = xlWBook.getSheetAt(sheet) ?: throw IOException("Sheet at index $sheet not found")
+        df = readExcelSheet(xlSheet, cellRange, colTypes, trim_ws, guessMax, na, stopAtBlankLine, includeBlankLines)
+    } finally {
+        xlWBook.close()
+        inputStream.close()
+    }
     return df
 }
 
@@ -49,12 +53,16 @@ fun DataFrame.Companion.readExcel(
         stopAtBlankLine: Boolean = true,
         includeBlankLines: Boolean =  false,
 ): DataFrame {
+    val df: DataFrame
     val inputStream = FileInputStream(path)
     val xlWBook = WorkbookFactory.create(inputStream)
-    val xlSheet = xlWBook.getSheet(sheet) ?: throw IOException ("Sheet $sheet not found")
-    val df = readExcelSheet(xlSheet, cellRange, colTypes, trim_ws, guessMax, na, stopAtBlankLine, includeBlankLines)
-    xlWBook.close()
-    inputStream.close()
+    try {
+        val xlSheet = xlWBook.getSheet(sheet) ?: throw IOException("Sheet $sheet not found")
+        df = readExcelSheet(xlSheet, cellRange, colTypes, trim_ws, guessMax, na, stopAtBlankLine, includeBlankLines)
+    } finally {
+        xlWBook.close()
+        inputStream.close()
+    }
     return df
 }
 
