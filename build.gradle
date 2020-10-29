@@ -47,9 +47,9 @@ dependencies {
 //    testCompile "org.jetbrains.kotlin:kotlin-script-runtime:$kotlin_version"
 
 
-    implementation "org.apache.commons:commons-csv:1.6" // cant upgrade to 1.8 because of https://issues.apache.org/jira/browse/CSV-257
+    api  "org.apache.commons:commons-csv:1.6" // cant upgrade to 1.8 because of https://issues.apache.org/jira/browse/CSV-257
 //    compile "com.univocity:univocity-parsers:2.7.5"
-    implementation 'com.beust:klaxon:5.0.1'//    compile 'me.tongfei:progressbar:0.5.5'
+    api  'com.beust:klaxon:5.0.1'//    compile 'me.tongfei:progressbar:0.5.5'
 
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
@@ -122,7 +122,8 @@ task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
 //http://stackoverflow.com/questions/34377367/why-is-gradle-install-replacing-my-version-with-unspecified
 group 'de.mpicbg.scicomp'
 //version '0.13'
-version '0.14'
+//version '0.15-SNAPSHOT'
+version '0.14.1'
 
 
 artifacts {
