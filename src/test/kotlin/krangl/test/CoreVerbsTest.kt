@@ -260,6 +260,14 @@ class AddColumnTest {
         data.addColumn("value") { it["price"] * it["num_items"] }["value"].toDoubles() shouldBe
                 arrayOf<Double?>(33.0, 132.0, 80.0)
     }
+
+
+    @Test
+    fun `it should do implicit column type casts`() {
+        dataFrameOf("foo")(1, 2, 3).addColumn("stringified_foo") { it["foo"].toStrings() }.schema()
+        dataFrameOf("foo")("1", "2", "3").addColumn("parsed_foo") { it["foo"].toInts() }.schema()
+    }
+
 }
 
 
@@ -370,6 +378,21 @@ class FilterTest {
             nrow shouldBe 44
         }
     }
+
+    @Test
+    fun `it should support filtering by list`() {
+        irisData.filter { it["Species"].inList("setosa", "versicolor") }.apply {
+            print()
+            nrow shouldBe 100
+        }
+    }
+
+}
+
+fun <T> DataCol.inList(vararg filters: T): BooleanArray {
+    val filtersList = listOf(*filters)
+
+    return values().map { filtersList.contains(it) }.toBooleanArray()
 }
 
 
@@ -809,7 +832,7 @@ class GroupedDataTest {
     }
 
     @Test
-    fun `it should preserve column shape when grouping data-frame without rows`(){
+    fun `it should preserve column shape when grouping data-frame without rows`() {
         val df = dataFrameOf(StringCol("foo", emptyList()), IntCol("bar", emptyList()))
         df.print()
 
