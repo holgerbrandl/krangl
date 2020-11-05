@@ -4,7 +4,7 @@ krangl Release History
 v0.15
 -----
 
-* New: Excel read/write support (PR [#97](https://github.com/holgerbrandl/krangl/pull/97/) by [LeandroC89](https://github.com/LeandroC89))
+* [#97](https://github.com/holgerbrandl/krangl/pull/97/) Added Excel read/write support (by [LeandroC89](https://github.com/LeandroC89))
 ```kotlin
 
 // read
@@ -16,7 +16,7 @@ df.writeExcel("results.xslx")
 
 ```
 
-* Improved column type casts (fixes [#95](https://github.com/holgerbrandl/kscript/issues/95))
+* [#95](https://github.com/holgerbrandl/kscript/issues/95) Improved column type casts
 ```
 dataFrameOf("foo")(1, 2, 3).addColumn("stringified_foo") { it["foo"].toStrings() }.schema()
 > DataFrame with 3 observations
@@ -30,14 +30,15 @@ dataFrameOf("foo")("1", "2", "3").addColumn("parsed_foo") { it["foo"].toInts() }
 > parsed_foo  [Int]  1, 2, 3
 ```
 
-* Added filtering by list (similar to R's `%in%` operator)
+* [#99](https://github.com/holgerbrandl/kscript/issues/99) Added filtering by list (similar to R's `%in%` operator)
 ```kotlin
 irisData.filter { it["Species"].inList("setosa", "versicolor")  }
 ```
 
+* [#84](https://github.com/holgerbrandl/kscript/issues/84) Builder now supports mixed numbers in column
 * Fixed bugs in `join`
 * Improved data-frame printing
-* Improved SQL bindings (fixed [#100](https://github.com/holgerbrandl/kscript/issues/100))
+* [#100](https://github.com/holgerbrandl/kscript/issues/100) Improved SQL bindings
 
 v0.14
 -----

@@ -316,7 +316,7 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         var groups = groupIndices.map { DataGroup(it.groupHash, extractGroupByIndex(it, this)) }
 
         // preserve column structure in empty data-frames
-        if(groups.isEmpty()){
+        if (groups.isEmpty()) {
             groups = listOf(DataGroup(listOf(1), this))
         }
 
@@ -449,11 +449,11 @@ object ArrayUtils {
         isListOfType<String?>(mutation) -> StringCol(name, mutation as List<String?>)
         isListOfType<Double?>(mutation) -> DoubleCol(name, mutation as List<Double?>)
         isListOfType<Boolean?>(mutation) -> BooleanCol(name, mutation as List<Boolean?>)
+        isMixedNumeric(mutation) -> DoubleCol(name, mutation.map { (it as? Number)?.toDouble() })
         mutation.isEmpty() -> AnyCol(name, emptyArray())
         else -> AnyCol(name, mutation)
         //    else -> throw UnsupportedOperationException()
     }
-
 }
 
 inline fun <reified T> isListOfType(items: List<Any?>): Boolean {
@@ -461,6 +461,18 @@ inline fun <reified T> isListOfType(items: List<Any?>): Boolean {
 
     while (it.hasNext()) {
         if (it.next() !is T) return false
+    }
+
+    return true
+}
+
+
+private fun isMixedNumeric(mutation: List<*>): Boolean {
+    val it = mutation.iterator()
+
+    while (it.hasNext()) {
+        val next = it.next()
+        if (!(next == null || next is Double || next is Int)) return false
     }
 
     return true

@@ -1,5 +1,7 @@
 package krangl.test
 
+import io.kotlintest.matchers.beInstanceOf
+import io.kotlintest.should
 import io.kotlintest.shouldBe
 import krangl.*
 import org.apache.commons.csv.CSVFormat
@@ -194,6 +196,25 @@ class BuilderTests {
             names shouldBe listOf("name", "age")
         }
     }
+
+    // https://github.com/holgerbrandl/krangl/issues/84
+    @Test
+    fun `it should support mixed numbers in column`() {
+        val sales = dataFrameOf("product", "sales")(
+                "A", 32,
+                "A", 12.3,
+                "A", 24,
+                "B", null,
+                "B", 44)
+
+
+        sales.apply {
+            schema()
+            print()
+
+            this["sales"] should beInstanceOf<DoubleCol>()
+        }
+    }
 }
 
 
@@ -271,10 +292,10 @@ class JsonTests {
     }
 }
 
-class DataBaseTests{
+class DataBaseTests {
 
     @Test
-    fun `it should parse a table from a database into a dataframe`(){
+    fun `it should parse a table from a database into a dataframe`() {
 //        Class.forName("org.postgresql.Driver")
 
         val conn = DriverManager.getConnection("jdbc:h2:mem:")
