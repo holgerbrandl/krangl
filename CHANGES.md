@@ -5,10 +5,39 @@ v0.15
 -----
 
 * New: Excel read/write support (PR [#97](https://github.com/holgerbrandl/krangl/pull/97/) by [LeandroC89](https://github.com/LeandroC89))
-* Improved SQL bindings (fixed [#100](https://github.com/holgerbrandl/kscript/issues/100))
-* Improved data-frame printing
-* Fixed bugs in `join`
+```kotlin
+
+// read
+df = DataFrame.readExcel("data.xlsx", sheetName = "sales")
+df = DataFrame.readExcel("data.xlsx", cellRange = CellRangeAddress.valueOf("A1:D10"))
+
+// write
+df.writeExcel("results.xslx")
+
+```
+
 * Improved column type casts (fixes [#95](https://github.com/holgerbrandl/kscript/issues/95))
+```
+dataFrameOf("foo")(1, 2, 3).addColumn("stringified_foo") { it["foo"].toStrings() }.schema()
+> DataFrame with 3 observations
+> foo              [Int]  1, 2, 3
+> stringified_foo  [Str]  1, 2, 3
+
+dataFrameOf("foo")("1", "2", "3").addColumn("parsed_foo") { it["foo"].toInts() }.schema()
+
+> DataFrame with 3 observations
+> foo         [Str]  1, 2, 3
+> parsed_foo  [Int]  1, 2, 3
+```
+
+* Added filtering by list (similar to R's `%in%` operator)
+```kotlin
+irisData.filter { it["Species"].inList("setosa", "versicolor")  }
+```
+
+* Fixed bugs in `join`
+* Improved data-frame printing
+* Improved SQL bindings (fixed [#100](https://github.com/holgerbrandl/kscript/issues/100))
 
 v0.14
 -----
