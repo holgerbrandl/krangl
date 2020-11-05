@@ -223,8 +223,8 @@ class AddColumnTest {
 
     @Test
     fun `it should gracefully reject incorrect type casts`() {
-        shouldThrow<ColumnTypeCastException> {
-            sleepData.addColumn("foo") { it["vore"].asInts() }
+        shouldThrow<NumberFormatException> {
+            sleepData.addColumn("foo") { it["vore"].toInts() }
         }
 
     }
@@ -249,15 +249,15 @@ class AddColumnTest {
                 "macbook", 12.5, 20.0, 4, false
         )
 
-        data.addColumn("price_per_kg") { it["price"] / it["weight"] }["price_per_kg"].asDoubles() shouldBe
+        data.addColumn("price_per_kg") { it["price"] / it["weight"] }["price_per_kg"].toDoubles() shouldBe
                 arrayOf<Double?>(0.5, 4.0, 1.6)
 
-        data.addColumn("value") { it["num_items"] * it["price"] }["value"].asDoubles() shouldBe
+        data.addColumn("value") { it["num_items"] * it["price"] }["value"].toDoubles() shouldBe
                 arrayOf<Double?>(33.0, 132.0, 80.0)
 
 
         // same but with reversed arguments
-        data.addColumn("value") { it["price"] * it["num_items"] }["value"].asDoubles() shouldBe
+        data.addColumn("value") { it["price"] * it["num_items"] }["value"].toDoubles() shouldBe
                 arrayOf<Double?>(33.0, 132.0, 80.0)
     }
 }
@@ -321,7 +321,7 @@ class FilterTest {
 
         // fixed sampling of grouped data should be done per group
         val groupCounts = sleepData.groupBy("vore").sampleN(2).count("vore")
-        groupCounts["n"].asInts().distinct().apply {
+        groupCounts["n"].toInts().distinct().apply {
             size shouldBe 1
             first() shouldBe 2
         }
@@ -333,7 +333,7 @@ class FilterTest {
                 .count("vore")
                 .filter({ it["vore"] eq "omni" })
                 .apply {
-                    this["n"].asInts().first() shouldBe 10
+                    this["n"].toInts().first() shouldBe 10
                 }
     }
 
@@ -413,7 +413,7 @@ class SortTest() {
                 .run {
                     print(values().asList())
                     get(0) shouldBe 1
-                    asInts() shouldBe arrayOf<Int?>(1, 3, 5, 5, 6, null)
+                    toInts() shouldBe arrayOf<Int?>(1, 3, 5, 5, 6, null)
                 }
 
         data.sortedBy { it["user_id"] }["user_id"][0] shouldBe 1
@@ -445,13 +445,13 @@ class SortTest() {
                 //            .filter { it["order"].isEqualTo("Artiodactyla") }
                 //            .also { print(it) }
                 .sortedBy("order", "sleep_total").run {
-                    get("sleep_total").asDoubles()[1] shouldBe 1.9
+                    get("sleep_total").toDoubles()[1] shouldBe 1.9
                 }
 
         // also mix asc and desc sorting
         sleepData
                 .sortedBy({ it["order"] }, { desc("sleep_total") }).run {
-                    get("sleep_total").asDoubles()[1] shouldBe 9.1 // most sleep one among Artiodactyla
+                    get("sleep_total").toDoubles()[1] shouldBe 9.1 // most sleep one among Artiodactyla
                 }
 
     }

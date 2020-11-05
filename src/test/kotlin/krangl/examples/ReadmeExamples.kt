@@ -43,7 +43,7 @@ val newDF = df.addColumn("full_name") { it["first_name"] + " " + it["last_name"]
 df.addColumn("user_id") { it["last_name"] + "_id" + rowNumber }
 
 // Create new attributes with string operations like matching, splitting or extraction.
-df.addColumn("with_anz") { it["first_name"].asStrings().map { it!!.contains("anz") } }
+df.addColumn("with_anz") { it["first_name"].toStrings().map { it!!.contains("anz") } }
 
 // Note: krangl is using 'null' as missing value, and provides convenience methods to process non-NA bits
 df.addColumn("first_name_initial") { it["first_name"].map<String>{ it.first() } }
@@ -60,7 +60,7 @@ df.sortedBy("age")
 // and add secondary sorting attributes as varargs
 df.sortedBy("age", "weight")
 df.sortedByDescending("age")
-df.sortedBy { it["weight"].asInts()  }
+df.sortedBy { it["weight"].toInts() }
 
 
 // Subset columns with select

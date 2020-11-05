@@ -54,7 +54,7 @@ fun groupByExamples() {
 fun addColumnExamples() {
 
     flightsData.addColumn("delay_category") { df ->
-        where(df["dep_delay"].asDoubles().mapNonNull { Math.abs(it) > 3 }.nullAsFalse(), "red", "green")
+        where(df["dep_delay"].toDoubles().mapNonNull { Math.abs(it) > 3 }.nullAsFalse(), "red", "green")
     }
 }
 

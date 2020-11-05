@@ -6,7 +6,7 @@ import krangl.DataFrame;
 import krangl.JoinsKt;
 import krangl.TableIOKt;
 
-import static krangl.ColumnsKt.asDoubles;
+import static krangl.ColumnsKt.toDoubles;
 import static krangl.Extensions.print;
 import static krangl.MathHelpersKt.mean;
 import static krangl.SelectKt.startsWith;
@@ -30,8 +30,8 @@ public class JavaKrangl {
 
 //        df.getNrow()
         joinResult.summarize(
-                new ColumnFormula("mean_time", (df1, dataFrame2) -> mean(asDoubles(df1.get("time")))),
-                new ColumnFormula("median_time", (df12, dataFrame2) -> mean(asDoubles(df12.get("time"))))
+                new ColumnFormula("mean_time", (df1, dataFrame2) -> mean(toDoubles(df1.get("time")))),
+                new ColumnFormula("median_time", (df12, dataFrame2) -> mean(toDoubles(df12.get("time"))))
         );
 
         print(joinResult);

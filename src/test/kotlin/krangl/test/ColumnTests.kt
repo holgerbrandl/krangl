@@ -69,7 +69,7 @@ class ColumnTests {
         //        irisData.addColumn("foo"){ df -> (df["Sepal.Length"] gt 1.3).map{ if(it) 1.3 else df["Petal.Length"].asDoubles() } }.schema()
 
         flightsData.addColumn("delay_category") { df ->
-            where(df["dep_delay"].asDoubles().mapNonNull { abs(it) > 3 }.nullAsFalse(), "red", "green")
+            where(df["dep_delay"].toDoubles().mapNonNull { abs(it) > 3 }.nullAsFalse(), "red", "green")
         }
     }
 

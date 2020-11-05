@@ -50,7 +50,7 @@ class InnerJoinTests {
 
     @Test
     fun `it should perform an inner join`() {
-        val voreInfo = sleepData.groupBy("vore").summarize("vore_mod" to { it["vore"].asStrings().first() + "__2" })
+        val voreInfo = sleepData.groupBy("vore").summarize("vore_mod" to { it["vore"].toStrings().first() + "__2" })
         voreInfo.print()
 
         val sleepWithInfo = sleepData.leftJoin(voreInfo) // auto detect 'by' here

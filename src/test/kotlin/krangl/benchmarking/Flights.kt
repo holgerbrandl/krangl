@@ -75,7 +75,7 @@ fun main(args: Array<String>) {
 
     flights.schema()
 
-    val f = flights["foo"].asInts()
+    val f = flights["foo"].toInts()
 
 
     /*

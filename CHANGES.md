@@ -1,6 +1,15 @@
 krangl Release History
 ======================
 
+v0.15
+-----
+
+* New: Excel read/write support (PR [#97](https://github.com/holgerbrandl/krangl/pull/97/) by [LeandroC89](https://github.com/LeandroC89))
+* Improved SQL bindings (fixed [#100](https://github.com/holgerbrandl/kscript/issues/100))
+* Improved data-frame printing
+* Fixed bugs in `join`
+* Improved column type casts (fixes [#95](https://github.com/holgerbrandl/kscript/issues/95))
+
 v0.14
 -----
 
