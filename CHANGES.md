@@ -4,6 +4,7 @@ krangl Release History
 v0.15
 -----
 
+New Features
 * [#97](https://github.com/holgerbrandl/krangl/pull/97/) Added Excel read/write support (by [LeandroC89](https://github.com/LeandroC89))
 ```kotlin
 
@@ -35,10 +36,11 @@ dataFrameOf("foo")("1", "2", "3").addColumn("parsed_foo") { it["foo"].toInts() }
 irisData.filter { it["Species"].inList("setosa", "versicolor")  }
 ```
 
+Bug Fixes
 * [#84](https://github.com/holgerbrandl/kscript/issues/84) Builder now supports mixed numbers in column
-* Fixed bugs in `join`
-* Improved data-frame printing
+* [#96](https://github.com/holgerbrandl/kscript/issues/96) & [#94](https://github.com/holgerbrandl/kscript/issues/94) Fixed bugs in `join`
 * [#100](https://github.com/holgerbrandl/kscript/issues/100) Improved SQL bindings
+* [#99](https://github.com/holgerbrandl/kscript/issues/99) Fixed median
 
 v0.14
 -----

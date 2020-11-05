@@ -1,9 +1,10 @@
 package krangl.playground
 
-import com.github.holgerbrandl.kravis.spec.EncodingChannel.*
-import com.github.holgerbrandl.kravis.spec.MarkType
-import com.github.holgerbrandl.kravis.spec.plotOf
 import krangl.*
+import kravis.geomBar
+import kravis.geomCol
+import kravis.geomPoint
+import kravis.plot
 import smile.projection.PCA
 
 
@@ -11,33 +12,29 @@ object SmilePCA {
     @JvmStatic
     fun main(args: Array<String>) {
         val pointsArray = arrayOf(
-            doubleArrayOf(-1.0, -1.0),
-            doubleArrayOf(-1.0, 1.0),
-            doubleArrayOf(1.0, 1.0)
+                doubleArrayOf(-1.0, -1.0),
+                doubleArrayOf(-1.0, 1.0),
+                doubleArrayOf(1.0, 1.0)
         )
 
         val pca = smile.projection.PCA(pointsArray)
         pca.varianceProportion
 
-        plotOf(pca.varianceProportion.toList()) {
-            encoding(x) { this }
-        }.render()
+        pca.varianceProportion.toList().plot({ it }).geomBar().show()
 
-        plotOf(pca.varianceProportion.withIndex()) {
-            mark(MarkType.bar)
-            encoding(x) { index }
-            encoding(y) { this.value }
-        }.render()
+        pca.varianceProportion.withIndex().plot({ it.index }, { it.value }).geomCol().show()
 
 
         val projection = pca.setProjection(2).projection
 
-        plotOf(projection.array().withIndex()) {
-            mark(MarkType.text)
-            encoding(x) { value[0] }
-            encoding(y) { value[1] }
-            encoding(text) { "PC" + index }
-        }.render()
+
+        projection.array().withIndex().plot(x={ it.value[0] }, y = { it.value[1] }, label = { "PC" + it.index }).geomPoint().show()
+//        plotOf(projection.array().withIndex()) {
+//            mark(MarkType.text)
+//            encoding(x) { value[0] }
+//            encoding(y) { value[1] }
+//            encoding(text) { "PC" + index }
+//        }.render()
     }
 }
 
@@ -47,28 +44,14 @@ object IrisPCA {
         val irisArray = irisData.remove("Species").toArray()
 
         val pca = PCA(irisArray)
-        //        pca.varianceProportion
 
-        plotOf(pca.varianceProportion.toList()) {
-            encoding(x) { this }
-        }.render()
+        pca.varianceProportion.toList().plot({ it }).geomBar().show()
 
-        plotOf(pca.varianceProportion.withIndex()) {
-            mark(MarkType.bar)
-            encoding(x) { index }
-            encoding(y) { this.value }
-        }.render()
-
+        pca.varianceProportion.withIndex().plot({ it.index }, { it.value }).geomCol().show()
 
         val projection = pca.setProjection(2).projection
 
-        plotOf(projection.transpose().array().withIndex()) {
-            mark(MarkType.point)
-            encoding(x) { value[0] }
-            encoding(y) { value[1] }
-            //            encoding(text){ "PC"+index}
-        }.render()
-
+        projection.array().withIndex().plot(x={ it.value[0] }, y = { it.value[1] }, label = { "PC" + it.index }).geomPoint().show()
 
         // merge back in the group labels to color scatter
         var pc12 = projection.transpose().array().withIndex().deparseRecords {
@@ -80,14 +63,7 @@ object IrisPCA {
 
         pc12 = pc12.leftJoin(irisData.addColumn("index") { rowNumber })
 
-
-        plotOf(pc12) {
-            mark(MarkType.point)
-            encoding(x, "x")
-            encoding(y, "y")
-            encoding(color, "Species")
-            //            encoding(text){ "PC"+index}
-        }.render()
+        pc12.plot(x="x", y = "y", color = "Species").geomPoint().show()
     }
 }
 

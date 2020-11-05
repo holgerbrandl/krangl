@@ -4,7 +4,7 @@ apply plugin: 'maven'
 
 
 buildscript {
-    ext.kotlin_version = '1.2.21'
+    ext.kotlin_version = '1.4.10'
 //    ext.kotlin_version = '1.2.0-rc-39'
 
     repositories {
@@ -20,16 +20,16 @@ buildscript {
 repositories {
     mavenCentral()
     mavenLocal()
-    maven { url 'https://dl.bintray.com/kotlin/kotlin-dev' }
+    jcenter()
 }
 
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib"
 
-    compile "de.mpicbg.scicomp:krangl:0.14"
+    compile "de.mpicbg.scicomp:krangl:0.14.1"
 
-//    compile 'com.github.holgerbrandl:kravis:0.1-SNAPSHOT'
+    compile 'com.github.holgerbrandl:kravis:0.5.2'
 
 //    compile 'com.mkobos:pca_transform:1.0.2'
 
