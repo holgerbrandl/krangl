@@ -26,7 +26,7 @@ Installation
 
 To get started simply add it as a dependency via Jcenter:
 ```
-implementation "de.mpicbg.scicomp:krangl:0.14.1"
+implementation "de.mpicbg.scicomp:krangl:0.15"
 ```
 
 You can also use [JitPack with Maven or Gradle](https://jitpack.io/#holgerbrandl/krangl) to build the latest snapshot as a dependency in your project.

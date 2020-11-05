@@ -33,7 +33,7 @@ dependencies {
 
     //    compile("de.mpicbg.scicomp:krangl:0.10-SNAPSHOT")
 //    compile"de.mpicbg.scicomp:krangl:0.9.1"
-    compile "de.mpicbg.scicomp:krangl:0.14"
+    compile "de.mpicbg.scicomp:krangl:0.15"
 
 
     compile "com.github.holgerbrandl:kravis:0.5"

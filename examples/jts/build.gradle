@@ -27,7 +27,7 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    compile "de.mpicbg.scicomp:krangl:0.14"
+    compile "de.mpicbg.scicomp:krangl:0.15"
 
     compile 'tech.tablesaw:tablesaw-core:0.10.0'
     compile 'tech.tablesaw:tablesaw-smile:0.10.0'

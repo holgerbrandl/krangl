@@ -1,7 +1,7 @@
 @file:MavenRepository("repo1", "https://jitpack.io")
 
 
-@file:DependsOn("de.mpicbg.scicomp:krangl:0.14")
+@file:DependsOn("de.mpicbg.scicomp:krangl:0.15")
 @file:DependsOn("com.github.holgerbrandl:kravis:0.5")
 @file:DependsOn("com.github.haifengl:smile-core:1.5.1")
 @file:DependsOn("com.github.haifengl:smile-plot:1.5.1")
