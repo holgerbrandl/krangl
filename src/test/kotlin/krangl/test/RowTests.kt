@@ -1,7 +1,9 @@
 package krangl.test
 
-import io.kotlintest.shouldBe
-import krangl.*
+import io.kotest.matchers.shouldBe
+import krangl.dataFrameOf
+import krangl.eq
+import krangl.print
 import org.junit.Test
 
 class RowTests {

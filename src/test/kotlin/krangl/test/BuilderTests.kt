@@ -1,8 +1,8 @@
 package krangl.test
 
-import io.kotlintest.matchers.beInstanceOf
-import io.kotlintest.should
-import io.kotlintest.shouldBe
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.beInstanceOf
 import krangl.*
 import org.apache.commons.csv.CSVFormat
 import org.junit.Test

@@ -1,6 +1,6 @@
 package krangl.test
 
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import krangl.*
 import krangl.UnequalByHelpers.innerJoin
 import org.junit.Test

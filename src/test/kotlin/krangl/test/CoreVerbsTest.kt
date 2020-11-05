@@ -1,9 +1,9 @@
 package krangl.test
 
-import io.kotlintest.fail
-import io.kotlintest.matchers.haveSize
-import io.kotlintest.should
-import io.kotlintest.shouldBe
+import io.kotest.assertions.fail
+import io.kotest.matchers.collections.haveSize
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import krangl.*
 import org.apache.commons.csv.CSVFormat
 import org.junit.Assert.assertEquals
@@ -92,6 +92,7 @@ class SelectTest {
         } catch (t: Throwable) {
         }
 
+        @Suppress("RemoveRedundantSpreadOperator")
         sleepData.select(*arrayOf<String>()).ncol shouldBe 0
 
         irisData.select { startsWith("bla") }.ncol shouldBe 0

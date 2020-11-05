@@ -1,7 +1,7 @@
 package krangl.test;
 
-import io.kotlintest.matchers.doubles.plusOrMinus
-import io.kotlintest.shouldBe
+import io.kotest.matchers.doubles.plusOrMinus
+import io.kotest.matchers.shouldBe
 import krangl.*
 import org.junit.Test
 import java.io.ByteArrayOutputStream
