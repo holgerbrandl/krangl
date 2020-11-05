@@ -16,7 +16,7 @@ import java.io.IOException
 @JvmOverloads
 fun DataFrame.Companion.readExcel(
         path: String,
-        sheet: Int,
+        sheet: Int=0,
         cellRange: CellRangeAddress? = null,
         colTypes: Map<String, ColType> = mapOf(),
         trim_ws: Boolean = false,
