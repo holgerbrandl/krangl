@@ -88,11 +88,11 @@ fun DataFrame.oneHot(columnName: String): DataFrame {
 
     // what about null
 
-    val categories = dataCol.asStrings().distinct().filterNotNull()
+    val categories = dataCol.toStrings().distinct().filterNotNull()
 
     val hotCols: Map<String, IntArray> = categories.map { it to IntArray(nrow) }.toMap()
 
-    dataCol.asStrings().mapIndexed { rowIndex, value ->
+    dataCol.toStrings().mapIndexed { rowIndex, value ->
         hotCols[value]!![rowIndex] = 1
     }
 

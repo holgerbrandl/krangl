@@ -156,7 +156,7 @@ internal fun convertType(df: DataFrame, spreadColName: String): DataFrame {
 }
 
 internal fun convertType(spreadCol: DataCol): DataCol {
-    val columnData = spreadCol.asStrings()
+    val columnData = spreadCol.toStrings()
     val firstElements = columnData.take(20).toList()
 
     val convColumn: DataCol = when {
@@ -209,7 +209,7 @@ fun DataFrame.separate(column: String, into: List<String>, sep: String = "[^\\w]
     val sepCol = this[column]
 
     // split colum  by given delimter and keep NAs
-    val splitData = sepCol.asStrings().map { it?.split(sep.toRegex()) }
+    val splitData = sepCol.toStrings().map { it?.split(sep.toRegex()) }
     val splitWidths = splitData.map { it?.size }.filterNotNull().distinct()
     val numSplits = splitWidths.first()
 

@@ -4,6 +4,7 @@ import krangl.ArrayUtils.handleArrayErasure
 import krangl.ArrayUtils.handleListErasure
 import krangl.util.joinToMaxLengthString
 import java.util.*
+import kotlin.math.roundToInt
 
 
 abstract class DataCol(val name: String) {  // tbd why not: Iterable<Any> ??
@@ -384,25 +385,33 @@ infix fun DataCol.eq(i: Any): BooleanArray = when (this) {
 // convenience getters for column data
 //
 
-
-//fun DataCol.asStrings(): Array<String?> = (this as StringCol).values()
-//fun DataCol.asStrings(): Array<String?> = asType<String>()
-//fun DataCol.asInts(): Array<Int?> = asType<Int>()
-//fun DataCol.asDoubles(): Array<Double?> = asType<Double>()
-//fun DataCol.asBooleans(): Array<Boolean?> = asType<Boolean>()
-fun DataCol.asStrings(): Array<String?> = columnCast<StringCol>().values
-
-fun DataCol.asDoubles(): Array<Double?> {
-    return when {
-        this is IntCol -> Array(values.size, { (this[it] as Int?)?.toDouble() })
-        this is LongCol -> Array(values.size, { (this[it] as Long?)?.toDouble() })
-        else -> columnCast<DoubleCol>().values
-    }
+fun DataCol.toStrings(): Array<String?> = when (this) {
+    is IntCol -> Array(values.size) { (this[it] as Int?).toString() }
+    is DoubleCol -> Array(values.size) { (this[it] as Double?).toString() }
+    is BooleanCol -> Array(values.size) { (this[it] as Boolean?).toString() }
+    is LongCol -> Array(values.size) { (this[it] as Long?).toString() }
+    is AnyCol -> Array(values.size) { this[it].toString() }
+    else -> columnCast<StringCol>().values
 }
 
-fun DataCol.asBooleans(): Array<Boolean?> = columnCast<BooleanCol>().values
-fun DataCol.asInts(): Array<Int?> = columnCast<IntCol>().values
-fun DataCol.asLongs(): Array<Long?> = columnCast<LongCol>().values
+
+fun DataCol.toDoubles(): Array<Double?> = when (this) {
+    is IntCol -> Array(values.size) { (this[it] as Int?)?.toDouble() }
+    is LongCol -> Array(values.size) { (this[it] as Long?)?.toDouble() }
+    is StringCol -> Array(values.size) { (this[it] as String?)?.toDouble() }
+    else -> columnCast<DoubleCol>().values
+}
+
+fun DataCol.toInts(): Array<Int?> = when (this) {
+    is DoubleCol -> Array(values.size) { (this[it] as Double?)?.roundToInt() }
+    is LongCol -> Array(values.size) { (this[it] as Long?)?.toInt() }
+    is BooleanCol -> Array(values.size) { (this[it] as Boolean?)?.let { if (it) 1 else 0 } }
+    is StringCol -> Array(values.size) { (this[it] as String?)?.toInt() }
+    else -> columnCast<IntCol>().values
+}
+
+fun DataCol.toBooleans(): Array<Boolean?> = columnCast<BooleanCol>().values
+fun DataCol.toLongs(): Array<Long?> = columnCast<LongCol>().values
 
 //fun DataCol.s(): Array<String?> = asStrings()
 //fun DataCol.d(): Array<Double?> = asDoubles()
@@ -630,7 +639,7 @@ fun DataCol.cumSum(): DataCol = when (this) {
  *
  * @throws InvalidColumnOperationException If the type of the receiver column is not numeric
  */
-fun DataCol.pctChange(): DataCol = this/lag(1)  + (-1)
+fun DataCol.pctChange(): DataCol = this / lag(1) + (-1)
 
 
 /**
@@ -642,11 +651,11 @@ fun DataCol.pctChange(): DataCol = this/lag(1)  + (-1)
  */
 fun DataCol.lead(n: Int = 1, default: Any? = null): DataCol = when (this) {
     is StringCol -> values.lead(n, default as String?)
-    is DoubleCol -> values.lead(n,  default as Double?)
+    is DoubleCol -> values.lead(n, default as Double?)
     is BooleanCol -> values.lead(n, default as Boolean?)
-    is LongCol -> values.lead(n,  default as Long?)
-    is IntCol -> values.lead(n,  default as Int?)
-    is AnyCol -> values.lead(n,  default)
+    is LongCol -> values.lead(n, default as Long?)
+    is IntCol -> values.lead(n, default as Int?)
+    is AnyCol -> values.lead(n, default)
     else -> throw InvalidColumnOperationException(this)
 }.let { handleListErasure(tempColumnName(), it) }
 
@@ -660,7 +669,7 @@ fun DataCol.lead(n: Int = 1, default: Any? = null): DataCol = when (this) {
  */
 fun DataCol.lag(n: Int = 1, default: Any? = null): DataCol = when (this) {
     is StringCol -> values.lag(n, default as String?)
-    is DoubleCol -> values.lag(n,  (default as Number?)?.toDouble())
+    is DoubleCol -> values.lag(n, (default as Number?)?.toDouble())
     is BooleanCol -> values.lag(n, default as Boolean?)
     is LongCol -> values.lag(n, default as Long?)
     is IntCol -> values.lag(n, default as Int?)
@@ -669,11 +678,11 @@ fun DataCol.lag(n: Int = 1, default: Any? = null): DataCol = when (this) {
 }.let { handleListErasure(tempColumnName(), it) }
 
 
-private fun <E : Any> Array<E?>.lead(n: Int , default: E?): List<E?> {
+private fun <E : Any> Array<E?>.lead(n: Int, default: E?): List<E?> {
     return slice(n until this.size) + List(minOf(n, this.size)) { default }
 }
 
-private fun < E : Any> Array<E?>.lag(n: Int, default: E?): List<E?> {
+private fun <E : Any> Array<E?>.lag(n: Int, default: E?): List<E?> {
     return List(minOf(n, this.size)) { default } + this.slice(0 until this.size - n)
 }
 
