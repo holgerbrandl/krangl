@@ -6,6 +6,8 @@ import org.apache.commons.csv.CSVFormat
 import org.junit.Test
 import java.io.File
 import java.io.FileReader
+import java.sql.DriverManager
+import java.sql.Statement
 
 /**
  * @author Holger Brandl
@@ -269,3 +271,40 @@ class JsonTests {
     }
 }
 
+class DataBaseTests{
+
+    @Test
+    fun `it should parse a table from a database into a dataframe`(){
+//        Class.forName("org.postgresql.Driver")
+
+        val conn = DriverManager.getConnection("jdbc:h2:mem:")
+
+        val stmt: Statement = conn.createStatement();
+
+
+        val setupTmpTable = """
+            CREATE TABLE cars(id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255), price INT);
+            INSERT INTO cars(name, price) VALUES('Audi', 52642);
+            INSERT INTO cars(name, price) VALUES('Mercedes', 57127);
+            INSERT INTO cars(name, price) VALUES('Skoda', 9000);
+            INSERT INTO cars(name, price) VALUES('Volvo', 29000);
+            INSERT INTO cars(name, price) VALUES('Bentley', 350000);
+            INSERT INTO cars(name, price) VALUES('Citroen', 21000);
+            INSERT INTO cars(name, price) VALUES('Hummer', 41400);
+            INSERT INTO cars(name, price) VALUES('Volkswagen', 21600);
+        """.trimIndent()
+
+        stmt.execute(setupTmpTable)
+
+        val rs = stmt.executeQuery("SELECT * FROM cars;")
+
+        // convert into DataFrame
+        val carsDf: DataFrame = DataFrame.fromResultSet(rs)
+
+        carsDf.apply {
+            schema()
+            nrow shouldBe 8
+            ncol shouldBe 3
+        }
+    }
+}

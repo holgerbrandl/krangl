@@ -5,6 +5,7 @@ import krangl.util.asDF
 import krangl.util.createValidIdentifier
 import krangl.util.detectPropertiesByReflection
 import java.sql.ResultSet
+import java.sql.Types
 import java.time.LocalDate
 import java.time.LocalTime
 import kotlin.reflect.KProperty
@@ -252,17 +253,17 @@ fun DataFrame.Companion.fromResultSet(rs: ResultSet): DataFrame {
     // see http://www.h2database.com/html/datatypes.html
     val colData = listOf<MutableList<Any?>>().toMutableList()
 
-    val colTypes = (1..numColumns).map { rs.metaData.getColumnTypeName(it) }
+    val colTypes = (1..numColumns).map { rs.metaData.getColumnType(it) }
 
     //    http://www.cs.toronto.edu/~nn/csc309/guide/pointbase/docs/html/htmlfiles/dev_datatypesandconversionsFIN.html
     colTypes.map {
         when (it) {
-            "INTEGER", "INT", "SMALLINT" -> listOf<Int>()
-            "REAL", "FLOAT", "NUMERIC", "DECIMAL" -> listOf<Double?>()
-            "BOOLEAN" -> listOf<Boolean?>()
-            "DATE" -> listOf<LocalDate?>()
-            "TIME" -> listOf<LocalTime?>()
-            "CHAR", "CHARACTER", "VARCHAR", "TEXT" -> listOf<String>()
+            Types.INTEGER, Types.SMALLINT -> listOf<Int>()
+            Types.DECIMAL, Types.FLOAT, Types.NUMERIC -> listOf<Double?>()
+            Types.BOOLEAN -> listOf<Boolean?>()
+            Types.DATE -> listOf<LocalDate?>()
+            Types.TIME -> listOf<LocalTime?>()
+            Types.CHAR, Types.LONGVARCHAR, Types.VARCHAR, Types.NVARCHAR -> listOf<String>()
             else -> throw IllegalArgumentException("Column type ${it} is not yet supported by {krangl}. $PLEASE_SUBMIT_MSG")
         }.toMutableList<Any?>().let { colData.add(it) }
     }
@@ -273,12 +274,12 @@ fun DataFrame.Companion.fromResultSet(rs: ResultSet): DataFrame {
 
         for (colIndex in 1..numColumns) {
             val any: Any? = when (colTypes[colIndex - 1]) {
-                "INTEGER", "INT", "SMALLINT" -> rs.getInt(colIndex)
-                "REAL", "FLOAT", "NUMERIC", "DECIMAL" -> rs.getDouble(colIndex)
-                "BOOLEAN" -> rs.getBoolean(colIndex)
-                "DATE" -> rs.getDate(colIndex).toLocalDate()
-                "TIME" -> rs.getTime(colIndex).toLocalTime()
-                "CHAR", "CHARACTER", "VARCHAR", "TEXT" -> rs.getString(colIndex)
+                Types.INTEGER, Types.SMALLINT -> rs.getInt(colIndex)
+                Types.DECIMAL, Types.FLOAT, Types.NUMERIC -> rs.getDouble(colIndex)
+                Types.BOOLEAN -> rs.getBoolean(colIndex)
+                Types.DATE -> rs.getDate(colIndex).toLocalDate()
+                Types.TIME -> rs.getTime(colIndex).toLocalTime()
+                Types.CHAR, Types.LONGVARCHAR, Types.VARCHAR, Types.NVARCHAR -> rs.getString(colIndex)
                 else -> throw IllegalArgumentException("Column type ${colTypes[colIndex - 1]} is not yet supported by {krangl}. $PLEASE_SUBMIT_MSG")
             }
             colData[colIndex - 1].add(any)
