@@ -10,7 +10,7 @@ language: java
 ## http://stackoverflow.com/questions/17606874/trigger-a-travis-ci-rebuild-except-pushing-a-commit
 
 jdk:
-  - oraclejdk8
+  - openjdk11
 
 install: ./gradlew -q assemble
 
