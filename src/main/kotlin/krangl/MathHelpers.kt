@@ -1,5 +1,6 @@
 package krangl
 
+import org.apache.commons.math3.stat.StatUtils
 import java.text.DecimalFormat
 
 
@@ -19,10 +20,12 @@ fun List<Double>.mean(): Double = map { it.toDouble() }.sum() / size
 internal fun Double.format(digits: Int) = DecimalFormat("#.${"#".repeat(digits)}").format(this)
 
 // http://stackoverflow.com/questions/4662292/scala-median-implementation
-fun Array<Double>.median(): Double {
-    val (lower, upper) = sorted().let { take(size / 2) to takeLast(size / 2) }
-    return if (size % 2 == 0) (lower.last() + upper.first()) / 2.0 else upper.first()
-}
+fun Array<Double>.median(): Double  = StatUtils.percentile(toDoubleArray(), 50.0)
+
+//fun Array<Double>.median(): Double {
+//    val (lower, upper) = sorted().let { take(size / 2) to takeLast(size / 2) }
+//    return if (size % 2 == 0) (lower.last() + upper.first()) / 2.0 else upper.first()
+//}
 
 
 fun Array<Double>.sd() = if (size == 1) null else Math.sqrt(map { Math.pow(it.toDouble() - mean(), 2.toDouble()) }.sum() / size.toDouble())

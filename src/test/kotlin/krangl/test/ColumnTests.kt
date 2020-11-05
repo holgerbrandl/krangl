@@ -1,7 +1,7 @@
 package krangl.test
 
-import io.kotlintest.fail
-import io.kotlintest.shouldBe
+import io.kotest.assertions.fail
+import io.kotest.matchers.shouldBe
 import krangl.*
 import krangl.util.createValidIdentifier
 import org.junit.Test
@@ -245,4 +245,37 @@ internal inline fun <reified T> shouldThrow(thunk: () -> Any): T {
         fail("Expected exception ${T::class.qualifiedName} but ${e.javaClass.name} was thrown")
     } else
         return e as T
+}
+
+
+class MiscTests{
+
+    // https://github.com/holgerbrandl/krangl/issues/98
+    @Test
+    fun `it should calculate the correct median`(){
+
+        val numbers = arrayOf(1.0, 2.0, 3.0)
+        val numbers2 = arrayOf(1.0, 2.0, 3.0, 4.0)
+        val numbers3 = arrayOf(1.0)
+
+        println("wrong")
+
+        repeat(3) {
+            val n = numbers.copyOf()
+            n.shuffle()
+            n.median() shouldBe 2.0
+        }
+
+        repeat(3) {
+            val n = numbers2.copyOf()
+            n.shuffle()
+            n.median() shouldBe 2.5
+        }
+
+        repeat(3) {
+            val n = numbers3.copyOf()
+            n.shuffle()
+            n.median() shouldBe 1.0
+        }
+    }
 }
