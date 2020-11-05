@@ -235,6 +235,29 @@ internal fun dataColFactory(colName: String, colIndex: Int, colType: ColType, re
 
 // TODO add missing value support with user defined string (e.g. NA here) here
 
+internal fun dataColFactory(colName: String, colType: ColType, records: Array<*>, guessMax: Int = 100): DataCol =
+        when (colType) {
+            // see https://github.com/holgerbrandl/krangl/issues/10
+            ColType.Int -> try {
+                IntCol(colName, records.map { it.toString().toInt() })
+            } catch (e: NumberFormatException) {
+                StringCol(colName, records.map { it.toString() })
+            }
+            ColType.Long -> try {
+                LongCol(colName, records.map { it.toString().toLong() })
+            } catch (e: NumberFormatException) {
+                StringCol(colName, records.map { it.toString() })
+            }
+
+            ColType.Double -> DoubleCol(colName, records.map { it.toString().toDouble() })
+
+            ColType.Boolean -> BooleanCol(colName, records.map { it.toString().cellValueAsBoolean() })
+
+            ColType.String -> StringCol(colName, records.map { it.toString() })
+
+            ColType.Guess -> dataColFactory(colName, guessColType(peekCol(records, guessMax)), records)
+        }
+
 internal fun isDoubleCol(firstElements: List<String?>): Boolean = try {
     firstElements.map { it?.toDouble() }; true
 } catch (e: NumberFormatException) {
@@ -267,6 +290,12 @@ internal fun peekCol(colIndex: Int, records: List<CSVRecord>, peekSize: Int = 10
         .take(peekSize)
         .toList()
 
+internal fun peekCol(records: Array<*>, peekSize: Int = 100) = records
+        .asSequence()
+        .map{ it.toString() }
+        .filterNotNull()
+        .take(peekSize)
+        .toList()
 
 fun DataFrame.writeTSV(
         file: File,
@@ -301,7 +330,6 @@ fun DataFrame.writeCSV(
     p.flush()
     p.close()
 }
-
 
 /**
 An example data frame with 83 rows and 11 variables
