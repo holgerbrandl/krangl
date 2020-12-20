@@ -1,9 +1,11 @@
-{% hint style="info" %}
-For a primer on tidy data read http://garrettgman.github.io/tidying/
+#  Reshaping Data
+
+!!! note
+    For a primer on tidy data read http://garrettgman.github.io/tidying/
 {% endhint %}
 
 
-# Example: Data Reshaping with `krangl`
+## Example: Data Reshaping with `krangl`
 
 ```kotlin
 val climate = dataFrameOf(
@@ -36,8 +38,8 @@ Frankfurt              534   2005        913
 
 `colummns` use function literals again, with column names type as receiver
 
----
-# Example: Data Ingestion with `krangl`
+
+## Example: Data Ingestion with `krangl`
 
 ```kotlin
 dataFrameOf("user")("brandl,holger,37")
@@ -47,16 +49,16 @@ dataFrameOf("user")("brandl,holger,37")
         .apply { glimpse() }
 ```
 
-```
-            user
+```plain
+user
 brandl,holger,37
 ```
------
+
 ```
 last_name   first_name   age
    brandl       holger    37
 ```
------
+
 ```
 DataFrame with 1 observations
 last_name  : [Str]	, [brandl]
@@ -64,7 +66,7 @@ first_name : [Str]	, [holger]
 age        : [Int]	, [37]
 ```
 
-# Digest objects into attribute columns
+## Digest objects into attribute columns
 
 Cherry-pick properties with `Iterable<T>.deparseRecords`
 ```kotlin

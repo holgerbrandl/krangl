@@ -171,11 +171,8 @@ year   month   day       mean_arr_delay       mean_dep_delay
 2013       2    27               31.252              37.7632
 ```
 
-{% hint style="info" %}
-Both  `=` and `to` are supported in table expressions.
-{% endhint %}
-
-
+!!! note
+    Both  `=` and `to` are supported in table expressions.
 
 ### Summarize Data with `summarize`
 

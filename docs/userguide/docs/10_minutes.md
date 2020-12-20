@@ -58,18 +58,16 @@ val users : DataFrame = dataFrameOf(
 )
 ```
 
-{% hint style="info" %}
-`krangl` also allows to convert any iterable into a data-frame via reflection. See the section about [Nested Data](nested_data.md) for details.
-{% endhint %}
+!!! note
+    `krangl` also allows to convert any iterable into a data-frame via reflection. See the secion about [Reshaping Data](reshape.md) for details.
 
 ### Other input formats
 
 `krangl` also allows to read in json array data. For a complete overview see [JsonIO](https://github.com/holgerbrandl/krangl/blob/master/src/main/kotlin/krangl/JsonIO.kt)
 
 ```kotlin
-    val df = fromJson("my.json")
-    val df2 = fromJson("http://foo.bar/my.json")
-    
+val df = fromJson("my.json")
+val df2 = fromJson("http://foo.bar/my.json")
 ```
 
 

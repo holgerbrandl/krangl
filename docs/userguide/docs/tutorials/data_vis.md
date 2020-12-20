@@ -20,7 +20,7 @@ irisData.ggplot("Species" to x, "Petal.Length" to y)
     .title("Petal Length by Species")
 ```
 
-![](.data_vis_images/b45a0ed9.png)
+![](data_vis_images/b45a0ed9.png)
 
 
 # Other options

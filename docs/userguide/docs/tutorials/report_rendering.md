@@ -29,7 +29,7 @@ In our opinion, Kotlin-powered Jupyter notebooks are definitely cool, but lacks 
 However, the kernel can be used for literate programming, which enables result consistency and streamline communication by building reports from code
 
 So finally we want to develop data workflows interactively using plain and simple code. Similar to how it is possible with R via the well known tool chain built around `knitr`->`pandoc`:
-![](.report_rendering_images/spin_workflow.png)
+![](report_rendering_images/spin_workflow.png)
 
 
 Similary, in python this can be achieved by startin with markdown -> `notedown` + `nbconvert`
@@ -93,5 +93,5 @@ jupyter nbconvert --ExecutePreprocessor.kernel_name=kotlin \
 
 Proof-of-Concept. :-)
 
-<a href="./krangl_example_report.html" rel="some text">![](.report_rendering_images/kts_report.png)</a>
+<a href="./krangl_example_report.html" rel="some text">![](report_rendering_images/kts_report.png)</a>
 

@@ -1,11 +1,12 @@
-This is the [manual](https://krangl.gitbook.io/docs/) for [krangl](https://github.com/holgerbrandl/krangl).
+This is the manual of [krangl](https://github.com/holgerbrandl/krangl).
 
-`krangl` is a {K}otlin library for data w{rangl}ing. By implementing a grammar of data manipulation using a modern functional-style API, it allows to filter, transform, aggregate and reshape tabular data.
+`krangl` is an open-source {K}otlin library for data w{rangl}ing. By implementing a grammar of data manipulation using a modern functional-style API, it allows to filter, transform, aggregate and reshape tabular data.
 
 `krangl` tries to become what pandas is for `python`, and `readr`+`tidyr`+`dplyr` are for R.
 
 `krangl` is open-source and [developed](https://github.com/holgerbrandl/krangl) on github.
 
+For a first primer see KotlinConf 2019 slides about [Data Science with kotlin](https://holgerbrandl.github.io/data_science_with_kotlin/data_science_with_kotlin.html#1)
 
 Features
 --------

@@ -84,6 +84,9 @@ bindRows(foo, columnTotals).print()
 
 ## Further Reading?
 
+
+For a first primer see KotlinConf 2019 slides about [Data Science with kotlin](https://holgerbrandl.github.io/data_science_with_kotlin/data_science_with_kotlin.html#1)
+
 [`krangl` presentation at Kotlin-Night in Frankfurt (March 2018)](https://holgerbrandl.github.io/kotlin4ds_kotlin_night_frankfurt//emerging_kotlin_ds_ecosystem.html)
 
 * [Krangl Introduction](http://holgerbrandl.github.io/krangl/bier_slides_june2016/krangl_intro.html) A presentation from June 2016 ([sources](./docs/bier_slides_june2016/krangl_intro.md))

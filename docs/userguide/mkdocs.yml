@@ -27,11 +27,12 @@ nav:
     - Introduction: index.md
     - 10 Minute Tutorial: 10_minutes.md
     - F.A.Q: faq.md
-    - API Docs : "javadoc/index.html"
-    - Github Project Page: "https://github.com/holgerbrandl/krangl"
-    - Change Log: "https://github.com/holgerbrandl/krangl/blob/master/CHANGES.md"
-    - Report a Problem: "https://github.com/holgerbrandl/krangl/issues"
-    - Discussion Forum: "https://gitter.im/holgerbrandl/krangl"
+    - External:
+      - API Docs : "javadoc/krangl/index.html"
+      - Github Project Page: "https://github.com/holgerbrandl/krangl"
+      - Change Log: "https://github.com/holgerbrandl/krangl/blob/master/CHANGES.md"
+      - Report a Problem: "https://github.com/holgerbrandl/krangl/issues"
+      - Discussion Forum: "https://gitter.im/holgerbrandl/krangl"
 
   - Concepts:
     - Data Model: data_model.md
@@ -40,7 +41,7 @@ nav:
 
   - Tutorials:
     - Regression Analysis: tutorials/statistics.md
-    - Machine Learning: tutorials/statistics.md#machine-learning-with-smile
+    - Machine Learning: tutorials/statistics.md#machine_learning_with_smile
     - Reportin Rendering: tutorials/report_rendering.md
     - Data Visualization: tutorials/data_vis.md
     - Time Series: time-series.md
@@ -70,6 +71,7 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_div_format
+  - admonition
 
             #extra_css:
           #  - https://unpkg.com/mermaid@7.1.2/dist/mermaid.css
