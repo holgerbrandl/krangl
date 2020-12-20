@@ -28,7 +28,7 @@ nav:
     - 10 Minute Tutorial: 10_minutes.md
     - F.A.Q: faq.md
     - External:
-      - API Docs : "javadoc/krangl/index.html"
+      - API Docs : apidocs.md
       - Github Project Page: "https://github.com/holgerbrandl/krangl"
       - Change Log: "https://github.com/holgerbrandl/krangl/blob/master/CHANGES.md"
       - Report a Problem: "https://github.com/holgerbrandl/krangl/issues"

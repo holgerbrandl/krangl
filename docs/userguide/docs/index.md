@@ -8,6 +8,8 @@ This is the manual of [krangl](https://github.com/holgerbrandl/krangl).
 
 For a first primer see KotlinConf 2019 slides about [Data Science with kotlin](https://holgerbrandl.github.io/data_science_with_kotlin/data_science_with_kotlin.html#1)
 
+
+
 Features
 --------
 
@@ -51,5 +53,3 @@ flights
     )
     .filter { (it["mean_arr_delay"] gt  30)  OR  (it["mean_dep_delay"] gt  30) }
 ```
-
-
