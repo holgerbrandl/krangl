@@ -40,8 +40,8 @@ nav:
     - Reshape Tabular Data: reshape.md
 
   - Tutorials:
-    - Regression Analysis: tutorials/statistics.md
-    - Machine Learning: tutorials/statistics.md#machine_learning_with_smile
+    - Statistics: tutorials/statistics.md
+    - Machine Learning: tutorials/machine_learning.md
     - Report Rendering: tutorials/report_rendering.md
     - Data Visualization: tutorials/data_vis.md
     - Time Series: time-series.md
