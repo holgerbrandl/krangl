@@ -1,0 +1,72 @@
+site_name: kalasim - discrete event simulator
+
+site_url: https://www.kalasim.org
+site_author: Holger Brandl
+site_description: >-
+  Discrete event simulator with type support, dependency injection, modern persistence and logging to enable large-scale, industrial-ready simulations
+repo_name: holgerbrandl/kalasim
+repo_url: https://github.com/holgerbrandl/kalasim
+edit_uri: ""
+
+# Copyright
+copyright: Copyright &copy; 2020 Holger Brandl
+
+theme:
+  name: material
+#  highlightjs: true
+#  hljs_languages:
+#    - kotlin
+#  navigation_depth: 3
+  features:
+    - navigation.expand
+    - navigation.instant
+    - navigation.tabs
+
+nav:
+  - Home:
+    - Introduction: index.md
+    - Theory: theory.md
+    - Setup: setup.md
+    - FAQ: faq.md
+  - Basics:
+    - Simulation Basics: basics.md
+    - Components: component.md
+    - Resources: resource.md
+    - States: state.md
+  - Analysis:
+    - analysis.md
+    - Monitors: monitors.md
+
+  - Examples:
+    - Extended Cars: examples.md
+  - Advanced:
+    - advanced.md
+  - About:
+    - about.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/holgerbrandl
+    - icon: fontawesome/brands/gitter
+      link: https://gitter.im/holgerbrandl/kalasim
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/holgerbrandl
+    - icon: fontawesome/brands/linkedin
+      link: https://linkedin.com/in/holgerbrandl/
+
+markdown_extensions:
+  - markdown_include.include:
+      base_path: examples/kotlin
+  - pymdownx.highlight:
+#      linenums: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_div_format
+
+            #extra_css:
+          #  - https://unpkg.com/mermaid@7.1.2/dist/mermaid.css
+extra_javascript:
+  - https://unpkg.com/mermaid@8.8.4/dist/mermaid.min.js
