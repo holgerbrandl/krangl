@@ -1,11 +1,11 @@
-site_name: kalasim - discrete event simulator
+site_name: krangl - {k}otlin data w{rangl}ing made easy
 
-site_url: https://www.kalasim.org
+site_url: https://github.com/holgerbrandl/krangl
 site_author: Holger Brandl
 site_description: >-
-  Discrete event simulator with type support, dependency injection, modern persistence and logging to enable large-scale, industrial-ready simulations
-repo_name: holgerbrandl/kalasim
-repo_url: https://github.com/holgerbrandl/kalasim
+  krangl is a Kotlin library for data wrangling. By implementing a grammar of data manipulation using a modern functional-style API, it allows to filter, transform, aggregate and reshape tabular data.
+repo_name: holgerbrandl/krangl
+repo_url: https://github.com/holgerbrandl/krangl
 edit_uri: ""
 
 # Copyright
@@ -23,33 +23,38 @@ theme:
     - navigation.tabs
 
 nav:
-  - Home:
+  - Getting Started:
     - Introduction: index.md
-    - Theory: theory.md
-    - Setup: setup.md
-    - FAQ: faq.md
-  - Basics:
-    - Simulation Basics: basics.md
-    - Components: component.md
-    - Resources: resource.md
-    - States: state.md
-  - Analysis:
-    - analysis.md
-    - Monitors: monitors.md
+    - 10 Minute Tutorial: 10_minutes.md
+    - F.A.Q: faq.md
+    - API Docs : "javadoc/index.html"
+    - Github Project Page: "https://github.com/holgerbrandl/krangl"
+    - Change Log: "https://github.com/holgerbrandl/krangl/blob/master/CHANGES.md"
+    - Report a Problem: "https://github.com/holgerbrandl/krangl/issues"
+    - Discussion Forum: "https://gitter.im/holgerbrandl/krangl"
 
-  - Examples:
-    - Extended Cars: examples.md
-  - Advanced:
-    - advanced.md
+  - Concepts:
+    - Data Model: data_model.md
+    - Data Manipulation: data_manip.md
+    - Reshape Tabular Data: reshape.md
+
+  - Tutorials:
+    - Regression Analysis: tutorials/statistics.md
+    - Machine Learning: tutorials/statistics.md#machine-learning-with-smile
+    - Reportin Rendering: tutorials/report_rendering.md
+    - Data Visualization: tutorials/data_vis.md
+    - Time Series: time-series.md
+
   - About:
     - about.md
+
 
 extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/holgerbrandl
     - icon: fontawesome/brands/gitter
-      link: https://gitter.im/holgerbrandl/kalasim
+      link: https://gitter.im/holgerbrandl/krangl
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/holgerbrandl
     - icon: fontawesome/brands/linkedin

@@ -1,4 +1,4 @@
-## Regression Analysis
+# Regression Analysis
 
 
 Using libaries http://commons.apache.org/proper/commons-math/ and https://github.com/chen0040/java-glm, krangl allows to perform R-like regression analyses.
@@ -25,7 +25,7 @@ versicolor   org.apache.commons.math3.stat.regression.SimpleRegression@7bfcd12c 
 ```
 
 
-# Classical Machine Learning with `SMILE`
+## Machine Learning with SMILE
 
 The  https://github.com/haifengl/smile projects contains tons of implementations needed for modern data science. Among others
 
