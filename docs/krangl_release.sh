@@ -36,11 +36,11 @@ export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
 
 ./gradlew clean dokka
 
-git rm -r --cached ${KRANGL_HOME}/docs/javadoc
+git rm -r --cached ${KRANGL_HOME}/docs/userguide/docs/javadoc
 
-rm -rf ${KRANGL_HOME}/docs/javadoc
-cp -r ${KRANGL_HOME}/javadoc ${KRANGL_HOME}/docs/javadoc
-git add -A ${KRANGL_HOME}/docs/javadoc
+rm -rf ${KRANGL_HOME}/docs/userguide/docs/javadoc
+cp -r ${KRANGL_HOME}/javadoc ${KRANGL_HOME}/docs/userguide/docs/javadoc
+git add -A ${KRANGL_HOME}/docs/userguide/docs/javadoc
 
 git commit -m "updated javadoc for v${krangl_version} release"
 
