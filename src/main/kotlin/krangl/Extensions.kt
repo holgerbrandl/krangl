@@ -9,6 +9,7 @@ import krangl.util.joinToMaxLengthString
 import krangl.util.scanLeft
 import java.util.*
 import java.util.regex.Pattern
+import kotlin.math.min
 
 
 open class TableContext(val df: DataFrame) {
@@ -492,6 +493,8 @@ fun DataFrame.head(numRows: Int = 5) = take(numRows)
 fun DataFrame.tail(numRows: Int = 5) = takeLast(numRows)
 
 
+internal var ROWWISE_COLUMN_NAME= "{rowwise}"
+
 /** Creates a grouped data-frame where each group consists of exactly one line. Thereby the row-number is used a group-hash. */
 fun DataFrame.rowwise(): DataFrame {
 
@@ -499,7 +502,8 @@ fun DataFrame.rowwise(): DataFrame {
         DataGroup(listOf(rowIndex), filter { BooleanArray(nrow, { index -> index == rowIndex }) })
     }.toList()
 
-    return GroupedDataFrame(by = listOf("_row_"), groups = rowsAsGroups)
+    return addColumn(ROWWISE_COLUMN_NAME){ rowNumber}.groupBy(ROWWISE_COLUMN_NAME)
+//    return GroupedDataFrame(by = listOf("_row_"), groups = rowsAsGroups)
 }
 
 
@@ -556,7 +560,7 @@ fun DataFrame.asString(
     }
 
     val maxRowsOrInf = if (maxRows < 0) Integer.MAX_VALUE else maxRows
-    val printData = take(Math.min(nrow, maxRowsOrInf))
+    val printData = df.take(min(nrow, maxRowsOrInf))
             // optionally add rownames
             .run {
                 if (rowNumbers && nrow > 0) addColumn(" ") { rowNumber }.moveLeft(" ") else this

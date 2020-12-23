@@ -35,7 +35,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
         get() = groups.first().df.ncol
 
     override val names: List<String>
-        get() = groups.first().df.names
+        get() = groups.first().df.remove(ROWWISE_COLUMN_NAME).names
 
 
     override val cols: List<DataCol>
@@ -49,7 +49,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
 
     override fun row(rowIndex: Int): DataFrameRow {
         val grpIndex = groupOffsets.filter { it <= rowIndex }.size - 1
-        val rowOffset = groupOffsets.filter { it <= rowIndex }.last()
+        val rowOffset = groupOffsets.last { it <= rowIndex }
 
         return groups[grpIndex].df.row(rowIndex - rowOffset)
     }
@@ -107,7 +107,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
             ungroup().groupBy(*by)
 //            if(by.toList().sorted() ==this.by.sorted()) this else ungroup().groupBy(*by)
 
-    override fun ungroup(): DataFrame = groups.map { it.df }.bindRows()
+    override fun ungroup(): DataFrame = groups.map { it.df }.bindRows().remove(ROWWISE_COLUMN_NAME)
 
     override fun toString(): String = "Grouped by: *$by$lineSeparator" + ungroup().take(5).asString()
 

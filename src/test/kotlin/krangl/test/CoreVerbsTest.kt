@@ -841,6 +841,22 @@ class GroupedDataTest {
             names shouldBe listOf("foo", "bar")
         }
     }
+
+    @Test
+    fun `it should correctly use an internal grouping in rowwise`(){
+        irisData.rowwise().apply {
+            print()
+
+            // does it has the same shape as the original
+            nrow shouldBe irisData.nrow
+            names shouldBe irisData.names
+
+            schema()
+
+        }
+    }
+
+
 }
 
 
