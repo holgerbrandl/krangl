@@ -581,6 +581,33 @@ class SummarizeTest {
         }
     }
 
+    @Test
+    fun `it should allow to drop cells with missing data across multiple columns`() {
+        // see https://github.com/holgerbrandl/krangl/issues/105
+
+        val df = dataFrameOf("user_id", "name", "age")(
+                6, "maja", 23,
+                3, "anna", 44,
+                null, "max", 22,
+                5, null, 56,
+                1, "tom", null,
+                5, "tom", 19
+        )
+
+        val expected = dataFrameOf("user_id", "name", "age")(
+                6, "maja", 23,
+                3, "anna", 44,
+                5, "tom", 19
+        )
+
+        df.filterByRow { !it.values.contains(null)
+        } shouldBe expected
+
+        df.filterNotNull() shouldBe expected
+        df.filterNotNull { startsWith("user") } shouldBe
+                df.filter{ rowNumber.map{ listOf(1,2,4,5,6).contains(it)}.toBooleanArray() }
+    }
+
 
     @Test
     fun `summarize multiple columns in grouped data frames with summarizeEach`() {
@@ -843,7 +870,7 @@ class GroupedDataTest {
     }
 
     @Test
-    fun `it should correctly use an internal grouping in rowwise`(){
+    fun `it should correctly use an internal grouping in rowwise`() {
         irisData.rowwise().apply {
             print()
 

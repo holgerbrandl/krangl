@@ -222,6 +222,26 @@ fun DataFrame.shuffle(): DataFrame = sampleN(nrow)
 var _rand = Random(3)
 
 
+
+//drop_na.data.frame <- function(data, ...) {
+//  vars <- tidyselect::eval_select(expr(c(...)), data)
+//
+//  if (is_empty(vars)) {
+//    f <- complete_cases(data)
+//  } else {
+//    f <- complete_cases(data[vars])
+//  }
+//  out <- vec_slice(data, f)
+//
+//  reconstruct_tibble(data, out)
+//}
+/** removed record that have one or moremissing values in the selected columns. Per default all columns are selected. */
+fun DataFrame.filterNotNull(columnSelect: ColumnSelector = { all() }): DataFrame {
+    val completeCases: List<Boolean> = select(columnSelect).rows.map { !it.values.contains(null) }
+
+    return filter { completeCases.toBooleanArray() }
+}
+
 ////////////////////////////////////////////////
 // sortedBy() convenience
 ////////////////////////////////////////////////
