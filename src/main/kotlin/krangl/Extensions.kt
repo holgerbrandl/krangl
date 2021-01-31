@@ -725,12 +725,18 @@ private fun guessAnyType(col: AnyCol): String {
 
     if (firstEl == null) return "Any"
 
-    return firstEl.javaClass.simpleName
+    var guessed = firstEl.javaClass.simpleName
             // tweak types for nested data
             .replace("SimpleDataFrame", "DataFrame")
             .replace("GroupedDataFrame", "DataFrame")
             // take care of data-classes defined in other classes or methods
             .replace(".*\\$".toRegex(), "")
+
+    if(listOf("String", "Double", "Int", "Long").contains(guessed)){
+        guessed = "Any:$guessed"
+    }
+
+    return guessed
 }
 
 internal fun createValuePrinter(maxDigits: Int = 3): (Any?) -> String = {
