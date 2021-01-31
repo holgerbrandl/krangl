@@ -26,7 +26,7 @@ Installation
 
 To get started simply add it as a dependency via Jcenter:
 ```
-implementation "de.mpicbg.scicomp:krangl:0.15"
+implementation "de.mpicbg.scicomp:krangl:0.15.1"
 ```
 
 You can also use [JitPack with Maven or Gradle](https://jitpack.io/#holgerbrandl/krangl) to build the latest snapshot as a dependency in your project.
@@ -233,4 +233,3 @@ Also, there are a few issues in the IDE itself which limit the applicability/usa
 * [KT-11409](https://youtrack.jetbrains.com/issue/KT-11409) Allow to "Send Selection To Kotlin Console"
 * [KT-13319](https://youtrack.jetbrains.net/issue/KT-13319) Support ":paste" for pasting multi-line expressions in REPL
 * [KT-21224](https://youtrack.jetbrains.net/issue/KT-21224) REPL output is not aligned with input
-
