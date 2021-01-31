@@ -105,7 +105,8 @@ fun DataFrame.gather(key: String, value: String, columns: List<String> = this.na
         distinctCols.size == 1 && distinctCols.first() == BooleanCol::class.java -> BooleanCol(name, data as Array<Boolean?>)
 
         // upcast mixed gatherings including int, long and double
-        setOf(IntCol::class.java, LongCol::class.java, DoubleCol::class.java) == distinctCols.toSet() -> DoubleCol(name, data.map { (it as Number?)?.toDouble() })
+        setOf(IntCol::class.java, LongCol::class.java) == distinctCols.toSet() -> LongCol(name, data.map { (it as Number?)?.toLong() })
+        setOf(IntCol::class.java, LongCol::class.java, DoubleCol::class.java).containsAll(distinctCols.toSet()) -> DoubleCol(name, data.map { (it as Number?)?.toDouble() })
 
         // fall back to use any column
         else -> AnyCol(name, data as Array<Any?>)

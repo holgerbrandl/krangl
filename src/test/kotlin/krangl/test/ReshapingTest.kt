@@ -1,6 +1,7 @@
 package krangl.test
 
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import krangl.*
 import org.junit.Test
 
@@ -164,6 +165,46 @@ class GatherTest {
             <null>,<null>,<null>,-order,<null>,+sleep_total,+sleep_rem,+sleep_cycle,<null>,<null>,<null>
             """.trimIndent()
     }
+
+    @Test
+    fun `it should gather and upcast mixed column types`() {
+        val df = dataFrameOf("person", "salary", "year", "weight", "sex")(
+                "max", 45014L, 2014, 33.1, "M",
+                "max", 45015L, 2015, 32.3, "M",
+                "max", 789016L, 2016, null, "M",
+                "anna", 87013L, 2013, 33.5, "F",
+                "anna", 879014L, 2014, 37.3, "F",
+                "anna", 89015L, 2015, 39.2, "F",
+                "anna", 9016L, 2016, 39.9, "F"
+        )
+
+
+        df.gather("property", "value", columns = listOf("salary", "year", "weight")).apply {
+            print()
+            schema()
+            this["value"].shouldBeTypeOf<DoubleCol>()
+        }
+
+        df.gather("property", "value", columns = listOf("salary", "year")).apply {
+            print()
+            schema()
+            this["value"].shouldBeTypeOf<LongCol>()
+        }
+
+        df.gather("property", "value", columns = listOf("salary", "weight")).apply {
+            print()
+            schema()
+            this["value"].shouldBeTypeOf<DoubleCol>()
+        }
+
+        df.gather("property", "value", columns = listOf("year", "weight")).apply {
+            print()
+            schema()
+            this["value"].shouldBeTypeOf<DoubleCol>()
+        }
+
+    }
+
 }
 
 
