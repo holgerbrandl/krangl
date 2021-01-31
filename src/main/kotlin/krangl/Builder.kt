@@ -9,7 +9,6 @@ import java.sql.Types
 import java.time.LocalDate
 import java.time.LocalTime
 import kotlin.reflect.KProperty
-import kotlin.reflect.full.declaredMembers
 
 
 // todo javadoc example needed
@@ -50,13 +49,13 @@ fun <T> DataFrame.Companion.fromRecords(records: Iterable<T>, mapping: (T) -> Da
 /**
  * Turn a list of objects into a data-frame using reflection. Currently just properties without any nesting are supported.
  */
-inline fun <reified T> Iterable<T>.asDataFrame(refAs: String? = null): DataFrame {
+inline fun <reified T> Iterable<T>.asDataFrame(): DataFrame {
     // val declaredMembers = T::class.declaredMembers
     //    declaredMembers.first().call(this[0])
 
-    val declaredMembers = T::class.declaredMembers
+    val members = T::class.members
 
-    val properties = declaredMembers
+    val properties = members
             .filter { it.parameters.toList().size == 1 }
             .filter { it is KProperty }
 

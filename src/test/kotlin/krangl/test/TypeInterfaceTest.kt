@@ -54,6 +54,23 @@ class TypeInterfaceTest {
     }
 
 
+    // https://app.slack.com/client/T09229ZC6/C0AVAB92L/thread/C4W52CFEZ-1593092419.079100
+    @Test
+    fun `it should include parent class attributes in dataframes`() {
+        open class Person(val name: String)
+        class Manager(name: String, val isCEO: Boolean) : Person(name)
+
+        val users = listOf(
+                Manager("Anne", false),
+                Manager("Tina", true)
+        )
+
+        val df = users.asDataFrame()
+        df.cols.size shouldBe 2
+        df.print()
+    }
+
+
     @Test
     fun `it should allow to map objects to df and back`() {
         val objPersons = users.rowsAs<User>()
