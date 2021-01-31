@@ -130,7 +130,7 @@ task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
 //http://stackoverflow.com/questions/34377367/why-is-gradle-install-replacing-my-version-with-unspecified
 group 'de.mpicbg.scicomp'
 version '0.16-SNAPSHOT'
-//version '0.15.1'
+version '0.15.2'
 
 
 artifacts {

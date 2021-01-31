@@ -1,6 +1,12 @@
 krangl Release History
 ======================
 
+v0.15.2
+-----
+
+* Fixed `gather` conversion in case of mixed number types
+* Indicate guessed column type with prefix Any for basic types in `schema` and `print`
+
 v0.15.1
 -----
 
