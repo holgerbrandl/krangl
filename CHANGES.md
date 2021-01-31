@@ -1,6 +1,12 @@
 krangl Release History
 ======================
 
+v0.15.1
+-----
+
+* Fixed asDataFrame to include parent type properties
+* Added `DataFrame.filterNotNull` to remove records will nulls. A column selector can be provided to check only a subset of columns.
+
 v0.15
 -----
 

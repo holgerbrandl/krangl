@@ -1,15 +1,17 @@
 # krangl release automation
 
 # adjust to te path of your working copy
-export KRANGL_HOME=/mnt/hgfs/sharedDB/db_projects/krangl/
+#export KRANGL_HOME=/mnt/hgfs/sharedDB/db_projects/krangl/
+export KRANGL_HOME=/c/Users/brandl/Dropbox/sharedDB/db_projects/krangl
 
 #########################################################################
 ## Update release notes in [CHANGES.md](../CHANGES.md)
 
 
-
 #########################################################################
 ## Run tests locally
+
+cd $KRANGL_HOME
 
 ./gradlew check
 
@@ -21,10 +23,16 @@ export KRANGL_HOME=/mnt/hgfs/sharedDB/db_projects/krangl/
 ## **{todo}** fix issues with EOL in VM
 
 trim() { while read -r line; do echo "$line"; done; }
-krangl_version=$(grep '^version' ${KRANGL_HOME}/build.gradle | cut -f2 -d' ' | tr -d "'" | trim)
+krangl_version='v'$(grep '^version' ${KRANGL_HOME}/build.gradle | cut -f2 -d' ' | tr -d "'" | trim)
 
 echo "new version is $krangl_version"
 
+
+
+if [[ $krangl_version == *"-SNAPSHOT" ]]; then
+  echo "ERROR: Won't publish snapshot build $krangl_version!" 1>&2
+  exit 1
+fi
 
 #change to use java8 for building because of https://github.com/Kotlin/dokka/issues/294
 # update-java-alternatives -l
