@@ -10,20 +10,28 @@ import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 
+//private fun testExcelInCP() {
+//    try {
+//        Class.forName("org/apache/poi/ss/util/CellRangeAddress")
+//    } catch (e: ClassNotFoundException) {
+//        throw(RuntimeException("poi dependencies are missing in path. To enable excel support, please add 'org.apache.poi:poi-ooxml:4.1.1' to your project dependencies"))
+//    }
+//}
+
 /**
  * Returns a DataFrame with the contents from an Excel file sheet
  */
 @JvmOverloads
 fun DataFrame.Companion.readExcel(
         path: String,
-        sheet: Int=0,
+        sheet: Int = 0,
         cellRange: CellRangeAddress? = null,
         colTypes: Map<String, ColType> = mapOf(),
         trim_ws: Boolean = false,
         guessMax: Int = 100,
         na: String = MISSING_VALUE,
         stopAtBlankLine: Boolean = true,
-        includeBlankLines: Boolean =  false,
+        includeBlankLines: Boolean = false,
 ): DataFrame {
     val df: DataFrame
     val inputStream = FileInputStream(path)
@@ -51,7 +59,7 @@ fun DataFrame.Companion.readExcel(
         guessMax: Int = 100,
         na: String = MISSING_VALUE,
         stopAtBlankLine: Boolean = true,
-        includeBlankLines: Boolean =  false,
+        includeBlankLines: Boolean = false,
 ): DataFrame {
     val df: DataFrame
     val inputStream = FileInputStream(path)
@@ -128,11 +136,11 @@ private fun readExcelRow(
 ): Boolean {
     val dataFormatter = DataFormatter()
     var cellCounter = 0
-    var currentCell : Cell?
-    var currentValue : String
+    var currentCell: Cell?
+    var currentValue: String
     var hasValues = false
     while (cellCounter <= cellRange.lastColumn) { //iterator skips blank cells, this ensures all are read
-        if (cellCounter < cellRange.firstColumn){
+        if (cellCounter < cellRange.firstColumn) {
             cellCounter++
             continue
         }
@@ -140,7 +148,7 @@ private fun readExcelRow(
 
         currentValue = na
         currentCell?.let { currentValue = dataFormatter.formatCellValue(currentCell) }
-        if(currentValue.isEmpty())
+        if (currentValue.isEmpty())
             currentValue = na
         if (trim_ws)
             currentValue = currentValue.trim()
@@ -158,7 +166,7 @@ private fun getExcelColumnNames(
         df: DataFrame,
         cellRange: CellRangeAddress
 ): Pair<DataFrame, Int> {
-    var currentCell : Cell?
+    var currentCell: Cell?
     var lastColumn = cellRange.firstColumn
     var df1 = df
     while (cellIterator.hasNext()) {
@@ -176,18 +184,18 @@ private fun getExcelColumnNames(
     return Pair(df1, lastColumn)
 }
 
-private fun assignColumnTypes(df: DataFrame, colTypes: Map<String, ColType>, guessMax: Int = 100): DataFrame{
+private fun assignColumnTypes(df: DataFrame, colTypes: Map<String, ColType>, guessMax: Int = 100): DataFrame {
 
     val colList = mutableListOf<DataCol>()
 
-    for (column in df.cols){
+    for (column in df.cols) {
         colList.add(dataColFactory(column.name, (colTypes[column.name] ?: ColType.Guess), column.values(), guessMax))
     }
     return SimpleDataFrame(colList)
 }
 
-fun DataFrame.writeExcel(filePath: String, sheetName: String, headers: Boolean = true, eraseFile: Boolean = false, boldHeaders: Boolean = true){
-    val workbook: XSSFWorkbook = if(eraseFile)
+fun DataFrame.writeExcel(filePath: String, sheetName: String, headers: Boolean = true, eraseFile: Boolean = false, boldHeaders: Boolean = true) {
+    val workbook: XSSFWorkbook = if (eraseFile)
         XSSFWorkbook()
     else {
         try {
@@ -201,7 +209,7 @@ fun DataFrame.writeExcel(filePath: String, sheetName: String, headers: Boolean =
     sheet = workbook.createSheet(sheetName)
 
     val headerCellStyle =
-            if(headers)
+            if (headers)
                 createExcelHeaderStyle(workbook, boldHeaders)
             else
                 workbook.createCellStyle()
@@ -251,4 +259,8 @@ private fun DataFrame.createExcelHeaderRow(
         if (boldHeaders)
             cell.cellStyle = headerCellStyle
     }
+}
+
+fun main() {
+    DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx")
 }
