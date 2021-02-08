@@ -31,7 +31,7 @@ fun DataFrame.spread(key: String, value: String, fill: Any? = null, convert: Boo
 
                 require(grpDf.select(key).distinct(key).nrow == grpDf.nrow) { "key value mapping is not unique" }
 
-                val spreadBlock = SimpleDataFrame(handleListErasure(key, newColNames)).leftJoin(grpDf.select(key, value))
+                val spreadBlock = SimpleDataFrame(handleListErasure(key, newColNames)).leftJoin(grpDf.select(key, value), by=key)
 
                 val grpSpread = SimpleDataFrame((spreadBlock as SimpleDataFrame).rows.map {
                     AnyCol(it[key].toString(), listOf(it[value]))
