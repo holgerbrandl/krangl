@@ -26,7 +26,7 @@ Installation
 
 To get started simply add it as a dependency via Jcenter:
 ```
-implementation "de.mpicbg.scicomp:krangl:0.16-SNAPSHOT
+implementation "de.mpicbg.scicomp:krangl:0.15.3"
 0.15.2"
 ```
 
