@@ -186,6 +186,13 @@ internal fun String.naAsNull(): String? = if (this == MISSING_VALUE) null else t
 
 internal fun String?.nullAsNA(): String = this ?: MISSING_VALUE
 
+//fun DataFrame.emptyAsNull(columnSelect: ColumnSelector = { all() }): DataFrame {
+//    colSelectAsNames(columnSelect).reduce( this, colName ->  })
+//    val completeCases: List<Boolean> = select(columnSelect).rows.map { !it.values.contains(null) }
+//
+//    return filter { completeCases.toBooleanArray() }
+//}
+
 internal fun String?.cellValueAsBoolean(): Boolean? {
     if (this == null) return null
 
