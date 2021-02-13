@@ -32,7 +32,7 @@ repositories {
     
 //    mavenLocal()
     
-    jcenter()
+//    jcenter()
 }
 
 
