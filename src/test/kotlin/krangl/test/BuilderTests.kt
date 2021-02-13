@@ -253,7 +253,7 @@ class JsonTests {
             schema()
             print()
             nrow shouldBe 5
-            names shouldBe listOf("_id", "cars", "model", "doors", "seats")
+            names shouldBe listOf("cars", "model", "doors", "seats")
         }
     }
 
@@ -279,9 +279,27 @@ class JsonTests {
     }
 
 
+
+    @Test
+    fun `it should correctly parse long attributes`() {
+        val df = DataFrame.fromJsonString(""" {"test":1612985220914} """)
+        df.print()
+        df.schema()
+
+        val df3 = DataFrame.fromJsonString(""" {"test":1612985220914, "bar":23} """)
+        df3.ncol shouldBe 2
+        df3.print()
+        df.schema()
+
+        val df2 = DataFrame.fromJsonString("""[{"test":1612985220914},{"test":1612985220914}]""")
+        df2.names shouldBe listOf("test")
+        df2.schema()
+
+    }
+
+
     @Test
     fun `it should convert numerical data-frames to matrices, but should fail for mixed type dfs`() {
-
         shouldThrow<IllegalArgumentException> { irisData.toDoubleMatrix() }
         shouldThrow<IllegalArgumentException> { irisData.toFloatMatrix() }
 

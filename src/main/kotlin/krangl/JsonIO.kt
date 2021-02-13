@@ -45,16 +45,17 @@ fun DataFrame.Companion.fromJsonString(jsonData: String): DataFrame {
         //        df.schema()
         val jsonCol = df.cols.first { isJsonColumn(it) }
 
-        val jsonColDFs = jsonCol.values().map {
-            when (it) {
-                is JsonArray<*> -> fromJsonArray(it as JsonArray<JsonObject>)
+        val jsonColDFs = jsonCol.values().map { colData ->
+            when (colData) {
+                is JsonArray<*> -> fromJsonArray(colData as JsonArray<JsonObject>)
                 is JsonObject -> when {
-                    it.values.first() is JsonArray<*> -> {
-                        dataFrameOf(StringCol(jsonCol.name, it.keys.toList()), AnyCol("value", it.values.toList()))
+                    colData.values.first() is JsonArray<*> -> {
+                        dataFrameOf(StringCol(jsonCol.name, colData.keys.toList()), AnyCol("value", colData.values.toList()))
                     }
                     else -> {
-                        it.toMap().map { (key, value) -> AnyCol(key, listOf(value)) }
-                                .let { dataFrameOf(*it.toTypedArray()) }.addColumn(ARRAY_COL_ID) { it.df.names }
+                        colData.toMap().map { (key, value) -> ArrayUtils.handleListErasure(key, listOf(value)) }
+                                .let { dataFrameOf(*it.toTypedArray()) }
+//                            .addColumn("_array") { it.df.names }
                     }
                 }
                 //                is JsonObject -> dataFrameOf(StringCol(jsonCol.name, it.keys.toList()), AnyCol("value", it.values.toList()))
@@ -90,20 +91,9 @@ private fun deparseJson(parsed: Any?): DataFrame {
 
 
 internal fun fromJsonArray(records: JsonArray<JsonObject>): DataFrame {
-    //    records[0]["sdf"]
     val colNames = records
             .map { it.keys.toList() }
             .reduceRight { acc, right -> acc + right.minus(acc) }
-
-    fun asColumn(colName: String, records: JsonArray<JsonObject>, builder: () -> DataCol): DataCol {
-        return try {
-            builder()
-        } catch (e: NumberFormatException) {
-            StringCol(colName, records.map { it[colName] as String? })
-        } catch (e: ClassCastException) {
-            StringCol(colName, records.map { it[colName] as String? })
-        }
-    }
 
     val cols = colNames.map { colName ->
         val firstElements = records.take(5).mapIndexed { rowIndex, _ -> records[rowIndex][colName] }
@@ -111,10 +101,9 @@ internal fun fromJsonArray(records: JsonArray<JsonObject>): DataFrame {
         try {
             when {
                 // see https://github.com/holgerbrandl/krangl/issues/10
-                firstElements.all { it is Int? || it is Long? } -> IntCol(colName, records.map { (it[colName] as Number?)?.toInt() })
-                firstElements.all { it is Long? || it is Long? } -> LongCol(colName, records.map { (it[colName] as Number?)?.toLong() })
+                firstElements.all { it is Int? } -> IntCol(colName, records.map { (it[colName] as Number?)?.toInt() })
+                firstElements.all { it is Long? } -> LongCol(colName, records.map { (it[colName] as Number?)?.toLong() })
                 firstElements.all { it is Double? } -> DoubleCol(colName, records.map { (it[colName] as Number?)?.toDouble() })
-                firstElements.all { it is Boolean? } -> BooleanCol(colName, records.map { it[colName] as Boolean? })
                 firstElements.all { it is Boolean? } -> BooleanCol(colName, records.map { it[colName] as Boolean? })
                 else -> StringCol(colName, records.map { it[colName]?.toString() })
             }
