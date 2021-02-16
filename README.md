@@ -24,10 +24,18 @@ If you're not sure about how to proceed, check out  [krangl in 10 minutes](http:
 Installation
 ------------
 
-To get started simply add it as a dependency via Jcenter:
-```
-implementation "de.mpicbg.scicomp:krangl:0.15.3"
-0.15.2"
+To get started simply add it as a dependency via Jcenter to your `build.gradle`:
+
+```groovy
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+
+dependencies {
+    implementation "de.mpicbg.scicomp:krangl:0.15.3"
+}
 ```
 
 You can also use [JitPack with Maven or Gradle](https://jitpack.io/#holgerbrandl/krangl) to build the latest snapshot as a dependency in your project.
