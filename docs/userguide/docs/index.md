@@ -32,9 +32,15 @@ Installation
 ------------
 
 To get started simply add it as a dependency via Jcenter:
-```
-implementation "de.mpicbg.scicomp:krangl:0.15.3"
-0.15.2"
+```groovy
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation "de.mpicbg.scicomp:krangl:0.15.3"
+}
 ```
 
 If you're very new to Kotlin and Gradle you may want to read first about its [basic syntax](https://kotlinlang.org/docs/reference/basic-syntax.html), some basic [IDE features](https://kotlinlang.org/docs/tutorials/getting-started.html) and about [how to use gradle](https://kotlinlang.org/docs/reference/using-gradle.html) to configure dependencies in Kotlin projects.
