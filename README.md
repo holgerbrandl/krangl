@@ -32,7 +32,6 @@ repositories {
     jcenter()
 }
 
-
 dependencies {
     implementation "de.mpicbg.scicomp:krangl:0.15.3"
 }
