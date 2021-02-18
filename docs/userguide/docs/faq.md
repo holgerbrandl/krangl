@@ -80,6 +80,16 @@ val columnTotals = foo.cols.map {
 bindRows(foo, columnTotals).print()
 ```
 
+## How to add a column at a certain index position?
+
+```kotlin
+fun DataFrame.addColumnAtIndex(columnName: String, index: Int, expression: TableExpression): DataFrame {
+    return addColumn(columnName) { expression(ec, ec) }
+        .select(names.take(index) + listOf(columnName) + names.takeLast(index))
+}
+
+irisData.addColumnAtIndex("foo", 1) { "krangl rocks!" }.print()
+```
 
 
 ## Further Reading?
