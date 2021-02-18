@@ -1,18 +1,9 @@
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
-task sourcesJar(type: Jar) {
-    archiveClassifier.set('sources')
-
-    // For pure Kotlin libraries, in case you have them
-    from sourceSets.main.java.srcDirs
-    from sourceSets.main.kotlin.srcDirs
-}
-
-
-artifacts {
-    archives sourcesJar
-    archives javadocJar
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
 
@@ -89,26 +80,9 @@ publishing {
         }
     }
     repositories {
-//        maven {
-//            name = "sonatype"
-//
-//            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-//            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-//            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-//
-//            credentials {
-//                username ossrhUsername
-//                password ossrhPassword
-//            }
-//        }
         maven {
-            // This is an arbitrary name, you may also use "mavencentral" or
-            // any other name that's descriptive for you
             name = "sonatype"
-
-            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
 
             credentials {
                 username ossrhUsername
@@ -117,13 +91,13 @@ publishing {
         }
     }
 }
-//
-//nexusStaging {
-//    packageGroup = PUBLISH_GROUP_ID
-//    stagingProfileId = sonatypeStagingProfileId
-//    username = ossrhUsername
-//    password = ossrhPassword
-//}
+
+nexusStaging {
+    packageGroup = PUBLISH_GROUP_ID
+    stagingProfileId = sonatypeStagingProfileId
+    username = ossrhUsername
+    password = ossrhPassword
+}
 
 signing {
     sign publishing.publications
