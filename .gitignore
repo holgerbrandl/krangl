@@ -91,3 +91,8 @@ fabric.properties
 ./javadoc
 
 ExcelWriteResult.xlsx
+
+
+# sonatype credentials
+local.properties
+*.gpg

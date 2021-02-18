@@ -83,6 +83,11 @@ git push origin --tags
 # careful with this one!
 ./gradlew bintrayUpload
 
+# to maven-central
+#https://getstream.io/blog/publishing-libraries-to-mavencentral-2021/
+./gradlew publishReleasePublicationToSonatypeRepository
+
+
 #For released versions check:
 #
 #- https://bintray.com/holgerbrandl/mpicbg-scicomp/krangl
