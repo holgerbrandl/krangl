@@ -24,18 +24,18 @@ If you're not sure about how to proceed, check out  [krangl in 10 minutes](http:
 Installation
 ------------
 
-To get started simply add it as a dependency via Jcenter to your `build.gradle`:
+To get started simply add it as a dependency to your `build.gradle`:
 
 ```groovy
 repositories {
-    mavenCentral()
-    jcenter()
+    mavenCentral() 
 }
 
 dependencies {
-    implementation "de.mpicbg.scicomp:krangl:0.15.3"
+    implementation "com.github.holgerbrandl.krangl:krangl:0.15.6"
 }
 ```
+Declaring the repository is purely optional as it is the default already.
 
 You can also use [JitPack with Maven or Gradle](https://jitpack.io/#holgerbrandl/krangl) to build the latest snapshot as a dependency in your project.
 
@@ -44,7 +44,7 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 dependencies {
-        implementation 'com.github.holgerbrandl:krangl:-SNAPSHOT'
+    implementation 'com.github.holgerbrandl:krangl:-SNAPSHOT'
 }
 ```
 

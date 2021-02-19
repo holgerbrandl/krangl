@@ -20,14 +20,13 @@ buildscript {
 repositories {
     mavenCentral()
     mavenLocal()
-    jcenter()
 }
 
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib"
 
-    compile "de.mpicbg.scicomp:krangl:0.15.1"
+    compile "com.github.holgerbrandl.krangl:krangl:0.15.6"
 
     compile 'com.github.holgerbrandl:kravis:0.5.2'
 

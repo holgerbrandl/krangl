@@ -33,17 +33,17 @@ Furthermore it provides methods to go back and forth between untyped and typed d
 Installation
 ------------
 
-To get started simply add it as a dependency via Jcenter:
+To get started simply add it as a dependency:
 ```groovy
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
-    implementation "de.mpicbg.scicomp:krangl:0.15.3"
+    implementation "com.github.holgerbrandl.krangl:krangl:0.15.6"
 }
 ```
+Declaring the repository is purely optional as it is the default already.
 
 If you're very new to Kotlin and Gradle you may want to read first about its [basic syntax](https://kotlinlang.org/docs/reference/basic-syntax.html), some basic [IDE features](https://kotlinlang.org/docs/tutorials/getting-started.html) and about [how to use gradle](https://kotlinlang.org/docs/reference/using-gradle.html) to configure dependencies in Kotlin projects.
 

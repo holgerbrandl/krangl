@@ -44,9 +44,9 @@ Let's consider the following example
 
 //' The iris flower
 //' ![](https://goo.gl/tTbZMq)
+//@file:MavenRepository("bintray-plugins","http://jcenter.bintray.com")
 
-@file:MavenRepository("bintray-plugins","http://jcenter.bintray.com")
-@file:DependsOnMaven("de.mpicbg.scicomp:krangl:0.7")
+@file:DependsOnMaven("com.github.holgerbrandl.krangl:krangl:0.15.6")
 
 import krangl.*
 

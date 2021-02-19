@@ -76,7 +76,7 @@ git push origin --tags
 
 
 ########################################################################
-### Build and publish the binary release to jcenter
+### Build and publish the binary release to maven-central
 
 ./gradlew install
 
@@ -91,7 +91,6 @@ git push origin --tags
 #For released versions check:
 #
 #- https://bintray.com/holgerbrandl/mpicbg-scicomp/krangl
-#- https://jcenter.bintray.com/de/mpicbg/scicomp/krangl/
 #
 
 #4. Increment version to *-SNAPSHOT for next release cycle

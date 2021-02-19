@@ -20,7 +20,7 @@ apply plugin: 'kotlin'
 sourceCompatibility = 1.8
 
 repositories {
-    jcenter()
+//    jcenter()
     mavenLocal()
     mavenCentral()
     maven { url 'https://jitpack.io' }
@@ -36,7 +36,7 @@ dependencies {
     compile "de.mpicbg.scicomp:krangl:0.15"
 
 
-    compile "com.github.holgerbrandl:kravis:0.5"
+    compile "com.github.holgerbrandl.krangl:krangl:0.15.6"
 //    compile 'com.github.holgerbrandl:kravis:-SNAPSHOT'
 
 //    disabled because of kotlin-stdlib dependency
