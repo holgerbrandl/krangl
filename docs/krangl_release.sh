@@ -81,12 +81,12 @@ git push origin --tags
 ./gradlew install
 
 # careful with this one!
-./gradlew bintrayUpload
-
-# to maven-central
-#https://getstream.io/blog/publishing-libraries-to-mavencentral-2021/
+# https://getstream.io/blog/publishing-libraries-to-mavencentral-2021/
+# https://central.sonatype.org/pages/gradle.html
 ./gradlew publishReleasePublicationToSonatypeRepository
+./gradlew closeAndReleaseRepository
 
+## also see https://oss.sonatype.org/
 
 #For released versions check:
 #
