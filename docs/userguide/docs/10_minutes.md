@@ -59,7 +59,7 @@ val users : DataFrame = dataFrameOf(
 ```
 
 !!! note
-    `krangl` also allows to convert any iterable into a data-frame via reflection. See the secion about [Reshaping Data](reshape.md) for details.
+    `krangl` also allows to convert any iterable into a data-frame via reflection. See the section about [Reshaping Data](reshape.md) for details.
 
 ### Other input formats
 
