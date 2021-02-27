@@ -25,9 +25,9 @@ class ColumnTests {
     fun `it should do correct string column arithmetics`() {
 
         irisData.addColumns(
-                // TODO this does not get a compiler warning, but should in this context
-                //            "initials" to { it["Species"].map<String> { it.first() } + it["Species"].map<String> { it.first() } },
-                "initials" to { it["Species"].map<String> { it.first() } concat it["Species"].map<String> { it.first() } }
+            // TODO this does not get a compiler warning, but should in this context
+            //            "initials" to { it["Species"].map<String> { it.first() } + it["Species"].map<String> { it.first() } },
+            "initials" to { it["Species"].map<String> { it.first() } concat it["Species"].map<String> { it.first() } }
         )
     }
 
@@ -87,21 +87,30 @@ class ColumnTests {
         // a int, b double
         val df = dataFrameOf("a", "b")(1, 1.5, 3, 2.5, 4, 4.0)
 
-        (df.addColumn("foo") { it["a"] gt it["b"] }["foo"].values() contentEquals arrayOf<Boolean?>(false, true, false)) shouldBe true
-        (df.addColumn("foo") { it["a"] ge it["b"] }["foo"].values() contentEquals arrayOf<Boolean?>(false, true, true)) shouldBe true
+        (df.addColumn("foo") { it["a"] gt it["b"] }["foo"].values() contentEquals arrayOf<Boolean?>(
+            false,
+            true,
+            false
+        )) shouldBe true
+        (df.addColumn("foo") { it["a"] ge it["b"] }["foo"].values() contentEquals arrayOf<Boolean?>(
+            false,
+            true,
+            true
+        )) shouldBe true
     }
 
 
     @Test
     fun `calculate cummulative sum in grouped dataframe including NAs`() {
         val sales = dataFrameOf("product", "sales")(
-                "A", 32.3,
-                "A", 12.2,
-                "A", 24.2,
-                "B", 23.3,
-                "B", 12.3,
-                "B", null,
-                "B", 2.5)
+            "A", 32.3,
+            "A", 12.2,
+            "A", 24.2,
+            "B", 23.3,
+            "B", 12.3,
+            "B", null,
+            "B", 2.5
+        )
 
 //        sales.summarize("mean_sales" to { it["sales"].mean(removeNA = true)})
 //        sales.addColumn("cum_sales" to { it["sales"].cumSum()}).print()
@@ -121,22 +130,23 @@ class ColumnTests {
     @Test
     fun `calculate percentage change in grouped dataframe including NAs`() {
         val sales = dataFrameOf("product", "sales", "price")(
-                "A", null, null,
-                "A", 10, 0.1,
-                "A", 50, 0.5,
-                "A", 10, 0.1,
-                "B", 100, 1.0,
-                "B", 150, 1.5,
-                "B", null, null,
-                "B", 75, 0.75)
+            "A", null, null,
+            "A", 10, 0.1,
+            "A", 50, 0.5,
+            "A", 10, 0.1,
+            "B", 100, 1.0,
+            "B", 150, 1.5,
+            "B", null, null,
+            "B", 75, 0.75
+        )
 
         val pctChangeGrd = sales.groupBy("product")
-                .addColumn("sales_pct_change" to { it["sales"].pctChange() })
-                .addColumn("price_pct_change" to { it["price"].pctChange() })
+            .addColumn("sales_pct_change" to { it["sales"].pctChange() })
+            .addColumn("price_pct_change" to { it["price"].pctChange() })
 
         pctChangeGrd.apply {
             fun pctChangeFor(product: String, col: String) =
-                    filter { it["product"] eq product }[col + "_pct_change"].values().asList()
+                filter { it["product"] eq product }[col + "_pct_change"].values().asList()
 
             print()
             nrow shouldBe sales.nrow
@@ -149,20 +159,21 @@ class ColumnTests {
 
 }
 
-class LeadLagTest{
+class LeadLagTest {
 
     @Test
     fun `calculate lead and lag values`() {
         val sales = dataFrameOf("sales", "price")(
-                10, 0.1,
-                20, 0.2,
-                null, null,
-                40, 0.4,
-                50, 0.5)
+            10, 0.1,
+            20, 0.2,
+            null, null,
+            40, 0.4,
+            50, 0.5
+        )
 
         val leadAndLag = sales
-                .addColumn("sales_lead" to { it["sales"].lead() })
-                .addColumn("price_lag" to { it["price"].lag(n = 2) })
+            .addColumn("sales_lead" to { it["sales"].lead() })
+            .addColumn("price_lag" to { it["price"].lag(n = 2) })
 
         leadAndLag.apply {
             nrow shouldBe sales.nrow
@@ -174,31 +185,32 @@ class LeadLagTest{
     @Test
     fun `lead lag column arithmetics`() {
         val sales = dataFrameOf("quarter", "sales", "store")(
-                1, 30, "london",
-                2, 10, "london",
-                3, 50, "london",
-                4, 10, "london",
-                1, 100, "berlin",
-                2, 150, "berlin",
-                3, null, "berlin",
-                4, 75, "berlin")
+            1, 30, "london",
+            2, 10, "london",
+            3, 50, "london",
+            4, 10, "london",
+            1, 100, "berlin",
+            2, 150, "berlin",
+            3, null, "berlin",
+            4, 75, "berlin"
+        )
 
 
         sales.groupBy("store")
-                .addColumn("quarter_diff" to { it["sales"] - it["sales"].lag(1) })
-                .apply {
-                    print()
-                    nrow shouldBe sales.nrow
+            .addColumn("quarter_diff" to { it["sales"] - it["sales"].lag(1) })
+            .apply {
+                print()
+                nrow shouldBe sales.nrow
 
-                    this["quarter_diff"][0] shouldBe null
-                    this["quarter_diff"][1] shouldBe -20
-                }
+                this["quarter_diff"][0] shouldBe null
+                this["quarter_diff"][1] shouldBe -20
+            }
 
         sales.groupBy("store")
-                .addColumn("lookahead_diff" to { it["sales"] - it["sales"].lead(1) }).apply {
-                    print()
-                    this["lookahead_diff"][0] shouldBe 20
-                }
+            .addColumn("lookahead_diff" to { it["sales"] - it["sales"].lead(1) }).apply {
+                print()
+                this["lookahead_diff"][0] shouldBe 20
+            }
 
     }
 
@@ -206,12 +218,12 @@ class LeadLagTest{
     @Test
     fun `ensure custom defaults are added when using lead-lag`() {
         // test string
-        irisData.addColumn("lagged" to {it["Species"].lead(1, "bla")}).apply {
-            this["lagged"][nrow-1] shouldBe "bla"
+        irisData.addColumn("lagged" to { it["Species"].lead(1, "bla") }).apply {
+            this["lagged"][nrow - 1] shouldBe "bla"
         }
 
         // test numeric (with int default to add a bit complexity)
-        irisData.addColumn("lagged"){ it["Sepal.Length"].lag(default = 42)}.let {
+        irisData.addColumn("lagged") { it["Sepal.Length"].lag(default = 42) }.let {
             it["lagged"][0] shouldBe 42.0
         }
 
@@ -230,6 +242,7 @@ class LeadLagTest{
     }
 
 }
+
 internal inline fun <reified T> shouldThrow(thunk: () -> Any): T {
     val e = try {
         thunk()
@@ -248,11 +261,11 @@ internal inline fun <reified T> shouldThrow(thunk: () -> Any): T {
 }
 
 
-class MiscTests{
+class MiscTests {
 
     // https://github.com/holgerbrandl/krangl/issues/98
     @Test
-    fun `it should calculate the correct median`(){
+    fun `it should calculate the correct median`() {
 
         val numbers = arrayOf(1.0, 2.0, 3.0)
         val numbers2 = arrayOf(1.0, 2.0, 3.0, 4.0)

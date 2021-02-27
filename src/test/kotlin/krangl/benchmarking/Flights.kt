@@ -59,7 +59,7 @@ fun evalFlights() {
 
     println("summarizing carriers took " + measureTimeMillis {
         groupedFlights.summarize(
-                "mean_arr_delay" to { it["arr_delay"].mean() }
+            "mean_arr_delay" to { it["arr_delay"].mean() }
         ).print()
     })
 }
@@ -94,13 +94,13 @@ fun main(args: Array<String>) {
     RunTimes.measure({
 
         val flightsSummary = flights
-                .groupBy("year", "month", "day")
-                .select({ range("year", "day") }, { listOf("arr_delay", "dep_delay") })
-                .summarize(
-                        "mean_arr_delay" to { it["arr_delay"].mean(removeNA = true) },
-                        "mean_dep_delay" to { it["dep_delay"].mean(removeNA = true) }
-                )
-                .filter { (it["mean_arr_delay"] gt 30) OR (it["mean_dep_delay"] gt 30) }
+            .groupBy("year", "month", "day")
+            .select({ range("year", "day") }, { listOf("arr_delay", "dep_delay") })
+            .summarize(
+                "mean_arr_delay" to { it["arr_delay"].mean(removeNA = true) },
+                "mean_dep_delay" to { it["dep_delay"].mean(removeNA = true) }
+            )
+            .filter { (it["mean_arr_delay"] gt 30) OR (it["mean_dep_delay"] gt 30) }
 
         flightsSummary.schema()
         flightsSummary.print()

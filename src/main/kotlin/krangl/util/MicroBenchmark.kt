@@ -4,7 +4,7 @@ package krangl.util
  * @author Holger Brandl
  */
 
-class MicroBenchmark<T>(var reps:Int = 25, var warmupReps:Int = 10) {
+class MicroBenchmark<T>(var reps: Int = 25, var warmupReps: Int = 10) {
 
 
     val results = emptyList<BenchmarkResult<T>>().toMutableList()
@@ -35,7 +35,8 @@ class MicroBenchmark<T>(var reps:Int = 25, var warmupReps:Int = 10) {
 
 internal fun List<Number>.mean(): Double = map { it.toDouble() }.sum() / size
 
-internal fun List<Number>.sd() = if (size == 1) null else Math.sqrt(map { Math.pow(it.toDouble() - mean(), 2.toDouble()) }.sum() / size.toDouble())
+internal fun List<Number>.sd() =
+    if (size == 1) null else Math.sqrt(map { Math.pow(it.toDouble() - mean(), 2.toDouble()) }.sum() / size.toDouble())
 
 
 data class BenchmarkResult<T>(val times: List<Long>, val config: T?) {
@@ -45,8 +46,8 @@ data class BenchmarkResult<T>(val times: List<Long>, val config: T?) {
 
     fun getSummary() = "${config}:\t  mean=${mean}\t  sd=${sd}"
 
-    val timesMS:List<Double>
-        get() = times.map { it.toDouble()/1E6 }
+    val timesMS: List<Double>
+        get() = times.map { it.toDouble() / 1E6 }
 
     val mean: Double
         get() = timesMS.mean()

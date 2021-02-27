@@ -12,15 +12,15 @@ class JointUtilsTest {
     fun `test constrained cartesian products`() {
         // project no longer needed becayse of revised cartesianProduct
         val a = DataFrame.builder("name", "project_id")(
-                "Max", "P1",
-                "Max", "P2",
-                "Tom", "P3"
+            "Max", "P1",
+            "Max", "P2",
+            "Tom", "P3"
         )
 
         val b = DataFrame.builder("title", "project_id")(
-                "foo", "P1",
-                "some_title", "P2",
-                "alt_title", "P2"
+            "foo", "P1",
+            "some_title", "P2",
+            "alt_title", "P2"
         )
 
         val cp = cartesianProduct(a.remove("project_id"), b)
@@ -75,10 +75,12 @@ class InnerJoinTests {
 
     @Test
     fun `it should allow with actually equal bys in unequal mode`() {
-        sleepData.innerJoin(sleepData.rename("order" to "new_order"), by = listOf(
+        sleepData.innerJoin(
+            sleepData.rename("order" to "new_order"), by = listOf(
                 "vore" to "vore",
                 "order" to "new_order"
-        )).nrow shouldBe 597
+            )
+        ).nrow shouldBe 597
     }
 
 
@@ -95,9 +97,9 @@ class InnerJoinTests {
     fun `it should add suffices if join column names have duplicates`() {
         // allojezow user to specify suffix
         val df = (dataFrameOf("foo", "bar"))(
-                "a", 2,
-                "b", 3,
-                "c", 4
+            "a", 2,
+            "b", 3,
+            "c", 4
         )
 
         // join on foo
@@ -134,9 +136,9 @@ class OuterJoinTest {
     @Test
     fun `it should join calculate cross-product when joining on empty by list`() {
         val dfA = dataFrameOf("foo", "bar")(
-                "a", 2,
-                "b", 3,
-                "c", 4
+            "a", 2,
+            "b", 3,
+            "c", 4
         )
         // todo should the result be the same as for joinInner with by=emptyList() or should we prevent the empty-join for either of them??)
         dfA.outerJoin(dfA, by = emptyList()).apply {
@@ -157,17 +159,18 @@ class OuterJoinTest {
     fun `it should retain join keys of non-matching LHS records in outer join`() {
         // see https://github.com/holgerbrandl/krangl/issues/94
         val user = dataFrameOf(
-                "first_name", "last_name", "age", "weight")(
-                "Max", "Doe", 23, 55,
-                "Franz", "Smith", 23, 88,
-                "Horst", "Keanes", 12, 82
+            "first_name", "last_name", "age", "weight"
+        )(
+            "Max", "Doe", 23, 55,
+            "Franz", "Smith", 23, 88,
+            "Horst", "Keanes", 12, 82
         )
 
         val pets = dataFrameOf("first_name", "pet")(
-                "Max", "Cat",
-                "Franz", "Dog",
-                // no pet for Horst
-                "Uwe", "Elephant", // Uwe is not in user dataframe
+            "Max", "Cat",
+            "Franz", "Dog",
+            // no pet for Horst
+            "Uwe", "Elephant", // Uwe is not in user dataframe
         )
 
         user.outerJoin(pets).apply {
@@ -180,13 +183,14 @@ class OuterJoinTest {
     @Test
     fun `it should join empty dataframe`() {
         val user = dataFrameOf(
-                "first_name", "last_name", "age", "weight")(
-                "Max", "Doe", 23, 55,
+            "first_name", "last_name", "age", "weight"
+        )(
+            "Max", "Doe", 23, 55,
         )
 
         val pets = dataFrameOf("first_name", "pet")(
-                "Max", "Cat",
-                "Franz", "Dog",
+            "Max", "Cat",
+            "Franz", "Dog",
         )
         val joinBy = listOf("first_name")
 
@@ -217,15 +221,15 @@ class OuterJoinTest {
 class SemiAndAntiJoinTest {
 
     val dfA = dataFrameOf("foo", "bar")(
-            "a", 2,
-            "b", 3,
-            "c", 4
+        "a", 2,
+        "b", 3,
+        "c", 4
     )
     val filter = dataFrameOf("foo", "bar")(
-            "a", 3.2,
-            "a", 1.1,
-            "b", 3.0,
-            "d", 3.2
+        "a", 3.2,
+        "a", 1.1,
+        "b", 3.0,
+        "d", 3.2
     )
 
     fun `it should join calculate cross-product when joining on empty by list`() {
@@ -279,15 +283,17 @@ class LeftJoinTest {
 
 
 val persons = dataFrameOf(
-        "first_name", "last_name", "age")(
-        "max", "smith", 53,
-        "tom", "doe", 30,
-        "eva", "miller", 23
+    "first_name", "last_name", "age"
+)(
+    "max", "smith", 53,
+    "tom", "doe", 30,
+    "eva", "miller", 23
 )
 
 val weights = dataFrameOf(
-        "first", "last", "weight")(
-        "max", "smith", 56.3,
-        "tom", "doe", null,
-        "eva", "meyer", 23.3
+    "first", "last", "weight"
+)(
+    "max", "smith", 56.3,
+    "tom", "doe", null,
+    "eva", "meyer", 23.3
 )

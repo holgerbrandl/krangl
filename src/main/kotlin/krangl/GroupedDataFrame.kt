@@ -104,7 +104,7 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
     }
 
     override fun groupBy(vararg by: String): DataFrame =
-            ungroup().groupBy(*by)
+        ungroup().groupBy(*by)
 //            if(by.toList().sorted() ==this.by.sorted()) this else ungroup().groupBy(*by)
 
     override fun ungroup(): DataFrame = groups.map { it.df }.bindRows().remove(ROWWISE_COLUMN_NAME)

@@ -39,7 +39,7 @@ data class RenameRule(val oldName: String, val newName: String) {
 
 // no dplyr consistency here but improved readbility
 fun DataFrame.rename(vararg old2new: Pair<String, String>) =
-        this.rename(*old2new.map { RenameRule(it.first, it.second) }.toTypedArray())
+    this.rename(*old2new.map { RenameRule(it.first, it.second) }.toTypedArray())
 
 
 /** Rename one or several columns. Positions should be preserved */
@@ -53,7 +53,8 @@ fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
     })
 
     // make sure that renaming rule does not contain duplicates to allow for better error reporting
-    val renamed = old2NewFilt.fold(this, { df, renRule -> df.addColumn(renRule.asTableFormula()).remove(renRule.oldName) })
+    val renamed =
+        old2NewFilt.fold(this, { df, renRule -> df.addColumn(renRule.asTableFormula()).remove(renRule.oldName) })
 
 
     // restore positions of renamed columns
@@ -64,7 +65,7 @@ fun DataFrame.rename(vararg old2new: RenameRule): DataFrame {
  *  Replace current column names with new ones. The number of provided names must match the number of columns.
  */
 fun DataFrame.setNames(vararg newNames: String): DataFrame =
-        rename(*names.zip(newNames).map { (old, new) -> old to new }.toTypedArray())
+    rename(*names.zip(newNames).map { (old, new) -> old to new }.toTypedArray())
 
 ////////////////////////////////////////////////
 // mutate() convenience
@@ -148,11 +149,12 @@ fun DataFrame.addRowNumber(name: String = "row_number") = addColumn(name) { rowN
 
 // fixme not visible because of same jvm signature
 // https://medium.com/@quiro91/getting-to-know-kotlins-extension-functions-some-caveats-to-keep-in-mind-d14d734d108b
-fun DataFrame.filter(predicate: ExpressionContext.(ExpressionContext) -> List<Boolean?>): DataFrame = filter({ predicate(this.df.ec).requireNoNulls().toBooleanArray() })
+fun DataFrame.filter(predicate: ExpressionContext.(ExpressionContext) -> List<Boolean?>): DataFrame =
+    filter({ predicate(this.df.ec).requireNoNulls().toBooleanArray() })
 
 /** AND-filter a table with different filters.*/
 fun DataFrame.filter(vararg predicates: DataFrame.(DataFrame) -> List<Boolean>): DataFrame =
-        predicates.fold(this, { df, p -> df.filter(p) })
+    predicates.fold(this, { df, p -> df.filter(p) })
 
 
 /** Match a text column in a NA-aware manner to create a predicate vector for filtering.
@@ -160,8 +162,11 @@ fun DataFrame.filter(vararg predicates: DataFrame.(DataFrame) -> List<Boolean>):
  * @sample krangl.samples.textMatching
  */
 @Suppress("UNCHECKED_CAST")
-inline fun <reified T> DataCol.isMatching(missingAs: Boolean = false, crossinline filter: T.() -> Boolean): BooleanArray =
-        (map<T> { it.filter() }.map { it ?: missingAs } as List<Boolean>).toBooleanArray()
+inline fun <reified T> DataCol.isMatching(
+    missingAs: Boolean = false,
+    crossinline filter: T.() -> Boolean
+): BooleanArray =
+    (map<T> { it.filter() }.map { it ?: missingAs } as List<Boolean>).toBooleanArray()
 
 
 /**
@@ -222,7 +227,6 @@ fun DataFrame.shuffle(): DataFrame = sampleN(nrow)
 var _rand = Random(3)
 
 
-
 //drop_na.data.frame <- function(data, ...) {
 //  vars <- tidyselect::eval_select(expr(c(...)), data)
 //
@@ -264,8 +268,8 @@ fun DataCol.order(naLast: Boolean = true): List<Int> {
 }
 
 fun DataCol.rank(naLast: Boolean = true): List<Int> = order(naLast)
-        .mapIndexed { idx, value -> idx to value }
-        .sortedBy { it.second }.map { it.first }
+    .mapIndexed { idx, value -> idx to value }
+    .sortedBy { it.second }.map { it.first }
 
 
 /** A proxy on the `df` that exposes just parts of the DataFrame api that are relevant for sorting
@@ -304,8 +308,8 @@ fun DataFrame.sortedBy(vararg sortExpressions: SortExpression): DataFrame {
     val sortBys = sortExpressions.mapIndexed { index, sortExpr ->
         ColumnFormula("__sort$index") {
             with(SortingContext(it.df)) { sortExpr(this, this) }
-                    // prevent scalar string attributes here which are most likely column names.
-                    .also { if (it is String) throw InvalidSortingPredicateException(it) }
+                // prevent scalar string attributes here which are most likely column names.
+                .also { if (it is String) throw InvalidSortingPredicateException(it) }
         }
     }
 
@@ -335,7 +339,7 @@ fun DataFrame.summarize(name: String, tableExpression: TableExpression): DataFra
  */
 // a more efficient impl should simply hash the `selects` and transform it in to a predicate function
 fun DataFrame.distinct(vararg selects: String = this.names.toTypedArray()): DataFrame =
-        groupBy(*selects).slice(1).ungroup()
+    groupBy(*selects).slice(1).ungroup()
 
 
 /**
@@ -363,7 +367,11 @@ fun DataFrame.count(vararg selects: String, name: String = "n"): DataFrame = whe
  * @param selects The variables to to be used for cross-tabulation.
  * @param name The name of the count column resulting table.
  */
-fun DataFrame.countExpr(vararg moreExpressions: TableExpression, name: String = "n", tableExpression: TableExpression? = null): DataFrame {
+fun DataFrame.countExpr(
+    vararg moreExpressions: TableExpression,
+    name: String = "n",
+    tableExpression: TableExpression? = null
+): DataFrame {
     val exprGrouped = groupByExpr(*moreExpressions, tableExpression = tableExpression).also { print(it) }
     return exprGrouped.count(*exprGrouped.groupedBy().names.toTypedArray(), name = name)
 }
@@ -442,10 +450,10 @@ fun main(args: Array<String>) {
     println("-------")
 
     irisData.summarizeAt(
-            { startsWith("Length") },
-            SumFuns.mean,
-            AggFun({ mean() }),
-            AggFun({ median() })
+        { startsWith("Length") },
+        SumFuns.mean,
+        AggFun({ mean() }),
+        AggFun({ median() })
     ).head().print()
 
 }
@@ -479,7 +487,10 @@ fun DataFrame.groupBy(columnSelect: ColumnSelector): DataFrame = groupBy(*colSel
  * @sample krangl.samples.groupByExamples
  *
  */
-fun DataFrame.groupByExpr(vararg moreExpressions: TableExpression, tableExpression: TableExpression? = null): DataFrame {
+fun DataFrame.groupByExpr(
+    vararg moreExpressions: TableExpression,
+    tableExpression: TableExpression? = null
+): DataFrame {
 
     val tableExpressions = (listOf(tableExpression) + moreExpressions).filterNotNull()
     val colFormulae = tableExpressions.mapIndexed { index, function ->
@@ -513,7 +524,7 @@ fun DataFrame.head(numRows: Int = 5) = take(numRows)
 fun DataFrame.tail(numRows: Int = 5) = takeLast(numRows)
 
 
-internal var ROWWISE_COLUMN_NAME= "{rowwise}"
+internal var ROWWISE_COLUMN_NAME = "{rowwise}"
 
 /** Creates a grouped data-frame where each group consists of exactly one line. Thereby the row-number is used a group-hash. */
 fun DataFrame.rowwise(): DataFrame {
@@ -522,7 +533,7 @@ fun DataFrame.rowwise(): DataFrame {
         DataGroup(listOf(rowIndex), filter { BooleanArray(nrow, { index -> index == rowIndex }) })
     }.toList()
 
-    return addColumn(ROWWISE_COLUMN_NAME){ rowNumber}.groupBy(ROWWISE_COLUMN_NAME)
+    return addColumn(ROWWISE_COLUMN_NAME) { rowNumber }.groupBy(ROWWISE_COLUMN_NAME)
 //    return GroupedDataFrame(by = listOf("_row_"), groups = rowsAsGroups)
 }
 
@@ -550,22 +561,22 @@ var PRINT_ROW_NUMBERS = true
 /* Prints a dataframe to stdout. df.toString() will also work but has no options .*/
 @JvmOverloads
 fun DataFrame.print(
-        title: String = "A DataFrame",
-        colNames: Boolean = true,
-        maxRows: Int = PRINT_MAX_ROWS,
-        maxWidth: Int = PRINT_MAX_WIDTH,
-        maxDigits: Int = PRINT_MAX_DIGITS,
-        rowNumbers: Boolean = PRINT_ROW_NUMBERS
+    title: String = "A DataFrame",
+    colNames: Boolean = true,
+    maxRows: Int = PRINT_MAX_ROWS,
+    maxWidth: Int = PRINT_MAX_WIDTH,
+    maxDigits: Int = PRINT_MAX_DIGITS,
+    rowNumbers: Boolean = PRINT_ROW_NUMBERS
 ) = println(asString(title, colNames, maxRows, maxWidth, maxDigits, rowNumbers) + lineSeparator)
 
 
 fun DataFrame.asString(
-        title: String = "A DataFrame",
-        colNames: Boolean = true,
-        maxRows: Int = PRINT_MAX_ROWS,
-        maxWidth: Int = PRINT_MAX_WIDTH,
-        maxDigits: Int = PRINT_MAX_DIGITS,
-        rowNumbers: Boolean = PRINT_ROW_NUMBERS
+    title: String = "A DataFrame",
+    colNames: Boolean = true,
+    maxRows: Int = PRINT_MAX_ROWS,
+    maxWidth: Int = PRINT_MAX_WIDTH,
+    maxDigits: Int = PRINT_MAX_DIGITS,
+    rowNumbers: Boolean = PRINT_ROW_NUMBERS
 ): String {
 
     var df = this
@@ -581,10 +592,10 @@ fun DataFrame.asString(
 
     val maxRowsOrInf = if (maxRows < 0) Integer.MAX_VALUE else maxRows
     val printData = df.take(min(nrow, maxRowsOrInf))
-            // optionally add rownames
-            .run {
-                if (rowNumbers && nrow > 0) addColumn(" ") { rowNumber }.moveLeft(" ") else this
-            }
+        // optionally add rownames
+        .run {
+            if (rowNumbers && nrow > 0) addColumn(" ") { rowNumber }.moveLeft(" ") else this
+        }
 
     val valuePrinter = createValuePrinter(maxDigits)
 
@@ -596,9 +607,9 @@ fun DataFrame.asString(
     // detect column padding
     val columnSpacing = 3
     val padding = colWidths.zip(headerWidths)
-            .map { (col, head) -> listOf(col, head).max()!! + columnSpacing }
-            // remove spacer from first column to have correction alignment with beginning of line
-            .toMutableList().also { if (it.size > 0) it[0] -= columnSpacing }.toList()
+        .map { (col, head) -> listOf(col, head).max()!! + columnSpacing }
+        // remove spacer from first column to have correction alignment with beginning of line
+        .toMutableList().also { if (it.size > 0) it[0] -= columnSpacing }.toList()
 
 
     // do the actual printing
@@ -614,9 +625,9 @@ fun DataFrame.asString(
     // determine which column to actually print to obey width limitations
     //    val numPrintCols = 300
     val numPrintCols = padding.asSequence()
-            .scanLeft(0) { acc, next -> acc + next }
-            .withIndex().takeWhile { it.value < maxWidth }
-            .last().index
+        .scanLeft(0) { acc, next -> acc + next }
+        .withIndex().takeWhile { it.value < maxWidth }
+        .last().index
 
     val widthTrimmed = printData.select(printData.names.take(numPrintCols))
 
@@ -701,7 +712,7 @@ fun DataFrame.schema(maxDigits: Int = 3, maxWidth: Int = PRINT_MAX_WIDTH) {
 
     topN.cols.zip(typeLabels).forEach { (col, typeLabel) ->
         val stringifiedVals = col.values().take(255).asSequence()
-                .joinToMaxLengthString(maxLength = maxWidth, transform = createValuePrinter(maxDigits))
+            .joinToMaxLengthString(maxLength = maxWidth, transform = createValuePrinter(maxDigits))
 
         println("${col.name.padEnd(namePadding)}  ${typeLabel.padEnd(typePadding)}  $stringifiedVals")
     }
@@ -726,13 +737,13 @@ private fun guessAnyType(col: AnyCol): String {
     if (firstEl == null) return "Any"
 
     var guessed = firstEl.javaClass.simpleName
-            // tweak types for nested data
-            .replace("SimpleDataFrame", "DataFrame")
-            .replace("GroupedDataFrame", "DataFrame")
-            // take care of data-classes defined in other classes or methods
-            .replace(".*\\$".toRegex(), "")
+        // tweak types for nested data
+        .replace("SimpleDataFrame", "DataFrame")
+        .replace("GroupedDataFrame", "DataFrame")
+        // take care of data-classes defined in other classes or methods
+        .replace(".*\\$".toRegex(), "")
 
-    if(listOf("String", "Double", "Int", "Long").contains(guessed)){
+    if (listOf("String", "Double", "Int", "Long").contains(guessed)) {
         guessed = "Any:$guessed"
     }
 
@@ -751,15 +762,17 @@ internal fun createValuePrinter(maxDigits: Int = 3): (Any?) -> String = {
 
 /** Provides a code to convert  a dataframe to a strongly typed list of kotlin data-class instances.*/
 fun DataFrame.printDataClassSchema(
-        dataClassName: String,
-        receiverVarName: String = "dataFrame"
+    dataClassName: String,
+    receiverVarName: String = "dataFrame"
 ) {
     val df = this.ungroup() as SimpleDataFrame
 
     // create type
     booleanArrayOf(true, false, false).any()
     fun getNullableFlag(it: DataCol) = if (it.isNA().contains(true)) "?" else ""
-    val dataSpec = df.cols.map { """val ${createValidIdentifier(it.name)}: ${getScalarColType(it)}${getNullableFlag(it)}""" }.joinToString(", ")
+    val dataSpec =
+        df.cols.map { """val ${createValidIdentifier(it.name)}: ${getScalarColType(it)}${getNullableFlag(it)}""" }
+            .joinToString(", ")
     println("data class ${dataClassName}(${dataSpec})")
 
     println("val records = ${receiverVarName}.rowsAs<${dataClassName}>()")
@@ -799,7 +812,7 @@ fun DataFrame.bindRows(df: DataFrame): DataFrame = bindRows(this, df)
  * @sample krangl.samples.bindRowsExamples
  */
 fun DataFrame.bindRows(vararg someRows: DataFrameRow): DataFrame =
-        bindRows(this, dataFrameOf(listOf(*someRows)))
+    bindRows(this, dataFrameOf(listOf(*someRows)))
 
 
 /** Adds new rows. Missing entries are set to null. The output of bindRows() will contain a column if that column appears in any of the inputs.
@@ -814,10 +827,10 @@ fun bindRows(vararg dataFrames: DataFrame): DataFrame { // add options about NA-
     val bindCols = mutableListOf<DataCol>()
 
     val colNames = dataFrames
-            .map { it.names }
-            .foldRight(emptyList<String>()) { acc, right ->
-                acc + right.minus(acc)
-            }
+        .map { it.names }
+        .foldRight(emptyList<String>()) { acc, right ->
+            acc + right.minus(acc)
+        }
 
     for (colName in colNames) {
         val colDataCombined: Array<*> = bindColData(dataFrames.toList(), colName)
@@ -864,7 +877,11 @@ fun Iterable<DataCol>.bindCols(): DataFrame { // add options about NA-fill over 
 
 // todo we should use a more deambiguation approach here,
 // like in:  if bla_1 is also present, Use bla_2, and so on
-fun bindCols(left: DataFrame, right: DataFrame, renameDuplicates: Boolean = true): DataFrame { // add options about NA-fill over non-overlapping columns
+fun bindCols(
+    left: DataFrame,
+    right: DataFrame,
+    renameDuplicates: Boolean = true
+): DataFrame { // add options about NA-fill over non-overlapping columns
     val duplicatedNames = right.names.intersect(left.names)
 
     @Suppress("NAME_SHADOWING")
@@ -913,14 +930,15 @@ private fun bindColData(dataFrames: List<DataFrame>, colName: String): Array<*> 
 //infix operator fun Any.plus(rightCol:DataCol) = anyAsColumn(this, TMP_COLUMN, rightCol.values().size) + rightCol
 fun ExpressionContext.const(someThing: Any) = anyAsColumn(someThing, tempColumnName(), nrow)
 
-internal fun warning(msg: String, breakLine: Boolean = true) = if (breakLine) System.err.println(msg) else System.err.print(msg)
+internal fun warning(msg: String, breakLine: Boolean = true) =
+    if (breakLine) System.err.println(msg) else System.err.print(msg)
 
 internal inline fun warnIf(value: Boolean, lazyMessage: () -> Any): Unit {
     if (value) System.err.println(lazyMessage())
 }
 
 internal fun GroupedDataFrame.transformGroups(trafo: (DataFrame) -> DataFrame): GroupedDataFrame =
-        groups.map { DataGroup(it.groupKey, trafo(it.df)) }.let { GroupedDataFrame(by, it) }
+    groups.map { DataGroup(it.groupKey, trafo(it.df)) }.let { GroupedDataFrame(by, it) }
 
 
 fun emptyDataFrame(): DataFrame = SimpleDataFrame()
@@ -973,7 +991,8 @@ fun DataFrame.toDoubleMatrix(): Array<DoubleArray> {
 
 fun DataFrame.toFloatMatrix(): Array<FloatArray> = toDoubleMatrix().toFloatMatrix()
 
-private fun Array<DoubleArray>.toFloatMatrix(): Array<FloatArray> = map { it.map { it.toFloat() }.toFloatArray() }.toTypedArray()
+private fun Array<DoubleArray>.toFloatMatrix(): Array<FloatArray> =
+    map { it.map { it.toFloat() }.toFloatArray() }.toTypedArray()
 
 /**
  * Expose a view on the data as map from column names to nullable arrays.
@@ -981,9 +1000,8 @@ private fun Array<DoubleArray>.toFloatMatrix(): Array<FloatArray> = map { it.map
  * In particular, this allows to use dataframes as input for lets-plot (see https://github.com/holgerbrandl/krangl/issues/86).
  */
 fun DataFrame.toMap() = names
-        // .filter { it.isNotBlank()} // can this happen
-        .map { Pair(it, get(it).values()) }.toMap()
-
+    // .filter { it.isNotBlank()} // can this happen
+    .map { Pair(it, get(it).values()) }.toMap()
 
 
 class Factor(val index: Int, val values: Array<String>)

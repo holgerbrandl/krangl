@@ -42,7 +42,8 @@ class CsvReaderTests {
 
     @Test
     fun `it should read a url`() {
-        val df = DataFrame.readCSV("https://raw.githubusercontent.com/holgerbrandl/krangl/master/src/test/resources/krangl/data/1950-2014_torn.csv")
+        val df =
+            DataFrame.readCSV("https://raw.githubusercontent.com/holgerbrandl/krangl/master/src/test/resources/krangl/data/1950-2014_torn.csv")
         assert(df.nrow > 2)
     }
 
@@ -64,16 +65,17 @@ class CsvReaderTests {
     fun `it should have the correct column types`() {
 
         val columnTypes = mapOf(
-                "a" to ColType.String,
-                "b" to ColType.String,
-                "c" to ColType.Double,
-                "e" to ColType.Boolean,
-                "f" to ColType.Long,
-                ".default" to ColType.Int
+            "a" to ColType.String,
+            "b" to ColType.String,
+            "c" to ColType.Double,
+            "e" to ColType.Boolean,
+            "f" to ColType.Long,
+            ".default" to ColType.Int
 
         )
 
-        val dataFrame = DataFrame.readCSV("src/test/resources/krangl/data/test_header_types.csv", colTypes = columnTypes)
+        val dataFrame =
+            DataFrame.readCSV("src/test/resources/krangl/data/test_header_types.csv", colTypes = columnTypes)
         val cols = dataFrame.cols
         assert(cols[0] is StringCol)
         assert(cols[1] is StringCol)
@@ -84,7 +86,10 @@ class CsvReaderTests {
     }
 
     val customNaDataFrame by lazy {
-        DataFrame.readCSV("src/test/resources/krangl/data/custom_na_value.csv", format = CSVFormat.DEFAULT.withHeader().withNullString("CUSTOM_NA"))
+        DataFrame.readCSV(
+            "src/test/resources/krangl/data/custom_na_value.csv",
+            format = CSVFormat.DEFAULT.withHeader().withNullString("CUSTOM_NA")
+        )
     }
 
 
@@ -146,15 +151,16 @@ class BuilderTests {
     fun `it should convert objects into data-frames`() {
 
         val myCars = listOf(
-                Car("Ford Mustang", null, Engine.Otto),
-                Car("BMW Mustang", 3, Engine.Otto)
+            Car("Ford Mustang", null, Engine.Otto),
+            Car("BMW Mustang", 3, Engine.Otto)
         )
 
         val carsDF = myCars.deparseRecords {
             mapOf(
-                    "model" to it.name,
-                    "motor" to it.engine,
-                    "cylinders" to it.numCyl)
+                "model" to it.name,
+                "motor" to it.engine,
+                "cylinders" to it.numCyl
+            )
         }
 
         carsDF.nrow shouldBe 2
@@ -173,8 +179,8 @@ class BuilderTests {
     @Test
     fun `it should convert object with extractor patterns`() {
         sleepPatterns.deparseRecords(
-                "foo" with { awake },
-                "bar" with { it.brainwt?.plus(3) }
+            "foo" with { awake },
+            "bar" with { it.brainwt?.plus(3) }
         ).apply {
             print()
             schema()
@@ -215,8 +221,8 @@ class BuilderTests {
     @Test
     fun `it should convert row records in a data frame`() {
         val records = listOf(
-                mapOf("name" to "Max", "age" to 23),
-                mapOf("name" to "Anna", "age" to 42)
+            mapOf("name" to "Max", "age" to 23),
+            mapOf("name" to "Anna", "age" to 42)
         )
 
         dataFrameOf(records).apply {
@@ -230,11 +236,12 @@ class BuilderTests {
     @Test
     fun `it should support mixed numbers in column`() {
         val sales = dataFrameOf("product", "sales")(
-                "A", 32,
-                "A", 12.3,
-                "A", 24,
-                "B", null,
-                "B", 44)
+            "A", 32,
+            "A", 12.3,
+            "A", 24,
+            "B", null,
+            "B", 44
+        )
 
 
         sales.apply {
@@ -262,7 +269,8 @@ class JsonTests {
 
     @Test
     fun `it should read json data from json string`() {
-        val df = DataFrame.fromJsonString("""
+        val df = DataFrame.fromJsonString(
+            """
             {
                 "cars": {
                     "Nissan": [
@@ -276,7 +284,8 @@ class JsonTests {
                     ]
                 }
             }
-            """)
+            """
+        )
 
         df.apply {
             schema()
@@ -289,7 +298,8 @@ class JsonTests {
 
     @Test
     fun `it should read incomplete json data from json string`() {
-        val df = DataFrame.fromJsonString("""
+        val df = DataFrame.fromJsonString(
+            """
             {
                "Nissan": [
                         {"model":"Sentra", "doors":4},
@@ -297,7 +307,8 @@ class JsonTests {
                         {"model":"Skyline", "seats":9}
                     ],
             }
-            """)
+            """
+        )
 
         df.apply {
             schema()
@@ -306,7 +317,6 @@ class JsonTests {
             names shouldBe listOf("_id", "model", "doors", "seats")
         }
     }
-
 
 
     @Test

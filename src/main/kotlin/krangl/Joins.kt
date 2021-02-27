@@ -31,11 +31,15 @@ enum class JoinType {
 
 
 fun DataFrame.leftJoin(right: DataFrame, by: String, suffices: Pair<String, String> = ".x" to ".y") =
-        join(this, right, listOf(by), suffices, LEFT)
+    join(this, right, listOf(by), suffices, LEFT)
 
 
-fun DataFrame.leftJoin(right: DataFrame, by: Iterable<String> = defaultBy(this, right), suffices: Pair<String, String> = ".x" to ".y") =
-        join(this, right, by, suffices, LEFT)
+fun DataFrame.leftJoin(
+    right: DataFrame,
+    by: Iterable<String> = defaultBy(this, right),
+    suffices: Pair<String, String> = ".x" to ".y"
+) =
+    join(this, right, by, suffices, LEFT)
 
 
 //
@@ -44,11 +48,15 @@ fun DataFrame.leftJoin(right: DataFrame, by: Iterable<String> = defaultBy(this, 
 
 
 fun DataFrame.innerJoin(right: DataFrame, by: String, suffices: Pair<String, String> = ".x" to ".y") =
-        join(this, right, listOf(by), suffices, INNER)
+    join(this, right, listOf(by), suffices, INNER)
 
 
-fun DataFrame.innerJoin(right: DataFrame, by: Iterable<String> = defaultBy(this, right), suffices: Pair<String, String> = ".x" to ".y") =
-        join(this, right, by, suffices, INNER)
+fun DataFrame.innerJoin(
+    right: DataFrame,
+    by: Iterable<String> = defaultBy(this, right),
+    suffices: Pair<String, String> = ".x" to ".y"
+) =
+    join(this, right, by, suffices, INNER)
 
 //
 // Semi Join: Special case of inner join against distinct right side
@@ -57,15 +65,20 @@ fun DataFrame.innerJoin(right: DataFrame, by: Iterable<String> = defaultBy(this,
 fun DataFrame.semiJoin(right: DataFrame, by: String) = semiJoin(right, listOf(by))
 
 
-fun DataFrame.semiJoin(right: DataFrame, by: Iterable<Pair<String, String>>) = semiJoin(resolveUnequalBy(right, by), by.toMap().keys)
+fun DataFrame.semiJoin(right: DataFrame, by: Iterable<Pair<String, String>>) =
+    semiJoin(resolveUnequalBy(right, by), by.toMap().keys)
 
 
-fun DataFrame.semiJoin(right: DataFrame, by: Iterable<String> = defaultBy(this, right), suffices: Pair<String, String> = ".x" to ".y"): DataFrame {
+fun DataFrame.semiJoin(
+    right: DataFrame,
+    by: Iterable<String> = defaultBy(this, right),
+    suffices: Pair<String, String> = ".x" to ".y"
+): DataFrame {
     val rightReduced = right
-            // just keep one instance per group
-            .distinct(*by.toList().toTypedArray()) //  slow for bigger data (because grouped here and later again)??
-            // remove non-grouping columns to prevent columns suffixing
-            .select(*by.toList().toTypedArray())
+        // just keep one instance per group
+        .distinct(*by.toList().toTypedArray()) //  slow for bigger data (because grouped here and later again)??
+        // remove non-grouping columns to prevent columns suffixing
+        .select(*by.toList().toTypedArray())
 
     return join(this, rightReduced, by, suffices, INNER)
 }
@@ -76,13 +89,18 @@ fun DataFrame.semiJoin(right: DataFrame, by: Iterable<String> = defaultBy(this, 
 //
 
 
-fun DataFrame.outerJoin(right: DataFrame, by: Iterable<String> = defaultBy(this, right)) = join(this, right, by, type = OUTER)
+fun DataFrame.outerJoin(right: DataFrame, by: Iterable<String> = defaultBy(this, right)) =
+    join(this, right, by, type = OUTER)
 
 
 object UnequalByHelpers {
 
-    fun DataFrame.innerJoin(right: DataFrame, by: Iterable<Pair<String, String>>, suffices: Pair<String, String> = ".x" to ".y") =
-            join(this, resolveUnequalBy(right, by), by.toMap().keys, suffices, INNER)
+    fun DataFrame.innerJoin(
+        right: DataFrame,
+        by: Iterable<Pair<String, String>>,
+        suffices: Pair<String, String> = ".x" to ".y"
+    ) =
+        join(this, resolveUnequalBy(right, by), by.toMap().keys, suffices, INNER)
 
 
 }
@@ -97,11 +115,11 @@ internal fun GroupKey.sortKey(): Int {
 
 
 fun join(
-        left: DataFrame,
-        right: DataFrame,
-        by: Iterable<String> = defaultBy(left, right),
-        suffices: Pair<String, String> = ".x" to ".y",
-        type: JoinType
+    left: DataFrame,
+    right: DataFrame,
+    by: Iterable<String> = defaultBy(left, right),
+    suffices: Pair<String, String> = ".x" to ".y",
+    type: JoinType
 ): DataFrame {
     val (groupedLeft, groupedRight) = prep4Join(by, left, right, suffices)
 
@@ -167,7 +185,8 @@ fun join(
 
     // todo this could be multi-threaded but be careful to ensure deterministic order
     val header = bindCols(leftNull, rightNull.remove(byColumns)).take(0)
-    val groupDfs = groupPairs.map { (left, right) -> cartesianProductWithoutBy(left, right, byColumns, !(left === leftNull) ) }
+    val groupDfs =
+        groupPairs.map { (left, right) -> cartesianProductWithoutBy(left, right, byColumns, !(left === leftNull)) }
 
     // we need to include the header when binding the results to get the correct shape even if the resulting
     // table has no rows
@@ -205,21 +224,26 @@ private fun addSuffix(df: DataFrame, cols: Iterable<String>, prefix: String = ""
 }
 
 
-private fun prep4Join(by: Iterable<String>, left: DataFrame, right: DataFrame, suffices: Pair<String, String>): Pair<GroupedDataFrame, GroupedDataFrame> {
+private fun prep4Join(
+    by: Iterable<String>,
+    left: DataFrame,
+    right: DataFrame,
+    suffices: Pair<String, String>
+): Pair<GroupedDataFrame, GroupedDataFrame> {
 
     // detect common no-by columns and apply optional suffixing
     val toBeSuffixed = left.names.intersect(right.names).minus(by)
 
     val groupedLeft = (addSuffix(left, toBeSuffixed, suffix = suffices.first)
-            // move join columns to the left
-            .run { select(by.toMutableList().apply { addAll(names.minus(by)) }) }
-            .groupBy(*by.toList().toTypedArray()) as GroupedDataFrame).hashSorted()
+        // move join columns to the left
+        .run { select(by.toMutableList().apply { addAll(names.minus(by)) }) }
+        .groupBy(*by.toList().toTypedArray()) as GroupedDataFrame).hashSorted()
 
 
     val groupedRight = (addSuffix(right, toBeSuffixed, suffix = suffices.second)
-            // move join columns to the left
-            .run { select(by.toMutableList().apply { addAll(names.minus(by)) }) }
-            .groupBy(*by.toList().toTypedArray()) as GroupedDataFrame).hashSorted()
+        // move join columns to the left
+        .run { select(by.toMutableList().apply { addAll(names.minus(by)) }) }
+        .groupBy(*by.toList().toTypedArray()) as GroupedDataFrame).hashSorted()
 
     return Pair(groupedLeft, groupedRight)
 }
@@ -227,19 +251,28 @@ private fun prep4Join(by: Iterable<String>, left: DataFrame, right: DataFrame, s
 
 //fun DataFrame.joinLeft(right: DataFrame,by:String) = joinLeft(this, right, *by)
 private fun defaultBy(left: DataFrame, right: DataFrame) = left.names
-        .intersect(right.names)
-        .apply {
-            System.out.println("""Joining by: ${this.joinToString(",")}""")
-        }
+    .intersect(right.names)
+    .apply {
+        System.out.println("""Joining by: ${this.joinToString(",")}""")
+    }
 
 
 // in a strict sense this is not a cartesian product, but they way we call it (for each tuples of `by`,
 // so the by columns are essentially constant here), it should be
-internal fun cartesianProductWithoutBy(left: DataFrame, right: DataFrame, byColumns: List<String>, removeRightBy: Boolean): DataFrame {
+internal fun cartesianProductWithoutBy(
+    left: DataFrame,
+    right: DataFrame,
+    byColumns: List<String>,
+    removeRightBy: Boolean
+): DataFrame {
     // first remove columns that are present in both from right-df
 //    val rightSlim = if(removeRightBy) right.remove(byColumns) else right.remove(byColumns)
 
-    return if(removeRightBy) cartesianProduct(left, right.remove(byColumns)) else cartesianProduct(left.remove(byColumns), right)
+    return if (removeRightBy) cartesianProduct(left, right.remove(byColumns)) else cartesianProduct(
+        left.remove(
+            byColumns
+        ), right
+    )
 
     //    require(rightSlim.nrow > 0)
 
@@ -281,5 +314,5 @@ internal fun replicateByIndex(df: DataFrame, repIndex: List<Int>): DataFrame {
 
 // make sure that by-NA groups come last here (see unit tests)
 private fun GroupedDataFrame.hashSorted() = groups
-        .sortedBy { it.groupKey.sortKey() }
-        .run { GroupedDataFrame(this@hashSorted.by, this) }
+    .sortedBy { it.groupKey.sortKey() }
+    .run { GroupedDataFrame(this@hashSorted.by, this) }

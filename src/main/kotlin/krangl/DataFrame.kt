@@ -134,7 +134,7 @@ interface DataFrame {
      * @sample krangl.samples.selectExamples
      */
     fun remove(vararg columSelects: ColumnSelector): DataFrame =
-            select(*columSelects.map { it -> { x: ColNames -> x.except(it) } }.toTypedArray())
+        select(*columSelects.map { it -> { x: ColNames -> x.except(it) } }.toTypedArray())
 
 
     fun filter(predicate: VectorizedRowPredicate): DataFrame
@@ -144,17 +144,18 @@ interface DataFrame {
 
     fun addColumn(columnName: String, expression: TableExpression): DataFrame = addColumn(columnName to expression)
 
-    fun addColumns(vararg columnFormulas: ColumnFormula): DataFrame = columnFormulas.fold(this, { df, tf -> df.addColumn(tf) })
+    fun addColumns(vararg columnFormulas: ColumnFormula): DataFrame =
+        columnFormulas.fold(this, { df, tf -> df.addColumn(tf) })
 
     /** Returns a DataFrame containing the new row.
      * The new row must be a list whose length must match the number of columns in the DataFrame */
-    fun addRow(row: List<Any?>) : DataFrame{
+    fun addRow(row: List<Any?>): DataFrame {
         val rowMap = mutableMapOf<String, Any?>()
 
         if (row.size != this.names.size)
             throw IllegalArgumentException("Row length must match number of columns")
 
-        for((currentColumn, column) in this.names.withIndex()){
+        for ((currentColumn, column) in this.names.withIndex()) {
             rowMap[column] = row[currentColumn]
         }
         return dataFrameOf(this.rows + sequenceOf(rowMap))

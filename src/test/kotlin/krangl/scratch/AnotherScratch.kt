@@ -14,7 +14,7 @@ object Foo {
         mpg_df.asMap()
 
         val foo = dataFrameOf("", "str")(
-                1, 2
+            1, 2
         )
 
         foo.print()
@@ -37,33 +37,33 @@ object Bar {
 
         // type conversion with current API
         irisData
-                .addColumn("str") { "3" }
-                .addColumn("int") { it["str"].map<String> { it.toInt() } }
-                .schema()
+            .addColumn("str") { "3" }
+            .addColumn("int") { it["str"].map<String> { it.toInt() } }
+            .schema()
 
 
         // with extension (could/should we add this to API?)
         fun DataCol.toInt(): List<Any?> = map<String> { it.toInt() }
 
         irisData
-                .addColumn("str") { "3" }
-                .addColumn("int") { it["str"].toInt() }
-                .schema()
+            .addColumn("str") { "3" }
+            .addColumn("int") { it["str"].toInt() }
+            .schema()
 
         // implicit conversions        
         irisData
-                .addColumn("str") { "3" }
-                .addColumn("int") { it["str"].toInt() }
+            .addColumn("str") { "3" }
+            .addColumn("int") { it["str"].toInt() }
 
-                // supported already
-                .addColumn("impl_3") {   it["str"] + it["int"] }
+            // supported already
+            .addColumn("impl_3") { it["str"] + it["int"] }
 
 
-                // not supported but should be
-                .addColumn("impl_1") { it["str"]  + 3 }
-                .addColumn("impl_3") {   it["int"] + it["str"] }
-                .addColumn("impl_2") {   3 + it["str"] }
-                .schema()
+            // not supported but should be
+            .addColumn("impl_1") { it["str"] + 3 }
+            .addColumn("impl_3") { it["int"] + it["str"] }
+            .addColumn("impl_2") { 3 + it["str"] }
+            .schema()
     }
 }
 

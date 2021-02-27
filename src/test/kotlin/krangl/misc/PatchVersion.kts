@@ -4,7 +4,7 @@ val newVersion = args[0]
 //val newVersion = 0.5
 
 
-fun PatchVersion.fixInFile(file:File ) {
+fun PatchVersion.fixInFile(file: File) {
     val transformedSetup: String = file.readLines().map {
         val prefix: String = """implementation "de.mpicbg.scicomp:krangl:"""
         if (it.startsWith(prefix)) {

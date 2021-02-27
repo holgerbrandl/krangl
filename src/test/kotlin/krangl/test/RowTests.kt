@@ -9,12 +9,14 @@ import org.junit.Test
 class RowTests {
 
     @Test
-    fun `it should add a new row`(){
+    fun `it should add a new row`() {
         var df = (dataFrameOf(
-                "Col1", "Col2"))(
-                "Row1", 1,
-                "Row2", 2,
-                "Row3", 3)
+            "Col1", "Col2"
+        ))(
+            "Row1", 1,
+            "Row2", 2,
+            "Row3", 3
+        )
 
         df = df.addRow(listOf("Row4", 4))
 

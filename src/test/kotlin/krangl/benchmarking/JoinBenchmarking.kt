@@ -8,7 +8,7 @@ import krangl.util.MicroBenchmark
 
 fun main() {
     val flights = DataFrame.readTSV(object {}.javaClass.getResource("/krangl/data/nycflights.tsv.gz").file)
-            .take(5000)
+        .take(5000)
 
     val benchmark = MicroBenchmark<String>(reps = 5, warmupReps = 2)
     benchmark.elapseNano("big join") {

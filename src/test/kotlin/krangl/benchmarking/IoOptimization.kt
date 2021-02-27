@@ -80,9 +80,10 @@ internal fun DataFrame.Companion.fromCSVArray(reader: Reader, format: CSVFormat 
 }
 
 fun <T, R> Iterable<T>.pmap(
-        numThreads: Int = Runtime.getRuntime().availableProcessors() - 2,
-        exec: ExecutorService = Executors.newFixedThreadPool(numThreads),
-        transform: (T) -> R): List<R> {
+    numThreads: Int = Runtime.getRuntime().availableProcessors() - 2,
+    exec: ExecutorService = Executors.newFixedThreadPool(numThreads),
+    transform: (T) -> R
+): List<R> {
 
     // default size is just an inlined version of kotlin.collections.collectionSizeOrDefault
     val defaultSize = if (this is Collection<*>) this.size else 10

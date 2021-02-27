@@ -56,8 +56,8 @@ inline fun <reified T> Iterable<T>.asDataFrame(): DataFrame {
     val members = T::class.members
 
     val properties = members
-            .filter { it.parameters.toList().size == 1 }
-            .filter { it is KProperty }
+        .filter { it.parameters.toList().size == 1 }
+        .filter { it is KProperty }
 
     // todo call kotlin getters
     //  declaredMembers.toList()[1].call(first())
@@ -77,9 +77,9 @@ inline fun <reified T> Iterable<T>.asDataFrame(): DataFrame {
 
 
 inline fun <reified T> DataFrame.unfold(
-        columnName: String,
-        properties: List<String> = detectPropertiesByReflection<T>().map { it.name },
-        keep: Boolean = true
+    columnName: String,
+    properties: List<String> = detectPropertiesByReflection<T>().map { it.name },
+    keep: Boolean = true
 ): DataFrame {
 
     val extProperties = properties + properties.map { "get" + it.capitalize() }
@@ -87,8 +87,8 @@ inline fun <reified T> DataFrame.unfold(
 
 
     val filtMembers = propsOrGetters
-            // match by name
-            .filter { extProperties.contains(it.name) }
+        // match by name
+        .filter { extProperties.contains(it.name) }
 
     // todo make sure that unfolded columns are not yet present in df, and warn if so and append _1, _2, ... suffix
     val unfolded = filtMembers.fold(this) { df, kCallable ->
@@ -123,10 +123,10 @@ inline fun <reified T> DataFrame.rowsAs(mapping: Map<String, String> = names.map
 
 
     val bestConst = constructors
-            // just constructors for which all columns are present
-            .filter { legitIdentLookup.keys.containsAll(it.parameters.map { it.name }) }
-            // select the one with most parameters
-            .maxBy { it.parameters.size }
+        // just constructors for which all columns are present
+        .filter { legitIdentLookup.keys.containsAll(it.parameters.map { it.name }) }
+        // select the one with most parameters
+        .maxBy { it.parameters.size }
 
     if (bestConst == null) error("[krangl] Could not find matching constructor for subset of ${mapping.values}")
 
@@ -190,7 +190,7 @@ fun DataFrame.Companion.builder(vararg header: String) = krangl.dataFrameOf(*hea
 
 // tbd should we expose this as public API?
 internal fun SimpleDataFrame.addColumn(dataCol: DataCol): SimpleDataFrame =
-        SimpleDataFrame(cols.toMutableList().apply { add(dataCol) })
+    SimpleDataFrame(cols.toMutableList().apply { add(dataCol) })
 
 
 class InplaceDataFrameBuilder(private val header: List<String>) {
@@ -217,10 +217,10 @@ class InplaceDataFrameBuilder(private val header: List<String>) {
 
         // 1) break into columns
         val rawColumns: List<List<Any?>> = tblData.toList()
-                .mapIndexed { i, any -> i.rem(header.size) to any }
-                .groupBy { it.first }.values.map {
-                    it.map { it.second }
-                }
+            .mapIndexed { i, any -> i.rem(header.size) to any }
+            .groupBy { it.first }.values.map {
+                it.map { it.second }
+            }
 
 
         // 2) infer column type by peeking into column data

@@ -17,13 +17,13 @@ class SpreadTest {
     @Test
     fun `it should reshape from long to wide`() {
         val longDf = dataFrameOf("person", "year", "weight", "sex")(
-                "max", 2014, 33.1, "M",
-                "max", 2015, 32.3, "M",
-                "max", 2016, null, "M",
-                "anna", 2013, 33.5, "F",
-                "anna", 2014, 37.3, "F",
-                "anna", 2015, 39.2, "F",
-                "anna", 2016, 39.9, "F"
+            "max", 2014, 33.1, "M",
+            "max", 2015, 32.3, "M",
+            "max", 2016, null, "M",
+            "anna", 2013, 33.5, "F",
+            "anna", 2014, 37.3, "F",
+            "anna", 2015, 39.2, "F",
+            "anna", 2016, 39.9, "F"
         )
 
         longDf.spread("year", "weight").apply {
@@ -40,10 +40,10 @@ class SpreadTest {
     @Test
     fun `it should type convert stringified values from long to wide`() {
         val longDf = dataFrameOf("person", "property", "value", "sex")(
-                "max", "salary", "33.1", "M",
-                "max", "city", "London", "M",
-                "anna", "salary", "33.5", "F",
-                "anna", "city", "Berlin", "F"
+            "max", "salary", "33.1", "M",
+            "max", "city", "London", "M",
+            "anna", "salary", "33.5", "F",
+            "anna", "city", "Berlin", "F"
         )
 
         longDf.spread("property", "value", convert = true).apply {
@@ -82,10 +82,10 @@ class GatherTest {
     }
 
     val longDf = dataFrameOf("person", "property", "value", "sex")(
-            "max", "salary", "33.1", "M",
-            "max", "city", "London", "M",
-            "anna", "salary", "33.5", "F",
-            "anna", "city", "Berlin", "F"
+        "max", "salary", "33.1", "M",
+        "max", "city", "London", "M",
+        "anna", "salary", "33.5", "F",
+        "anna", "city", "Berlin", "F"
     )
 
     val wideDf = longDf.spread("property", "value")
@@ -95,7 +95,7 @@ class GatherTest {
     fun `it should gather a numerical matrix into long format`() {
         val data = arrayOf(doubleArrayOf(1.3, 2.3), doubleArrayOf(3.9, 7.1))
         val wideData = data.withIndex().map { (index, data) -> DoubleCol(index.toString(), data.toList()) }.bindCols()
-                .addRowNumber("y")
+            .addRowNumber("y")
 
         val longData = wideData.gather("x", "pixel_value", { except("y") })
 
@@ -110,8 +110,8 @@ class GatherTest {
         data class Address(val street: String, val city: String)
 
         val wideData = dataFrameOf("name", "home_address", "work_address")(
-                "John", Address("Baker Street", "London"), null,
-                "Anna", Address("Mueller Street", "New York"), Address("Stresemannplatz", "Munich")
+            "John", Address("Baker Street", "London"), null,
+            "Anna", Address("Mueller Street", "New York"), Address("Stresemannplatz", "Munich")
         )
 
         val longData = wideData.gather("type", "address", { endsWith("address") })
@@ -169,13 +169,13 @@ class GatherTest {
     @Test
     fun `it should gather and upcast mixed column types`() {
         val df = dataFrameOf("person", "salary", "year", "weight", "sex")(
-                "max", 45014L, 2014, 33.1, "M",
-                "max", 45015L, 2015, 32.3, "M",
-                "max", 789016L, 2016, null, "M",
-                "anna", 87013L, 2013, 33.5, "F",
-                "anna", 879014L, 2014, 37.3, "F",
-                "anna", 89015L, 2015, 39.2, "F",
-                "anna", 9016L, 2016, 39.9, "F"
+            "max", 45014L, 2014, 33.1, "M",
+            "max", 45015L, 2015, 32.3, "M",
+            "max", 789016L, 2016, null, "M",
+            "anna", 87013L, 2013, 33.5, "F",
+            "anna", 879014L, 2014, 37.3, "F",
+            "anna", 89015L, 2015, 39.2, "F",
+            "anna", 9016L, 2016, 39.9, "F"
         )
 
 
@@ -244,51 +244,51 @@ class NestingTests {
     @Test
     fun `it nest grouped data`() {
         irisData
-                .groupBy("Species")
-                .nest()
-                .apply {
-                    nrow shouldBe 3
-                    ncol shouldBe 2
-                    names shouldBe listOf("Species", "data")
+            .groupBy("Species")
+            .nest()
+            .apply {
+                nrow shouldBe 3
+                ncol shouldBe 2
+                names shouldBe listOf("Species", "data")
 
-                    // also make sure that output looks good
-                    //                captureOutput { print() }.stdout shouldBe """
-                    //                A DataFrame: 3 x 2
-                    //                   Species                   data
-                    //                    setosa   <DataFrame [50 x 4]>
-                    //                versicolor   <DataFrame [50 x 4]>
-                    //                 virginica   <DataFrame [50 x 4]>
-                    //                    """.trimIndent()
+                // also make sure that output looks good
+                //                captureOutput { print() }.stdout shouldBe """
+                //                A DataFrame: 3 x 2
+                //                   Species                   data
+                //                    setosa   <DataFrame [50 x 4]>
+                //                versicolor   <DataFrame [50 x 4]>
+                //                 virginica   <DataFrame [50 x 4]>
+                //                    """.trimIndent()
 
-                    captureOutput { schema() }.stdout shouldBe """
+                captureOutput { schema() }.stdout shouldBe """
                     DataFrame with 3 observations
                     Species  [Str]        setosa, versicolor, virginica
                     data     [DataFrame]  <DataFrame [50 x 4]>, <DataFrame [50 x 4]>, <DataFrame [50 x 4]>
                     """.trimAndReline()
-                }
+            }
     }
 
     @Test
     fun `it nest ungrouped data`() {
         irisData
-                .nest()
-                .apply {
-                    nrow shouldBe 1
-                    ncol shouldBe 1
-                    names shouldBe listOf("data")
-                }
+            .nest()
+            .apply {
+                nrow shouldBe 1
+                ncol shouldBe 1
+                names shouldBe listOf("data")
+            }
     }
 
     @Test
     fun `it nest selected columns only`() {
         irisData
-                .nest({ except("Species") })
-                .apply {
-                    schema()
-                    nrow shouldBe 3
-                    ncol shouldBe 2
-                    names shouldBe listOf("Species", "data")
-                }
+            .nest({ except("Species") })
+            .apply {
+                schema()
+                nrow shouldBe 3
+                ncol shouldBe 2
+                names shouldBe listOf("Species", "data")
+            }
     }
 
 
@@ -296,10 +296,10 @@ class NestingTests {
     fun `it should unnest data`() {
         // use other small but NA-heavy data set here
         val restored = sleepData
-                .nest({ except("order") })
-                .unnest(DEF_NEST_COLUMN_NAME)
-                .sortedBy("order")
-                .moveLeft("name", "genus", "vore")
+            .nest({ except("order") })
+            .unnest(DEF_NEST_COLUMN_NAME)
+            .sortedBy("order")
+            .moveLeft("name", "genus", "vore")
 
 
 
@@ -318,8 +318,8 @@ class NestingTests {
     @Test
     fun `it should unnest List columns`() {
         dataFrameOf("id", "tags")(
-                "foo", listOf("some", "tags"),
-                "bar", listOf("some", "other", "tags")
+            "foo", listOf("some", "tags"),
+            "bar", listOf("some", "other", "tags")
         ).unnest("tags").apply {
             print()
             nrow shouldBe 5
@@ -330,10 +330,10 @@ class NestingTests {
     @Test
     fun `it should expand variable tuples like tidyr-expand`() {
         val someDf = dataFrameOf("person", "year", "weight", "sex")(
-                "max", 2014, 33.1, "M",
-                "max", 2016, null, "M",
-                "anna", 2015, 39.2, "F",
-                "anna", 2016, 39.9, "F"
+            "max", 2014, 33.1, "M",
+            "max", 2016, null, "M",
+            "anna", 2015, 39.2, "F",
+            "anna", 2016, 39.9, "F"
         )
 
         someDf.expand("year", "sex").run {

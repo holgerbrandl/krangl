@@ -65,7 +65,8 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         warnIf(columns.isEmpty() &&
                 // it may happen that internally we do an empty selection. e.g when joining a df on all columns with itself.
                 // to prevent misleading logging we check for that by detecting the context of this call
-                !Thread.currentThread().getStackTrace().map { it.methodName }.contains("join")) {
+                !Thread.currentThread().getStackTrace().map { it.methodName }.contains("join")
+        ) {
             "Calling select() will always return an empty data-frame"
         }
 
@@ -78,17 +79,17 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
     // Utility methods
 
     override fun row(rowIndex: Int): DataFrameRow =
-            cols.map {
-                it.name to when (it) {
-                    is DoubleCol -> it.values[rowIndex]
-                    is IntCol -> it.values[rowIndex]
-                    is LongCol -> it.values[rowIndex]
-                    is BooleanCol -> it.values[rowIndex]
-                    is StringCol -> it.values[rowIndex]
-                    is AnyCol -> it.values[rowIndex]
-                    else -> throw UnsupportedOperationException()
-                }
-            }.toMap()
+        cols.map {
+            it.name to when (it) {
+                is DoubleCol -> it.values[rowIndex]
+                is IntCol -> it.values[rowIndex]
+                is LongCol -> it.values[rowIndex]
+                is BooleanCol -> it.values[rowIndex]
+                is StringCol -> it.values[rowIndex]
+                is AnyCol -> it.values[rowIndex]
+                else -> throw UnsupportedOperationException()
+            }
+        }.toMap()
 
     override val ncol = cols.size
 
@@ -139,12 +140,27 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
         return cols.map {
             // subset a colum by the predicate array
             when (it) {
-                is DoubleCol -> DoubleCol(it.name, it.values.filterIndexed { index, _ -> indexFilter[index] }.toTypedArray())
+                is DoubleCol -> DoubleCol(
+                    it.name,
+                    it.values.filterIndexed { index, _ -> indexFilter[index] }.toTypedArray()
+                )
                 is IntCol -> IntCol(it.name, it.values.filterIndexed { index, _ -> indexFilter[index] }.toTypedArray())
-                is LongCol -> LongCol(it.name, it.values.filterIndexed { index, _ -> indexFilter[index] }.toTypedArray())
-                is StringCol -> StringCol(it.name, it.values.filterIndexed { index, _ -> indexFilter[index] }.toList().toTypedArray())
-                is BooleanCol -> BooleanCol(it.name, it.values.filterIndexed { index, _ -> indexFilter[index] }.toList().toTypedArray())
-                is AnyCol -> AnyCol(it.name, it.values.filterIndexed { index, _ -> indexFilter[index] }.toList().toTypedArray())
+                is LongCol -> LongCol(
+                    it.name,
+                    it.values.filterIndexed { index, _ -> indexFilter[index] }.toTypedArray()
+                )
+                is StringCol -> StringCol(
+                    it.name,
+                    it.values.filterIndexed { index, _ -> indexFilter[index] }.toList().toTypedArray()
+                )
+                is BooleanCol -> BooleanCol(
+                    it.name,
+                    it.values.filterIndexed { index, _ -> indexFilter[index] }.toList().toTypedArray()
+                )
+                is AnyCol -> AnyCol(
+                    it.name,
+                    it.values.filterIndexed { index, _ -> indexFilter[index] }.toList().toTypedArray()
+                )
                 else -> throw UnsupportedOperationException()
             }
         }.let { SimpleDataFrame(it) }
@@ -173,7 +189,10 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
                 // prevent non-scalar summaries. See krangl/test/CoreVerbsTest.kt:165
                 is DataCol -> throw NonScalarValueException(ColumnFormula(key, sumRule), sumValue)
-                is IntArray, is BooleanArray, is DoubleArray, is FloatArray -> throw NonScalarValueException(ColumnFormula(key, sumRule), "Array")
+                is IntArray, is BooleanArray, is DoubleArray, is FloatArray -> throw NonScalarValueException(
+                    ColumnFormula(key, sumRule),
+                    "Array"
+                )
                 is Iterable<*> -> throw NonScalarValueException(ColumnFormula(key, sumRule), "List")
 
                 // todo does null-handling makes sense at all? Might be not-null in other groups for grouped operations // todo add unit-test
@@ -296,11 +315,23 @@ internal class SimpleDataFrame(override val cols: List<DataCol>) : DataFrame {
 
         fun extractGroup(col: DataCol, groupIndex: GroupIndex): DataCol = when (col) {
             // create new array
-            is DoubleCol -> DoubleCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }))
+            is DoubleCol -> DoubleCol(
+                col.name,
+                Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] })
+            )
             is IntCol -> IntCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }))
-            is LongCol -> LongCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }))
-            is BooleanCol -> BooleanCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }))
-            is StringCol -> StringCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }))
+            is LongCol -> LongCol(
+                col.name,
+                Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] })
+            )
+            is BooleanCol -> BooleanCol(
+                col.name,
+                Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] })
+            )
+            is StringCol -> StringCol(
+                col.name,
+                Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] })
+            )
             is AnyCol -> AnyCol(col.name, Array(groupIndex.rowIndices.size, { col.values[groupIndex.rowIndices[it]] }))
             else -> throw UnsupportedOperationException()
         }

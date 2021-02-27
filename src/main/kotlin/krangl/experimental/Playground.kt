@@ -66,9 +66,9 @@ object KranglOneHot {
  * Performs a one-hot encoding of the specified `Any`column.
  */
 inline fun <reified T> DataFrame.oneHot(
-        columnName: String,
-        naValue: String = "NA",
-        crossinline categorizeWith: (T?) -> String? = { it?.toString() }
+    columnName: String,
+    naValue: String = "NA",
+    crossinline categorizeWith: (T?) -> String? = { it?.toString() }
 ): DataFrame {
 //    val dataCol = this[columnName]
 //    require(dataCol is AnyCol) { "only one-hot-encoding of string columns is supported at the moment." }

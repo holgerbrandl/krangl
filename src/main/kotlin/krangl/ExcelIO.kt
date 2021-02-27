@@ -23,15 +23,15 @@ import java.io.IOException
  */
 @JvmOverloads
 fun DataFrame.Companion.readExcel(
-        path: String,
-        sheet: Int = 0,
-        cellRange: CellRangeAddress? = null,
-        colTypes: Map<String, ColType> = mapOf(),
-        trim_ws: Boolean = false,
-        guessMax: Int = 100,
-        na: String = MISSING_VALUE,
-        stopAtBlankLine: Boolean = true,
-        includeBlankLines: Boolean = false,
+    path: String,
+    sheet: Int = 0,
+    cellRange: CellRangeAddress? = null,
+    colTypes: Map<String, ColType> = mapOf(),
+    trim_ws: Boolean = false,
+    guessMax: Int = 100,
+    na: String = MISSING_VALUE,
+    stopAtBlankLine: Boolean = true,
+    includeBlankLines: Boolean = false,
 ): DataFrame {
     val df: DataFrame
     val inputStream = FileInputStream(path)
@@ -51,15 +51,15 @@ fun DataFrame.Companion.readExcel(
  */
 @JvmOverloads
 fun DataFrame.Companion.readExcel(
-        path: String,
-        sheet: String,
-        cellRange: CellRangeAddress? = null,
-        colTypes: Map<String, ColType> = mapOf(),
-        trim_ws: Boolean = false,
-        guessMax: Int = 100,
-        na: String = MISSING_VALUE,
-        stopAtBlankLine: Boolean = true,
-        includeBlankLines: Boolean = false,
+    path: String,
+    sheet: String,
+    cellRange: CellRangeAddress? = null,
+    colTypes: Map<String, ColType> = mapOf(),
+    trim_ws: Boolean = false,
+    guessMax: Int = 100,
+    na: String = MISSING_VALUE,
+    stopAtBlankLine: Boolean = true,
+    includeBlankLines: Boolean = false,
 ): DataFrame {
     val df: DataFrame
     val inputStream = FileInputStream(path)
@@ -74,7 +74,16 @@ fun DataFrame.Companion.readExcel(
     return df
 }
 
-private fun readExcelSheet(xlSheet: Sheet, range: CellRangeAddress?, colTypes: Map<String, ColType>, trim_ws: Boolean, guessMax: Int, na: String, stopAtBlankLine: Boolean, includeBlankLines: Boolean): DataFrame {
+private fun readExcelSheet(
+    xlSheet: Sheet,
+    range: CellRangeAddress?,
+    colTypes: Map<String, ColType>,
+    trim_ws: Boolean,
+    guessMax: Int,
+    na: String,
+    stopAtBlankLine: Boolean,
+    includeBlankLines: Boolean
+): DataFrame {
     var df = emptyDataFrame()
     val rowIterator = xlSheet.rowIterator()
     val cellRange = range ?: getDefaultCellAddress(xlSheet)
@@ -121,18 +130,20 @@ private fun readExcelSheet(xlSheet: Sheet, range: CellRangeAddress?, colTypes: M
 
 private fun getDefaultCellAddress(xlSheet: Sheet): CellRangeAddress {
 
-    return CellRangeAddress(xlSheet.firstRowNum,
-            xlSheet.lastRowNum,
-            xlSheet.getRow(xlSheet.firstRowNum).firstCellNum.toInt(),
-            xlSheet.getRow(xlSheet.firstRowNum).lastCellNum.toInt())
+    return CellRangeAddress(
+        xlSheet.firstRowNum,
+        xlSheet.lastRowNum,
+        xlSheet.getRow(xlSheet.firstRowNum).firstCellNum.toInt(),
+        xlSheet.getRow(xlSheet.firstRowNum).lastCellNum.toInt()
+    )
 }
 
 private fun readExcelRow(
-        currentRow: Row,
-        valueList: MutableList<String>,
-        cellRange: CellRangeAddress,
-        trim_ws: Boolean,
-        na: String,
+    currentRow: Row,
+    valueList: MutableList<String>,
+    cellRange: CellRangeAddress,
+    trim_ws: Boolean,
+    na: String,
 ): Boolean {
     val dataFormatter = DataFormatter()
     var cellCounter = 0
@@ -162,9 +173,9 @@ private fun readExcelRow(
 }
 
 private fun getExcelColumnNames(
-        cellIterator: MutableIterator<Cell>,
-        df: DataFrame,
-        cellRange: CellRangeAddress
+    cellIterator: MutableIterator<Cell>,
+    df: DataFrame,
+    cellRange: CellRangeAddress
 ): Pair<DataFrame, Int> {
     var currentCell: Cell?
     var lastColumn = cellRange.firstColumn
@@ -194,7 +205,13 @@ private fun assignColumnTypes(df: DataFrame, colTypes: Map<String, ColType>, gue
     return SimpleDataFrame(colList)
 }
 
-fun DataFrame.writeExcel(filePath: String, sheetName: String, headers: Boolean = true, eraseFile: Boolean = false, boldHeaders: Boolean = true) {
+fun DataFrame.writeExcel(
+    filePath: String,
+    sheetName: String,
+    headers: Boolean = true,
+    eraseFile: Boolean = false,
+    boldHeaders: Boolean = true
+) {
     val workbook: XSSFWorkbook = if (eraseFile)
         XSSFWorkbook()
     else {
@@ -209,10 +226,10 @@ fun DataFrame.writeExcel(filePath: String, sheetName: String, headers: Boolean =
     sheet = workbook.createSheet(sheetName)
 
     val headerCellStyle =
-            if (headers)
-                createExcelHeaderStyle(workbook, boldHeaders)
-            else
-                workbook.createCellStyle()
+        if (headers)
+            createExcelHeaderStyle(workbook, boldHeaders)
+        else
+            workbook.createCellStyle()
     if (headers)
         createExcelHeaderRow(sheet, boldHeaders, headerCellStyle)
     createExcelDataRows(sheet, headers)
@@ -224,8 +241,8 @@ fun DataFrame.writeExcel(filePath: String, sheetName: String, headers: Boolean =
 }
 
 private fun createExcelHeaderStyle(
-        workbook: XSSFWorkbook,
-        boldHeaders: Boolean,
+    workbook: XSSFWorkbook,
+    boldHeaders: Boolean,
 ): XSSFCellStyle? {
     val headerCellStyle = workbook.createCellStyle()
     if (boldHeaders) {
@@ -248,9 +265,9 @@ private fun DataFrame.createExcelDataRows(sheet: XSSFSheet, headers: Boolean) {
 }
 
 private fun DataFrame.createExcelHeaderRow(
-        sheet: XSSFSheet,
-        boldHeaders: Boolean,
-        headerCellStyle: XSSFCellStyle?
+    sheet: XSSFSheet,
+    boldHeaders: Boolean,
+    headerCellStyle: XSSFCellStyle?
 ) {
     val headerRow = sheet.createRow(0)
     for ((colPos, col) in this.names.withIndex()) {
