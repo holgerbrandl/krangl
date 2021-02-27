@@ -117,8 +117,8 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 
 //http://stackoverflow.com/questions/34377367/why-is-gradle-install-replacing-my-version-with-unspecified
 group 'com.github.holgerbrandl.krangl'
-//version '0.16-SNAPSHOT'
-version '0.15.6'
+version '0.16-SNAPSHOT'
+//version '0.15.6'
 
 
 ext {
