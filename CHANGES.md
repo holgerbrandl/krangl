@@ -1,6 +1,16 @@
 krangl Release History
 ======================
 
+v0.16 (Work in Progress)
+-----
+
+* added supported for fixed-width files with `readFixedWidth()`
+
+v0.15.6
+-----
+
+Republished to maven central <https://search.maven.org/artifact/com.github.holgerbrandl.krangl/krangl>
+
 v0.15.2
 -----
 

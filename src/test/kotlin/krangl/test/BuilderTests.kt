@@ -8,6 +8,7 @@ import org.apache.commons.csv.CSVFormat
 import org.junit.Test
 import java.io.File
 import java.io.FileReader
+import java.io.StringReader
 import java.sql.DriverManager
 import java.sql.Statement
 
@@ -100,6 +101,34 @@ class CsvReaderTests {
 
     }
 
+    @Test
+    fun `it should read fixed-delim data`() {
+        // references
+        //https://issues.apache.org/jira/browse/CSV-272
+        //https://github.com/GuiaBolso/fixed-length-file-handler
+        //https://dev.to/leocolman/handling-fixed-length-files-using-a-kotlin-dsl-1hm1
+
+        val content = """
+1         Product 1    Pa wafer                 7.28571        25
+2         Product 2    Pb wafer                 NA             25
+3         Product 3    test wafer               0.42857        25
+    """.trim().trimIndent()
+
+
+        val format = listOf(
+            "Process Flow" to 10,
+            "Product ID" to 10,
+            "Product Name" to 25,
+            "Start Rate" to 10,
+            "Lot Size" to 10
+        )
+        val df = DataFrame.readFixedWidth(StringReader(content), format)
+        df.print()
+        df.schema()
+
+        df.ncol shouldBe format.size
+        df["Start Rate"][1] shouldBe null
+    }
 }
 
 class BuilderTests {
@@ -294,7 +323,6 @@ class JsonTests {
         val df2 = DataFrame.fromJsonString("""[{"test":1612985220914},{"test":1612985220914}]""")
         df2.names shouldBe listOf("test")
         df2.schema()
-
     }
 
 
