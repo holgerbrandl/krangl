@@ -195,7 +195,11 @@ fun DataFrame.Companion.readFixedWidth(
 
     val splitPositions = (listOf(0) + format.map { it.second }).cumSum().map { it.roundToInt() }.zipWithNext()
 
-    val records: List<List<String?>> = reader.readLines().map { line ->
+    val padLength = format.map { it.second }.sum()
+
+    val records: List<List<String?>> = reader.readLines().map {
+        it.padEnd(padLength)
+    }.map { line ->
         splitPositions.map {
             val cell = line.substring(it.first, it.second).trim()
             if (cell == missingValue) null else cell
@@ -306,17 +310,17 @@ internal fun dataColFactory(colName: String, colType: ColType, records: Array<*>
     when (colType) {
         // see https://github.com/holgerbrandl/krangl/issues/10
         ColType.Int -> try {
-            IntCol(colName, records.map { it?.toString()?.toInt() })
+            IntCol(colName, records.map { it.trimEmptyToNull()?.toInt() })
         } catch (e: NumberFormatException) {
             StringCol(colName, records.map { it?.toString() })
         }
         ColType.Long -> try {
-            LongCol(colName, records.map { it?.toString()?.toLong() })
+            LongCol(colName, records.map { it.trimEmptyToNull()?.toLong() })
         } catch (e: NumberFormatException) {
             StringCol(colName, records.map { it?.toString() })
         }
 
-        ColType.Double -> DoubleCol(colName, records.map { it?.toString()?.toDouble() })
+        ColType.Double -> DoubleCol(colName, records.map { it.trimEmptyToNull()?.toDouble() })
 
         ColType.Boolean -> BooleanCol(colName, records.map { it?.toString()?.cellValueAsBoolean() })
 
@@ -324,6 +328,8 @@ internal fun dataColFactory(colName: String, colType: ColType, records: Array<*>
 
         ColType.Guess -> dataColFactory(colName, guessColType(peekCol(records, guessMax)), records)
     }
+
+private fun Any?.trimEmptyToNull(): String? = this?.toString()?.trim()?.ifBlank { null }
 
 internal fun isDoubleCol(firstElements: List<String?>): Boolean = try {
     firstElements.map { it?.toDouble() }; true
