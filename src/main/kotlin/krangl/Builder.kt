@@ -134,7 +134,12 @@ inline fun <reified T> DataFrame.rowsAs(mapping: Map<String, String> = names.map
         val args = bestConst.parameters.map { constParamName ->
             row[varLookup[legitIdentLookup[constParamName.name]]]
         }
-        bestConst.call(*args.toTypedArray())
+
+        try {
+            bestConst.call(*args.toTypedArray())
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("Could not instantiate record class constructor $bestConst with $args")
+        }
     }
 
     return objects
