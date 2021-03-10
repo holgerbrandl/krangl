@@ -2,7 +2,7 @@
 
 # adjust to te path of your working copy
 #export KRANGL_HOME=/mnt/hgfs/sharedDB/db_projects/krangl/
-export KRANGL_HOME=/c/Users/brandl/Dropbox/sharedDB/db_projects/krangl
+export KRANGL_HOME=/d/projects/misc/krangl
 
 #########################################################################
 ## Update release notes in [CHANGES.md](../CHANGES.md)

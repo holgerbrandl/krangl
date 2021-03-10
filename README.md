@@ -32,7 +32,7 @@ repositories {
 }
 
 dependencies {
-    implementation "com.github.holgerbrandl.krangl:krangl:0.15.6"
+    implementation "com.github.holgerbrandl.krangl:krangl:0.15.7"
 }
 ```
 Declaring the repository is purely optional as it is the default already.
