@@ -100,3 +100,20 @@ val persons : List<Person> = ...
 
 val personsDF: DataFrame = persons.asDataFrame() 
 ```
+
+When doing so non-basic properties will be preserved as `AnyCol`. To further destructured these we can use `unfold`:
+
+```kotlin
+data class City(val name:String, val code:Int)
+data class Person(val name:String, val address:City)
+
+val persons : List<Person> = listOf(
+    Person("Max", City("Dresden", 12309)),
+    Person("Anna", City("Berlin", 10115))
+)
+
+val personsDF: DataFrame = persons.asDataFrame()
+personsDF.unfold<City>("address") 
+```
+Both the column and the type are provided. 
+

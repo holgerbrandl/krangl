@@ -224,8 +224,10 @@ class TypeInterfaceTest {
         cars["cars"].asType<Car>().first()!!.name
 
         val unfolded = cars.unfold<Car>("cars", keep = true)
-
         unfolded.names shouldBe listOf("cars", "brand", "brandURL", "name", "ps", "alternativeURL")
+
+        val unfoldedWithPrefix = cars.unfold<Car>("cars", keep=false, addPrefix = true)
+        unfoldedWithPrefix.names shouldBe listOf("cars_brand", "cars_brandURL", "cars_name", "cars_ps", "cars_alternativeURL")
     }
 }
 

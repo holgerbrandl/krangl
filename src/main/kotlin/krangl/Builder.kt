@@ -79,7 +79,8 @@ inline fun <reified T> Iterable<T>.asDataFrame(): DataFrame {
 inline fun <reified T> DataFrame.unfold(
     columnName: String,
     properties: List<String> = detectPropertiesByReflection<T>().map { it.name },
-    keep: Boolean = true
+    keep: Boolean = true,
+    addPrefix:Boolean=false
 ): DataFrame {
 
     val extProperties = properties + properties.map { "get" + it.capitalize() }
@@ -92,7 +93,9 @@ inline fun <reified T> DataFrame.unfold(
 
     // todo make sure that unfolded columns are not yet present in df, and warn if so and append _1, _2, ... suffix
     val unfolded = filtMembers.fold(this) { df, kCallable ->
-        df.addColumn(kCallable.name) {
+        val colName = if(addPrefix) columnName + "_" + kCallable.name else kCallable.name
+
+        df.addColumn(colName) {
             df[columnName].map<T> {
                 kCallable.call(it)
             }
