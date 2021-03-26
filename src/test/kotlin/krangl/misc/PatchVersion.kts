@@ -6,12 +6,19 @@ val newVersion = args[0]
 
 fun PatchVersion.fixInFile(file: File) {
     val transformedSetup: String = file.readLines().map {
-        val prefix: String = """implementation "de.mpicbg.scicomp:krangl:"""
+        val prefix: String = """    implementation "com.github.holgerbrandl:krangl:"""
         if (it.startsWith(prefix)) {
-            """implementation "de.mpicbg.scicomp:krangl:${newVersion}""""
+            """    implementation "com.github.holgerbrandl:krangl:${newVersion}""""
         } else {
             it
         }
+
+        // todo also fix badge here
+//        if(it.contains("Central-[0-9.]*-orange".toRegex())){
+//          it
+//        }else{
+            it
+//        }
     }.joinToString(System.lineSeparator())
 
 
