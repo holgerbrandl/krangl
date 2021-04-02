@@ -1,5 +1,10 @@
 package krangl.util
 
+import krangl.ColNames
+import krangl.ColumnSelector
+import krangl.DataFrame
+import krangl.validate
+
 //
 // Functional Helpers (missing in kotlin-stdlib)
 //
@@ -49,3 +54,20 @@ internal fun Sequence<*>.joinToMaxLengthString(
 //    }).also { print(it) }
 //}
 
+/** Internal helper to convert a `ColumnSelector` into the list of selected columns. */
+fun DataFrame.colSelectAsNames(columnSelect: ColumnSelector): List<String> {
+    columnSelect.validate(this)
+
+    val which = ColNames(names).columnSelect()
+    require(which.size == ncol) { "selector array has different dimension than data-frame" }
+
+    // map boolean array to string selection
+    val isPosSelection = which.count { it == true } > 0 || which.filterNotNull().isEmpty()
+    val whichComplete = which.map { it ?: !isPosSelection }
+
+    val colSelection: List<String> = names
+        .zip(whichComplete)
+        .filter { it.second }.map { it.first }
+
+    return colSelection
+}

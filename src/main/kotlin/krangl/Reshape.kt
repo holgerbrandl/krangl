@@ -2,6 +2,7 @@ package krangl
 
 import krangl.ArrayUtils.handleArrayErasure
 import krangl.ArrayUtils.handleListErasure
+import krangl.util.colSelectAsNames
 
 /**
  * Spread a key-value pair across multiple columns.

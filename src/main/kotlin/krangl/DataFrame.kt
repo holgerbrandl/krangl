@@ -1,5 +1,7 @@
 package krangl
 
+import krangl.util.colSelectAsNames
+
 
 typealias DataFrameRow = Map<String, Any?>
 
@@ -61,7 +63,6 @@ interface DataFrame {
     ```
      */
     val rows: Iterable<DataFrameRow>
-
 
     /** Select or remove columns by predicate.
      *

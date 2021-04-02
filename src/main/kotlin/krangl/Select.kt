@@ -183,21 +183,3 @@ internal fun DataFrame.reduceColSelectors(which: Array<out ColumnSelector>): Col
         .reduce { selA, selB -> selA nullAwareAND selB }
         .let { { it } }
 }
-
-
-internal fun DataFrame.colSelectAsNames(columnSelect: ColumnSelector): List<String> {
-    columnSelect.validate(this)
-
-    val which = ColNames(names).columnSelect()
-    require(which.size == ncol) { "selector array has different dimension than data-frame" }
-
-    // map boolean array to string selection
-    val isPosSelection = which.count { it == true } > 0 || which.filterNotNull().isEmpty()
-    val whichComplete = which.map { it ?: !isPosSelection }
-
-    val colSelection: List<String> = names
-        .zip(whichComplete)
-        .filter { it.second }.map { it.first }
-
-    return colSelection
-}
