@@ -4,8 +4,10 @@ krangl Release History
 v0.16 (Work in Progress)
 -----
 
-* added supported for fixed-width files with `readFixedWidth()`
-* added supported for more compact column type specification when reading tsv
+* Added supported for fixed-width files with `readFixedWidth()`
+* Added supported for more compact column type specification when reading tsv
+* Fixed: NA and emtpy cell handling in excel-reader
+* Fixed: Use correct cell types when writing Excel file
 
 v0.15.6
 -----

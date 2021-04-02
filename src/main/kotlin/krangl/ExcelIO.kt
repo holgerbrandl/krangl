@@ -19,7 +19,7 @@ import java.io.IOException
 //}
 
 /**
- * Returns a DataFrame with the contents from an Excel file sheet
+ * Returns a DataFrame with the contents from an Excel file sheet.  By default, krangl treats blank cells as missing data.
  */
 @JvmOverloads
 fun DataFrame.Companion.readExcel(
@@ -27,7 +27,7 @@ fun DataFrame.Companion.readExcel(
     sheet: Int = 0,
     cellRange: CellRangeAddress? = null,
     colTypes: ColumnTypeSpec = GuessSpec(),
-    trim_ws: Boolean = false,
+    trim: Boolean = false,
     guessMax: Int = 100,
     na: String = MISSING_VALUE,
     stopAtBlankLine: Boolean = true,
@@ -38,7 +38,7 @@ fun DataFrame.Companion.readExcel(
     val xlWBook = WorkbookFactory.create(inputStream)
     try {
         val xlSheet = xlWBook.getSheetAt(sheet) ?: throw IOException("Sheet at index $sheet not found")
-        df = readExcelSheet(xlSheet, cellRange, colTypes, trim_ws, guessMax, na, stopAtBlankLine, includeBlankLines)
+        df = readExcelSheet(xlSheet, cellRange, colTypes, trim, guessMax, na, stopAtBlankLine, includeBlankLines)
     } finally {
         xlWBook.close()
         inputStream.close()
@@ -47,7 +47,7 @@ fun DataFrame.Companion.readExcel(
 }
 
 /**
- * Returns a DataFrame with the contents from an Excel file sheet
+ * Returns a DataFrame with the contents from an Excel file sheet. By default, krangl treats blank cells as missing data.
  */
 @JvmOverloads
 fun DataFrame.Companion.readExcel(
@@ -78,7 +78,7 @@ private fun readExcelSheet(
     xlSheet: Sheet,
     range: CellRangeAddress?,
     colTypes: ColumnTypeSpec = GuessSpec(),
-    trim_ws: Boolean,
+    trim: Boolean,
     guessMax: Int,
     na: String,
     stopAtBlankLine: Boolean,
@@ -102,7 +102,6 @@ private fun readExcelSheet(
     }
 
     val cellIterator = currentRow.iterator()
-    var valueList: MutableList<String>
 
     // Get column names
     val columnResults = getExcelColumnNames(cellIterator, df, cellRange)
@@ -112,18 +111,17 @@ private fun readExcelSheet(
     //Get rows
     while (rowIterator.hasNext() && currentRow.rowNum < cellRange.lastRow) {
         currentRow = rowIterator.next()
-        valueList = mutableListOf()
-        val hasValues = readExcelRow(currentRow, valueList, cellRange, trim_ws, na)
+        val values = readExcelRow(currentRow, cellRange, trim, na)
 
         //Prevent Excel reading blank lines (whose contents have been cleared but the lines weren't deleted)
-        if (hasValues)
-            df = df.addRow(valueList)
+        if (values.filterNotNull().isNotEmpty())
+            df = df.addRow(values)
         else
             if (stopAtBlankLine)
                 break //Stops reading on first blank line
             else
                 if (includeBlankLines)
-                    df = df.addRow(valueList)
+                    df = df.addRow(values)
     }
     return assignColumnTypes(df, colTypes, guessMax)
 }
@@ -140,36 +138,40 @@ private fun getDefaultCellAddress(xlSheet: Sheet): CellRangeAddress {
 
 private fun readExcelRow(
     currentRow: Row,
-    valueList: MutableList<String>,
     cellRange: CellRangeAddress,
-    trim_ws: Boolean,
+    trim: Boolean,
     na: String,
-): Boolean {
+): List<Any?> {
     val dataFormatter = DataFormatter()
     var cellCounter = 0
-    var currentCell: Cell?
-    var currentValue: String
-    var hasValues = false
+
+    val rowValues = mutableListOf<Any?>()
+
     while (cellCounter <= cellRange.lastColumn) { //iterator skips blank cells, this ensures all are read
         if (cellCounter < cellRange.firstColumn) {
             cellCounter++
             continue
         }
-        currentCell = currentRow.getCell(cellCounter)
 
-        currentValue = na
-        currentCell?.let { currentValue = dataFormatter.formatCellValue(currentCell) }
-        if (currentValue.isEmpty())
-            currentValue = na
-        if (trim_ws)
-            currentValue = currentValue.trim()
-        valueList.add(currentValue)
+        val currentCell = currentRow.getCell(cellCounter)
+
+        var currentValue = currentCell?.let { dataFormatter.formatCellValue(currentCell) }
+
+        if (trim) {
+            currentValue = currentValue?.trim()
+        }
+
+        if (currentValue == na) {
+            currentValue = null
+        }
+
+        currentValue = currentValue?.ifBlank { null }
+
+        rowValues.add(currentValue)
         cellCounter++
-
-        if (currentValue != na)
-            hasValues = true
     }
-    return hasValues
+
+    return rowValues
 }
 
 private fun getExcelColumnNames(
@@ -199,7 +201,7 @@ private fun assignColumnTypes(df: DataFrame, colTypes: ColumnTypeSpec, guessMax:
 
     val colList = mutableListOf<DataCol>()
 
-    df.cols.forEachIndexed{ index, column ->
+    df.cols.forEachIndexed { index, column ->
         colList.add(dataColFactory(column.name, (colTypes.typeOf(index, column.name)), column.values(), guessMax))
     }
 
@@ -222,18 +224,21 @@ fun DataFrame.writeExcel(
             XSSFWorkbook()
         }
     }
-    val sheet: XSSFSheet
     //Let Exception be thrown if already exists
-    sheet = workbook.createSheet(sheetName)
+    val sheet: XSSFSheet = workbook.createSheet(sheetName)
 
-    val headerCellStyle =
-        if (headers)
-            createExcelHeaderStyle(workbook, boldHeaders)
-        else
-            workbook.createCellStyle()
-    if (headers)
+    val headerCellStyle = if (headers) {
+        createExcelHeaderStyle(workbook, boldHeaders)
+    } else {
+        workbook.createCellStyle()
+    }
+
+    if (headers) {
         createExcelHeaderRow(sheet, boldHeaders, headerCellStyle)
+    }
+
     createExcelDataRows(sheet, headers)
+
     // Exception will be thrown if file is already open
     val fileOut = FileOutputStream(filePath)
     workbook.write(fileOut)
@@ -257,10 +262,32 @@ private fun createExcelHeaderStyle(
 
 private fun DataFrame.createExcelDataRows(sheet: XSSFSheet, headers: Boolean) {
     var rowIdx = if (headers) 1 else 0
-    for (row in this.rows) {
+
+    for (dfRow in rows) {
         val nRow = sheet.createRow(rowIdx++)
-        for ((columnPosition, cell) in row.values.toMutableList().withIndex()) {
-            nRow.createCell(columnPosition).setCellValue(cell.toString())
+
+        for ((columnIndex, cellValue) in dfRow.values.toMutableList().withIndex()) {
+            val cell = nRow.createCell(columnIndex)
+
+            when(cols[columnIndex]){
+                is BooleanCol -> {
+                    cell.cellType= CellType.BOOLEAN
+                    cellValue?.let { cell.setCellValue(it as Boolean)}
+                }
+                is DoubleCol -> {
+                    cell.cellType= CellType.NUMERIC
+                    cellValue?.let { cell.setCellValue(it as Double)}
+                }
+                is IntCol -> {
+                    cell.cellType= CellType.NUMERIC
+                    cellValue?.let { cell.setCellValue((it as Int).toDouble())}
+                }
+//                is StringCol -> cell.cellType= CellType.STRING
+                else -> {
+                    cellValue?.let { cell.setCellValue(cellValue.toString())}
+                }
+            }
+//            cell.setCellValue(cell.toString())
         }
     }
 }

@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.4.31'
+    ext.kotlin_version = '1.4.32'
     ext.dokka_version = '1.4.20' // see https://github.com/Kotlin/dokka/issues/656
 
     repositories {

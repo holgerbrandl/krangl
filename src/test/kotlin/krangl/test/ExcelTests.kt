@@ -57,13 +57,13 @@ class ExcelTests {
         // Test sheet by index + cell range
         val cellRangeTestDF = DataFrame.readExcel(
             "src/test/resources/krangl/data/ExcelReadExample.xlsx",
-            sheet = 1, cellRange = CellRangeAddress.valueOf("E5:J105"), trim_ws = true
+            sheet = 1, cellRange = CellRangeAddress.valueOf("E5:J105"), trim = true
         )
 
         // Test defaulted cellRange's correctness on sheet with empty rows/cols
         val defaultCellRangeTestDF = DataFrame.readExcel(
             "src/test/resources/krangl/data/ExcelReadExample.xlsx",
-            sheet = 1, trim_ws = true
+            sheet = 1, trim = true
         )
 
         cellRangeTestDF shouldBe df
@@ -78,7 +78,7 @@ class ExcelTests {
         )
         val trimmedDF = DataFrame.readExcel(
             "src/test/resources/krangl/data/ExcelReadExample.xlsx",
-            sheet = 1, trim_ws = true
+            sheet = 1, trim = true
         )
 
         trimmedDF shouldBe df
@@ -99,7 +99,7 @@ class ExcelTests {
     fun `readExcel - should stop at first blank line`() {
         val shouldStopAtBlankDF = DataFrame.readExcel(
             "src/test/resources/krangl/data/ExcelReadExample.xlsx",
-            sheet = 2, trim_ws = true, cellRange = CellRangeAddress.valueOf("E3:J10")
+            sheet = 2, trim = true, cellRange = CellRangeAddress.valueOf("E3:J10")
         )
 
         shouldStopAtBlankDF.nrow shouldBe 4
@@ -109,7 +109,7 @@ class ExcelTests {
     fun `readExcel - should continue past blank line`() {
         val shouldContinueAtBlankDF = DataFrame.readExcel(
             "src/test/resources/krangl/data/ExcelReadExample.xlsx",
-            sheet = 2, trim_ws = true, cellRange = CellRangeAddress.valueOf("E3:J10"), stopAtBlankLine = false
+            sheet = 2, trim = true, cellRange = CellRangeAddress.valueOf("E3:J10"), stopAtBlankLine = false
         )
 
         shouldContinueAtBlankDF.nrow shouldBe 6
@@ -120,7 +120,7 @@ class ExcelTests {
         val shouldContinueAtBlankDF = DataFrame.readExcel(
             "src/test/resources/krangl/data/ExcelReadExample.xlsx",
             sheet = 2,
-            trim_ws = true,
+            trim = true,
             cellRange = CellRangeAddress.valueOf("E3:J10"),
             stopAtBlankLine = false,
             includeBlankLines = true
@@ -166,4 +166,23 @@ class ExcelTests {
         writtenDF shouldBe df
     }
 
+    @Test
+    // note: we aim for consistency with  read_excel("missing_data.xlsx", na="NA")
+    fun `it should correctly convert NA and empty cells to NA`(){
+        val df = DataFrame.readExcel(
+            "src/test/resources/krangl/data/missing_data.xlsx",
+            na = "NA",
+            colTypes = NamedColumnSpec("Registered" to ColType.Boolean)
+        )
+
+        df.print(maxWidth = 1000)
+        df.schema()
+
+        df[1][4] shouldBe null
+        df[3][1] shouldBe null
+        df[5][3] shouldBe null
+
+        // also make sure that it parsed the boolean column as such
+        (df.cols[5] is BooleanCol) shouldBe true
+    }
 }

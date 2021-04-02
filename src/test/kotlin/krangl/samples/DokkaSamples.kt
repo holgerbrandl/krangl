@@ -170,7 +170,7 @@ fun readExcelExample() {
     )
 
     // Read excel file without any leading or trailing whitespace
-    df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0, trim_ws = true)
+    df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0, trim = true)
 
     // Read excel file specifying column types (Remaining ones will be guessed)
     df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", 0, colTypes = colTypesMap)
