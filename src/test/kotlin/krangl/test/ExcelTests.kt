@@ -88,7 +88,7 @@ class ExcelTests {
     fun `readExcel - colTypes should work`() {
         val df = DataFrame.readExcel(
             "src/test/resources/krangl/data/ExcelReadExample.xlsx",
-            "FirstSheet", colTypes = mapOf(Pair("Activities", ColType.Int))
+            "FirstSheet", colTypes = NamedColumnSpec("Activities" to ColType.Int)
         )
 
         (df["Activities"] is IntCol) shouldBe true // Tests when ColType is given

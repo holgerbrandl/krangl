@@ -5,6 +5,7 @@ v0.16 (Work in Progress)
 -----
 
 * added supported for fixed-width files with `readFixedWidth()`
+* added supported for more compact column type specification when reading tsv
 
 v0.15.6
 -----

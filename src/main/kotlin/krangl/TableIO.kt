@@ -38,7 +38,7 @@ internal fun isURL(fileOrUrl: String): Boolean = listOf("http:", "https:", "ftp:
 fun DataFrame.Companion.readCSV(
     fileOrUrl: String,
     format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
-    colTypes: Map<String, ColType> = mapOf()
+    colTypes: ColumnTypeSpec = GuessSpec()
 ) = readDelim(
     asStream(fileOrUrl),
     format = format,
@@ -51,7 +51,7 @@ fun DataFrame.Companion.readCSV(
 fun DataFrame.Companion.readTSV(
     fileOrUrl: String,
     format: CSVFormat = CSVFormat.TDF.withHeader(),
-    colTypes: Map<String, ColType> = mapOf()
+    colTypes: ColumnTypeSpec = GuessSpec()
 ) = readDelim(
     inStream = asStream(fileOrUrl),
     format = format,
@@ -63,7 +63,7 @@ fun DataFrame.Companion.readTSV(
 fun DataFrame.Companion.readTSV(
     file: File,
     format: CSVFormat = CSVFormat.TDF.withHeader(),
-    colTypes: Map<String, ColType> = mapOf()
+    colTypes: ColumnTypeSpec = GuessSpec()
 ) = readDelim(
     FileInputStream(file),
     format = format,
@@ -76,7 +76,7 @@ fun DataFrame.Companion.readTSV(
 fun DataFrame.Companion.readCSV(
     file: File,
     format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
-    colTypes: Map<String, ColType> = mapOf()
+    colTypes: ColumnTypeSpec = GuessSpec()
 ) = readDelim(
     inStream = FileInputStream(file),
     format = format,
@@ -94,7 +94,7 @@ fun DataFrame.Companion.readDelim(
     //                                hasHeader:Boolean =true,
     format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
     isCompressed: Boolean = uri.toURL().toString().endsWith(".gz"),
-    colTypes: Map<String, ColType> = mapOf()
+    colTypes: ColumnTypeSpec = GuessSpec()
 ): DataFrame {
 
     val inputStream = uri.toURL().openStream()
@@ -118,7 +118,7 @@ fun DataFrame.Companion.readDelim(
     inStream: InputStream,
     format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
     isCompressed: Boolean = false,
-    colTypes: Map<String, ColType> = mapOf()
+    colTypes: ColumnTypeSpec = GuessSpec()
 ) =
     if (isCompressed) {
         InputStreamReader(GZIPInputStream(inStream))
@@ -132,7 +132,7 @@ fun DataFrame.Companion.readDelim(
 fun DataFrame.Companion.readDelim(
     reader: Reader,
     format: CSVFormat = CSVFormat.DEFAULT.withHeader(),
-    colTypes: Map<String, ColType> = mapOf(),
+    colTypes: ColumnTypeSpec = GuessSpec(),
     skip: Int = 0
 ): DataFrame {
 
@@ -169,14 +169,81 @@ fun DataFrame.Companion.readDelim(
 
     //    csvParser.headerMap.keys.pmap{colName ->
     val cols = uniqueNames.mapIndexed { colIndex, colName ->
-        val defaultColType = colTypes[".default"] ?: ColType.Guess
-
-        val colType = colTypes[colName] ?: defaultColType
+        val colType = colTypes.typeOf(colIndex, colName)
 
         dataColFactory(colName, colIndex, colType, records)
     }
 
     return SimpleDataFrame(cols)
+}
+
+/** Allows specifying the column types when reading a data-frame. */
+sealed class ColumnTypeSpec {
+    abstract fun typeOf(index: Int, columnName: String): ColType
+}
+
+class GuessSpec : NamedColumnSpec(mapOf())
+
+open class NamedColumnSpec(val colTypes: Map<String, ColType>) : ColumnTypeSpec() {
+    val DEFAULT_COLUMN_SPEC_NAME = ".default"
+
+    val DEFAULT_TYPE = colTypes[DEFAULT_COLUMN_SPEC_NAME] ?: ColType.Guess
+
+    override fun typeOf(index: Int, columnName: String): ColType {
+
+        return colTypes[columnName] ?: DEFAULT_TYPE
+    }
+
+    constructor(vararg spec: Pair<String, ColType>) : this(spec.toMap())
+}
+
+/**
+ * CompactColumnSpec uses a compact string representation where each character represents one column:
+ *
+ * c = character
+ *
+ * i = integer
+ *
+ * n = number
+ *
+ * d = double
+ *
+ * l = logical
+ *
+ * f = factor
+ *
+ * D = date
+ *
+ * T = date time
+ *
+ * t = time
+ *
+ * ? = guess
+ *
+ * _ or - = skip
+ */
+class CompactColumnSpec(val columnSpec: String) : ColumnTypeSpec() {
+
+    val colTypes = columnSpec.map {
+        when (it) {
+            's' -> ColType.String
+            'i' -> ColType.Int
+            'l' -> ColType.Long
+            'd' -> ColType.Double
+            'b' -> ColType.Boolean
+            // TODO natively support reading date columns
+//            'D' -> date
+//            'T' -> date time
+//            't' -> time
+            '?' -> ColType.Guess
+//            '_' -> - = skip
+            else -> throw IllegalArgumentException("invalid type '$it' in compact column spec '$columnSpec'")
+        }
+    }
+
+    override fun typeOf(index: Int, columnName: String): ColType {
+        return colTypes[index]
+    }
 }
 
 
@@ -245,12 +312,15 @@ internal fun String.naAsNull(): String? = if (this == MISSING_VALUE) null else t
 
 internal fun String?.nullAsNA(): String = this ?: MISSING_VALUE
 
-//fun DataFrame.emptyAsNull(columnSelect: ColumnSelector = { all() }): DataFrame {
-//    colSelectAsNames(columnSelect).reduce( this, colName ->  })
-//    val completeCases: List<Boolean> = select(columnSelect).rows.map { !it.values.contains(null) }
 //
-//    return filter { completeCases.toBooleanArray() }
-//}
+//inline fun <reified T>  DataFrame.replaceNA(value: T, noinline columnSelect: ColumnSelector = { all() }) =
+//    colSelectAsNames(columnSelect).fold(this) { df, column, ->
+//        df.addColumn(column) {
+//            it[column].values().map {
+//                it ?: value
+//            }
+//        }
+//    }
 
 internal fun String?.cellValueAsBoolean(): Boolean? {
     if (this == null) return null

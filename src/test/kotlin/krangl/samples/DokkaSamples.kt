@@ -154,7 +154,7 @@ fun iterableDeparsing() {
 
 fun readExcelExample() {
 
-    val colTypesMap: Map<String, ColType> = mapOf("Activities" to ColType.Int, "Email" to ColType.String)
+    val colTypesMap = NamedColumnSpec("Activities" to ColType.Int,  "Email" to ColType.String)
 
     // Read excel file using sheet name
     var df = DataFrame.readExcel("src/test/resources/krangl/data/ExcelReadExample.xlsx", "FirstSheet")

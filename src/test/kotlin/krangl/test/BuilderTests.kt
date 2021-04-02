@@ -64,7 +64,7 @@ class CsvReaderTests {
     @Test
     fun `it should have the correct column types`() {
 
-        val columnTypes = mapOf(
+        val columnTypes = NamedColumnSpec(
             "a" to ColType.String,
             "b" to ColType.String,
             "c" to ColType.Double,
@@ -76,6 +76,22 @@ class CsvReaderTests {
 
         val dataFrame =
             DataFrame.readCSV("src/test/resources/krangl/data/test_header_types.csv", colTypes = columnTypes)
+        val cols = dataFrame.cols
+        assert(cols[0] is StringCol)
+        assert(cols[1] is StringCol)
+        assert(cols[2] is DoubleCol)
+        assert(cols[3] is IntCol)
+        assert(cols[4] is BooleanCol)
+        assert(cols[5] is LongCol)
+    }
+
+    @Test
+    fun `it should read csv with compact column spec`() {
+        val dataFrame = DataFrame.readCSV(
+            "src/test/resources/krangl/data/test_header_types.csv",
+            colTypes = CompactColumnSpec("s?dibl")
+        )
+
         val cols = dataFrame.cols
         assert(cols[0] is StringCol)
         assert(cols[1] is StringCol)

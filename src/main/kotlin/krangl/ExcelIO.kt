@@ -26,7 +26,7 @@ fun DataFrame.Companion.readExcel(
     path: String,
     sheet: Int = 0,
     cellRange: CellRangeAddress? = null,
-    colTypes: Map<String, ColType> = mapOf(),
+    colTypes: ColumnTypeSpec = GuessSpec(),
     trim_ws: Boolean = false,
     guessMax: Int = 100,
     na: String = MISSING_VALUE,
@@ -54,7 +54,7 @@ fun DataFrame.Companion.readExcel(
     path: String,
     sheet: String,
     cellRange: CellRangeAddress? = null,
-    colTypes: Map<String, ColType> = mapOf(),
+    colTypes: ColumnTypeSpec = GuessSpec(),
     trim_ws: Boolean = false,
     guessMax: Int = 100,
     na: String = MISSING_VALUE,
@@ -77,7 +77,7 @@ fun DataFrame.Companion.readExcel(
 private fun readExcelSheet(
     xlSheet: Sheet,
     range: CellRangeAddress?,
-    colTypes: Map<String, ColType>,
+    colTypes: ColumnTypeSpec = GuessSpec(),
     trim_ws: Boolean,
     guessMax: Int,
     na: String,
@@ -195,13 +195,14 @@ private fun getExcelColumnNames(
     return Pair(df1, lastColumn)
 }
 
-private fun assignColumnTypes(df: DataFrame, colTypes: Map<String, ColType>, guessMax: Int = 100): DataFrame {
+private fun assignColumnTypes(df: DataFrame, colTypes: ColumnTypeSpec, guessMax: Int = 100): DataFrame {
 
     val colList = mutableListOf<DataCol>()
 
-    for (column in df.cols) {
-        colList.add(dataColFactory(column.name, (colTypes[column.name] ?: ColType.Guess), column.values(), guessMax))
+    df.cols.forEachIndexed{ index, column ->
+        colList.add(dataColFactory(column.name, (colTypes.typeOf(index, column.name)), column.values(), guessMax))
     }
+
     return SimpleDataFrame(colList)
 }
 
