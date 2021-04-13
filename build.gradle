@@ -54,7 +54,7 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation("io.kotest:kotest-assertions-core:4.2.6")
     testImplementation 'com.h2database:h2:1.4.200'
-    testImplementation "org.jetbrains.kotlin:kotlin-script-runtime:1.4.21"
+    testImplementation "org.jetbrains.kotlin:kotlin-script-runtime:1.4.32"
     //    testCompile "io.kotlintest:kotlintest-runner-junit5:3.1.9"
 }
 
@@ -117,7 +117,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 
 //http://stackoverflow.com/questions/34377367/why-is-gradle-install-replacing-my-version-with-unspecified
 //group 'com.github.holgerbrandl'
-version '0.16-SNAPSHOT'
+version '0.16'
 //version '0.15.8'
 
 

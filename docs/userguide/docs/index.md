@@ -1,4 +1,4 @@
-[ ![Download](https://img.shields.io/badge/Maven%20Central-0.15.8-orange) ](https://mvnrepository.com/artifact/com.github.holgerbrandl.krangl/krangl)  [![Build Status](https://github.com/holgerbrandl/krangl/workflows/build/badge.svg)](https://github.com/holgerbrandl/krangl/actions?query=workflow%3Abuild) [![Gitter](https://badges.gitter.im/holgerbrandl/krangl.svg)](https://gitter.im/holgerbrandl/krangl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[ ![Download](https://img.shields.io/badge/Maven%20Central-0.16-orange) ](https://mvnrepository.com/artifact/com.github.holgerbrandl.krangl/krangl)  [![Build Status](https://github.com/holgerbrandl/krangl/workflows/build/badge.svg)](https://github.com/holgerbrandl/krangl/actions?query=workflow%3Abuild) [![Gitter](https://badges.gitter.im/holgerbrandl/krangl.svg)](https://gitter.im/holgerbrandl/krangl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 This is the manual of [krangl](https://github.com/holgerbrandl/krangl).
 
@@ -27,7 +27,7 @@ Features
 * Descriptive statistics (mean, min, max, median, ...)
 * Functional API inspired by [dplyr](http://dplyr.tidyverse.org/), [pandas](http://pandas.pydata.org/), and Kotlin [stdlib](https://kotlinlang.org/api/latest/jvm/stdlib/index.html)
 
-Furthermore it provides methods to go back and forth between untyped and typed data.
+Furthermore, it provides methods to go back and forth between untyped and typed data.
 
 
 Installation
@@ -40,7 +40,7 @@ repositories {
 }
 
 dependencies {
-    implementation "com.github.holgerbrandl:krangl:0.15.8"
+    implementation "com.github.holgerbrandl:krangl:0.16"
 }
 ```
 Declaring the repository is purely optional as it is the default already.

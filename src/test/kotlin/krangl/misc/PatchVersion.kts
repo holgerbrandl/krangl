@@ -6,19 +6,20 @@ val newVersion = args[0]
 
 fun PatchVersion.fixInFile(file: File) {
     val transformedSetup: String = file.readLines().map {
-        val prefix: String = """    implementation "com.github.holgerbrandl:krangl:"""
-        if (it.startsWith(prefix)) {
+        val prefix = """    implementation "com.github.holgerbrandl:krangl:"""
+        val gradleFix = if (it.startsWith(prefix)) {
             """    implementation "com.github.holgerbrandl:krangl:${newVersion}""""
         } else {
             it
         }
 
         // todo also fix badge here
-//        if(it.contains("Central-[0-9.]*-orange".toRegex())){
-//          it
-//        }else{
-            it
-//        }
+        val matchGroup = "Central-([0-9.]+)-orange.*".toRegex().find(gradleFix)
+        if(matchGroup!=null){
+            gradleFix.replace(matchGroup.groupValues[1], newVersion)
+        }else{
+            gradleFix
+        }
     }.joinToString(System.lineSeparator())
 
 

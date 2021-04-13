@@ -1,10 +1,15 @@
 krangl Release History
 ======================
 
-v0.16 (Work in Progress)
+v0.16 
 -----
 
-* Added supported for fixed-width files with `readFixedWidth()`
+Released 2021-04-13
+
+`krangl` is now deployed to maven-central and no no longer ot jcenter
+
+Features
+* Added support for fixed-width files with `readFixedWidth()`
 * Added supported for more compact column type specification when reading tsv
 * Fixed: NA and emtpy cell handling in excel-reader
 * Fixed: Use correct cell types when writing Excel file
