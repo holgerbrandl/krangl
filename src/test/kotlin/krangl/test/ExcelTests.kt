@@ -3,7 +3,10 @@ package krangl.test
 import io.kotest.matchers.shouldBe
 import krangl.*
 import org.apache.poi.ss.util.CellRangeAddress
+import org.apache.poi.util.LocaleUtil
 import org.junit.Test
+import java.util.*
+
 
 class ExcelTests {
 
@@ -168,7 +171,7 @@ class ExcelTests {
 
     @Test
     // note: we aim for consistency with  read_excel("missing_data.xlsx", na="NA")
-    fun `it should correctly convert NA and empty cells to NA`(){
+    fun `it should correctly convert NA and empty cells to NA`() {
         val df = DataFrame.readExcel(
             "src/test/resources/krangl/data/missing_data.xlsx",
             na = "NA",
@@ -184,5 +187,24 @@ class ExcelTests {
 
         // also make sure that it parsed the boolean column as such
         (df.cols[5] is BooleanCol) shouldBe true
+    }
+
+    @Test
+    fun `it should honor the system local when reading xls`() {
+        val defaultLocale = LocaleUtil.getUserLocale()
+        listOf(Locale.GERMAN, Locale.FRENCH, Locale.ENGLISH).forEach { locale ->
+            LocaleUtil.setUserLocale(locale)
+
+            val df = DataFrame.readExcel(
+                "src/test/resources/krangl/data/locale_test.xlsx",
+                "Operation"
+            )
+            df.print()
+            df.schema()
+
+            (df.cols[3] is DoubleCol) shouldBe true
+        }
+
+        LocaleUtil.setUserLocale(defaultLocale)
     }
 }

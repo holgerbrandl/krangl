@@ -155,17 +155,28 @@ private fun readExcelRow(
 
         val currentCell = currentRow.getCell(cellCounter)
 
-        var currentValue = currentCell?.let { dataFormatter.formatCellValue(currentCell) }
-
-        if (trim) {
-            currentValue = currentValue?.trim()
+        var currentValue: Any? = currentCell?.cellType?.let {
+            when (it) {
+                CellType.NUMERIC -> currentCell.numericCellValue
+                CellType.STRING -> currentCell.stringCellValue
+                CellType.BLANK -> null
+                CellType.BOOLEAN -> currentCell.booleanCellValue
+                CellType._NONE, CellType.ERROR, CellType.FORMULA -> dataFormatter.formatCellValue(currentCell)
+            }
         }
+//        var currentValue = currentCell?.let { dataFormatter.formatCellValue(currentCell) }
 
-        if (currentValue == na) {
-            currentValue = null
+        if (currentValue is String) {
+            if (trim) {
+                currentValue = currentValue.trim()
+            }
+
+            if (currentValue == na) {
+                currentValue = null
+            }
+
+            currentValue = (currentValue as String?)?.ifBlank { null }
         }
-
-        currentValue = currentValue?.ifBlank { null }
 
         rowValues.add(currentValue)
         cellCounter++
@@ -269,22 +280,22 @@ private fun DataFrame.createExcelDataRows(sheet: XSSFSheet, headers: Boolean) {
         for ((columnIndex, cellValue) in dfRow.values.toMutableList().withIndex()) {
             val cell = nRow.createCell(columnIndex)
 
-            when(cols[columnIndex]){
+            when (cols[columnIndex]) {
                 is BooleanCol -> {
-                    cell.cellType= CellType.BOOLEAN
-                    cellValue?.let { cell.setCellValue(it as Boolean)}
+                    cell.cellType = CellType.BOOLEAN
+                    cellValue?.let { cell.setCellValue(it as Boolean) }
                 }
                 is DoubleCol -> {
-                    cell.cellType= CellType.NUMERIC
-                    cellValue?.let { cell.setCellValue(it as Double)}
+                    cell.cellType = CellType.NUMERIC
+                    cellValue?.let { cell.setCellValue(it as Double) }
                 }
                 is IntCol -> {
-                    cell.cellType= CellType.NUMERIC
-                    cellValue?.let { cell.setCellValue((it as Int).toDouble())}
+                    cell.cellType = CellType.NUMERIC
+                    cellValue?.let { cell.setCellValue((it as Int).toDouble()) }
                 }
 //                is StringCol -> cell.cellType= CellType.STRING
                 else -> {
-                    cellValue?.let { cell.setCellValue(cellValue.toString())}
+                    cellValue?.let { cell.setCellValue(cellValue.toString()) }
                 }
             }
 //            cell.setCellValue(cell.toString())

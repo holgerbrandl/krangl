@@ -380,19 +380,28 @@ internal fun dataColFactory(colName: String, colType: ColType, records: Array<*>
     when (colType) {
         // see https://github.com/holgerbrandl/krangl/issues/10
         ColType.Int -> try {
-            IntCol(colName, records.map { it.trimEmptyToNull()?.toInt() })
+            IntCol(colName, records.map {
+                if(it is Number) it.toInt() else it.trimEmptyToNull()?.toInt()
+            })
         } catch (e: NumberFormatException) {
             StringCol(colName, records.map { it?.toString() })
         }
+
         ColType.Long -> try {
-            LongCol(colName, records.map { it.trimEmptyToNull()?.toLong() })
+            LongCol(colName, records.map {
+                if(it is Number) it.toLong() else it.trimEmptyToNull()?.toLong()
+            })
         } catch (e: NumberFormatException) {
             StringCol(colName, records.map { it?.toString() })
         }
 
-        ColType.Double -> DoubleCol(colName, records.map { it.trimEmptyToNull()?.toDouble() })
+        ColType.Double -> DoubleCol(colName, records.map {
+            if(it is Number) it.toDouble() else it.trimEmptyToNull()?.toDouble()
+        })
 
-        ColType.Boolean -> BooleanCol(colName, records.map { it?.toString()?.cellValueAsBoolean() })
+        ColType.Boolean -> BooleanCol(colName, records.map {
+            if(it is Boolean) it else it?.toString()?.cellValueAsBoolean()
+        })
 
         ColType.String -> StringCol(colName, records.map { it?.toString() })
 
