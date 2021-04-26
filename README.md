@@ -1,6 +1,6 @@
 # krangl
 
-[ ![Download](https://img.shields.io/badge/Maven%20Central-0.16.1-orange) ](https://mvnrepository.com/artifact/com.github.holgerbrandl/krangl)  [![Build Status](https://github.com/holgerbrandl/krangl/workflows/build/badge.svg)](https://github.com/holgerbrandl/krangl/actions?query=workflow%3Abuild) [![Gitter](https://badges.gitter.im/holgerbrandl/krangl.svg)](https://gitter.im/holgerbrandl/krangl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[ ![Download](https://img.shields.io/badge/Maven%20Central-0.16.2-orange) ](https://mvnrepository.com/artifact/com.github.holgerbrandl/krangl)  [![Build Status](https://github.com/holgerbrandl/krangl/workflows/build/badge.svg)](https://github.com/holgerbrandl/krangl/actions?query=workflow%3Abuild) [![Gitter](https://badges.gitter.im/holgerbrandl/krangl.svg)](https://gitter.im/holgerbrandl/krangl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 `krangl` is a {K}otlin library for data w{rangl}ing. By implementing a grammar of data manipulation using a modern functional-style API, it allows to filter, transform, aggregate and reshape tabular data.
 
@@ -32,7 +32,7 @@ repositories {
 }
 
 dependencies {
-    implementation "com.github.holgerbrandl:krangl:0.16.1"
+    implementation "com.github.holgerbrandl:krangl:0.16.2"
 }
 ```
 Declaring the repository is purely optional as it is the default already.
