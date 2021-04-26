@@ -9,6 +9,8 @@ import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.lang.Double.isInfinite
+import kotlin.math.floor
 
 //private fun testExcelInCP() {
 //    try {
@@ -157,7 +159,10 @@ private fun readExcelRow(
 
         var currentValue: Any? = currentCell?.cellType?.let {
             when (it) {
-                CellType.NUMERIC -> currentCell.numericCellValue
+                CellType.NUMERIC -> {
+                    val numValue = currentCell.numericCellValue
+                    if(floor(numValue) == numValue && !isInfinite(numValue)) numValue.toInt() else numValue
+                }
                 CellType.STRING -> currentCell.stringCellValue
                 CellType.BLANK -> null
                 CellType.BOOLEAN -> currentCell.booleanCellValue

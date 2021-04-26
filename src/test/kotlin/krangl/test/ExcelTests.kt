@@ -202,6 +202,7 @@ class ExcelTests {
             df.print()
             df.schema()
 
+            (df.cols[2] is IntCol) shouldBe true
             (df.cols[3] is DoubleCol) shouldBe true
         }
 
