@@ -11,6 +11,7 @@ import java.io.FileReader
 import java.io.StringReader
 import java.sql.DriverManager
 import java.sql.Statement
+import java.time.LocalDateTime
 
 /**
  * @author Holger Brandl
@@ -398,6 +399,37 @@ class DataBaseTests {
             schema()
             nrow shouldBe 8
             ncol shouldBe 3
+        }
+    }
+
+    @Test
+    fun `it should read dates from a database`() {
+//        Class.forName("org.postgresql.Driver")
+
+        val conn = DriverManager.getConnection("jdbc:h2:mem:")
+
+        val stmt: Statement = conn.createStatement();
+
+
+        val setupTmpTable = """
+            CREATE TABLE birthdays(id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR  (255), birthday TIMESTAMP );
+            
+            INSERT INTO birthdays(name, birthday) VALUES('Max', '2021-01-01 00:00:00');
+            INSERT INTO birthdays(name, birthday) VALUES('Anna', '2021-01-01 12:00:00');
+        """.trimIndent()
+
+        stmt.execute(setupTmpTable)
+
+        val rs = stmt.executeQuery("SELECT * FROM birthdays;")
+
+        // convert into DataFrame
+        val birthdaysDf: DataFrame = DataFrame.fromResultSet(rs)
+
+        birthdaysDf.apply {
+            schema()
+            nrow shouldBe 2
+            ncol shouldBe 3
+            get("BIRTHDAY").values().first() should beInstanceOf<LocalDateTime>()
         }
     }
 }
