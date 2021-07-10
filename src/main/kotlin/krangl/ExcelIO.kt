@@ -158,7 +158,7 @@ private fun readExcelRow(
             when (it) {
                 CellType.NUMERIC -> {
                     val numValue = currentCell.numericCellValue
-                    if(floor(numValue) == numValue && !isInfinite(numValue)) numValue.toInt() else numValue
+                    if(floor(numValue) == numValue && !isInfinite(numValue)) numValue.toLong() else numValue
                 }
                 CellType.STRING -> currentCell.stringCellValue
                 CellType.BLANK -> null
