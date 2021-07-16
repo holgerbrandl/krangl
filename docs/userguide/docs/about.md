@@ -25,6 +25,7 @@ Similar APIs (not just Kotlin)
 * [dplyr](https://cran.r-project.org/web/packages/dplyr/index.html) which is a grammar of data manipulation (R-lang)
 * [morpheus-core](https://github.com/zavtech/morpheus-core) which is a data science framework implementing an R-like data-frame for the JVM
 * [Frameless](https://github.com/typelevel/frameless) is a Scala library for working with Spark using more expressive types, including a more strongly typed Dataset/[DataFrame API](https://typelevel.org/frameless/TypedDataFrame.html)
+* https://dataframes.juliadata.org/stable/ A modern recent addition to the Julia data-science ecosystem
 
 
 Other data-science projects
