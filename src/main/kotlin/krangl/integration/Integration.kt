@@ -1,4 +1,4 @@
-package integration
+package krangl.integration
 
 import krangl.GroupedDataFrame
 import krangl.SimpleDataFrame
