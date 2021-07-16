@@ -1,30 +1,34 @@
-buildscript {
-    ext.kotlin_version = '1.4.32'
-    ext.dokka_version = '1.4.20' // see https://github.com/Kotlin/dokka/issues/656
+//buildscript {
+//    ext.kotlin_version = '1.5.21'
+//    ext.dokka_version = '1.4.20' // see https://github.com/Kotlin/dokka/issues/656
+//
+//    repositories {
+//        maven {
+//            url "https://plugins.gradle.org/m2/"
+//        }
+//
+////        maven { url 'https://dl.bintray.com/kotlin/dokka' }
+//        mavenCentral()
+//    }
+//
+//    dependencies {
+////        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
+////        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+////        classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0'
+////        classpath "org.jetbrains.kotlin:kotlin-jupyter-api-gradle-plugin:0.10.0-131-1"
+//    }
+//}
 
-    repositories {
-//        maven { url 'https://dl.bintray.com/kotlin/dokka' }
-        mavenCentral()
-    }
-
-    dependencies {
-//        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0'
-    }
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "1.5.21"
+    id "java"
+    id "maven-publish"
+    id "io.codearte.nexus-staging" version "0.30.0"
+    id "org.jetbrains.kotlin.jupyter.api" version "0.10.0-131-1"
 }
 
-
-apply plugin: 'kotlin'
-//apply plugin: 'org.jetbrains.dokka'
-apply plugin: 'application'
-apply plugin: 'java'
-//apply plugin: 'maven'
-apply plugin: 'maven-publish'
-apply plugin: 'io.codearte.nexus-staging'
-
 // not neeeded but does not work without
-mainClassName = "foo.Bar" // not needed but does not work without
+//mainClassName = "foo.Bar" // not needed but does not work without
 
 
 repositories {
@@ -40,16 +44,17 @@ dependencies {
 //    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
     // needed to work around https://youtrack.jetbrains.com/issue/KT-15064
-    compileOnly "org.jetbrains.kotlin:kotlin-script-runtime:$kotlin_version"
+    compileOnly "org.jetbrains.kotlin:kotlin-script-runtime"
 
 //    testCompile "org.jetbrains.kotlin:kotlin-script-runtime:$kotlin_version"
-
 
     api  "org.apache.commons:commons-csv:1.6" // cant upgrade to 1.8 because of https://issues.apache.org/jira/browse/CSV-257
 //    compile "com.univocity:univocity-parsers:2.7.5"
     api 'org.apache.poi:poi-ooxml:4.1.1' // For Excel read/write
 
     api  'com.beust:klaxon:5.4'//    compile 'me.tongfei:progressbar:0.5.5'
+
+    api("org.jetbrains.lets-plot:lets-plot-kotlin-jvm:3.0.1")
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation("io.kotest:kotest-assertions-core:4.2.6")
@@ -117,7 +122,8 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 
 //http://stackoverflow.com/questions/34377367/why-is-gradle-install-replacing-my-version-with-unspecified
 //group 'com.github.holgerbrandl'
-version '0.16.2'
+//version '0.16.2'
+version '0.17-SNAPSHOT'
 //version '0.15.8'
 
 

@@ -129,7 +129,7 @@ inline fun <reified T> DataFrame.rowsAs(mapping: Map<String, String> = names.map
         // just constructors for which all columns are present
         .filter { legitIdentLookup.keys.containsAll(it.parameters.map { it.name }) }
         // select the one with most parameters
-        .maxBy { it.parameters.size }
+        .maxByOrNull { it.parameters.size }
 
     if (bestConst == null) error("[krangl] Could not find matching constructor for subset of ${mapping.values}")
 

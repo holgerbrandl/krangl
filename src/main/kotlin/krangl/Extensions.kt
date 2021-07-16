@@ -597,14 +597,14 @@ fun DataFrame.asString(
     val valuePrinter = createValuePrinter(maxDigits)
 
     // calculate indents
-    val colWidths = printData.cols.map { it.values().map { (valuePrinter(it)).length }.max() ?: 20 }
+    val colWidths = printData.cols.map { it.values().map { (valuePrinter(it)).length }.maxOrNull() ?: 20 }
     val headerWidths = printData.names.map { it.length }
 
 
     // detect column padding
     val columnSpacing = 3
     val padding = colWidths.zip(headerWidths)
-        .map { (col, head) -> listOf(col, head).max()!! + columnSpacing }
+        .map { (col, head) -> listOf(col, head).maxOrNull()!! + columnSpacing }
         // remove spacer from first column to have correction alignment with beginning of line
         .toMutableList().also { if (it.size > 0) it[0] -= columnSpacing }.toList()
 
@@ -701,11 +701,11 @@ fun DataFrame.schema(maxDigits: Int = 3, maxWidth: Int = PRINT_MAX_WIDTH) {
     val topN = this
     println("DataFrame with ${nrow} observations")
 
-    val namePadding = topN.cols.map { it.name.length }.max() ?: 0
+    val namePadding = topN.cols.map { it.name.length }.maxOrNull() ?: 0
 
     val typeLabels = topN.cols.map { col -> getColumnType(col, wrapSquares = true) }
 
-    val typePadding = typeLabels.map { it.length }.max() ?: 0
+    val typePadding = typeLabels.map { it.length }.maxOrNull() ?: 0
 
     topN.cols.zip(typeLabels).forEach { (col, typeLabel) ->
         val stringifiedVals = col.values().take(255).asSequence()

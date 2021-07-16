@@ -552,11 +552,11 @@ fun ExpressionContext.isNotNA(columnName: String): BooleanArray = isNA(columnNam
  * @throws InvalidColumnOperationException If the type of the receiver column is not numeric
  */
 fun DataCol.min(removeNA: Boolean = false): Double? = when (this) {
-    is DoubleCol -> values.run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.min()
+    is DoubleCol -> values.run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.minOrNull()
     is IntCol -> values.map { it?.toDouble() }.toTypedArray()
-        .run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.min()
+        .run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.minOrNull()
     is LongCol -> values.map { it?.toDouble() }.toTypedArray()
-        .run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.min()
+        .run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.minOrNull()
     else -> throw InvalidColumnOperationException(this)
 }
 
@@ -568,11 +568,11 @@ fun DataCol.min(removeNA: Boolean = false): Double? = when (this) {
  * @throws InvalidColumnOperationException If the type of the receiver column is not numeric
  */
 fun DataCol.max(removeNA: Boolean = false): Double? = when (this) {
-    is DoubleCol -> values.run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.max()
+    is DoubleCol -> values.run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.maxOrNull()
     is IntCol -> values.map { it?.toDouble() }.toTypedArray()
-        .run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.max()
+        .run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.maxOrNull()
     is LongCol -> values.map { it?.toDouble() }.toTypedArray()
-        .run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.max()
+        .run { if (removeNA) filterNotNull().toTypedArray() else forceNotNull() }.maxOrNull()
     else -> throw InvalidColumnOperationException(this)
 }
 
