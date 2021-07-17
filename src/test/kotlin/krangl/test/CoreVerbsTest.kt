@@ -666,7 +666,7 @@ class CoreTests {
                       a
             1   0.73106
             2      <NA>
-            """.trimAndReline()
+            """.trimIndent()
     }
 
     @Test
@@ -712,7 +712,7 @@ class CoreTests {
                 and 336766 more rows, and and 11 more variables:
                 arr_delay, carrier, tailnum, flight, origin, dest,
                 air_time, distance, hour, minute
-                """.trimAndReline()
+                """.trimIndent()
     }
 
     @Test
@@ -724,7 +724,7 @@ class CoreTests {
 //            irisData.print()
         }.stdout shouldBe """A DataFrame: 0 x 5
         Sepal.Length            Sepal.Width           Petal.Length            Petal.Width
-and 1 more variables: Species""".trimAndReline()
+and 1 more variables: Species""".trimIndent()
     }
 
 

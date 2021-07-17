@@ -1088,4 +1088,5 @@ fun DataCol.asFactor(): DataCol {
     }
 }
 
-internal val lineSeparator = System.getProperty("line.separator")
+//internal val lineSeparator = System.getProperty("line.separator")
+internal val lineSeparator = "\n"
