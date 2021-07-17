@@ -236,7 +236,7 @@ class InplaceDataFrameBuilder(private val header: List<String>) {
             handleListErasure(it.first, it.second)
         }
 
-        require(tableColumns.map { it.length }.distinct().size == 1) {
+        require(rawColumns.isEmpty() || tableColumns.map { it.length }.distinct().size == 1) {
             "Provided data does not coerce to tabular shape"
         }
 
