@@ -207,20 +207,26 @@ class BuilderTests {
 
 
     @Test
-    fun `it shoudl coerece lists and iterables to varargs when building inplace data-frames`() {
+    fun `it should coerce lists and iterables to varargs when building inplace data-frames`() {
         dataFrameOf("foo")(listOf(1, 2, 3)).nrow shouldBe 3
         dataFrameOf("foo")(listOf(1, 2, 3).asIterable()).nrow shouldBe 3
         dataFrameOf("foo")(listOf(1, 2, 3).asSequence()).nrow shouldBe 3
+    }
+
+    @Test
+    fun `it should allow to create an empty data-frame with dataFrameOf`(){
+        // none
+        dataFrameOf("user", "salary")().apply {
+            nrow shouldBe  0
+            ncol shouldBe  0
+        }
     }
 
 
     @Test
     fun `it should enforce complete data when building inplace data-frames`() {
 
-        // none
-        shouldThrow<IllegalArgumentException> {
-            dataFrameOf("user", "salary")()
-        }
+
 
         // too few
         shouldThrow<IllegalArgumentException> {
