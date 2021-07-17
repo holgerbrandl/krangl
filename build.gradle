@@ -142,9 +142,12 @@ publishing {
 nexusPublishing {
     repositories {
         sonatype {
-            snapshotRepositoryUrl = uri(project.properties["sonatypeStagingProfileId"])
-            username = project.properties["ossrhUsername"]
-            password = project.properties["ossrhPassword"]
+            // we need to provide a fallback here since all dev but one won't have those credentials
+            // https://stackoverflow.com/questions/43333990/how-to-assign-default-values-for-ext-based-properties-in-gradle
+            // https://discuss.gradle.org/t/getproperty-vs-findproperty/21822
+            snapshotRepositoryUrl = uri(project.findProperty("sonatypeStagingProfileId") ?: 'not_defined')
+            username = project.findProperty("ossrhUsername")  ?: 'not_defined'
+            password = project.findProperty("ossrhPassword") ?: 'not_defined'
         }
     }
 }

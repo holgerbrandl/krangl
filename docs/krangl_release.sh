@@ -78,7 +78,7 @@ git push origin --tags
 ########################################################################
 ### Build and publish the binary release to maven-central
 
-./gradlew install
+#./gradlew install
 
 # careful with this one!
 # https://getstream.io/blog/publishing-libraries-to-mavencentral-2021/

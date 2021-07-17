@@ -147,13 +147,13 @@ val df = Dataframe(df.structure().target.selectWhere(column("Column Type").isEqu
 ```
 
 
-# Jupyter Integaration
+# Jupyter Integration
 
 dev scratchpad
 
 ```bash
 export KRANGL_HOME=/d/projects/misc/krangl/
-cd $KRANGL_HOME
+cd $KRANGL_HOME/..
 
 # start kernel
 cmd.exe "/K" C:\Users\brandl\Anaconda3\Scripts\activate.bat C:\Users\brandl\Anaconda3
@@ -165,7 +165,8 @@ cmd.exe "/K" C:\Users\brandl\Anaconda3\Scripts\activate.bat C:\Users\brandl\Anac
 
 #conda install -c jetbrains kotlin-jupyter-kernel
 # interactive use
-jupyter notebook --kernel=kotlin examples/jupyter/letsplot_example.ipynb
+jupyter notebook --kernel=kotlin 
+#jupyter notebook --kernel=kotlin examples/jupyter/letsplot_example.ipynb
 ```
 
 References
