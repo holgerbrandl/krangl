@@ -8,7 +8,7 @@ Released 2021-07-17
 
 * New Jupyter kernel integration with auto-import and improved rendering for `DataFrame` and `DataFrame.schema()`
 * Added `DataFrame.letsPlot()` to ease integration with [`lets-plots`](https://github.com/JetBrains/lets-plot-kotlin)  
-* New tutorial (jupyter notebook):  [Mammalian Sleep](https://github.com/holgerbrandl/krangl/blob/master/examples/jupyter/sleep_patterns.ipynb)
+* New tutorial (jupyter notebook):  [Mammalian Sleep](https://nbviewer.jupyter.org/github/holgerbrandl/krangl/blob/master/examples/jupyter/sleep_patterns.ipynb)
 * Updated to kotlin v1.5 and added supported for `value class` in `List<Any>.toDataFrame()` and `DataFrame.unfold()`
 * Added timestamp support for database support API (fixes [#124](https://github.com/holgerbrandl/krangl/issues/124))
 
