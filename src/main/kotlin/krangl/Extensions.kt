@@ -435,6 +435,8 @@ fun main(args: Array<String>) {
     //            "median" to { it["Species"].mean() }
     //        )
 
+    irisData.print()
+    irisData.schema()
     irisData.select { startsWith("Length") }.head().print()
     irisData.summarizeAt({ startsWith("Length") }) {
         add({ mean() }, "mean")
@@ -612,10 +614,10 @@ fun DataFrame.asString(
     // do the actual printing
     val sb = StringBuilder()
 
-    sb.appendln("${title}: ${nrow} x ${ncol}")
+    sb.appendLine("${title}: ${nrow} x ${ncol}")
 
     if (this is GroupedDataFrame) {
-        sb.appendln("Groups: ${by.joinToString()} [${groups.size}]")
+        sb.appendLine("Groups: ${by.joinToString()} [${groups.size}]")
     }
 
 
@@ -632,7 +634,7 @@ fun DataFrame.asString(
     if (colNames) widthTrimmed.cols.mapIndexed { index, col ->
         col.name.padStart(padding[index])
     }.joinToString("").apply {
-        sb.appendln(this)
+        sb.appendLine(this)
     }
 
 
@@ -640,7 +642,7 @@ fun DataFrame.asString(
         // show null as NA when printing data
         rowData.mapIndexed { index, value ->
             valuePrinter(value).padStart(padding[index])
-        }.joinToString("").apply { sb.appendln(this) }
+        }.joinToString("").apply { sb.appendLine(this) }
     }
 
     // similar to dplyr render a summary below the table
@@ -687,33 +689,105 @@ fun List<ColSpec>.asDf() = deparseRecords { mapOf("index" to it.pos, "name" to i
 
 fun List<ColSpec>.print() = asDf().print()
 
+internal val IS_JUPYTER by lazy {
+    try {
+        // check if we are in a notebook
+        Class.forName("jupyter.kotlin.KotlinContext")
+        true
+    } catch (e: ClassNotFoundException) {
+        // it's not jupyter
+        false
+    }
+}
+
+class DataFrameSchema(
+    private val df: DataFrame,
+    private val maxDigits: Int = 3,
+    private val maxWidth: Int = PRINT_MAX_WIDTH
+) {
+    override fun toString(): String {
+        val sb = StringBuilder()
+
+        with(df) {
+            val topN = this
+            sb.appendLine("DataFrame with ${nrow} observations")
+
+            val typeLabels = topN.cols.map { col -> getColumnType(col, wrapSquares = true) }
+
+            val namePadding = topN.cols.map { it.name.length }.maxOrNull() ?: 0
+            val typePadding = typeLabels.map { it.length }.maxOrNull() ?: 0
+
+            topN.cols.zip(typeLabels).forEach { (col, typeLabel) ->
+                val stringifiedVals = col.values().take(255).asSequence()
+                    .joinToMaxLengthString(maxLength = maxWidth, transform = createValuePrinter(maxDigits))
+
+
+                sb.appendLine("${col.name.padEnd(namePadding)}  ${typeLabel.padEnd(typePadding)}  $stringifiedVals")
+            }
+        }
+
+        return sb.toString()
+    }
+
+    fun toHTML(): String {
+        return StringBuilder().apply {
+
+            append("<html><body>")
+
+            append("<table>")
+
+            // render header
+            append("<tr>")
+            listOf("Name", "Type", "Values").forEach { append("""<th style="text-align:left">${it}</th>""") }
+            append("</tr>")
+
+            with(df) {
+                val topN = this
+
+                val typeLabels = topN.cols.map { col -> getColumnType(col, wrapSquares = true) }
+
+
+                topN.cols.zip(typeLabels).forEach { (col, typeLabel) ->
+                    val stringifiedVals = col.values().take(255).asSequence()
+                        .joinToMaxLengthString(maxLength = maxWidth, transform = createValuePrinter(maxDigits))
+
+//                    cols.forEach { append("""<th style=\\" text -align:left\\">${it.name}</th>""") }
+
+                    append("</tr>")
+
+                    append("""<td style="text-align:left">${col.name}</td>""")
+                    append("""<td style="text-align:left">${typeLabel}</td>""")
+                    append("""<td style="text-align:left">${stringifiedVals}</td>""")
+
+                    append("</tr>")
+                }
+            }
+
+            append("</table>")
+
+            appendLine("DataFrame with ${df.nrow} observations")
+
+            append("</body></html>")
+        }.toString()
+    }
+}
 
 // see https://spark.apache.org/docs/latest/sql-programming-guide.html#untyped-dataset-operations-aka-dataframe-operations
 /**
  *  Prints the schema (that is column names, types, and the first few values per column) of a dataframe to stdout.
  */
-fun DataFrame.schema(maxDigits: Int = 3, maxWidth: Int = PRINT_MAX_WIDTH) {
+fun DataFrame.schema(maxDigits: Int = 3, maxWidth: Int = PRINT_MAX_WIDTH): DataFrameSchema {
     if (this is GroupedDataFrame) {
-        ungroup().schema(maxDigits, maxWidth)
-        return
+        return ungroup().schema(maxDigits, maxWidth)
     }
 
-    val topN = this
-    println("DataFrame with ${nrow} observations")
-
-    val namePadding = topN.cols.map { it.name.length }.maxOrNull() ?: 0
-
-    val typeLabels = topN.cols.map { col -> getColumnType(col, wrapSquares = true) }
-
-    val typePadding = typeLabels.map { it.length }.maxOrNull() ?: 0
-
-    topN.cols.zip(typeLabels).forEach { (col, typeLabel) ->
-        val stringifiedVals = col.values().take(255).asSequence()
-            .joinToMaxLengthString(maxLength = maxWidth, transform = createValuePrinter(maxDigits))
-
-        println("${col.name.padEnd(namePadding)}  ${typeLabel.padEnd(typePadding)}  $stringifiedVals")
+    return DataFrameSchema(this, maxDigits, maxWidth).apply {
+        if (!IS_JUPYTER) {
+            println(toString())
+        }
     }
 }
+
 
 internal fun getColumnType(col: DataCol, wrapSquares: Boolean = false): String {
     return when (col) {

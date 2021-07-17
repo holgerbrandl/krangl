@@ -147,3 +147,30 @@ val df = Dataframe(df.structure().target.selectWhere(column("Column Type").isEqu
 ```
 
 
+# Jupyter Integaration
+
+dev scratchpad
+
+```bash
+export KRANGL_HOME=/d/projects/misc/krangl/
+cd $KRANGL_HOME
+
+# start kernel
+cmd.exe "/K" C:\Users\brandl\Anaconda3\Scripts\activate.bat C:\Users\brandl\Anaconda3
+
+# no longer needed becaue no part of ipynb preamble
+#rm -rf ~/.ivy2/cache/com.systema/
+#rm -rf ~/.ivy2/cache/org.kalasim/
+#rm -rf ~/.ivy2/cache/com.github.holgerbrandl/kravis/
+
+#conda install -c jetbrains kotlin-jupyter-kernel
+# interactive use
+jupyter notebook --kernel=kotlin examples/jupyter/letsplot_example.ipynb
+```
+
+References
+
+* https://github.com/Kotlin/kotlin-jupyter/blob/master/docs/libraries.md
+* Many `letsplot` examples https://nbviewer.jupyter.org/github/JetBrains/lets-plot-kotlin/blob/master/docs/guide/user_guide.ipynb
+e
+

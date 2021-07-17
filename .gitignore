@@ -96,3 +96,6 @@ ExcelWriteResult.xlsx
 # sonatype credentials
 local.properties
 *.gpg
+
+# jupyter
+.ipynb_checkpoints
