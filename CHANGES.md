@@ -1,6 +1,12 @@
 krangl Release History
 ======================
 
+v0.17 
+-----
+
+* New Jupyter kernel integration. See [sleep_patterns.ipynb](https://github.com/holgerbrandl/krangl/blob/master/examples/jupyter/sleep_patterns.ipynb) for an example/tutorial
+
+
 v0.16 
 -----
 
