@@ -83,8 +83,7 @@ git push origin --tags
 # careful with this one!
 # https://getstream.io/blog/publishing-libraries-to-mavencentral-2021/
 # https://central.sonatype.org/pages/gradle.html
-./gradlew publishReleasePublicationToSonatypeRepository
-./gradlew closeAndReleaseRepository
+ ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
 
 ## also see https://oss.sonatype.org/
 
