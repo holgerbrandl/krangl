@@ -226,8 +226,47 @@ class TypeInterfaceTest {
         val unfolded = cars.unfold<Car>("cars", keep = true)
         unfolded.names shouldBe listOf("cars", "brand", "brandURL", "name", "ps", "alternativeURL")
 
-        val unfoldedWithPrefix = cars.unfold<Car>("cars", keep=false, addPrefix = true)
-        unfoldedWithPrefix.names shouldBe listOf("cars_brand", "cars_brandURL", "cars_name", "cars_ps", "cars_alternativeURL")
+        val unfoldedWithPrefix = cars.unfold<Car>("cars", keep = false, addPrefix = true)
+        unfoldedWithPrefix.names shouldBe listOf(
+            "cars_brand",
+            "cars_brandURL",
+            "cars_name",
+            "cars_ps",
+            "cars_alternativeURL"
+        )
+    }
+
+
+}
+
+class ValueClassTests {
+    data class Something(
+        val something: SomeValue,
+        val somethingNullable: SomeValue?,
+        val foo: String,
+        val bar: Int?,
+        val category: SomeEnum
+    )
+
+    enum class SomeEnum {
+        NORMAL, OTHER,
+    }
+
+
+    @JvmInline
+    value class SomeValue(val id: String) {
+        override fun toString(): String = id
+    }
+
+
+    @Test
+    fun `it should support nullable value class properties in asDataFrame`() {
+        val df = listOf(
+            Something(SomeValue("123"), null, "hey", 42, SomeEnum.NORMAL),
+            Something(SomeValue("456"), SomeValue("456"), "ho", null, SomeEnum.NORMAL)
+        ).asDataFrame()
+
+        df.nrow shouldBe 2
     }
 }
 
