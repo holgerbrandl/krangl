@@ -6,6 +6,9 @@ import org.jetbrains.kotlinx.jupyter.api.HTML
 import org.jetbrains.kotlinx.jupyter.api.annotations.JupyterLibrary
 import org.jetbrains.kotlinx.jupyter.api.libraries.JupyterIntegration
 
+// main docs
+// * https://github.com/Kotlin/kotlin-jupyter/blob/master/docs/libraries.md
+// * https://blog.jetbrains.com/kotlin/2021/04/kotlin-kernel-for-jupyter-notebook-v0-9-0/
 //https://github.com/Kotlin/kotlin-jupyter/blob/master/libraries/krangl.json
 @JupyterLibrary
 internal class Integration : JupyterIntegration() {
