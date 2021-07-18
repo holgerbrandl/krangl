@@ -1,14 +1,11 @@
 package krangl
 
+import org.apache.poi.openxml4j.exceptions.InvalidOperationException
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.ss.util.CellRangeAddress
-import org.apache.poi.xssf.usermodel.XSSFCellStyle
-import org.apache.poi.xssf.usermodel.XSSFSheet
+import org.apache.poi.xssf.streaming.SXSSFWorkbook
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import java.io.FileInputStream
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
 import java.lang.Double.isInfinite
 import kotlin.math.floor
 
@@ -161,7 +158,7 @@ private fun readExcelRow(
             when (it) {
                 CellType.NUMERIC -> {
                     val numValue = currentCell.numericCellValue
-                    if(floor(numValue) == numValue && !isInfinite(numValue)) numValue.toInt() else numValue
+                    if(floor(numValue) == numValue && !isInfinite(numValue)) numValue.toLong() else numValue
                 }
                 CellType.STRING -> currentCell.stringCellValue
                 CellType.BLANK -> null
@@ -229,19 +226,22 @@ fun DataFrame.writeExcel(
     sheetName: String,
     headers: Boolean = true,
     eraseFile: Boolean = false,
-    boldHeaders: Boolean = true
+    boldHeaders: Boolean = true,
+    rowAccessWindowSize: Int = 256
 ) {
-    val workbook: XSSFWorkbook = if (eraseFile)
-        XSSFWorkbook()
+    val workbook: Workbook = if (eraseFile)
+        SXSSFWorkbook(rowAccessWindowSize)
     else {
         try {
-            XSSFWorkbook(FileInputStream(filePath))
+            SXSSFWorkbook(XSSFWorkbook(FileInputStream(filePath)), rowAccessWindowSize)
         } catch (e: FileNotFoundException) {
-            XSSFWorkbook()
+            SXSSFWorkbook(rowAccessWindowSize)
+        } catch (e: InvalidOperationException) {
+            SXSSFWorkbook(rowAccessWindowSize)
         }
     }
     //Let Exception be thrown if already exists
-    val sheet: XSSFSheet = workbook.createSheet(sheetName)
+    val sheet: Sheet = workbook.createSheet(sheetName)
 
     val headerCellStyle = if (headers) {
         createExcelHeaderStyle(workbook, boldHeaders)
@@ -263,9 +263,9 @@ fun DataFrame.writeExcel(
 }
 
 private fun createExcelHeaderStyle(
-    workbook: XSSFWorkbook,
+    workbook: Workbook,
     boldHeaders: Boolean,
-): XSSFCellStyle? {
+): CellStyle? {
     val headerCellStyle = workbook.createCellStyle()
     if (boldHeaders) {
         val headerFont = workbook.createFont()
@@ -276,7 +276,7 @@ private fun createExcelHeaderStyle(
     return headerCellStyle
 }
 
-private fun DataFrame.createExcelDataRows(sheet: XSSFSheet, headers: Boolean) {
+private fun DataFrame.createExcelDataRows(sheet: Sheet, headers: Boolean) {
     var rowIdx = if (headers) 1 else 0
 
     for (dfRow in rows) {
@@ -309,9 +309,9 @@ private fun DataFrame.createExcelDataRows(sheet: XSSFSheet, headers: Boolean) {
 }
 
 private fun DataFrame.createExcelHeaderRow(
-    sheet: XSSFSheet,
+    sheet: Sheet,
     boldHeaders: Boolean,
-    headerCellStyle: XSSFCellStyle?
+    headerCellStyle: CellStyle?
 ) {
     val headerRow = sheet.createRow(0)
     for ((colPos, col) in this.names.withIndex()) {
