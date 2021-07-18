@@ -753,7 +753,7 @@ class DataFrameSchema(
 
 //                    cols.forEach { append("""<th style=\\" text -align:left\\">${it.name}</th>""") }
 
-                    append("</tr>")
+                    append("<tr>")
 
                     append("""<td style="text-align:left">${col.name}</td>""")
                     append("""<td style="text-align:left">${typeLabel}</td>""")
