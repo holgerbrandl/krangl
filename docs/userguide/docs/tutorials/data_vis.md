@@ -20,7 +20,7 @@ irisData.letsPlot{ x= "Sepal.Width"; y="Sepal.Length"; color="Species"}
     + geomPoint()
 ```
 
-![](.data_vis_images/lets_plot.png)
+![](data_vis_images/lets_plot.png)
 
 
 ## kravis
