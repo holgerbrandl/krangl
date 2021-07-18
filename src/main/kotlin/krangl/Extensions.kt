@@ -718,7 +718,9 @@ class DataFrameSchema(
             val typePadding = typeLabels.map { it.length }.maxOrNull() ?: 0
 
             topN.cols.zip(typeLabels).forEach { (col, typeLabel) ->
-                val stringifiedVals = col.values().take(255).asSequence()
+                val exampleValues = col.values().take(255)
+
+                val stringifiedVals = if(exampleValues.isEmpty()) "" else exampleValues.asSequence()
                     .joinToMaxLengthString(maxLength = maxWidth, transform = createValuePrinter(maxDigits))
 
 
@@ -748,7 +750,8 @@ class DataFrameSchema(
 
 
                 topN.cols.zip(typeLabels).forEach { (col, typeLabel) ->
-                    val stringifiedVals = col.values().take(255).asSequence()
+                    val exampleValues = col.values().take(255)
+                    val stringifiedVals = if(exampleValues.isEmpty()) "" else exampleValues.asSequence()
                         .joinToMaxLengthString(maxLength = maxWidth, transform = createValuePrinter(maxDigits))
 
 //                    cols.forEach { append("""<th style=\\" text -align:left\\">${it.name}</th>""") }

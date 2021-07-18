@@ -733,6 +733,22 @@ and 1 more variables: Species""".trimIndent()
         // to prevent regressions of: `schema()` should no throw memory exception #53
         flightsData.schema()
     }
+
+    @Test
+    fun `schema should work on empty tables`() {
+        // to prevent regressions of: `schema()` should no throw memory exception #53
+
+        captureOutput {
+
+            dataFrameOf(StringCol("user", emptyArray()), DoubleCol("salary", emptyArray()))
+                .schema()
+
+        }.stdout shouldBe """
+            DataFrame with 0 observations
+            user    [Str]  
+            salary  [Dbl]
+        """.trimIndent()
+    }
 }
 
 

@@ -6,6 +6,10 @@ v0.18-SNAPSHOT
 
 * Improved support for large Excels tables (Thanks to **[@ayvazj](https://github.com/ayvazj)** for contributing [PR 126](https://github.com/holgerbrandl/krangl/pull/126)) 
 
+
+Minor enhancements
+* Fixed [#63](https://github.com/holgerbrandl/krangl/issues/63): Can not print `schema()` of empty data-frame
+
 v0.17 
 -----
 

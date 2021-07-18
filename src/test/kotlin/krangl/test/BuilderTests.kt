@@ -216,9 +216,13 @@ class BuilderTests {
     @Test
     fun `it should allow to create an empty data-frame with dataFrameOf`(){
         // none
+        dataFrameOf(StringCol("user", emptyArray()), DoubleCol("salary", emptyArray()))
+
+//        dataFrameOf(StringCol("user"), DoubleCol("salary"))
+
         dataFrameOf("user", "salary")().apply {
             nrow shouldBe  0
-            ncol shouldBe  0
+            ncol shouldBe  2
         }
     }
 

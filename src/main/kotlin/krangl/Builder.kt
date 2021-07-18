@@ -236,7 +236,13 @@ class InplaceDataFrameBuilder(private val header: List<String>) {
             handleListErasure(it.first, it.second)
         }
 
-        require(rawColumns.isEmpty() || tableColumns.map { it.length }.distinct().size == 1) {
+        // https://github.com/holgerbrandl/krangl/issues/125
+        require(rawColumns.isNotEmpty()) { "Can not infer column types in empty data-frame. " +
+                "To create an empty data-frame use the following syntax dataFrameOf(StringCol(\"user\", emptyArray()), DoubleCol(\"salary\", emptyArray()))"
+        }
+
+//        require(rawColumns.isEmpty() || tableColumns.map { it.length }.distinct().size == 1) {
+        require(tableColumns.map { it.length }.distinct().size == 1) {
             "Provided data does not coerce to tabular shape"
         }
 
