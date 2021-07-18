@@ -1,6 +1,11 @@
 krangl Release History
 ======================
 
+v0.18-SNAPSHOT 
+-----
+
+* Improved support for large Excels tables (Thanks to **[@ayvazj](https://github.com/ayvazj)** for contributing [PR 126](https://github.com/holgerbrandl/krangl/pull/126)) 
+
 v0.17 
 -----
 
