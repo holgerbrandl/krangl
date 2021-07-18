@@ -214,22 +214,25 @@ class BuilderTests {
     }
 
     @Test
-    fun `it should allow to create an empty data-frame with dataFrameOf`(){
+    fun `it should not allow to create an empty data-frame with dataFrameOf`() {
         // none
-        dataFrameOf(StringCol("user", emptyArray()), DoubleCol("salary", emptyArray()))
 
 //        dataFrameOf(StringCol("user"), DoubleCol("salary"))
 
-        dataFrameOf("user", "salary")().apply {
-            nrow shouldBe  0
-            ncol shouldBe  2
+        shouldThrow<IllegalArgumentException> {
+            dataFrameOf("user", "salary")()
+        }
+
+        // but the long syntax must work
+        dataFrameOf(StringCol("user", emptyArray()), DoubleCol("salary", emptyArray())).apply {
+            nrow shouldBe 0
+            ncol shouldBe 2
         }
     }
 
 
     @Test
     fun `it should enforce complete data when building inplace data-frames`() {
-
 
 
         // too few
