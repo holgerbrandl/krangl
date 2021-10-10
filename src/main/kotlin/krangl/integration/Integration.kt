@@ -14,6 +14,7 @@ import org.jetbrains.kotlinx.jupyter.api.libraries.JupyterIntegration
 //https://github.com/Kotlin/kotlin-jupyter/blob/master/libraries/krangl.json
 
 var DISPLAY_MAX_ROWS = 10
+var DISPLAY_MAX_CHARS = 50
 
 @JupyterLibrary
 internal class Integration : JupyterIntegration() {
@@ -24,7 +25,7 @@ internal class Integration : JupyterIntegration() {
         render<DataFrameSchema> { HTML(it.toHTML()) }
     }
 
-    fun DataFrame.toHTML(title: String="A DataFrame", maxRows: Int = DISPLAY_MAX_ROWS, truncate: Int = 50): String = with(StringBuilder()) {
+    fun DataFrame.toHTML(title: String="A DataFrame", maxRows: Int = DISPLAY_MAX_ROWS, truncate: Int = DISPLAY_MAX_CHARS): String = with(StringBuilder()) {
         append("<html><body>")
 
 
