@@ -272,6 +272,7 @@ fun DataFrame.Companion.fromResultSet(rs: ResultSet): DataFrame {
     colTypes.map {
         when (it) {
             Types.INTEGER, Types.SMALLINT -> listOf<Int>()
+            Types.BIGINT -> listOf<Long>()
             Types.DECIMAL, Types.FLOAT, Types.NUMERIC -> listOf<Double?>()
             Types.BOOLEAN -> listOf<Boolean?>()
             Types.DATE, Types.TIMESTAMP -> listOf<LocalDate?>()
@@ -288,6 +289,7 @@ fun DataFrame.Companion.fromResultSet(rs: ResultSet): DataFrame {
         for (colIndex in 1..numColumns) {
             val any: Any? = when (colTypes[colIndex - 1]) {
                 Types.INTEGER, Types.SMALLINT -> rs.getInt(colIndex)
+                Types.BIGINT  -> rs.getLong(colIndex)
                 Types.DECIMAL, Types.FLOAT, Types.NUMERIC -> rs.getDouble(colIndex)
                 Types.BOOLEAN -> rs.getBoolean(colIndex)
                 Types.DATE,   -> rs.getDate(colIndex).toLocalDate()
