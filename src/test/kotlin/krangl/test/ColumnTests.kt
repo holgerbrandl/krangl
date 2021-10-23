@@ -159,6 +159,206 @@ class ColumnTests {
 
 }
 
+class FillTest {
+
+
+    @Test
+    fun `should fill down dataframe with missing values`() {
+        val sales = dataFrameOf("product", "sales", "price")(
+            "A", null, null,
+            "A", 10, 0.1,
+            "A", null, null,
+            "A", 10, 0.1,
+            "B", null, null,
+            "B", 150, null,
+            "B", null, null,
+            "B", 75, 0.75
+        )
+        sales.fill("sales", "price") shouldBe dataFrameOf("product", "sales", "price")(
+            "A", null, null,
+            "A", 10, 0.1,
+            "A", 10, 0.1,
+            "A", 10, 0.1,
+            "B", 10, 0.1,
+            "B", 150, 0.1,
+            "B", 150, 0.1,
+            "B", 75, 0.75
+        )
+    }
+
+    @Test
+    fun `should fill up dataframe with missing values`() {
+        val sales = dataFrameOf("product", "sales", "price")(
+            "A", null, null,
+            "A", 10, 0.1,
+            "A", null, null,
+            "A", 10, 0.1,
+            "B", null, null,
+            "B", 150, null,
+            "B", null, null,
+            "B", 75, 0.75
+        )
+        sales.fill("product", "sales", "price", fillType = FillType.UP) shouldBe dataFrameOf(
+            "product",
+            "sales",
+            "price"
+        )(
+            "A", 10, 0.1,
+            "A", 10, 0.1,
+            "A", 10, 0.1,
+            "A", 10, 0.1,
+            "B", 150, 0.75,
+            "B", 150, 0.75,
+            "B", 75, 0.75,
+            "B", 75, 0.75
+        )
+    }
+
+    @Test
+    fun `should fill uo then down dataframe with missing values`() {
+        val sales = dataFrameOf("product", "sales", "price")(
+            null, null, null,
+            "A", 10, 0.1,
+            null, null, null,
+            "A", 10, 0.1,
+            "B", null, null,
+            null, 150, 0.75,
+            "B", null, null,
+            null, 75, null
+        )
+        sales.fill("product", "sales", "price", fillType = FillType.UPDOWN) shouldBe dataFrameOf(
+            "product",
+            "sales",
+            "price"
+        )(
+            "A", 10, 0.1,
+            "A", 10, 0.1,
+            "A", 10, 0.1,
+            "A", 10, 0.1,
+            "B", 150, 0.75,
+            "B", 150, 0.75,
+            "B", 75, 0.75,
+            "B", 75, 0.75
+        )
+    }
+
+    @Test
+    fun `should fill down then up dataframe with missing values`() {
+        val sales = dataFrameOf("product", "sales", "price")(
+            null, null, null,
+            "A", 10, 0.1,
+            null, null, null,
+            "A", 10, 0.1,
+            "B", null, null,
+            null, 150, 0.75,
+            "B", null, null,
+            null, 75, null
+        )
+        sales.fill("product", "sales", "price", fillType = FillType.DOWNUP) shouldBe dataFrameOf(
+            "product",
+            "sales",
+            "price"
+        )(
+            "A", 10, 0.1,
+            "A", 10, 0.1,
+            "A", 10, 0.1,
+            "A", 10, 0.1,
+            "B", 10, 0.1,
+            "B", 150, 0.75,
+            "B", 150, 0.75,
+            "B", 75, 0.75
+        )
+    }
+
+    @Test
+    fun `should fill down with specific value a dataframe with missing values`() {
+        val sales = dataFrameOf("product", "sales", "price")(
+            null, null, null,
+            "A", 10, 0.1,
+            null, null, null,
+            "A", 10, 0.1,
+            "B", null, null,
+            null, 150, 0.75,
+            "B", null, null,
+            null, 75, null
+        )
+        sales.fill("sales", value = 2) shouldBe dataFrameOf("product", "sales", "price")(
+            null, null, null,
+            "A", 10, 0.1,
+            null, 2, null,
+            "A", 10, 0.1,
+            "B", 2, null,
+            null, 150, 0.75,
+            "B", 2, null,
+            null, 75, null
+        )
+    }
+
+    @Test
+    fun `should fill down with specific dataframe another dataframe with missing values`() {
+        val sales = dataFrameOf("product", "sales", "price")(
+            null, null, null,
+            "A", 10, 0.1,
+            null, null, null,
+            "A", 10, 0.1,
+            "B", null, null,
+            null, 150, 0.75,
+            "B", null, null,
+            null, 75, null
+        )
+        val dfFill = dataFrameOf("product", "sales", "price")(
+            null, null, null,
+            null, null, null,
+            null, null, null,
+            null, null, null,
+            null, null, null,
+            "C", null, null,
+            null, 100, 1.0,
+            "C", null, 1.0
+        )
+
+        sales.fill("product", "sales", "price", value = dfFill) shouldBe dataFrameOf("product", "sales", "price")(
+            null, null, null,
+            "A", 10, 0.1,
+            null, null, null,
+            "A", 10, 0.1,
+            "B", null, null,
+            "C", 150, 0.75,
+            "B", 100, 1.0,
+            "C", 75, 1.0
+        )
+    }
+
+    @Test
+    fun `should fill down grouped dataframe with missing values`() {
+        val sales = dataFrameOf("product", "sales", "price")(
+            "A", null, null,
+            "A", 10, 0.1,
+            "A", null, null,
+            "A", 10, 0.1,
+            "B", null, null,
+            "B", 150, null,
+            "B", null, null,
+            "B", 75, 0.75
+        )
+        sales.groupBy("product").fill("sales", "price").apply {
+            val groups = (this as GroupedDataFrame).groups()
+            groups[0] shouldBe dataFrameOf("product", "sales", "price")(
+                "A", null, null,
+                "A", 10, 0.1,
+                "A", 10, 0.1,
+                "A", 10, 0.1
+            )
+            groups[1] shouldBe dataFrameOf("product", "sales", "price")(
+                "B", null, null,
+                "B", 150, null,
+                "B", 150, null,
+                "B", 75, 0.75
+            )
+        }
+    }
+}
+
 class LeadLagTest {
 
     @Test
