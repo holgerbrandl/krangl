@@ -116,9 +116,4 @@ internal class GroupedDataFrame(val by: List<String>, internal val groups: List<
     // todo add nest() support
     override fun groups(): List<DataFrame> = groups.map { it.df }
 
-    override fun fill(vararg columnsToFill: String, fillType: FillType, value: Any?): DataFrame {
-        return GroupedDataFrame(
-            by,
-            groups.map { DataGroup(it.groupKey, it.df.fill(*columnsToFill, fillType = fillType, value = value)) })
-    }
 }

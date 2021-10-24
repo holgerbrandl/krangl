@@ -230,11 +230,5 @@ interface DataFrame {
     /** Returns the groups of a grouped data frame or just a reference to this object if not.*/
     fun groups(): List<DataFrame>
 
-    /**
-     * Return a data-frame with filled values, see : https://tidyr.tidyverse.org/reference/fill.html and https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.fillna.html
-     * If a value is given, fill the null values with the given value if it's not a dataframe.
-     * If the value is a dataframe, try to fill null values with the value pick from the dataframe at the same column / index.
-     *  */
-    fun fill(vararg columnsToFill: String, fillType: FillType = FillType.DOWN, value: Any? = null): DataFrame
 }
 

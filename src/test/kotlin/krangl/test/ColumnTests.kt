@@ -161,7 +161,6 @@ class ColumnTests {
 
 class FillTest {
 
-
     @Test
     fun `should fill down dataframe with missing values`() {
         val sales = dataFrameOf("product", "sales", "price")(
@@ -174,7 +173,7 @@ class FillTest {
             "B", null, null,
             "B", 75, 0.75
         )
-        sales.fill("sales", "price") shouldBe dataFrameOf("product", "sales", "price")(
+        sales.fill(listOf("sales", "price")) shouldBe dataFrameOf("product", "sales", "price")(
             "A", null, null,
             "A", 10, 0.1,
             "A", 10, 0.1,
@@ -198,7 +197,7 @@ class FillTest {
             "B", null, null,
             "B", 75, 0.75
         )
-        sales.fill("product", "sales", "price", fillType = FillType.UP) shouldBe dataFrameOf(
+        sales.fill(listOf("product", "sales", "price"), fillType = FillType.UP) shouldBe dataFrameOf(
             "product",
             "sales",
             "price"
@@ -226,7 +225,7 @@ class FillTest {
             "B", null, null,
             null, 75, null
         )
-        sales.fill("product", "sales", "price", fillType = FillType.UPDOWN) shouldBe dataFrameOf(
+        sales.fill(listOf("product", "sales", "price"), fillType = FillType.UPDOWN) shouldBe dataFrameOf(
             "product",
             "sales",
             "price"
@@ -254,7 +253,7 @@ class FillTest {
             "B", null, null,
             null, 75, null
         )
-        sales.fill("product", "sales", "price", fillType = FillType.DOWNUP) shouldBe dataFrameOf(
+        sales.fill(listOf("product", "sales", "price"), fillType = FillType.DOWNUP) shouldBe dataFrameOf(
             "product",
             "sales",
             "price"
@@ -282,7 +281,7 @@ class FillTest {
             "B", null, null,
             null, 75, null
         )
-        sales.fill("sales", value = 2) shouldBe dataFrameOf("product", "sales", "price")(
+        sales.fill(listOf("sales"), value = 2) shouldBe dataFrameOf("product", "sales", "price")(
             null, null, null,
             "A", 10, 0.1,
             null, 2, null,
@@ -317,7 +316,11 @@ class FillTest {
             "C", null, 1.0
         )
 
-        sales.fill("product", "sales", "price", value = dfFill) shouldBe dataFrameOf("product", "sales", "price")(
+        sales.fill(listOf("product", "sales", "price"), value = dfFill) shouldBe dataFrameOf(
+            "product",
+            "sales",
+            "price"
+        )(
             null, null, null,
             "A", 10, 0.1,
             null, null, null,
@@ -341,7 +344,7 @@ class FillTest {
             "B", null, null,
             "B", 75, 0.75
         )
-        sales.groupBy("product").fill("sales", "price").apply {
+        sales.groupBy("product").fill(listOf("sales", "price")).apply {
             val groups = (this as GroupedDataFrame).groups()
             groups[0] shouldBe dataFrameOf("product", "sales", "price")(
                 "A", null, null,
@@ -356,6 +359,34 @@ class FillTest {
                 "B", 75, 0.75
             )
         }
+    }
+
+    @Test
+    fun `should fill down dataframe with column selector and missing values`() {
+        val sales = dataFrameOf("product", "sales", "price")(
+            "A", null, null,
+            "A", 10, 0.1,
+            "A", null, null,
+            null, 10, 0.1,
+            "B", null, null,
+            "B", 150, null,
+            null, null, null,
+            "B", 75, 0.75
+        )
+        sales.fill({ except("sales") }) shouldBe dataFrameOf(
+            "product",
+            "sales",
+            "price"
+        )(
+            "A", null, null,
+            "A", 10, 0.1,
+            "A", null, 0.1,
+            "A", 10, 0.1,
+            "B", null, 0.1,
+            "B", 150, 0.1,
+            "B", null, 0.1,
+            "B", 75, 0.75
+        )
     }
 }
 
@@ -459,7 +490,6 @@ internal inline fun <reified T> shouldThrow(thunk: () -> Any): T {
     } else
         return e as T
 }
-
 
 class MiscTests {
 
