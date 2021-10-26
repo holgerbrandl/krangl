@@ -399,6 +399,86 @@ fun DataFrame.summarizeAt(columnSelect: ColumnSelector, op: (SummarizeBuilder.()
     return SummarizeBuilder(this, columnSelect).apply { op?.invoke(this) }.build()
 }
 
+fun DataFrame.fill(columnsToFill: ColumnSelector, fillType: FillType = FillType.DOWN, value: Any? = null) =  fill(colSelectAsNames(columnsToFill), fillType, value)
+
+/**
+ * Return a data-frame with filled values, see : https://tidyr.tidyverse.org/reference/fill.html and https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.fillna.html
+ * If a value is given, fill the null values with the given value if it's not a dataframe.
+ * If the value is a dataframe, try to fill null values with the value pick from the dataframe at the same column / index.
+ **/
+fun DataFrame.fill(columnsToFill: List<String>, fillType: FillType = FillType.DOWN, value: Any? = null): DataFrame {
+    if (columnsToFill.isEmpty()) {
+        System.err.println("Calling fill() without columns do nothing")
+        return this
+    }
+
+    if (this is GroupedDataFrame) {
+        return GroupedDataFrame(
+            by,
+            groups.map { DataGroup(it.groupKey, it.df.fill(columnsToFill, fillType = fillType, value = value)) })
+    }
+
+    // Fill the values of a given data column.
+    fun fillValues(dataCol: DataCol): Array<*> {
+
+        // Currently, if the type of column and value to fill are different we do nothing.
+        // Maybe could be nice to do some cast here (between numbers for example).
+        fun getValueIfSameType(value: Any, currentValue: Any) =
+            if (value::class.java == currentValue::class.java) {
+                value
+            } else {
+                null
+            }
+
+        fun fillDown(valuesToFill: Array<*>): Array<*> {
+            var lastValue: Any? = null
+            return valuesToFill.mapIndexed { index, currentValue ->
+                if (currentValue == null) {
+                    // If the value is null, we fill the cell from dataframe if it's not null
+                    if (value != null && value is DataFrame) {
+                        val dataInValue = value.cols.find { it.name === dataCol.name }
+                        if (dataInValue != null && dataInValue[index] != null) {
+                            dataInValue[index]!!
+                        } else {
+                            null
+                        }
+                    }
+                    // or we return the last value
+                    else {
+                        lastValue
+                    }
+                } else {
+                    lastValue = if (value != null && value !is DataFrame) {
+                        getValueIfSameType(value, currentValue)
+                    } else {
+                        currentValue
+                    }
+                    currentValue
+                }
+            }.toTypedArray()
+        }
+
+        val values = dataCol.values()
+        return when (fillType) {
+            FillType.DOWN -> fillDown(values)
+            FillType.UP -> fillDown(values.reversed().toTypedArray()).reversed().toTypedArray()
+            FillType.DOWNUP -> fillDown(fillDown(values).reversed().toTypedArray()).reversed().toTypedArray()
+            FillType.UPDOWN -> fillDown(fillDown(values.reversed().toTypedArray()).reversed().toTypedArray())
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    return cols.map {
+        if (columnsToFill.contains(it.name)) {
+            handleArrayErasure(it.name, fillValues(it))
+        } else {
+            it
+        }
+    }.let {
+        SimpleDataFrame(it)
+    }
+}
+
 class SummarizeBuilder(val df: DataFrame, val columnSelect: ColumnSelector) {
     val rules = emptyMap<SumFormula, String?>().toMutableMap()
 
@@ -720,7 +800,7 @@ class DataFrameSchema(
             topN.cols.zip(typeLabels).forEach { (col, typeLabel) ->
                 val exampleValues = col.values().take(255)
 
-                val stringifiedVals = if(exampleValues.isEmpty()) "" else exampleValues.asSequence()
+                val stringifiedVals = if (exampleValues.isEmpty()) "" else exampleValues.asSequence()
                     .joinToMaxLengthString(maxLength = maxWidth, transform = createValuePrinter(maxDigits))
 
 
@@ -751,7 +831,7 @@ class DataFrameSchema(
 
                 topN.cols.zip(typeLabels).forEach { (col, typeLabel) ->
                     val exampleValues = col.values().take(255)
-                    val stringifiedVals = if(exampleValues.isEmpty()) "" else exampleValues.asSequence()
+                    val stringifiedVals = if (exampleValues.isEmpty()) "" else exampleValues.asSequence()
                         .joinToMaxLengthString(maxLength = maxWidth, transform = createValuePrinter(maxDigits))
 
 //                    cols.forEach { append("""<th style=\\" text -align:left\\">${it.name}</th>""") }

@@ -9,6 +9,9 @@ typealias VectorizedRowPredicate = ExpressionContext.(ExpressionContext) -> Bool
 
 typealias TableExpression = ExpressionContext.(ExpressionContext) -> Any?
 
+enum class FillType {
+    DOWN, UP, DOWNUP, UPDOWN
+}
 
 interface DataFrame {
 
@@ -135,7 +138,7 @@ interface DataFrame {
      * @sample krangl.samples.selectExamples
      */
     fun remove(vararg columSelects: ColumnSelector): DataFrame =
-        select(*columSelects.map { it -> { x: ColNames -> x.except(it) } }.toTypedArray())
+        select(*columSelects.map { { x: ColNames -> x.except(it) } }.toTypedArray())
 
 
     fun filter(predicate: VectorizedRowPredicate): DataFrame
@@ -226,5 +229,6 @@ interface DataFrame {
 
     /** Returns the groups of a grouped data frame or just a reference to this object if not.*/
     fun groups(): List<DataFrame>
+
 }
 
