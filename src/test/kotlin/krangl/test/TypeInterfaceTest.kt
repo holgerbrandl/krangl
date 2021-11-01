@@ -234,9 +234,18 @@ class TypeInterfaceTest {
             "cars_ps",
             "cars_alternativeURL"
         )
+
+        // also test unfolding by property accessor
+        cars.unfold("cars", listOf(Car::brand, Car::ps)).names shouldBe listOf(
+            "brand",
+            "ps"
+        )
+
+        cars.unfold("cars", listOf(Car::brand, Car::ps), keep = false, addPrefix = true).names shouldBe listOf(
+            "cars_brand",
+            "cars_ps"
+        )
     }
-
-
 }
 
 class ValueClassTests {

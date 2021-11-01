@@ -8,6 +8,7 @@ import java.sql.ResultSet
 import java.sql.Types
 import java.time.LocalDate
 import java.time.LocalTime
+import kotlin.reflect.KCallable
 import kotlin.reflect.KProperty
 
 
@@ -73,6 +74,42 @@ inline fun <reified T> Iterable<T>.asDataFrame(): DataFrame {
 
 
     return columns.asDF()
+}
+
+
+
+//typealias PropExtractor<T> = T.(T) -> Any?
+typealias PropExtractor<T> = T.() -> Any?
+
+
+fun main() {
+    data class Car(val name:String, val weight: Double)
+
+    val cars = listOf(Car("BMW", 123.0), Car("Tesla", 245.0))
+    val df = dataFrameOf(AnyCol("car", cars))
+    df.unfold("car", listOf(Car::name,Car::weight, Car::weight))
+}
+
+@JvmName("unfoldByProperty")
+fun  DataFrame.unfold(
+    columnName: String,
+    properties: List<KCallable<*>>,
+    keep: Boolean = true,
+    addPrefix:Boolean=false
+): DataFrame {
+
+    // todo make sure that unfolded columns are not yet present in df, and warn if so and append _1, _2, ... suffix
+    val unfolded = properties.fold(this) { df, kCallable ->
+        val colName = if(addPrefix) columnName + "_" + kCallable.name else kCallable.name
+
+        df.addColumn(colName) {
+            df[columnName].map<Any> {
+                kCallable.call(it)
+            }
+        }
+    }
+
+    return if (keep) unfolded else unfolded.remove(columnName)
 }
 
 

@@ -5,6 +5,10 @@ v0.18-SNAPSHOT
 -----
 
 * Improved support for large Excels tables (Thanks to **[@ayvazj](https://github.com/ayvazj)** for contributing [PR 126](https://github.com/holgerbrandl/krangl/pull/126)) 
+* Added second version of `unfold()` to work with property accessors instead
+```kotlin
+cars.unfold("cars", listOf(Car::brand, Car::ps))
+```
 
 
 Minor enhancements
