@@ -237,6 +237,7 @@ class TypeInterfaceTest {
 
         // also test unfolding by property accessor
         cars.unfold("cars", listOf(Car::brand, Car::ps)).names shouldBe listOf(
+            "cars",
             "brand",
             "ps"
         )

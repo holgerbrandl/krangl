@@ -15,25 +15,25 @@ repositories {
 
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
-    implementation "org.jetbrains.kotlin:kotlin-reflect"
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.5.31'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.5.31'
 //    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
     // needed to work around https://youtrack.jetbrains.com/issue/KT-15064
-    compileOnly "org.jetbrains.kotlin:kotlin-script-runtime"
+    compileOnly 'org.jetbrains.kotlin:kotlin-script-runtime:1.5.31'
 
     api  "org.apache.commons:commons-csv:1.6" // cant upgrade to 1.8 because of https://issues.apache.org/jira/browse/CSV-257
-    api 'org.apache.poi:poi-ooxml:4.1.1'
+    api 'org.apache.poi:poi-ooxml:5.0.0'
 
-    api  'com.beust:klaxon:5.4'//    compile 'me.tongfei:progressbar:0.5.5'
+    api 'com.beust:klaxon:5.5'//    compile 'me.tongfei:progressbar:0.5.5'
 
     api("org.jetbrains.lets-plot:lets-plot-kotlin-jvm:3.0.1")
 //    implementation("org.jetbrains.lets-plot:lets-plot-batik:2.0.4")
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
-    testImplementation("io.kotest:kotest-assertions-core:4.2.6")
+    testImplementation('io.kotest:kotest-assertions-core:4.6.3')
     testImplementation 'com.h2database:h2:1.4.200'
-    testImplementation "org.jetbrains.kotlin:kotlin-script-runtime:1.4.32"
+    testImplementation 'org.jetbrains.kotlin:kotlin-script-runtime:1.5.31'
 }
 
 
