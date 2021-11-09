@@ -3,6 +3,8 @@ package krangl.integration
 import krangl.DataFrame
 import krangl.DataFrameSchema
 import krangl.GroupedDataFrame
+import krangl.KranglConfig.JUPYTER_DISPLAY_MAX_ROWS
+import krangl.KranglConfig.JUPYTER_DISPLAY_WIDTH
 import krangl.SimpleDataFrame
 import org.jetbrains.kotlinx.jupyter.api.HTML
 import org.jetbrains.kotlinx.jupyter.api.annotations.JupyterLibrary
@@ -13,8 +15,6 @@ import org.jetbrains.kotlinx.jupyter.api.libraries.JupyterIntegration
 // * https://blog.jetbrains.com/kotlin/2021/04/kotlin-kernel-for-jupyter-notebook-v0-9-0/
 //https://github.com/Kotlin/kotlin-jupyter/blob/master/libraries/krangl.json
 
-var DISPLAY_MAX_ROWS = 10
-var DISPLAY_MAX_CHARS = 50
 
 @JupyterLibrary
 internal class Integration : JupyterIntegration() {
@@ -25,7 +25,11 @@ internal class Integration : JupyterIntegration() {
         render<DataFrameSchema> { HTML(it.toHTML()) }
     }
 
-    fun DataFrame.toHTML(title: String="A DataFrame", maxRows: Int = DISPLAY_MAX_ROWS, truncate: Int = DISPLAY_MAX_CHARS): String = with(StringBuilder()) {
+    fun DataFrame.toHTML(
+        title: String = "A DataFrame",
+        maxRows: Int = JUPYTER_DISPLAY_MAX_ROWS,
+        truncate: Int = JUPYTER_DISPLAY_WIDTH
+    ): String = with(StringBuilder()) {
         append("<html><body>")
 
 
@@ -53,7 +57,7 @@ internal class Integration : JupyterIntegration() {
 
         // render footer
         append("<p>")
-        if (maxRows < rows.count()){
+        if (maxRows < rows.count()) {
             append("... with ${nrow - maxRows} more rows. ")
         }
 
