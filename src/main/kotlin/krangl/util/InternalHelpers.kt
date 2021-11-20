@@ -3,7 +3,6 @@ package krangl.util
 import krangl.*
 import kotlin.reflect.KCallable
 import kotlin.reflect.KProperty
-import kotlin.reflect.full.declaredMembers
 import kotlin.reflect.full.starProjectedType
 
 /**
@@ -45,7 +44,7 @@ fun createValidIdentifier(columnName: String): String = columnName.run {
 
 //todo move to internal namespace to prevent API clutter
 inline fun <reified T> detectPropertiesByReflection(): List<KCallable<*>> {
-    val members = T::class.declaredMembers
+    val members = T::class.members
 
     val propsOrGetters = members.filter {
         //        it.parameters.isEmpty() // -> wrong because self pointer needs to be provided
