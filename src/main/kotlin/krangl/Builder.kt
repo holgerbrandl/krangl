@@ -310,7 +310,7 @@ fun DataFrame.Companion.fromResultSet(rs: ResultSet): DataFrame {
         when (it) {
             Types.INTEGER, Types.SMALLINT -> listOf<Int>()
             Types.BIGINT -> listOf<Long>()
-            Types.DECIMAL, Types.FLOAT, Types.NUMERIC -> listOf<Double?>()
+            Types.DECIMAL, Types.FLOAT, Types.NUMERIC,Types.REAL,Types.DOUBLE -> listOf<Double?>()
             Types.BOOLEAN -> listOf<Boolean?>()
             Types.DATE, Types.TIMESTAMP -> listOf<LocalDate?>()
             Types.TIME -> listOf<LocalTime?>()
@@ -322,12 +322,11 @@ fun DataFrame.Companion.fromResultSet(rs: ResultSet): DataFrame {
     // see https://stackoverflow.com/questions/21956042/mapping-a-jdbc-resultset-to-an-object
     while (rs.next()) {
         //        val row = mapOf<String, Any?>().toMutableMap()
-
         for (colIndex in 1..numColumns) {
             val any: Any? = when (colTypes[colIndex - 1]) {
                 Types.INTEGER, Types.SMALLINT -> rs.getInt(colIndex)
                 Types.BIGINT  -> rs.getLong(colIndex)
-                Types.DECIMAL, Types.FLOAT, Types.NUMERIC -> rs.getDouble(colIndex)
+                Types.DECIMAL, Types.FLOAT, Types.NUMERIC,Types.REAL,Types.DOUBLE -> rs.getDouble(colIndex)
                 Types.BOOLEAN -> rs.getBoolean(colIndex)
                 Types.DATE,   -> rs.getDate(colIndex).toLocalDate()
                 Types.TIMESTAMP -> rs.getTimestamp(colIndex).toLocalDateTime()
