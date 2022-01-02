@@ -497,14 +497,10 @@ inline fun <reified T> isListOfType(items: List<Any?>): Boolean {
 }
 
 
-private fun isMixedNumeric(mutation: List<*>): Boolean {
-    val it = mutation.iterator()
-
-    while (it.hasNext()) {
-        val next = it.next()
-        if (!(next == null || next is Double || next is Int)) return false
+internal fun isMixedNumeric(mutation: List<*>): Boolean {
+    for (item in mutation) {
+        if (item !is Number?) return false
     }
-
     return true
 }
 
