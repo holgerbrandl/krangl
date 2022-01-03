@@ -1,0 +1,24 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'java'
+    // See: https://github.com/melix/jmh-gradle-plugin
+    id "me.champeau.jmh" version "0.6.6"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation "org.apache.commons:commons-lang3:3.12.0"
+
+    implementation(project(":"))
+}
+
+jmh {
+    jmhVersion = '1.34'
+    resultFormat = 'CSV'
+    jvmArgs = ['-Xms2048m', '-Xmx2048m']
+}
+
