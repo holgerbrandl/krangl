@@ -31,7 +31,8 @@ private fun asStream(fileOrUrl: String) = (if (isURL(fileOrUrl)) {
     File(fileOrUrl).toURI()
 }).toURL().openStream()
 
-internal fun isURL(fileOrUrl: String): Boolean = listOf("http:", "https:", "ftp:").any { fileOrUrl.startsWith(it) }
+internal fun isURL(fileOrUrl: String): Boolean =
+    listOf("http:", "https:", "ftp:").any { fileOrUrl.lowercase().startsWith(it) }
 
 
 @JvmOverloads
@@ -381,7 +382,7 @@ internal fun dataColFactory(colName: String, colType: ColType, records: Array<*>
         // see https://github.com/holgerbrandl/krangl/issues/10
         ColType.Int -> try {
             IntCol(colName, records.map {
-                if(it is Number) it.toInt() else it.trimEmptyToNull()?.toInt()
+                if (it is Number) it.toInt() else it.trimEmptyToNull()?.toInt()
             })
         } catch (e: NumberFormatException) {
             StringCol(colName, records.map { it?.toString() })
@@ -389,18 +390,18 @@ internal fun dataColFactory(colName: String, colType: ColType, records: Array<*>
 
         ColType.Long -> try {
             LongCol(colName, records.map {
-                if(it is Number) it.toLong() else it.trimEmptyToNull()?.toLong()
+                if (it is Number) it.toLong() else it.trimEmptyToNull()?.toLong()
             })
         } catch (e: NumberFormatException) {
             StringCol(colName, records.map { it?.toString() })
         }
 
         ColType.Double -> DoubleCol(colName, records.map {
-            if(it is Number) it.toDouble() else it.trimEmptyToNull()?.toDouble()
+            if (it is Number) it.toDouble() else it.trimEmptyToNull()?.toDouble()
         })
 
         ColType.Boolean -> BooleanCol(colName, records.map {
-            if(it is Boolean) it else it?.toString()?.cellValueAsBoolean()
+            if (it is Boolean) it else it?.toString()?.cellValueAsBoolean()
         })
 
         ColType.String -> StringCol(colName, records.map { it?.toString() })
