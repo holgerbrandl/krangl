@@ -31,12 +31,13 @@ const val ARRAY_ROWS_TYPE_DETECTING = 5
 fun DataFrame.Companion.fromJson(url: URL, typeDetectingRows: Int? = ARRAY_ROWS_TYPE_DETECTING): DataFrame =
     fromJsonArray(Parser.default().parse(url.openStream()) as JsonArray<JsonObject>, typeDetectingRows)
 
+const val ARRAY_COL_ID = "_id"
+
 @Suppress("UNCHECKED_CAST")
 fun DataFrame.Companion.fromJsonString(jsonData: String, typeDetectingRows: Int? = ARRAY_ROWS_TYPE_DETECTING): DataFrame {
     val parsed = Parser.default().parse(StringReader(jsonData))
 
     //    var deparseJson = deparseJson(parsed)
-    val ARRAY_COL_ID = "_id"
     var df = dataFrameOf(ARRAY_COL_ID)(parsed)
 
     fun isJsonColumn(it: DataCol) = getColumnType(it).startsWith("Json")
@@ -129,6 +130,48 @@ internal fun fromJsonArray(records: JsonArray<JsonObject>, typeDetectingRows: In
     return SimpleDataFrame(cols)
 }
 
+fun DataFrame.toJsonArray(): JsonArray<JsonObject> {
+    val jsonArray = JsonArray<JsonObject>()
+    this.rows.map { row ->
+        val jsonRow = JsonObject()
+        row.map { element ->
+            jsonRow[element.key] = element.value
+        }
+        jsonArray.add(jsonRow)
+    }
+    return jsonArray
+}
+
+fun DataFrame.toJsonObject(): JsonObject {
+    val unnamedIndex = this.names.contains(ARRAY_COL_ID)
+    val indexColumn = if (unnamedIndex) {
+        this[ARRAY_COL_ID]
+    } else {
+        cols.first()
+    }
+    val indexName = indexColumn.name
+    val index = indexColumn.values().distinct()
+    val jsonObject = JsonObject()
+
+    for (indexKey in index) {
+        val indexValues = dataFrameOf(this.rows.filter { it[indexName] == indexKey }).remove(indexName)
+        jsonObject[indexKey.toString()] = indexValues.toJsonArray()
+    }
+    return if (unnamedIndex) {
+        jsonObject
+    } else {
+        JsonObject(mapOf(indexName to jsonObject))
+    }
+}
+
+fun DataFrame.toJsonString(prettyPrint: Boolean = false, asObject: Boolean = false): String {
+    val json = if (asObject) {
+        toJsonObject()
+    } else {
+        toJsonArray()
+    }
+    return json.toJsonString(prettyPrint, false)
+}
 
 fun main(args: Array<String>) {
     DataFrame.fromJson("https://raw.githubusercontent.com/vega/vega/master/test/data/movies.json")
