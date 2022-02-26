@@ -1,6 +1,6 @@
 
 plugins {
-    id "org.jetbrains.kotlin.jvm" version "1.6.10"
+    id "org.jetbrains.kotlin.jvm" version "1.6.20"
     id "java"
     id "maven-publish"
     id "signing"
@@ -15,25 +15,25 @@ repositories {
 
 
 dependencies {
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.6.10'
-    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.6.10'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.6.20'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.6.20'
 //    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
     // needed to work around https://youtrack.jetbrains.com/issue/KT-15064
-    compileOnly 'org.jetbrains.kotlin:kotlin-script-runtime:1.6.10'
+    compileOnly 'org.jetbrains.kotlin:kotlin-script-runtime:1.6.20'
 
     api  "org.apache.commons:commons-csv:1.6" // cant upgrade to 1.8 because of https://issues.apache.org/jira/browse/CSV-257
-    api 'org.apache.poi:poi-ooxml:5.0.0'
+    api 'org.apache.poi:poi-ooxml:5.2.2'
 
-    api 'com.beust:klaxon:5.5'//    compile 'me.tongfei:progressbar:0.5.5'
+    api 'com.beust:klaxon:5.6'//    compile 'me.tongfei:progressbar:0.5.5'
 
-    api('org.jetbrains.lets-plot:lets-plot-kotlin-jvm:3.1.0')
+    api('org.jetbrains.lets-plot:lets-plot-kotlin-jvm:3.2.0')
 //    implementation("org.jetbrains.lets-plot:lets-plot-batik:2.0.4")
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
-    testImplementation('io.kotest:kotest-assertions-core:5.0.3')
-    testImplementation 'com.h2database:h2:2.0.204'
-    testImplementation 'org.jetbrains.kotlin:kotlin-script-runtime:1.6.0'
+    testImplementation('io.kotest:kotest-assertions-core:5.2.2')
+    testImplementation 'com.h2database:h2:2.1.210'
+    testImplementation 'org.jetbrains.kotlin:kotlin-script-runtime:1.6.10'
 }
 
 
@@ -95,7 +95,7 @@ test {
 //http://stackoverflow.com/questions/34377367/why-is-gradle-install-replacing-my-version-with-unspecified
 group 'com.github.holgerbrandl'
 //version '0.16.95'
-version '0.17.2'
+version '0.17.4-SNAPSHOT'
 
 
 
