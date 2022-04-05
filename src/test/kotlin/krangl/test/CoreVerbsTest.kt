@@ -8,6 +8,7 @@ import krangl.*
 import org.apache.commons.csv.CSVFormat
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.text.DecimalFormatSymbols
 import java.util.*
 
 
@@ -660,11 +661,12 @@ class CoreTests {
     @Test
     fun `it should round numbers when printing`() {
         val df = dataFrameOf("a")(Random().apply { setSeed(3) }.nextDouble(), null)
+        val d = DecimalFormatSymbols.getInstance().decimalSeparator
 
         df.asString(maxDigits = 5) shouldBe """
             A DataFrame: 2 x 1
                       a
-            1   0.73106
+            1   0${d}73106
             2      <NA>
             """.trimIndent()
     }
@@ -673,13 +675,14 @@ class CoreTests {
     fun `it should print schemas with correct alignment and truncation`() {
         val iris2 = irisData.addColumn("id") { rowNumber.map { "foo$it".toRegex() } }
         iris2.schema(maxWidth = 20)
+        val d = DecimalFormatSymbols.getInstance().decimalSeparator
 
         captureOutput { iris2.schema(maxWidth = 20) }.stdout shouldBe """
                 DataFrame with 150 observations
-                Sepal.Length  [Dbl]    5.1, 4.9, 4.7, 4.6, ...
-                Sepal.Width   [Dbl]    3.5, 3, 3.2, 3.1, 3....
-                Petal.Length  [Dbl]    1.4, 1.4, 1.3, 1.5, ...
-                Petal.Width   [Dbl]    0.2, 0.2, 0.2, 0.2, ...
+                Sepal.Length  [Dbl]    5${d}1, 4${d}9, 4${d}7, 4${d}6, ...
+                Sepal.Width   [Dbl]    3${d}5, 3, 3${d}2, 3${d}1, 3${d}...
+                Petal.Length  [Dbl]    1${d}4, 1${d}4, 1${d}3, 1${d}5, ...
+                Petal.Width   [Dbl]    0${d}2, 0${d}2, 0${d}2, 0${d}2, ...
                 Species       [Str]    setosa, setosa, seto...
                 id            [Regex]  foo1, foo2, foo3, fo...
                 """.trimIndent()
@@ -687,7 +690,8 @@ class CoreTests {
 
     @Test
     fun `it should allow to peek into columns`() {
-        irisData["Sepal.Length"].toString() shouldBe "Sepal.Length [Dbl][150]: 5.1, 4.9, 4.7, 4.6, 5, 5.4, 4.6, 5, 4.4, 4.9, 5.4, 4.8, 4.8, 4.3, 5.8, 5.7,..."
+        val d = DecimalFormatSymbols.getInstance().decimalSeparator
+        irisData["Sepal.Length"].toString() shouldBe "Sepal.Length [Dbl][150]: 5${d}1, 4${d}9, 4${d}7, 4${d}6, 5, 5${d}4, 4${d}6, 5, 4${d}4, 4${d}9, 5${d}4, 4${d}8, 4${d}8, 4${d}3, 5${d}8, 5${d}7,..."
         irisData["Species"].toString() shouldBe "Species [Str][150]: setosa, setosa, setosa, setosa, setosa, setosa, setosa, setosa, setosa, setosa, ..."
 
         val users = dataFrameOf("user")(TypeInterfaceTest.User("john", "doe", 33, true))["user"].toString()
