@@ -29,12 +29,11 @@ const val ARRAY_ROWS_TYPE_DETECTING = 5
 
 @Suppress("UNCHECKED_CAST")
 fun DataFrame.Companion.fromJson(url: URL, typeDetectingRows: Int? = ARRAY_ROWS_TYPE_DETECTING): DataFrame =
-    fromJsonArray(Parser().parse(url.openStream()) as JsonArray<JsonObject>, typeDetectingRows)
-
+    fromJsonArray(Parser.default().parse(url.openStream()) as JsonArray<JsonObject>, typeDetectingRows)
 
 @Suppress("UNCHECKED_CAST")
 fun DataFrame.Companion.fromJsonString(jsonData: String, typeDetectingRows: Int? = ARRAY_ROWS_TYPE_DETECTING): DataFrame {
-    val parsed = Parser().parse(StringReader(jsonData))
+    val parsed = Parser.default().parse(StringReader(jsonData))
 
     //    var deparseJson = deparseJson(parsed)
     val ARRAY_COL_ID = "_id"
