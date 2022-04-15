@@ -105,13 +105,12 @@ internal fun fromJsonArray(records: JsonArray<JsonObject>): DataFrame {
             when {
                 // see https://github.com/holgerbrandl/krangl/issues/10
                 firstElements.all { it is Int? } -> IntCol(colName, records.map { (it[colName] as Number?)?.toInt() })
-                firstElements.all { it is Long? } -> LongCol(
-                    colName,
-                    records.map { (it[colName] as Number?)?.toLong() })
-                firstElements.all { it is Double? } -> DoubleCol(
-                    colName,
-                    records.map { (it[colName] as Number?)?.toDouble() })
+                firstElements.all { it is Long? } -> LongCol(colName, records.map { (it[colName] as Number?)?.toLong() })
+                firstElements.all { it is Double? } -> DoubleCol(colName, records.map { (it[colName] as Number?)?.toDouble() })
                 firstElements.all { it is Boolean? } -> BooleanCol(colName, records.map { it[colName] as Boolean? })
+                //keep common numeric type
+                firstElements.all { it is Int? || it is Long? } -> LongCol(colName, records.map { (it[colName] as Number?)?.toLong() })
+                firstElements.all { it is Int? || it is Long? || it is Double? } -> DoubleCol(colName, records.map { (it[colName] as Number?)?.toDouble() })
                 else -> StringCol(colName, records.map { it[colName]?.toString() })
             }
         } catch (e: NumberFormatException) {
