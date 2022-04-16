@@ -183,6 +183,32 @@ class JsonTests {
     }
 
     @Test
+    fun `it should save data to json string`() {
+        val df = DataFrame.fromJsonString(
+            """
+            {
+                "cars": {
+                    "Nissan": [
+                        {"model":"Sentra", "doors":4},
+                        {"model":"Maxima", "doors":4},
+                        {"model":"Skyline", "doors":2}
+                    ],
+                    "Ford": [
+                        {"model":"Taurus", "doors":4},
+                        {"model":"Escort", "doors":4, "seats":5}
+                    ]
+                }
+            }
+            """
+        )
+
+        df.toJsonString(prettyPrint = false, asObject = false).shouldBe("""[{"cars":"Nissan","model":"Sentra","doors":4,"seats":null},{"cars":"Nissan","model":"Maxima","doors":4,"seats":null},{"cars":"Nissan","model":"Skyline","doors":2,"seats":null},{"cars":"Ford","model":"Taurus","doors":4,"seats":null},{"cars":"Ford","model":"Escort","doors":4,"seats":5}]""")
+        df.toJsonString(prettyPrint = false, asObject = true).shouldBe("""{"cars":{"Nissan":[{"model":"Sentra","doors":4,"seats":null},{"model":"Maxima","doors":4,"seats":null},{"model":"Skyline","doors":2,"seats":null}],"Ford":[{"model":"Taurus","doors":4,"seats":null},{"model":"Escort","doors":4,"seats":5}]}}""")
+
+        df.rename("cars" to ARRAY_COL_ID).toJsonString(prettyPrint = false, asObject = true).shouldBe("""{"Nissan":[{"model":"Sentra","doors":4,"seats":null},{"model":"Maxima","doors":4,"seats":null},{"model":"Skyline","doors":2,"seats":null}],"Ford":[{"model":"Taurus","doors":4,"seats":null},{"model":"Escort","doors":4,"seats":5}]}""")
+    }
+
+    @Test
     fun `it should use nearest parent type on json arrays IO`() {
         val df = DataFrame.fromJsonString(
             """
