@@ -183,7 +183,7 @@ class JsonTests {
     }
 
     @Test
-    fun `it should keep data type on json IO`() {
+    fun `it should use nearest parent type on json arrays IO`() {
         val df = DataFrame.fromJsonString(
             """
             {
@@ -212,8 +212,39 @@ class JsonTests {
             this["doors"].shouldBeInstanceOf<IntCol>()
             this["weight"].shouldBeInstanceOf<DoubleCol>()
             this["seats"].shouldBeInstanceOf<IntCol>()
-            //names.map { name -> println(this[name].javaClass.canonicalName)}
+        }
+    }
 
+    @Test
+    fun `it should use nearest parent type on binding objects`() {
+        val df = DataFrame.fromJsonString(
+            """
+            {
+                "cars": {
+                    "Nissan": [
+                        {"model":"Sentra", "doors":4, "weight":1},
+                        {"model":"Maxima", "doors":4, "weight":1.3},
+                        {"model":"Skyline", "doors":2}
+                    ],
+                    "Ford": [
+                        {"model":"Taurus", "doors":4, "weight":2},
+                        {"model":"Escort", "doors":4, "seats":5, "weight":1}
+                    ]
+                }
+            }
+            """
+        )
+
+        df.apply {
+            schema()
+            print()
+            nrow shouldBe 5
+            names shouldBe listOf("cars", "model", "doors", "weight", "seats")
+            this["cars"].shouldBeInstanceOf<StringCol>()
+            this["model"].shouldBeInstanceOf<StringCol>()
+            this["doors"].shouldBeInstanceOf<IntCol>()
+            this["weight"].shouldBeInstanceOf<DoubleCol>()
+            this["seats"].shouldBeInstanceOf<IntCol>()
         }
     }
 
