@@ -25,17 +25,19 @@ fun DataFrame.Companion.fromJson(fileOrUrl: String): DataFrame {
     return fromJson(url)
 }
 
-@Suppress("UNCHECKED_CAST")
-fun DataFrame.Companion.fromJson(url: URL): DataFrame =
-    fromJsonArray(Parser().parse(url.openStream()) as JsonArray<JsonObject>)
-
+const val ARRAY_ROWS_TYPE_DETECTING = 5
 
 @Suppress("UNCHECKED_CAST")
-fun DataFrame.Companion.fromJsonString(jsonData: String): DataFrame {
-    val parsed = Parser().parse(StringReader(jsonData))
+fun DataFrame.Companion.fromJson(url: URL, typeDetectingRows: Int? = ARRAY_ROWS_TYPE_DETECTING): DataFrame =
+    fromJsonArray(Parser.default().parse(url.openStream()) as JsonArray<JsonObject>, typeDetectingRows)
+
+const val ARRAY_COL_ID = "_id"
+
+@Suppress("UNCHECKED_CAST")
+fun DataFrame.Companion.fromJsonString(jsonData: String, typeDetectingRows: Int? = ARRAY_ROWS_TYPE_DETECTING): DataFrame {
+    val parsed = Parser.default().parse(StringReader(jsonData))
 
     //    var deparseJson = deparseJson(parsed)
-    val ARRAY_COL_ID = "_id"
     var df = dataFrameOf(ARRAY_COL_ID)(parsed)
 
     fun isJsonColumn(it: DataCol) = getColumnType(it).startsWith("Json")
@@ -47,7 +49,7 @@ fun DataFrame.Companion.fromJsonString(jsonData: String): DataFrame {
 
         val jsonColDFs = jsonCol.values().map { colData ->
             when (colData) {
-                is JsonArray<*> -> fromJsonArray(colData as JsonArray<JsonObject>)
+                is JsonArray<*> -> fromJsonArray(colData as JsonArray<JsonObject>, typeDetectingRows)
                 is JsonObject -> when {
                     colData.values.first() is JsonArray<*> -> {
                         dataFrameOf(
@@ -82,36 +84,40 @@ fun DataFrame.Companion.fromJsonString(jsonData: String): DataFrame {
     return df
 }
 
-
-private fun deparseJson(parsed: Any?): DataFrame {
+//Can this be removed?
+private fun deparseJson(parsed: Any?, typeDetectingRows: Int? = ARRAY_ROWS_TYPE_DETECTING): DataFrame {
     @Suppress("UNCHECKED_CAST")
     return when (parsed) {
-        is JsonArray<*> -> fromJsonArray(parsed as JsonArray<JsonObject>)
+        is JsonArray<*> -> fromJsonArray(parsed as JsonArray<JsonObject>, typeDetectingRows)
         is JsonObject -> dataFrameOf(parsed.keys)(parsed.values)
         else -> throw IllegalArgumentException("Can not parse json. " + INTERNAL_ERROR_MSG)
     }
 }
 
 
-internal fun fromJsonArray(records: JsonArray<JsonObject>): DataFrame {
+internal fun fromJsonArray(records: JsonArray<JsonObject>, typeDetectingRows: Int?): DataFrame {
     val colNames = records
         .map { it.keys.toList() }
         .reduceRight { acc, right -> acc + right.minus(acc) }
 
     val cols = colNames.map { colName ->
-        val firstElements = records.take(5).mapIndexed { rowIndex, _ -> records[rowIndex][colName] }
+        val firstRows = if (typeDetectingRows is Int) {
+            records.take(typeDetectingRows)
+        } else {
+            records
+        }
+        val firstElements = firstRows.mapIndexed { rowIndex, _ -> records[rowIndex][colName] }
 
         try {
             when {
                 // see https://github.com/holgerbrandl/krangl/issues/10
                 firstElements.all { it is Int? } -> IntCol(colName, records.map { (it[colName] as Number?)?.toInt() })
-                firstElements.all { it is Long? } -> LongCol(
-                    colName,
-                    records.map { (it[colName] as Number?)?.toLong() })
-                firstElements.all { it is Double? } -> DoubleCol(
-                    colName,
-                    records.map { (it[colName] as Number?)?.toDouble() })
+                firstElements.all { it is Long? } -> LongCol(colName, records.map { (it[colName] as Number?)?.toLong() })
+                firstElements.all { it is Double? } -> DoubleCol(colName, records.map { (it[colName] as Number?)?.toDouble() })
                 firstElements.all { it is Boolean? } -> BooleanCol(colName, records.map { it[colName] as Boolean? })
+                //keep common numeric type
+                firstElements.all { it is Int? || it is Long? } -> LongCol(colName, records.map { (it[colName] as Number?)?.toLong() })
+                firstElements.all { it is Int? || it is Long? || it is Double? } -> DoubleCol(colName, records.map { (it[colName] as Number?)?.toDouble() })
                 else -> StringCol(colName, records.map { it[colName]?.toString() })
             }
         } catch (e: NumberFormatException) {
@@ -124,6 +130,48 @@ internal fun fromJsonArray(records: JsonArray<JsonObject>): DataFrame {
     return SimpleDataFrame(cols)
 }
 
+fun DataFrame.toJsonArray(): JsonArray<JsonObject> {
+    val jsonArray = JsonArray<JsonObject>()
+    this.rows.map { row ->
+        val jsonRow = JsonObject()
+        row.map { element ->
+            jsonRow[element.key] = element.value
+        }
+        jsonArray.add(jsonRow)
+    }
+    return jsonArray
+}
+
+fun DataFrame.toJsonObject(): JsonObject {
+    val unnamedIndex = this.names.contains(ARRAY_COL_ID)
+    val indexColumn = if (unnamedIndex) {
+        this[ARRAY_COL_ID]
+    } else {
+        cols.first()
+    }
+    val indexName = indexColumn.name
+    val index = indexColumn.values().distinct()
+    val jsonObject = JsonObject()
+
+    for (indexKey in index) {
+        val indexValues = dataFrameOf(this.rows.filter { it[indexName] == indexKey }).remove(indexName)
+        jsonObject[indexKey.toString()] = indexValues.toJsonArray()
+    }
+    return if (unnamedIndex) {
+        jsonObject
+    } else {
+        JsonObject(mapOf(indexName to jsonObject))
+    }
+}
+
+fun DataFrame.toJsonString(prettyPrint: Boolean = false, asObject: Boolean = false): String {
+    val json = if (asObject) {
+        toJsonObject()
+    } else {
+        toJsonArray()
+    }
+    return json.toJsonString(prettyPrint, false)
+}
 
 fun main(args: Array<String>) {
     DataFrame.fromJson("https://raw.githubusercontent.com/vega/vega/master/test/data/movies.json")

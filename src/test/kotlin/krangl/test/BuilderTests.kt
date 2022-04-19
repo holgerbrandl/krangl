@@ -3,6 +3,7 @@ package krangl.test
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.beInstanceOf
+import io.kotest.matchers.types.shouldBeInstanceOf
 import krangl.*
 import org.junit.Test
 import java.sql.DriverManager
@@ -181,6 +182,97 @@ class JsonTests {
         }
     }
 
+    @Test
+    fun `it should save data to json string`() {
+        val df = DataFrame.fromJsonString(
+            """
+            {
+                "cars": {
+                    "Nissan": [
+                        {"model":"Sentra", "doors":4},
+                        {"model":"Maxima", "doors":4},
+                        {"model":"Skyline", "doors":2}
+                    ],
+                    "Ford": [
+                        {"model":"Taurus", "doors":4},
+                        {"model":"Escort", "doors":4, "seats":5}
+                    ]
+                }
+            }
+            """
+        )
+
+        df.toJsonString(prettyPrint = false, asObject = false).shouldBe("""[{"cars":"Nissan","model":"Sentra","doors":4,"seats":null},{"cars":"Nissan","model":"Maxima","doors":4,"seats":null},{"cars":"Nissan","model":"Skyline","doors":2,"seats":null},{"cars":"Ford","model":"Taurus","doors":4,"seats":null},{"cars":"Ford","model":"Escort","doors":4,"seats":5}]""")
+        df.toJsonString(prettyPrint = false, asObject = true).shouldBe("""{"cars":{"Nissan":[{"model":"Sentra","doors":4,"seats":null},{"model":"Maxima","doors":4,"seats":null},{"model":"Skyline","doors":2,"seats":null}],"Ford":[{"model":"Taurus","doors":4,"seats":null},{"model":"Escort","doors":4,"seats":5}]}}""")
+
+        df.rename("cars" to ARRAY_COL_ID).toJsonString(prettyPrint = false, asObject = true).shouldBe("""{"Nissan":[{"model":"Sentra","doors":4,"seats":null},{"model":"Maxima","doors":4,"seats":null},{"model":"Skyline","doors":2,"seats":null}],"Ford":[{"model":"Taurus","doors":4,"seats":null},{"model":"Escort","doors":4,"seats":5}]}""")
+    }
+
+    @Test
+    fun `it should use nearest parent type on json arrays IO`() {
+        val df = DataFrame.fromJsonString(
+            """
+            {
+                "cars": {
+                    "Nissan": [
+                        {"model":"Sentra", "doors":4, "weight":1},
+                        {"model":"Maxima", "doors":4, "weight":1.3},
+                        {"model":"Skyline", "doors":2}
+                    ],
+                    "Ford": [
+                        {"model":"Taurus", "doors":4, "weight":1.7},
+                        {"model":"Escort", "doors":4, "seats":5, "weight":1}
+                    ]
+                }
+            }
+            """
+        )
+
+        df.apply {
+            schema()
+            print()
+            nrow shouldBe 5
+            names shouldBe listOf("cars", "model", "doors", "weight", "seats")
+            this["cars"].shouldBeInstanceOf<StringCol>()
+            this["model"].shouldBeInstanceOf<StringCol>()
+            this["doors"].shouldBeInstanceOf<IntCol>()
+            this["weight"].shouldBeInstanceOf<DoubleCol>()
+            this["seats"].shouldBeInstanceOf<IntCol>()
+        }
+    }
+
+    @Test
+    fun `it should use nearest parent type on binding objects`() {
+        val df = DataFrame.fromJsonString(
+            """
+            {
+                "cars": {
+                    "Nissan": [
+                        {"model":"Sentra", "doors":4, "weight":1},
+                        {"model":"Maxima", "doors":4, "weight":1.3},
+                        {"model":"Skyline", "doors":2}
+                    ],
+                    "Ford": [
+                        {"model":"Taurus", "doors":4, "weight":2},
+                        {"model":"Escort", "doors":4, "seats":5, "weight":1}
+                    ]
+                }
+            }
+            """
+        )
+
+        df.apply {
+            schema()
+            print()
+            nrow shouldBe 5
+            names shouldBe listOf("cars", "model", "doors", "weight", "seats")
+            this["cars"].shouldBeInstanceOf<StringCol>()
+            this["model"].shouldBeInstanceOf<StringCol>()
+            this["doors"].shouldBeInstanceOf<IntCol>()
+            this["weight"].shouldBeInstanceOf<DoubleCol>()
+            this["seats"].shouldBeInstanceOf<IntCol>()
+        }
+    }
 
     @Test
     fun `it should read incomplete json data from json string`() {
