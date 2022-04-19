@@ -992,13 +992,20 @@ fun bindRows(vararg dataFrames: DataFrame): DataFrame { // add options about NA-
         // tbd: seems cleaner&better but fails for some reason
         //        bindCols.add(handleArrayErasure(colName, colDataCombined))
 
-        when (dataFrames.first { it.names.contains(colName) }[colName]) {
-            is DoubleCol -> DoubleCol(colName, colDataCombined.map { it as Double? })
-            is IntCol -> IntCol(colName, colDataCombined.map { it as Int? })
-            is LongCol -> LongCol(colName, colDataCombined.map { it as Long? })
-            is StringCol -> StringCol(colName, colDataCombined.map { it as String? })
-            is BooleanCol -> BooleanCol(colName, colDataCombined.map { it as Boolean? })
-            is AnyCol -> AnyCol(colName, colDataCombined.toList())
+        val existingColumns = dataFrames.filter { it.names.contains(colName) }.map {it[colName]}
+        when {
+            //all columns are matching
+            existingColumns.all { it is DoubleCol } -> DoubleCol(colName, colDataCombined.map { it as Double? })
+            existingColumns.all { it is IntCol } -> IntCol(colName, colDataCombined.map { it as Int? })
+            existingColumns.all { it is LongCol } -> LongCol(colName, colDataCombined.map { it as Long? })
+            existingColumns.all { it is StringCol } -> StringCol(colName, colDataCombined.map { it as String? })
+            existingColumns.all { it is BooleanCol } -> BooleanCol(colName, colDataCombined.map { it as Boolean? })
+            //keep common numeric type
+            existingColumns.all { it is IntCol || it is LongCol } -> LongCol(colName, colDataCombined.map { (it as Number?)?.toLong() })
+            existingColumns.all { it is IntCol || it is LongCol || it is DoubleCol } -> DoubleCol(colName, colDataCombined.map { (it as Number?)?.toDouble() })
+            //at least one String or Any is priority type
+            existingColumns.any { it is StringCol } -> StringCol(colName, colDataCombined.toList().map { it?.toString() })
+            existingColumns.any { it is AnyCol } -> AnyCol(colName, colDataCombined.toList())
             else -> throw UnsupportedOperationException()
         }.apply { bindCols.add(this) }
     }

@@ -3,155 +3,12 @@ package krangl.test
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.beInstanceOf
+import io.kotest.matchers.types.shouldBeInstanceOf
 import krangl.*
-import org.apache.commons.csv.CSVFormat
 import org.junit.Test
-import java.io.File
-import java.io.FileReader
-import java.io.StringReader
 import java.sql.DriverManager
 import java.sql.Statement
 import java.time.LocalDateTime
-
-/**
- * @author Holger Brandl
- */
-
-class CsvReaderTests {
-
-    @Test
-    fun `skip lines and read file without header`() {
-        val dataFile = File("src/test/resources/krangl/data/headerless_with_preamble.txt")
-        val predictions = DataFrame.readDelim(FileReader(dataFile), skip = 7, format = CSVFormat.TDF)
-
-        predictions.apply {
-            nrow shouldBe 13
-            names shouldBe listOf("X1", "X2", "X3")
-            head().print()
-        }
-    }
-
-
-    @Test
-    fun testTornados() {
-        val tornandoCsv = File("src/test/resources/krangl/data/1950-2014_torn.csv")
-
-        val df = DataFrame.readCSV(tornandoCsv)
-
-        // todo continue test here
-    }
-
-    @Test
-    fun `it should read a url`() {
-        val df =
-            DataFrame.readCSV("https://raw.githubusercontent.com/holgerbrandl/krangl/master/src/test/resources/krangl/data/1950-2014_torn.csv")
-        assert(df.nrow > 2)
-    }
-
-    @Test
-    fun `it should read and write compressed and uncompressed tables`() {
-        //        createTempFile(prefix = "krangl_test", suffix = ".zip").let {
-        //            sleepData.writeCSV(it)
-        //            println("file was $it")
-        //            DataFrame.readCSV(it).nrow shouldBe sleepData.nrow
-        //        }
-
-        createTempFile(prefix = "krangl_test", suffix = ".txt").let {
-            sleepData.writeCSV(it, format = CSVFormat.TDF.withHeader())
-            DataFrame.readCSV(it, format = CSVFormat.TDF.withHeader()).nrow shouldBe sleepData.nrow
-        }
-    }
-
-    @Test
-    fun `it should have the correct column types`() {
-
-        val columnTypes = NamedColumnSpec(
-            "a" to ColType.String,
-            "b" to ColType.String,
-            "c" to ColType.Double,
-            "e" to ColType.Boolean,
-            "f" to ColType.Long,
-            ".default" to ColType.Int
-
-        )
-
-        val dataFrame =
-            DataFrame.readCSV("src/test/resources/krangl/data/test_header_types.csv", colTypes = columnTypes)
-        val cols = dataFrame.cols
-        assert(cols[0] is StringCol)
-        assert(cols[1] is StringCol)
-        assert(cols[2] is DoubleCol)
-        assert(cols[3] is IntCol)
-        assert(cols[4] is BooleanCol)
-        assert(cols[5] is LongCol)
-    }
-
-    @Test
-    fun `it should read csv with compact column spec`() {
-        val dataFrame = DataFrame.readCSV(
-            "src/test/resources/krangl/data/test_header_types.csv",
-            colTypes = CompactColumnSpec("s?dibl")
-        )
-
-        val cols = dataFrame.cols
-        assert(cols[0] is StringCol)
-        assert(cols[1] is StringCol)
-        assert(cols[2] is DoubleCol)
-        assert(cols[3] is IntCol)
-        assert(cols[4] is BooleanCol)
-        assert(cols[5] is LongCol)
-    }
-
-    val customNaDataFrame by lazy {
-        DataFrame.readCSV(
-            "src/test/resources/krangl/data/custom_na_value.csv",
-            format = CSVFormat.DEFAULT.withHeader().withNullString("CUSTOM_NA")
-        )
-    }
-
-
-    @Test
-    fun `it should have a custom NA value`() {
-        val cols = customNaDataFrame.cols
-        assert(cols[0][0] == null)
-    }
-
-    @Test
-    fun `it should peek until it hits the first N non NA values and guess IntCol`() {
-        val cols = customNaDataFrame.cols
-        assert(cols[0] is IntCol)
-
-    }
-
-    @Test
-    fun `it should read fixed-delim data`() {
-        // references
-        //https://issues.apache.org/jira/browse/CSV-272
-        //https://github.com/GuiaBolso/fixed-length-file-handler
-        //https://dev.to/leocolman/handling-fixed-length-files-using-a-kotlin-dsl-1hm1
-
-        val content = """
-1         Product 1    Pa wafer                 7.28571        25
-2         Product 2    Pb wafer                 NA             25
-3         Product 3    test wafer               0.42857        25
-    """.trim().trimIndent()
-
-
-        val format = listOf(
-            "Process Flow" to 10,
-            "Product ID" to 10,
-            "Product Name" to 25,
-            "Start Rate" to 10,
-            "Lot Size" to 10
-        )
-        val df = DataFrame.readFixedWidth(StringReader(content), format)
-        df.print()
-        df.schema()
-
-        df.ncol shouldBe format.size
-        df["Start Rate"][1] shouldBe null
-    }
-}
 
 class BuilderTests {
 
@@ -325,6 +182,97 @@ class JsonTests {
         }
     }
 
+    @Test
+    fun `it should save data to json string`() {
+        val df = DataFrame.fromJsonString(
+            """
+            {
+                "cars": {
+                    "Nissan": [
+                        {"model":"Sentra", "doors":4},
+                        {"model":"Maxima", "doors":4},
+                        {"model":"Skyline", "doors":2}
+                    ],
+                    "Ford": [
+                        {"model":"Taurus", "doors":4},
+                        {"model":"Escort", "doors":4, "seats":5}
+                    ]
+                }
+            }
+            """
+        )
+
+        df.toJsonString(prettyPrint = false, asObject = false).shouldBe("""[{"cars":"Nissan","model":"Sentra","doors":4,"seats":null},{"cars":"Nissan","model":"Maxima","doors":4,"seats":null},{"cars":"Nissan","model":"Skyline","doors":2,"seats":null},{"cars":"Ford","model":"Taurus","doors":4,"seats":null},{"cars":"Ford","model":"Escort","doors":4,"seats":5}]""")
+        df.toJsonString(prettyPrint = false, asObject = true).shouldBe("""{"cars":{"Nissan":[{"model":"Sentra","doors":4,"seats":null},{"model":"Maxima","doors":4,"seats":null},{"model":"Skyline","doors":2,"seats":null}],"Ford":[{"model":"Taurus","doors":4,"seats":null},{"model":"Escort","doors":4,"seats":5}]}}""")
+
+        df.rename("cars" to ARRAY_COL_ID).toJsonString(prettyPrint = false, asObject = true).shouldBe("""{"Nissan":[{"model":"Sentra","doors":4,"seats":null},{"model":"Maxima","doors":4,"seats":null},{"model":"Skyline","doors":2,"seats":null}],"Ford":[{"model":"Taurus","doors":4,"seats":null},{"model":"Escort","doors":4,"seats":5}]}""")
+    }
+
+    @Test
+    fun `it should use nearest parent type on json arrays IO`() {
+        val df = DataFrame.fromJsonString(
+            """
+            {
+                "cars": {
+                    "Nissan": [
+                        {"model":"Sentra", "doors":4, "weight":1},
+                        {"model":"Maxima", "doors":4, "weight":1.3},
+                        {"model":"Skyline", "doors":2}
+                    ],
+                    "Ford": [
+                        {"model":"Taurus", "doors":4, "weight":1.7},
+                        {"model":"Escort", "doors":4, "seats":5, "weight":1}
+                    ]
+                }
+            }
+            """
+        )
+
+        df.apply {
+            schema()
+            print()
+            nrow shouldBe 5
+            names shouldBe listOf("cars", "model", "doors", "weight", "seats")
+            this["cars"].shouldBeInstanceOf<StringCol>()
+            this["model"].shouldBeInstanceOf<StringCol>()
+            this["doors"].shouldBeInstanceOf<IntCol>()
+            this["weight"].shouldBeInstanceOf<DoubleCol>()
+            this["seats"].shouldBeInstanceOf<IntCol>()
+        }
+    }
+
+    @Test
+    fun `it should use nearest parent type on binding objects`() {
+        val df = DataFrame.fromJsonString(
+            """
+            {
+                "cars": {
+                    "Nissan": [
+                        {"model":"Sentra", "doors":4, "weight":1},
+                        {"model":"Maxima", "doors":4, "weight":1.3},
+                        {"model":"Skyline", "doors":2}
+                    ],
+                    "Ford": [
+                        {"model":"Taurus", "doors":4, "weight":2},
+                        {"model":"Escort", "doors":4, "seats":5, "weight":1}
+                    ]
+                }
+            }
+            """
+        )
+
+        df.apply {
+            schema()
+            print()
+            nrow shouldBe 5
+            names shouldBe listOf("cars", "model", "doors", "weight", "seats")
+            this["cars"].shouldBeInstanceOf<StringCol>()
+            this["model"].shouldBeInstanceOf<StringCol>()
+            this["doors"].shouldBeInstanceOf<IntCol>()
+            this["weight"].shouldBeInstanceOf<DoubleCol>()
+            this["seats"].shouldBeInstanceOf<IntCol>()
+        }
+    }
 
     @Test
     fun `it should read incomplete json data from json string`() {
