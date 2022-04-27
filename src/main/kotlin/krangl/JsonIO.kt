@@ -174,5 +174,5 @@ fun DataFrame.toJsonString(prettyPrint: Boolean = false, asObject: Boolean = fal
 }
 
 fun main(args: Array<String>) {
-    DataFrame.fromJson("https://raw.githubusercontent.com/vega/vega/master/test/data/movies.json")
+    DataFrame.fromJson("https://raw.githubusercontent.com/vega/vega/main/docs/data/movies.json")
 }
