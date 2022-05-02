@@ -133,14 +133,14 @@ class ExcelTests {
     }
 
     @Test
-    fun `readExcel -  should read bigint value`() {
+    fun `readExcel - should read bigint value`() {
 
         val df = DataFrame.readExcel(
             "src/test/resources/krangl/data/ExcelReadExample.xlsx",
             "FirstSheet"
         )
 
-        df["Activities"][1] shouldBe "432178937489174"
+        df["Activities"][1] shouldBe 432178937489174
     }
 
     @Test
