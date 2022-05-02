@@ -2,9 +2,13 @@ package krangl.test
 
 import io.kotest.matchers.shouldBe
 import krangl.*
+import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.util.LocaleUtil
+import org.apache.poi.xssf.streaming.SXSSFWorkbook
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.junit.Test
+import java.io.FileInputStream
 import java.util.*
 
 
@@ -178,6 +182,13 @@ class ExcelTests {
         )
 
         writtenDF shouldBe df
+
+        val writtenBook = XSSFWorkbook(FileInputStream("src/test/resources/krangl/data/ExcelWriteResult.xlsx"))
+        val longValueCell = writtenBook.getSheet("FirstSheet").getRow(2).getCell(4)
+        longValueCell.cellType.shouldBe(CellType.NUMERIC)
+        longValueCell.numericCellValue.shouldBe(432178937489174.0)
+        val emptyValueCell = writtenBook.getSheet("FirstSheet").getRow(6).getCell(4)
+        emptyValueCell.cellType.shouldBe(CellType.BLANK)
     }
 
     @Test
