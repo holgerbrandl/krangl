@@ -445,7 +445,7 @@ internal fun peekCol(colIndex: Int, records: List<CSVRecord>, peekSize: Int = 10
 
 internal fun peekCol(records: Array<*>, peekSize: Int = 100) = records
     .asSequence()
-    .map { it.toString() }
+    .map { it?.toString() }
     .filterNotNull()
     .take(peekSize)
     .toList()

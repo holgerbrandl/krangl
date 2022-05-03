@@ -287,23 +287,33 @@ private fun DataFrame.createExcelDataRows(sheet: Sheet, headers: Boolean) {
 
             when (cols[columnIndex]) {
                 is BooleanCol -> {
-                    cell.cellType = CellType.BOOLEAN
-                    cellValue?.let { cell.setCellValue(it as Boolean) }
+                    cellValue?.let {
+                        cell.cellType = CellType.BOOLEAN
+                        cell.setCellValue(it as Boolean)
+                    }
                 }
                 is DoubleCol -> {
-                    cell.cellType = CellType.NUMERIC
-                    cellValue?.let { cell.setCellValue(it as Double) }
+                    cellValue?.let {
+                        cell.cellType = CellType.NUMERIC
+                        cell.setCellValue(it as Double)
+                    }
                 }
                 is IntCol -> {
-                    cell.cellType = CellType.NUMERIC
-                    cellValue?.let { cell.setCellValue((it as Int).toDouble()) }
+                    cellValue?.let {
+                        cell.cellType = CellType.NUMERIC
+                        cell.setCellValue((it as Int).toDouble())
+                    }
                 }
-//                is StringCol -> cell.cellType= CellType.STRING
+                is LongCol -> {
+                    cellValue?.let {
+                        cell.setCellValue((it as Long).toDouble())
+                        cell.cellType = CellType.NUMERIC
+                    }
+                }
                 else -> {
                     cellValue?.let { cell.setCellValue(cellValue.toString()) }
                 }
             }
-//            cell.setCellValue(cell.toString())
         }
     }
 }
