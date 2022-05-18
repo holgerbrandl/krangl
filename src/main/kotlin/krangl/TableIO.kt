@@ -324,7 +324,7 @@ internal fun String?.nullAsNA(): String = this ?: MISSING_VALUE
 //    }
 
 internal fun String?.cellValueAsBoolean(): Boolean? {
-    if (this == null) return null
+    if (this == null || this == "") return null
 
     var cellValue: String? = toUpperCase()
 

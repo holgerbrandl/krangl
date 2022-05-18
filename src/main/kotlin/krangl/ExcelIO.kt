@@ -84,23 +84,17 @@ private fun readExcelSheet(
     includeBlankLines: Boolean
 ): DataFrame {
     var df = emptyDataFrame()
-    val rowIterator = xlSheet.rowIterator()
+
     val cellRange = range ?: getDefaultCellAddress(xlSheet)
 
-    if (!rowIterator.hasNext())
-        return df
+    val rowsFromTo = cellRange.firstRow to cellRange.lastRow
 
-    // Skip lines until starting row number
-    var currentRow = rowIterator.next()
-    while (currentRow.rowNum < cellRange.firstRow - 1) {
-        if (!rowIterator.hasNext())
-            return df
-        else {
-            currentRow = rowIterator.next()
-        }
+    val headerRow = xlSheet.getRow(rowsFromTo.first)
+    if (headerRow == null) {
+        return df
     }
 
-    val cellIterator = currentRow.iterator()
+    val cellIterator = headerRow.iterator()
 
     // Get column names
     val columnResults = getExcelColumnNames(cellIterator, df, cellRange)
@@ -108,19 +102,15 @@ private fun readExcelSheet(
     cellRange.lastColumn = columnResults.second  // Stops at first empty column header
 
     //Get rows
-    while (rowIterator.hasNext() && currentRow.rowNum < cellRange.lastRow) {
-        currentRow = rowIterator.next()
-        val values = readExcelRow(currentRow, cellRange, trim, na)
+    for (rowNumber in rowsFromTo.first + 1 .. rowsFromTo.second) {
+        val currentRow = xlSheet.getRow(rowNumber)
+        val values = currentRow?.let { readExcelRow(currentRow, cellRange, trim, na) } ?: arrayOfNulls<Any?>(df.ncol).asList()
 
         //Prevent Excel reading blank lines (whose contents have been cleared but the lines weren't deleted)
-        if (values.filterNotNull().isNotEmpty())
+        if (values.filterNotNull().isNotEmpty() || includeBlankLines) {
             df = df.addRow(values)
-        else
-            if (stopAtBlankLine)
-                break //Stops reading on first blank line
-            else
-                if (includeBlankLines)
-                    df = df.addRow(values)
+        } else
+            if (stopAtBlankLine) break //Stops reading on first blank line
     }
     return assignColumnTypes(df, colTypes, guessMax)
 }
@@ -161,12 +151,11 @@ private fun readExcelRow(
                     if(floor(numValue) == numValue && !isInfinite(numValue)) numValue.toLong() else numValue
                 }
                 CellType.STRING -> currentCell.stringCellValue
-                CellType.BLANK -> null
+                CellType.BLANK -> ""
                 CellType.BOOLEAN -> currentCell.booleanCellValue
                 CellType._NONE, CellType.ERROR, CellType.FORMULA -> dataFormatter.formatCellValue(currentCell)
             }
         }
-//        var currentValue = currentCell?.let { dataFormatter.formatCellValue(currentCell) }
 
         if (currentValue is String) {
             if (trim) {
@@ -177,7 +166,6 @@ private fun readExcelRow(
                 currentValue = null
             }
 
-            currentValue = (currentValue as String?)?.ifBlank { null }
         }
 
         rowValues.add(currentValue)
@@ -283,35 +271,26 @@ private fun DataFrame.createExcelDataRows(sheet: Sheet, headers: Boolean) {
         val nRow = sheet.createRow(rowIdx++)
 
         for ((columnIndex, cellValue) in dfRow.values.toMutableList().withIndex()) {
+            if (cellValue == null) {
+                continue
+            }
             val cell = nRow.createCell(columnIndex)
 
             when (cols[columnIndex]) {
                 is BooleanCol -> {
-                    cellValue?.let {
-                        cell.cellType = CellType.BOOLEAN
-                        cell.setCellValue(it as Boolean)
-                    }
+                    cell.setCellValue(cellValue as Boolean)
                 }
                 is DoubleCol -> {
-                    cellValue?.let {
-                        cell.cellType = CellType.NUMERIC
-                        cell.setCellValue(it as Double)
-                    }
+                    cell.setCellValue(cellValue as Double)
                 }
                 is IntCol -> {
-                    cellValue?.let {
-                        cell.cellType = CellType.NUMERIC
-                        cell.setCellValue((it as Int).toDouble())
-                    }
+                    cell.setCellValue((cellValue as Int).toDouble())
                 }
                 is LongCol -> {
-                    cellValue?.let {
-                        cell.setCellValue((it as Long).toDouble())
-                        cell.cellType = CellType.NUMERIC
-                    }
+                    cell.setCellValue((cellValue as Long).toDouble())
                 }
                 else -> {
-                    cellValue?.let { cell.setCellValue(cellValue.toString()) }
+                    cell.setCellValue(cellValue.toString())
                 }
             }
         }
