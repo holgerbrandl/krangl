@@ -230,4 +230,25 @@ class ExcelTests {
 
         LocaleUtil.setUserLocale(defaultLocale)
     }
+
+    @Test
+    fun `it should distinguish empty strings and nulls`() {
+        val df1 = dataFrameOf(listOf(
+            mapOf("col" to "NotEmptyString1", "col2" to 1),
+            mapOf("col" to "", "col2" to 2),
+            mapOf("col" to null, "col2" to 3),
+            mapOf("col" to "NotEmptyString2", "col2" to 4),
+        ))
+        df1.writeExcel("testNull.xlsx", "test", eraseFile = true)
+        DataFrame.readExcel("testNull.xlsx", "test") shouldBe df1
+
+        val df2 = dataFrameOf(listOf(
+            mapOf("col" to "NotEmptyString1"),
+            mapOf("col" to ""),
+            mapOf("col" to null),
+            mapOf("col" to "NotEmptyString2"),
+        ))
+        df2.writeExcel("testNull.xlsx", "test", eraseFile = true)
+        DataFrame.readExcel("testNull.xlsx", "test", stopAtBlankLine = false, includeBlankLines = true) shouldBe df2
+    }
 }
