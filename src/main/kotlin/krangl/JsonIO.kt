@@ -25,16 +25,14 @@ fun DataFrame.Companion.fromJson(fileOrUrl: String): DataFrame {
     return fromJson(url)
 }
 
-const val ARRAY_ROWS_TYPE_DETECTING = 5
-
 @Suppress("UNCHECKED_CAST")
-fun DataFrame.Companion.fromJson(url: URL, typeDetectingRows: Int? = ARRAY_ROWS_TYPE_DETECTING): DataFrame =
-    fromJsonArray(Parser.default().parse(url.openStream()) as JsonArray<JsonObject>, typeDetectingRows)
+fun DataFrame.Companion.fromJson(url: URL, guessMax: Int? = GUESS_MAX): DataFrame =
+    fromJsonArray(Parser.default().parse(url.openStream()) as JsonArray<JsonObject>, guessMax)
 
 const val ARRAY_COL_ID = "_id"
 
 @Suppress("UNCHECKED_CAST")
-fun DataFrame.Companion.fromJsonString(jsonData: String, typeDetectingRows: Int? = ARRAY_ROWS_TYPE_DETECTING): DataFrame {
+fun DataFrame.Companion.fromJsonString(jsonData: String, guessMax: Int? = GUESS_MAX): DataFrame {
     val parsed = Parser.default().parse(StringReader(jsonData))
 
     //    var deparseJson = deparseJson(parsed)
@@ -49,7 +47,7 @@ fun DataFrame.Companion.fromJsonString(jsonData: String, typeDetectingRows: Int?
 
         val jsonColDFs = jsonCol.values().map { colData ->
             when (colData) {
-                is JsonArray<*> -> fromJsonArray(colData as JsonArray<JsonObject>, typeDetectingRows)
+                is JsonArray<*> -> fromJsonArray(colData as JsonArray<JsonObject>, guessMax)
                 is JsonObject -> when {
                     colData.values.first() is JsonArray<*> -> {
                         dataFrameOf(
@@ -84,25 +82,14 @@ fun DataFrame.Companion.fromJsonString(jsonData: String, typeDetectingRows: Int?
     return df
 }
 
-//Can this be removed?
-private fun deparseJson(parsed: Any?, typeDetectingRows: Int? = ARRAY_ROWS_TYPE_DETECTING): DataFrame {
-    @Suppress("UNCHECKED_CAST")
-    return when (parsed) {
-        is JsonArray<*> -> fromJsonArray(parsed as JsonArray<JsonObject>, typeDetectingRows)
-        is JsonObject -> dataFrameOf(parsed.keys)(parsed.values)
-        else -> throw IllegalArgumentException("Can not parse json. " + INTERNAL_ERROR_MSG)
-    }
-}
-
-
-internal fun fromJsonArray(records: JsonArray<JsonObject>, typeDetectingRows: Int?): DataFrame {
+internal fun fromJsonArray(records: JsonArray<JsonObject>, guessMax: Int?): DataFrame {
     val colNames = records
         .map { it.keys.toList() }
         .reduceRight { acc, right -> acc + right.minus(acc) }
 
     val cols = colNames.map { colName ->
-        val firstRows = if (typeDetectingRows is Int) {
-            records.take(typeDetectingRows)
+        val firstRows = if (guessMax is Int) {
+            records.take(guessMax)
         } else {
             records
         }
