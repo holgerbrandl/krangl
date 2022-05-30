@@ -27,7 +27,7 @@ fun DataFrame.Companion.readExcel(
     cellRange: CellRangeAddress? = null,
     colTypes: ColumnTypeSpec = GuessSpec(),
     trim: Boolean = false,
-    guessMax: Int = 100,
+    guessMax: Int = GUESS_MAX,
     na: String = MISSING_VALUE,
     stopAtBlankLine: Boolean = true,
     includeBlankLines: Boolean = false,
@@ -55,7 +55,7 @@ fun DataFrame.Companion.readExcel(
     cellRange: CellRangeAddress? = null,
     colTypes: ColumnTypeSpec = GuessSpec(),
     trim_ws: Boolean = false,
-    guessMax: Int = 100,
+    guessMax: Int = GUESS_MAX,
     na: String = MISSING_VALUE,
     stopAtBlankLine: Boolean = true,
     includeBlankLines: Boolean = false,
@@ -198,7 +198,7 @@ private fun getExcelColumnNames(
     return Pair(df1, lastColumn)
 }
 
-private fun assignColumnTypes(df: DataFrame, colTypes: ColumnTypeSpec, guessMax: Int = 100): DataFrame {
+private fun assignColumnTypes(df: DataFrame, colTypes: ColumnTypeSpec, guessMax: Int = GUESS_MAX): DataFrame {
 
     val colList = mutableListOf<DataCol>()
 

@@ -23,6 +23,8 @@ dependencies {
     compileOnly 'org.jetbrains.kotlin:kotlin-script-runtime:1.6.20'
 
     api  "org.apache.commons:commons-csv:1.6" // cant upgrade to 1.8 because of https://issues.apache.org/jira/browse/CSV-257
+    api 'org.apache.arrow:arrow-vector:8.0.0'
+    implementation 'org.apache.arrow:arrow-memory-netty:8.0.0'
     api 'org.apache.poi:poi-ooxml:5.2.2'
 
     api 'com.beust:klaxon:5.6'//    compile 'me.tongfei:progressbar:0.5.5'
@@ -95,7 +97,7 @@ test {
 //http://stackoverflow.com/questions/34377367/why-is-gradle-install-replacing-my-version-with-unspecified
 group 'com.github.holgerbrandl'
 //version '0.16.95'
-version '0.17.4-SNAPSHOT'
+version '0.17.4'
 
 
 
