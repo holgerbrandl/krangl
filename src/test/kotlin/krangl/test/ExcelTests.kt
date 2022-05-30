@@ -2,19 +2,27 @@ package krangl.test
 
 import io.kotest.matchers.shouldBe
 import krangl.*
+import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.util.LocaleUtil
+import org.apache.poi.xssf.streaming.SXSSFWorkbook
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.junit.Test
+import java.io.FileInputStream
 import java.util.*
 
 
 class ExcelTests {
 
+    private val testReadingPath = "src/test/resources/krangl/data/ExcelReadExample.xlsx"
+    private val testWritingPath = "src/test/resources/krangl/data/ExcelWriteResult.xlsx"
+
+
     @Test
     fun `readExcel -  should read excel file`() {
 
         val df = DataFrame.readExcel(
-            "src/test/resources/krangl/data/ExcelReadExample.xlsx",
+            testReadingPath,
             "FirstSheet"
         )
 
@@ -28,12 +36,12 @@ class ExcelTests {
     @Test
     fun `readExcel - sheet by name should match sheet by index`() {
         val nameDF = DataFrame.readExcel(
-            "src/test/resources/krangl/data/ExcelReadExample.xlsx",
+            testReadingPath,
             "FirstSheet"
         )
 
         val indexDF = DataFrame.readExcel(
-            "src/test/resources/krangl/data/ExcelReadExample.xlsx",
+            testReadingPath,
             0
         )
 
@@ -43,7 +51,7 @@ class ExcelTests {
     @Test
     fun `readExcel - out of range test`() {
         val headerHigherThanContentDF = DataFrame.readExcel(
-            "src/test/resources/krangl/data/ExcelReadExample.xlsx",
+            testReadingPath,
             "FirstSheet", CellRangeAddress.valueOf("A105:A110")
         )
 
@@ -53,19 +61,19 @@ class ExcelTests {
     @Test
     fun `readExcel - range test`() {
         val df = DataFrame.readExcel(
-            "src/test/resources/krangl/data/ExcelReadExample.xlsx",
+            testReadingPath,
             "FirstSheet"
         )
 
         // Test sheet by index + cell range
         val cellRangeTestDF = DataFrame.readExcel(
-            "src/test/resources/krangl/data/ExcelReadExample.xlsx",
+            testReadingPath,
             sheet = 1, cellRange = CellRangeAddress.valueOf("E5:J105"), trim = true
         )
 
         // Test defaulted cellRange's correctness on sheet with empty rows/cols
         val defaultCellRangeTestDF = DataFrame.readExcel(
-            "src/test/resources/krangl/data/ExcelReadExample.xlsx",
+            testReadingPath,
             sheet = 1, trim = true
         )
 
@@ -76,11 +84,11 @@ class ExcelTests {
     @Test
     fun `readExcel - trim_ws should trim white space`() {
         val df = DataFrame.readExcel(
-            "src/test/resources/krangl/data/ExcelReadExample.xlsx",
+            testReadingPath,
             "FirstSheet"
         )
         val trimmedDF = DataFrame.readExcel(
-            "src/test/resources/krangl/data/ExcelReadExample.xlsx",
+            testReadingPath,
             sheet = 1, trim = true
         )
 
@@ -90,7 +98,7 @@ class ExcelTests {
     @Test
     fun `readExcel - colTypes should work`() {
         val df = DataFrame.readExcel(
-            "src/test/resources/krangl/data/ExcelReadExample.xlsx",
+            testReadingPath,
             "FirstSheet", colTypes = NamedColumnSpec("Activities" to ColType.Int)
         )
 
@@ -101,7 +109,7 @@ class ExcelTests {
     @Test
     fun `readExcel - should stop at first blank line`() {
         val shouldStopAtBlankDF = DataFrame.readExcel(
-            "src/test/resources/krangl/data/ExcelReadExample.xlsx",
+            testReadingPath,
             sheet = 2, trim = true, cellRange = CellRangeAddress.valueOf("E3:J10")
         )
 
@@ -111,7 +119,7 @@ class ExcelTests {
     @Test
     fun `readExcel - should continue past blank line`() {
         val shouldContinueAtBlankDF = DataFrame.readExcel(
-            "src/test/resources/krangl/data/ExcelReadExample.xlsx",
+            testReadingPath,
             sheet = 2, trim = true, cellRange = CellRangeAddress.valueOf("E3:J10"), stopAtBlankLine = false
         )
 
@@ -121,7 +129,7 @@ class ExcelTests {
     @Test
     fun `readExcel - should include blank lines`() {
         val shouldContinueAtBlankDF = DataFrame.readExcel(
-            "src/test/resources/krangl/data/ExcelReadExample.xlsx",
+            testReadingPath,
             sheet = 2,
             trim = true,
             cellRange = CellRangeAddress.valueOf("E3:J10"),
@@ -133,39 +141,39 @@ class ExcelTests {
     }
 
     @Test
-    fun `readExcel -  should read bigint value`() {
+    fun `readExcel - should read bigint value`() {
 
         val df = DataFrame.readExcel(
-            "src/test/resources/krangl/data/ExcelReadExample.xlsx",
+            testReadingPath,
             "FirstSheet"
         )
 
-        df["Activities"][1] shouldBe "432178937489174"
+        df["Activities"][1] shouldBe 432178937489174
     }
 
     @Test
     fun `writeExcel - should write to excel`() {
         val df = DataFrame.readExcel(
-            "src/test/resources/krangl/data/ExcelReadExample.xlsx",
+            testReadingPath,
             "FirstSheet"
         )
 
         df.writeExcel(
-            "src/test/resources/krangl/data/ExcelWriteResult.xlsx",
+            testWritingPath,
             "FirstSheet",
             headers = true,
             eraseFile = true,
             boldHeaders = false
         )
         df.writeExcel(
-            "src/test/resources/krangl/data/ExcelWriteResult.xlsx",
+            testWritingPath,
             "SecondSheet",
             headers = true,
             eraseFile = false,
             boldHeaders = true
         )
         df.writeExcel(
-            "src/test/resources/krangl/data/ExcelWriteResult.xlsx",
+            testWritingPath,
             "ThirdSheet",
             headers = false,
             eraseFile = false,
@@ -173,11 +181,18 @@ class ExcelTests {
         )
 
         val writtenDF = DataFrame.readExcel(
-            "src/test/resources/krangl/data/ExcelWriteResult.xlsx",
+            testWritingPath,
             "FirstSheet"
         )
 
         writtenDF shouldBe df
+
+        val writtenBook = XSSFWorkbook(FileInputStream(testWritingPath))
+        val longValueCell = writtenBook.getSheet("FirstSheet").getRow(2).getCell(4)
+        longValueCell.cellType.shouldBe(CellType.NUMERIC)
+        longValueCell.numericCellValue.shouldBe(432178937489174.0)
+        val emptyValueCell = writtenBook.getSheet("FirstSheet").getRow(6).getCell(4)
+        emptyValueCell shouldBe null
     }
 
     @Test
@@ -192,7 +207,7 @@ class ExcelTests {
         df.print(maxWidth = 1000)
         df.schema()
 
-        df[1][4] shouldBe null
+        df[1][4] shouldBe ""
         df[3][1] shouldBe null
         df[5][3] shouldBe null
 
@@ -218,5 +233,26 @@ class ExcelTests {
         }
 
         LocaleUtil.setUserLocale(defaultLocale)
+    }
+
+    @Test
+    fun `it should distinguish empty strings and nulls`() {
+        val df1 = dataFrameOf(listOf(
+            mapOf("col" to "NotEmptyString1", "col2" to 1),
+            mapOf("col" to "", "col2" to 2),
+            mapOf("col" to null, "col2" to 3),
+            mapOf("col" to "NotEmptyString2", "col2" to 4),
+        ))
+        df1.writeExcel(testWritingPath, "test", eraseFile = true)
+        DataFrame.readExcel(testWritingPath, "test") shouldBe df1
+
+        val df2 = dataFrameOf(listOf(
+            mapOf("col" to "NotEmptyString1"),
+            mapOf("col" to ""),
+            mapOf("col" to null),
+            mapOf("col" to "NotEmptyString2"),
+        ))
+        df2.writeExcel("testNull.xlsx", "test", eraseFile = true)
+        DataFrame.readExcel("testNull.xlsx", "test", stopAtBlankLine = false, includeBlankLines = true) shouldBe df2
     }
 }

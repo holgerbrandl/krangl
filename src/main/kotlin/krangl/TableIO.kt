@@ -308,6 +308,8 @@ fun DataFrame.Companion.readFixedWidth(
 
 val MISSING_VALUE = "NA"
 
+const val GUESS_MAX = 100
+
 // NA aware conversions
 internal fun String.naAsNull(): String? = if (this == MISSING_VALUE) null else this
 
@@ -324,7 +326,7 @@ internal fun String?.nullAsNA(): String = this ?: MISSING_VALUE
 //    }
 
 internal fun String?.cellValueAsBoolean(): Boolean? {
-    if (this == null) return null
+    if (this == null || this == "") return null
 
     var cellValue: String? = toUpperCase()
 
@@ -377,7 +379,7 @@ internal fun dataColFactory(
 
 // TODO add missing value support with user defined string (e.g. NA here) here
 
-internal fun dataColFactory(colName: String, colType: ColType, records: Array<*>, guessMax: Int = 100): DataCol =
+internal fun dataColFactory(colName: String, colType: ColType, records: Array<*>, guessMax: Int = GUESS_MAX): DataCol =
     when (colType) {
         // see https://github.com/holgerbrandl/krangl/issues/10
         ColType.Int -> try {
@@ -445,7 +447,7 @@ internal fun peekCol(colIndex: Int, records: List<CSVRecord>, peekSize: Int = 10
 
 internal fun peekCol(records: Array<*>, peekSize: Int = 100) = records
     .asSequence()
-    .map { it.toString() }
+    .map { it?.toString() }
     .filterNotNull()
     .take(peekSize)
     .toList()
