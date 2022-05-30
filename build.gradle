@@ -30,6 +30,9 @@ dependencies {
     api('org.jetbrains.lets-plot:lets-plot-kotlin-jvm:3.2.0')
 //    implementation("org.jetbrains.lets-plot:lets-plot-batik:2.0.4")
 
+//    implementation 'org.jetbrains.kotlinx:dataframe:0.8.0-rc-7'
+//    testImplementation 'org.jetbrains.kotlinx:dataframe:0.8.0-rc-7'
+
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation('io.kotest:kotest-assertions-core:5.2.2')
     testImplementation 'com.h2database:h2:2.1.210'
