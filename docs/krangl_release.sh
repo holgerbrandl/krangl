@@ -11,7 +11,7 @@ export KRANGL_HOME=/d/projects/misc/krangl
 #########################################################################
 ## Run tests locally
 
-cd $KRANGL_HOME
+cd $KRANGL_HOME || exit 1
 
 ./gradlew check
 

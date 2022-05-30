@@ -1,9 +1,10 @@
 krangl Release History
 ======================
 
-v0.18-SNAPSHOT 
+v0.18
 -----
 
+* Added support for arrow (Thanks to **[@Kopilov](https://github.com/Kopilov)** for contributing [PR 150](https://github.com/holgerbrandl/krangl/pull/150)) 
 * Improved support for large Excels tables (Thanks to **[@ayvazj](https://github.com/ayvazj)** for contributing [PR 126](https://github.com/holgerbrandl/krangl/pull/126)) 
 * Added second version of `unfold()` to work with property accessors instead
 ```kotlin
