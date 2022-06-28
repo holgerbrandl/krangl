@@ -9,6 +9,7 @@ import java.io.File
 import java.io.PrintStream
 import java.net.URL
 import java.util.*
+import kotlin.time.Duration
 
 /**
  * @author Holger Brandl
@@ -277,6 +278,38 @@ class ValueClassTests {
         ).asDataFrame()
 
         df.nrow shouldBe 2
+    }
+}
+
+class ExtensionPropertyTest {
+
+    class Something(
+        val foo: String,
+        val bar: Int?,
+    ) {
+        val Duration.ticks: Double
+            get() = 0.0
+
+        val Int.other: Double
+            get() = 0.0
+    }
+
+
+    @Test
+    fun `it should support nullable value class properties in asDataFrame`() {
+        val df = dataFrameOf(
+            AnyCol(
+                "st", listOf(
+                    Something("hey", 42),
+                    Something("ho", null)
+                )
+            )
+        )
+
+        val dfUnfold = df.unfold<Something>("st")
+
+        dfUnfold.ncol shouldBe 3
+        dfUnfold.names shouldBe listOf("st", "bar", "foo")
     }
 }
 

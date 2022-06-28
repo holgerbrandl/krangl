@@ -1,6 +1,6 @@
 
 plugins {
-    id "org.jetbrains.kotlin.jvm" version "1.6.20"
+    id "org.jetbrains.kotlin.jvm" version "1.7.0"
     id "java"
     id "maven-publish"
     id "signing"
@@ -35,9 +35,9 @@ dependencies {
 //    implementation 'org.jetbrains.kotlinx:dataframe:0.8.0-rc-7'
 //    testImplementation 'org.jetbrains.kotlinx:dataframe:0.8.0-rc-7'
 
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.1'
     testImplementation('io.kotest:kotest-assertions-core:5.2.2')
-    testImplementation 'com.h2database:h2:2.1.210'
+    testImplementation 'com.h2database:h2:2.1.212'
     testImplementation 'org.jetbrains.kotlin:kotlin-script-runtime:1.6.10'
 }
 
@@ -100,7 +100,7 @@ test {
 //http://stackoverflow.com/questions/34377367/why-is-gradle-install-replacing-my-version-with-unspecified
 group 'com.github.holgerbrandl'
 //version '0.16.95'
-version '0.18'
+version '0.18.1'
 
 
 

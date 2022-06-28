@@ -123,10 +123,9 @@ inline fun <reified T> DataFrame.unfold(
     val extProperties = properties + properties.map { "get" + it.capitalize() }
     val propsOrGetters = detectPropertiesByReflection<T>()
 
-
     val filtMembers = propsOrGetters
         // match by name
-        .filter { extProperties.contains(it.name) }
+        .filter { it.parameters.size==1 && extProperties.contains(it.name) }  // discard extension functions in class body
 
     // todo make sure that unfolded columns are not yet present in df, and warn if so and append _1, _2, ... suffix
     val unfolded = filtMembers.fold(this) { df, kCallable ->
