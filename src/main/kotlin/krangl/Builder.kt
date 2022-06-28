@@ -39,7 +39,7 @@ fun <T> DataFrame.Companion.fromRecords(records: Iterable<T>, mapping: (T) -> Da
 
     val columnData = columnNames.map { it to emptyList<Any?>().toMutableList() }.toMap()
 
-    for (record in rowData) {
+    for(record in rowData) {
         columnData.forEach { colName, colData -> colData.add(record[colName]) }
     }
 
@@ -77,25 +77,24 @@ inline fun <reified T> Iterable<T>.asDataFrame(): DataFrame {
 }
 
 
-
 //typealias PropExtractor<T> = T.(T) -> Any?
 typealias PropExtractor<T> = T.() -> Any?
 
 
 fun main() {
-    data class Car(val name:String, val weight: Double)
+    data class Car(val name: String, val weight: Double)
 
     val cars = listOf(Car("BMW", 123.0), Car("Tesla", 245.0))
     val df = dataFrameOf(AnyCol("car", cars))
-    df.unfold("car", listOf(Car::name,Car::weight, Car::weight))
+    df.unfold("car", listOf(Car::name, Car::weight, Car::weight))
 }
 
 @JvmName("unfoldByProperty")
-fun  DataFrame.unfold(
+fun DataFrame.unfold(
     columnName: String,
     properties: List<KCallable<*>>,
     keep: Boolean = true,
-    addPrefix:Boolean=false
+    addPrefix: Boolean = false
 ): DataFrame {
 
     // todo make sure that unfolded columns are not yet present in df, and warn if so and append _1, _2, ... suffix
@@ -109,7 +108,7 @@ fun  DataFrame.unfold(
         }
     }
 
-    return if (keep) unfolded else unfolded.remove(columnName)
+    return if(keep) unfolded else unfolded.remove(columnName)
 }
 
 
@@ -117,7 +116,7 @@ inline fun <reified T> DataFrame.unfold(
     columnName: String,
     properties: List<String> = detectPropertiesByReflection<T>().map { it.name },
     keep: Boolean = true,
-    addPrefix:Boolean=false
+    addPrefix: Boolean = false
 ): DataFrame {
 
     val extProperties = properties + properties.map { "get" + it.capitalize() }
@@ -125,7 +124,9 @@ inline fun <reified T> DataFrame.unfold(
 
     val filtMembers = propsOrGetters
         // match by name
-        .filter { it.parameters.size==1 && extProperties.contains(it.name) }  // discard extension functions in class body
+        .filter { it.parameters.size == 1 }
+        // discard extension functions in class body
+        .filter { extProperties.contains(it.name) }
 
     // todo make sure that unfolded columns are not yet present in df, and warn if so and append _1, _2, ... suffix
     val unfolded = filtMembers.fold(this) { df, kCallable ->
@@ -138,7 +139,7 @@ inline fun <reified T> DataFrame.unfold(
         }
     }
 
-    return if (keep) unfolded else unfolded.remove(columnName)
+    return if(keep) unfolded else unfolded.remove(columnName)
 }
 
 
@@ -167,7 +168,7 @@ inline fun <reified T> DataFrame.rowsAs(mapping: Map<String, String> = names.map
         // select the one with most parameters
         .maxByOrNull { it.parameters.size }
 
-    if (bestConst == null) error("[krangl] Could not find matching constructor for subset of ${mapping.values}")
+    if(bestConst == null) error("[krangl] Could not find matching constructor for subset of ${mapping.values}")
 
     val objects = rows.map { row ->
         val args = bestConst.parameters.map { constParamName ->
@@ -176,7 +177,7 @@ inline fun <reified T> DataFrame.rowsAs(mapping: Map<String, String> = names.map
 
         try {
             bestConst.call(*args.toTypedArray())
-        } catch (e: IllegalArgumentException) {
+        } catch(e: IllegalArgumentException) {
             throw IllegalArgumentException("Could not instantiate record class constructor $bestConst with $args")
         }
     }
@@ -273,8 +274,9 @@ class InplaceDataFrameBuilder(private val header: List<String>) {
         }
 
         // https://github.com/holgerbrandl/krangl/issues/125
-        require(rawColumns.isNotEmpty()) { "Can not infer column types in empty data-frame. " +
-                "To create an empty data-frame use the following syntax dataFrameOf(StringCol(\"user\", emptyArray()), DoubleCol(\"salary\", emptyArray()))"
+        require(rawColumns.isNotEmpty()) {
+            "Can not infer column types in empty data-frame. " +
+                    "To create an empty data-frame use the following syntax dataFrameOf(StringCol(\"user\", emptyArray()), DoubleCol(\"salary\", emptyArray()))"
         }
 
 //        require(rawColumns.isEmpty() || tableColumns.map { it.length }.distinct().size == 1) {
@@ -306,10 +308,10 @@ fun DataFrame.Companion.fromResultSet(rs: ResultSet): DataFrame {
 
     //    http://www.cs.toronto.edu/~nn/csc309/guide/pointbase/docs/html/htmlfiles/dev_datatypesandconversionsFIN.html
     colTypes.map {
-        when (it) {
+        when(it) {
             Types.INTEGER, Types.SMALLINT -> listOf<Int>()
             Types.BIGINT -> listOf<Long>()
-            Types.DECIMAL, Types.FLOAT, Types.NUMERIC,Types.REAL,Types.DOUBLE -> listOf<Double?>()
+            Types.DECIMAL, Types.FLOAT, Types.NUMERIC, Types.REAL, Types.DOUBLE -> listOf<Double?>()
             Types.BOOLEAN -> listOf<Boolean?>()
             Types.DATE, Types.TIMESTAMP -> listOf<LocalDate?>()
             Types.TIME -> listOf<LocalTime?>()
@@ -319,15 +321,15 @@ fun DataFrame.Companion.fromResultSet(rs: ResultSet): DataFrame {
     }
 
     // see https://stackoverflow.com/questions/21956042/mapping-a-jdbc-resultset-to-an-object
-    while (rs.next()) {
+    while(rs.next()) {
         //        val row = mapOf<String, Any?>().toMutableMap()
-        for (colIndex in 1..numColumns) {
-            val any: Any? = when (colTypes[colIndex - 1]) {
+        for(colIndex in 1..numColumns) {
+            val any: Any? = when(colTypes[colIndex - 1]) {
                 Types.INTEGER, Types.SMALLINT -> rs.getInt(colIndex)
-                Types.BIGINT  -> rs.getLong(colIndex)
-                Types.DECIMAL, Types.FLOAT, Types.NUMERIC,Types.REAL,Types.DOUBLE -> rs.getDouble(colIndex)
+                Types.BIGINT -> rs.getLong(colIndex)
+                Types.DECIMAL, Types.FLOAT, Types.NUMERIC, Types.REAL, Types.DOUBLE -> rs.getDouble(colIndex)
                 Types.BOOLEAN -> rs.getBoolean(colIndex)
-                Types.DATE,   -> rs.getDate(colIndex).toLocalDate()
+                Types.DATE -> rs.getDate(colIndex).toLocalDate()
                 Types.TIMESTAMP -> rs.getTimestamp(colIndex).toLocalDateTime()
                 Types.TIME -> rs.getTime(colIndex).toLocalTime()
                 Types.CHAR, Types.LONGVARCHAR, Types.VARCHAR, Types.NVARCHAR -> rs.getString(colIndex)
