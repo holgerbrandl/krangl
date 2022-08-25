@@ -1,11 +1,11 @@
 
 plugins {
-    id "org.jetbrains.kotlin.jvm" version "1.7.0"
+    id "org.jetbrains.kotlin.jvm" version "1.7.10"
     id "java"
     id "maven-publish"
     id "signing"
     id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
-    id "org.jetbrains.kotlin.jupyter.api" version "0.10.0-131-1"
+    id "org.jetbrains.kotlin.jupyter.api" version "0.11.0-87"
 }
 
 repositories {
@@ -15,30 +15,30 @@ repositories {
 
 
 dependencies {
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.6.20'
-    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.6.20'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.7.10'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.7.10'
 //    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
     // needed to work around https://youtrack.jetbrains.com/issue/KT-15064
-    compileOnly 'org.jetbrains.kotlin:kotlin-script-runtime:1.6.20'
+    compileOnly 'org.jetbrains.kotlin:kotlin-script-runtime:1.7.10'
 
-    api  "org.apache.commons:commons-csv:1.6" // cant upgrade to 1.8 because of https://issues.apache.org/jira/browse/CSV-257
+    api 'org.apache.commons:commons-csv:1.6' // cant upgrade to 1.8 because of https://issues.apache.org/jira/browse/CSV-257
     api 'org.apache.arrow:arrow-vector:8.0.0'
     implementation 'org.apache.arrow:arrow-memory-netty:8.0.0'
     api 'org.apache.poi:poi-ooxml:5.2.2'
 
     api 'com.beust:klaxon:5.6'//    compile 'me.tongfei:progressbar:0.5.5'
 
-    api('org.jetbrains.lets-plot:lets-plot-kotlin-jvm:3.2.0')
+    api 'org.jetbrains.lets-plot:lets-plot-kotlin-jvm:4.0.0'
 //    implementation("org.jetbrains.lets-plot:lets-plot-batik:2.0.4")
 
 //    implementation 'org.jetbrains.kotlinx:dataframe:0.8.0-rc-7'
 //    testImplementation 'org.jetbrains.kotlinx:dataframe:0.8.0-rc-7'
 
     testImplementation group: 'junit', name: 'junit', version: '4.13.1'
-    testImplementation('io.kotest:kotest-assertions-core:5.2.2')
-    testImplementation 'com.h2database:h2:2.1.212'
-    testImplementation 'org.jetbrains.kotlin:kotlin-script-runtime:1.6.10'
+    testImplementation 'io.kotest:kotest-assertions-core:5.4.2'
+    testImplementation 'com.h2database:h2:2.1.214'
+    testImplementation 'org.jetbrains.kotlin:kotlin-script-runtime:1.7.10'
 }
 
 
@@ -100,9 +100,11 @@ test {
 //http://stackoverflow.com/questions/34377367/why-is-gradle-install-replacing-my-version-with-unspecified
 group 'com.github.holgerbrandl'
 //version '0.16.95'
-version '0.18.1'
+version '0.18.2'
 
-
+processJupyterApiResources {
+    libraryProducers = ["krangl.integration.Integration"]
+}
 
 java {
     withJavadocJar()

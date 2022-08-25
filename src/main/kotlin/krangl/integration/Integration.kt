@@ -7,7 +7,6 @@ import krangl.KranglConfig.JUPYTER_DISPLAY_MAX_ROWS
 import krangl.KranglConfig.JUPYTER_DISPLAY_WIDTH
 import krangl.SimpleDataFrame
 import org.jetbrains.kotlinx.jupyter.api.HTML
-import org.jetbrains.kotlinx.jupyter.api.annotations.JupyterLibrary
 import org.jetbrains.kotlinx.jupyter.api.libraries.JupyterIntegration
 
 // main docs
@@ -16,8 +15,10 @@ import org.jetbrains.kotlinx.jupyter.api.libraries.JupyterIntegration
 //https://github.com/Kotlin/kotlin-jupyter/blob/master/libraries/krangl.json
 
 
-@JupyterLibrary
+//@JupyterLibrary
+@Suppress("unused")
 internal class Integration : JupyterIntegration() {
+
     override fun Builder.onLoaded() {
         import("krangl.*")
         render<SimpleDataFrame> { HTML(it.toHTML()) }
