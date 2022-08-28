@@ -3,19 +3,19 @@ package krangl.examples
 import jetbrains.datalore.plot.PlotHtmlExport
 import jetbrains.datalore.plot.PlotHtmlHelper
 import jetbrains.datalore.plot.PlotSvgExport
-import jetbrains.letsPlot.export.VersionChecker
-import jetbrains.letsPlot.geom.geomPoint
-import jetbrains.letsPlot.intern.GenericAesMapping
-import jetbrains.letsPlot.intern.toSpec
-import jetbrains.letsPlot.label.ggtitle
 import krangl.DataFrame
 import krangl.irisData
 import krangl.toMap
+import org.jetbrains.letsPlot.export.VersionChecker
+import org.jetbrains.letsPlot.geom.geomPoint
+import org.jetbrains.letsPlot.intern.GenericAesMapping
+import org.jetbrains.letsPlot.intern.toSpec
+import org.jetbrains.letsPlot.label.ggtitle
 import java.awt.Desktop
 import java.io.File
 import java.net.URI
 
-fun DataFrame.plt(mapping: GenericAesMapping.() -> Unit = {}) = jetbrains.letsPlot.letsPlot(toMap(), mapping)
+fun DataFrame.plt(mapping: GenericAesMapping.() -> Unit = {}) = org.jetbrains.letsPlot.letsPlot(toMap(), mapping)
 
 
 fun storeAsFile(content: String, extension: String): URI {
