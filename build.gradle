@@ -109,7 +109,7 @@ test {
 //http://stackoverflow.com/questions/34377367/why-is-gradle-install-replacing-my-version-with-unspecified
 group 'com.github.holgerbrandl'
 //version '0.16.95'
-version '0.18.2'
+version '0.18.3'
 
 processJupyterApiResources {
     libraryProducers = ["krangl.integration.Integration"]
